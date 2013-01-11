@@ -1,0 +1,4 @@
+-cp src
+-cpp bin
+-main Coopy
+-debug
