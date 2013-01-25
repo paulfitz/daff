@@ -9,4 +9,18 @@ class Coopy {
 
         return 0;
     }
+
+    public static function show(t: Table) : Void {
+        var w : Int = t.width;
+        var h : Int = t.height;
+        var txt : String = "";
+        for (y in 0...h) {
+            for (x in 0...w) {
+                txt += t.get_cell(x,y);
+                txt += " ";
+            }
+            txt += "\n";
+        }
+        trace(txt);
+    }
 }

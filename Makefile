@@ -5,3 +5,4 @@ cpp:
 
 js:
 	haxe compile_js.hxml
+	cat coopy.js test/coopy_ext.js > coopy_test.js
