@@ -2,21 +2,10 @@
 
 class Coopy {
     public static function main() : Int {
-        var x : IntHash<String> = new IntHash<String>();
-        x.set(1,"hi");
-        trace("Hello world");
-        trace("1 -> " + x.get(1));
-
-        var y : Hash<String> = new Hash<String>();
-        y.set("hello","world");
-        trace("hash " + y);
-        trace("hello - " + y.get("hello"));
-
-        var s : Store = new Store();
-        trace(s.frog == null);
-        s.frog = "space";
-        trace(s.frog);
-        trace(s);
+        var tab : Table = new SimpleTable(15,10);
+        trace("table size is " + tab.width + "x" + tab.height);
+        tab.set_cell(3,4,new SimpleCell(33));
+        trace("element is " + tab.get_cell(3,4));
 
         return 0;
     }
