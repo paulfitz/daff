@@ -22,10 +22,23 @@ class Compare {
         var sparent : String = "" + parent;
         var slocal : String = "" + local;
         var sremote : String = "" + remote;
+        var c : Change = new Change();
+        c.parent = parent;
+        c.local = local;
+        c.remote = remote;
         if (sparent==slocal && sparent!=sremote) {
-            report.changes.push(new Change(slocal + " -> " + sremote));
+            c.mode = REMOTE_CHANGE;
         } else if (sparent==sremote && sparent!=slocal) {
-            report.changes.push(new Change("local changed, remote unchanged"));
+            c.mode = LOCAL_CHANGE;
+        } else if (slocal==sremote && sparent!=slocal) {
+            c.mode = SAME_CHANGE;
+        } else if (sparent!=slocal && sparent!=sremote) {
+            c.mode = BOTH_CHANGE;
+        } else {
+            c.mode = NO_CHANGE;
+        }
+        if (c.mode != ChangeType.NO_CHANGE) {
+            report.changes.push(c);
         }
         return true;
     }

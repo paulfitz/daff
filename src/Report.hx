@@ -9,6 +9,10 @@ class Report {
 
     public function toString() : String {
         return changes.toString();
-    }    
+    }
+
+    public function clear() : Void {
+        changes = new Array<Change>();
+    }
 }
 

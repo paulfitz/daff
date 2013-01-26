@@ -21,6 +21,18 @@ class Coopy {
         var report : Report = new Report();
         compare.compare(d1,d2,d3,report);
         trace("report is " + report);
+        d2 = new SimpleCell(50);
+        report.clear();
+        compare.compare(d1,d2,d3,report);
+        trace("report is " + report);
+        d2 = new SimpleCell(20);
+        report.clear();
+        compare.compare(d1,d2,d3,report);
+        trace("report is " + report);
+        d1 = new SimpleCell(20);
+        report.clear();
+        compare.compare(d1,d2,d3,report);
+        trace("report is " + report);
 
         return 0;
     }
