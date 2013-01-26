@@ -2,10 +2,25 @@
 
 class Coopy {
     public static function main() : Int {
-        var tab : Table = new SimpleTable(15,10);
+        var st : SimpleTable = new SimpleTable(15,6);
+        var tab : Table = st;
+        var bag : Bag = st;
         trace("table size is " + tab.width + "x" + tab.height);
         tab.set_cell(3,4,new SimpleCell(33));
         trace("element is " + tab.get_cell(3,4));
+
+        trace("table as bag is " + bag);
+        var datum : Datum = bag.get_item(4);
+        var row : Bag = bag.get_item(4).bag;
+        trace("element is " + row.get_item(3));
+
+        var compare : Compare = new Compare();
+        var d1 : Datum = new SimpleCell(10);
+        var d2 : Datum = new SimpleCell(10);
+        var d3 : Datum = new SimpleCell(20);
+        var report : Report = new Report();
+        compare.compare(d1,d2,d3,report);
+        trace("report is " + report);
 
         return 0;
     }

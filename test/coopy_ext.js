@@ -36,3 +36,11 @@ jt = new JTable(5,5);
 jt.set_cell(2,3,"ok");
 printf("cell is " + jt.get_cell(2,3));
 Coopy.show(jt);
+
+var compare = new Compare();
+var d1 = 5;
+var d2 = 5;
+var d3 = 15;
+var report = new Report();
+compare.compare(d1,d2,d3,report);
+printf("report is " + report);
