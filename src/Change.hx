@@ -3,9 +3,9 @@
 class Change {
     // toy
     public var change : String;
-    public var parent : Datum;
-    public var local : Datum;
-    public var remote : Datum;
+    public var parent : ViewedDatum;
+    public var local : ViewedDatum;
+    public var remote : ViewedDatum;
     public var mode : ChangeType;
 
     public function new(?txt : String) : Void {

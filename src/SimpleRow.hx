@@ -11,21 +11,21 @@ class SimpleRow implements Bag, implements Datum {
         bag = this;
     }
     
-    public var size(get_size,never) : Int;
+    public var size(getSize,never) : Int;
 
-    private function get_size() : Int {
+    private function getSize() : Int {
         return tab.width;
     }
     
-    public function get_item(x: Int) : Datum {
-        return tab.get_cell(x,row_id);
+    public function getItem(x: Int) : Datum {
+        return tab.getCell(x,row_id);
     }
 
-    public function set_item(x: Int, c: Datum) : Datum {
-        return tab.set_cell(x,row_id,c);
+    public function setItem(x: Int, c: Datum) : Void {
+        tab.setCell(x,row_id,c);
     }    
 
-    public function get_table() : Table {
+    public function getTable() : Table {
         return null;
     }
 
@@ -33,8 +33,12 @@ class SimpleRow implements Bag, implements Datum {
         var x : String = "";
         for (i in 0...(tab.width)) {
             if (i>0) x += " ";
-            x += get_item(i);
+            x += getItem(i);
         }
         return x;
+    }
+
+    public function getItemView() : View {
+        return new SimpleView();
     }
 }

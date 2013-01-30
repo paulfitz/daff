@@ -14,45 +14,59 @@ class SimpleTable implements Table, implements Bag {
         bag = this;
     }
 
-    public function get_table() : Table {
+    public function getTable() : Table {
         return this;
     }
 
-    public var height(get_height,never) : Int;
-    public var width(get_width,never) : Int;
-    public var size(get_size,never) : Int;
+    public var height(getHeight,never) : Int;
+    public var width(getWidth,never) : Int;
+    public var size(getSize,never) : Int;
 
-    private function get_width() : Int {
+    private function getWidth() : Int {
         return w;
     }
 
-    private function get_height() : Int {
+    private function getHeight() : Int {
         return h;
     }
 
-    private function get_size() : Int {
+    private function getSize() : Int {
         return h;
     }
 
-    public function get_cell(x: Int, y: Int) : Datum {
+    public function getCell(x: Int, y: Int) : Datum {
         return data.get(x+y*w);
     }
 
-    public function set_cell(x: Int, y: Int, c: Datum) : Datum {
+    public function setCell(x: Int, y: Int, c: Datum) : Void {
         data.set(x+y*w,c);
-        return c;
     }
 
-    public function get_item(y: Int) : Datum {
+    public function getItem(y: Int) : Datum {
         return new SimpleRow(this,y);
     }
 
     public function toString() : String {
+        return tableToString(this);
+    }
+    
+    public static function tableToString(tab : Table) : String {
         var x : String = "";
-        for (i in 0...height) {
-            x += get_item(i);
+        for (i in 0...tab.height) {
+            for (j in 0...tab.width) {
+                if (j>0) x += " ";
+                x += tab.getCell(j,i);
+            }
             x += "\n";
         }
         return x;
+    }
+    
+    public function getCellView() : View {
+        return new SimpleView();
+    }
+
+    public function getItemView() : View {
+        return new BagView();
     }
 }

@@ -5,9 +5,11 @@ cpp:
 
 js:
 	haxe compile_js.hxml
-	cat coopy.js test/coopy_ext.js > coopy_test.js
+	cat coopy.js scripts/exports.js > coopy_test.js # add node exports
+	sed -i "s|Coopy.main()|//Coopy.main()|" coopy_test.js
+	mv coopy_test.js coopy.js
 
+test: js
+	./scripts/run_tests.sh
+	@echo "=============================================================================="
 
-test: js cpp
-	node coopy_test.js
-	./bin/Coopy-debug

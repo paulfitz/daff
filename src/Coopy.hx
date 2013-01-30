@@ -6,32 +6,56 @@ class Coopy {
         var tab : Table = st;
         var bag : Bag = st;
         trace("table size is " + tab.width + "x" + tab.height);
-        tab.set_cell(3,4,new SimpleCell(33));
-        trace("element is " + tab.get_cell(3,4));
+        tab.setCell(3,4,new SimpleCell(33));
+        trace("element is " + tab.getCell(3,4));
 
         trace("table as bag is " + bag);
-        var datum : Datum = bag.get_item(4);
-        var row : Bag = bag.get_item(4).bag;
-        trace("element is " + row.get_item(3));
+        var datum : Datum = bag.getItem(4);
+        var row : Bag = bag.getItemView().getBag(datum);
+        trace("element is " + row.getItem(3));
 
         var compare : Compare = new Compare();
-        var d1 : Datum = new SimpleCell(10);
-        var d2 : Datum = new SimpleCell(10);
-        var d3 : Datum = new SimpleCell(20);
+        var d1 : ViewedDatum = ViewedDatum.getSimpleView(new SimpleCell(10));
+        var d2 : ViewedDatum = ViewedDatum.getSimpleView(new SimpleCell(10));
+        var d3 : ViewedDatum = ViewedDatum.getSimpleView(new SimpleCell(20));
         var report : Report = new Report();
         compare.compare(d1,d2,d3,report);
         trace("report is " + report);
-        d2 = new SimpleCell(50);
+        d2 = ViewedDatum.getSimpleView(new SimpleCell(50));
         report.clear();
         compare.compare(d1,d2,d3,report);
         trace("report is " + report);
-        d2 = new SimpleCell(20);
+        d2 = ViewedDatum.getSimpleView(new SimpleCell(20));
         report.clear();
         compare.compare(d1,d2,d3,report);
         trace("report is " + report);
-        d1 = new SimpleCell(20);
+        d1 = ViewedDatum.getSimpleView(new SimpleCell(20));
         report.clear();
         compare.compare(d1,d2,d3,report);
+        trace("report is " + report);
+
+        var tv : TableView = new TableView();
+
+        var comp : Comparison = new Comparison();
+        var ct : CompareTable = new CompareTable();
+        comp.a = st;
+        comp.b = st;
+        ct.compare(comp);
+
+        trace("comparing tables");
+        var t1 : SimpleTable = new SimpleTable(3,2);
+        var t2 : SimpleTable = new SimpleTable(3,2);
+        var t3 : SimpleTable = new SimpleTable(3,2);
+        var dt1 : ViewedDatum = new ViewedDatum(t1,new TableView());
+        var dt2 : ViewedDatum = new ViewedDatum(t2,new TableView());
+        var dt3 : ViewedDatum = new ViewedDatum(t3,new TableView());
+        compare.compare(dt1,dt2,dt3,report);
+        trace("report is " + report);
+        t3.setCell(1,1,new SimpleCell("hello"));
+        compare.compare(dt1,dt2,dt3,report);
+        trace("report is " + report);
+        t1.setCell(1,1,new SimpleCell("hello"));
+        compare.compare(dt1,dt2,dt3,report);
         trace("report is " + report);
 
         return 0;
@@ -43,7 +67,7 @@ class Coopy {
         var txt : String = "";
         for (y in 0...h) {
             for (x in 0...w) {
-                txt += t.get_cell(x,y);
+                txt += t.getCell(x,y);
                 txt += " ";
             }
             txt += "\n";
