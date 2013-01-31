@@ -35,31 +35,31 @@ class Compare {
     }
 
     private function compareTable(ws : Workspace) : Bool {
-        var p2l : Comparison = new Comparison();
-        var p2r : Comparison = new Comparison();
-        p2l.a = ws.tparent;
-        p2l.b = ws.tlocal;
-        p2r.a = ws.tparent;
-        p2r.b = ws.tremote;
+        ws.p2l = new Comparison();
+        ws.p2r = new Comparison();
+        ws.p2l.a = ws.tparent;
+        ws.p2l.b = ws.tlocal;
+        ws.p2r.a = ws.tparent;
+        ws.p2r.b = ws.tremote;
         var cmp : CompareTable = new CompareTable();
-        cmp.compare(p2l);
-        cmp.compare(p2r);
+        cmp.compare(ws.p2l);
+        cmp.compare(ws.p2r);
 
         var c : Change = new Change();
         c.parent = ws.parent;
         c.local = ws.local;
         c.remote = ws.remote;
-        if (p2l.equal && (!p2r.equal)) {
+        if (ws.p2l.is_equal && (!ws.p2r.is_equal)) {
             c.mode = REMOTE_CHANGE;
-        } else if ((!p2l.equal) && p2r.equal) {
+        } else if ((!ws.p2l.is_equal) && ws.p2r.is_equal) {
             c.mode = LOCAL_CHANGE;
-        } else if ((!p2l.equal) && (!p2r.equal)) {
+        } else if ((!ws.p2l.is_equal) && (!ws.p2r.is_equal)) {
             // maybe same change?
-            var l2r : Comparison = new Comparison();
-            l2r.a = ws.tlocal;
-            l2r.b = ws.tremote;
-            cmp.compare(l2r);
-            if (l2r.equal) {
+            ws.l2r = new Comparison();
+            ws.l2r.a = ws.tlocal;
+            ws.l2r.b = ws.tremote;
+            cmp.compare(ws.l2r);
+            if (ws.l2r.is_equal) {
                 c.mode = SAME_CHANGE;
             } else {
                 c.mode = BOTH_CHANGE;

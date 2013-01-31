@@ -10,6 +10,10 @@ class Workspace {
     public var tlocal : Table;
     public var tremote : Table;
 
+    public var p2l : Comparison;
+    public var p2r : Comparison;
+    public var l2r : Comparison;
+
     public function new() : Void {
     }
 }

@@ -58,6 +58,8 @@ class Coopy {
         compare.compare(dt1,dt2,dt3,report);
         trace("report is " + report);
 
+        var v : Viterbi = new Viterbi();
+
         return 0;
     }
 

@@ -7,14 +7,25 @@ class Comparison {
     public var completed : Bool;
     public var run_to_completion : Bool;
 
-    public var equal : Bool;
-    public var equal_known : Bool;
+    // Are tables trivially equal?
+    public var is_equal : Bool;
+    public var is_equal_known : Bool;
 
-    public function new() {
+    // Do tables have blatantly same set of columns?
+    public var has_same_columns : Bool;
+    public var has_same_columns_known : Bool;
+
+    public function new() : Void {
+        reset();
+    }
+
+    public function reset() : Void {
         completed = false;
         run_to_completion = true;
-        equal_known = false;
-        equal = false;
+        is_equal_known = false;
+        is_equal = false;
+        has_same_columns = false;
+        has_same_columns_known = false;
     }
 }
 
