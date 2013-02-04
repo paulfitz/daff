@@ -107,7 +107,6 @@ class Viterbi {
         }
         best_cost = best;
      
-        //for (int i=index-1; i>=0; i--) {
         for (j in 0...index) {
             var i : Int = index-1-j;
             path.set(0,i,bestj);

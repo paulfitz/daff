@@ -14,6 +14,62 @@ class CompareTable {
         return !more;
     }
 
+    private function align() : Alignment {
+        var alignment : Alignment = new Alignment();
+        /*
+        var count : Int = 0;
+        do {
+            count = alignment.count();
+            alignCore(alignment);
+        } while (false && alignment.count()>count);
+        */
+        alignCore(alignment);
+        return alignment;
+    }
+
+    private function alignCore(align: Alignment) : Void {
+        // just playing with alignment
+        // using an exceedingly exceedingly excessively slow algorithm first
+        // for fast stuff, see coopy (C++ version)
+
+        if (!comp.has_same_columns) return;
+
+        var a : Table = comp.a;
+        var b : Table = comp.b;
+        
+        var w : Int = a.width;
+        var ha : Int = a.height;
+        var hb : Int = b.height;
+
+        var av : View = a.getCellView();
+        for (i in 0...ha) {
+            //if (align.a2b(i)!=null) continue;
+            for (j in 0...hb) {
+                //if (align.b2a(j)!=null) continue;
+
+                // comparing everything with everything - already slow.
+                // and we haven't even started
+
+                var match : Float = 0;
+                var mt : MatchTypes = new MatchTypes(comp,align);
+                for (k in 0...w) {
+                    var va : Datum = a.getCell(k,i);
+                    var vb : Datum = b.getCell(k,j);
+                    if (av.equals(va,vb)) {
+                        mt.add(k,va);
+                    }
+                }
+                // ok we know what columns our two rows match in -
+                // now we go and do statistics on matches in those
+                // rows (super slow!)
+
+                if (mt.evaluate()) {
+                    align.link(i,j);
+                }
+            }
+        }
+    }
+
     private function testHasSameColumns() : Bool {
         var a : Table = comp.a;
         var b : Table = comp.b;

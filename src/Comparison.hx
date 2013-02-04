@@ -27,5 +27,12 @@ class Comparison {
         has_same_columns = false;
         has_same_columns_known = false;
     }
-}
 
+    static public function compareTables(ct: CompareTable, t1: Table, t2: Table) : Comparison {
+        var comp = new Comparison();
+        comp.a = t1;
+        comp.b = t2;
+        ct.compare(comp);
+        return comp;
+    }
+}
