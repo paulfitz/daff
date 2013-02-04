@@ -1,4 +1,4 @@
-var coopy = require('coopy');
+var coopy = (typeof require != "undefined") ? require('coopy') : window;
 
 var JTable = function(w,h) {
     this.width = w;
@@ -29,8 +29,6 @@ JTable.prototype.toString = function() {
 JTable.prototype.getCellView = function() {
     return new coopy.SimpleView();
 }
-
-exports.JTable = JTable;
 
 
 
@@ -64,6 +62,20 @@ JTable2.prototype.getCellView = function() {
     return new coopy.SimpleView();
 }
 
-exports.JTable = JTable;
-exports.JTable2 = JTable2;
+JTable2.prototype.trim = function() {
+    var changed = false;
+    while (true) {
+	if (this.height==0) return changed;
+	var row = this.data[this.height-1];
+	for (var i=0; i<this.width; i++) {
+	    if (row[i]!=null) return changed;
+	}
+	this.height--;
+    }
+}
+
+if (typeof exports != "undefined") {
+    exports.JTable = JTable;
+    exports.JTable2 = JTable2;
+}
 

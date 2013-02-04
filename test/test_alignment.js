@@ -18,6 +18,18 @@ function align_asserts(align,lst) {
     }
 }
 
+function order_asserts(order,lst) {
+    var lst2 = order.getList();
+    var txt = order.toString();
+    assert(lst.length == lst2.length);
+    for (var i=0; i<lst.length; i++) {
+	var pair = lst[i];
+	var pair2 = lst2[i];
+	assert(pair[0]==pair2.l,txt);
+	assert(pair[1]==pair2.r,txt);
+    }
+}
+
 {
     var t1 = new jtable.JTable2([["Name","Number"],["John",14]]);
     var t2 = new jtable.JTable2([["Name","Number"],["Mary",17],["John",15]]);
@@ -102,4 +114,27 @@ function align_asserts(align,lst) {
 }
 
 
+{
+    var t1 = new jtable.JTable2([
+	["Year","Number"],
+	[2009,0],
+	[2011,4],
+	[2012,2]
+    ]);
+    var t2 = new jtable.JTable2([
+	["Year","Number"],
+	[2009,0],
+	[2010,5],
+	[2012,2],
+	[2011,4]
+    ]);
+    
+    var ct = new coopy.CompareTable();
+    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var align = ct.align();
+    align_asserts(align,
+		  [[0,0],[1,1],[2,4],[3,3]]);
+    order_asserts(align.toOrder(),
+		  [[0,0],[1,1],[-1,2],[3,3],[2,4]]);
+}
 

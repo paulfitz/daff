@@ -36,6 +36,7 @@ class CompareTable {
 
         var a : Table = comp.a;
         var b : Table = comp.b;
+        align.range(a.height,b.height);
         
         var w : Int = a.width;
         var ha : Int = a.height;
