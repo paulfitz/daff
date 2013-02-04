@@ -1,0 +1,86 @@
+<html>
+<head>
+<title>Test</title>
+<script src="lib/jquery.min.js"></script>
+<script src="dist/jquery.handsontable.full.js"></script>
+<script src="../coopy.js"></script>
+<script src="../scripts/jtable.js"></script>
+<link rel="stylesheet" media="screen" href="dist/jquery.handsontable.full.css">
+</head>
+
+<body>
+
+<div style="display: float; float: right;">
+  <b>Row alignment</b><br />
+  <div id="ordering"></div>
+</div>
+
+<div style="width:70%;">
+  <div id="table1"></div>
+  <div id="table2"></div>
+</div>
+
+<script>
+var coopy = window;
+var jtable = window;
+function processChange(changes,source,table) {
+  var t1 = new jtable.JTable2(data1);
+  var t2 = new jtable.JTable2(data2);
+  t1.trim();
+  t2.trim();
+  var ct = new coopy.CompareTable();
+  var comp = coopy.Comparison.compareTables(ct,t1,t2);
+  var align = ct.align();
+  var order = align.toOrder();
+  $("#ordering").html(order.toString().replace(/, */g,"<br />\n"));
+}
+
+
+      var data1 = [
+        ["", "Maserati", "Mazda", "Mercedes", "Mini", "Mitsubishi"],
+        ["2009", 0, 2941, 4303, 354, 5814],
+        ["2010", 5, 2905, 2867, 412, 5284],
+        ["2011", 4, 2517, 4822, 552, 6127],
+        ["2012", 2, 2422, 5399, 776, 4151]
+      ];
+
+      var data2 = [
+        ["", "Maserati", "Mazda", "Mercedes", "Mini", "Mitsubishi"],
+        ["2009", 0, 2941, 4303, 354, 5814],
+        ["2010", 5, 2905, 2867, 412, 5284],
+        ["2011", 4, 2517, 4822, 552, 6127],
+        ["2012", 2, 2422, 5399, 776, 4151]
+      ];
+
+      $('#table1').handsontable({
+        data: data1,
+        minRows: 5,
+        minCols: 6,
+        minSpareRows: 1,
+        autoWrapRow: true,
+        colHeaders: true,
+        contextMenu: true,
+        onChange: function(changes,source) { processChange(changes,source,'table1'); }
+      });
+
+      $('#table2').handsontable({
+        data: data2,
+        minRows: 5,
+        minCols: 6,
+        minSpareRows: 1,
+        autoWrapRow: true,
+        colHeaders: true,
+        contextMenu: true,
+        onChange: function(changes,source) { processChange(changes,source,'table2'); }
+      });
+</script>
+
+<script>
+</script>
+
+<form>
+<input type="button" value="go" onclick="runDemo(); return false;" />
+</form>
+
+</body>
+</html>
