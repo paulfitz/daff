@@ -1,14 +1,14 @@
 // -*- mode:java; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 
 class Ordering {
-    public var order : Array<Unit>;
+    private var order : Array<Unit>;
 
     public function new() : Void {
         order = new Array<Unit>();
     }
 
-    public function add(l: Int, r: Int) : Void {
-        order.push(new Unit(l,r));
+    public function add(l: Int, r: Int, p: Int = -2) : Void {
+        order.push(new Unit(l,r,p));
     }
 
     public function getList() : Array<Unit> {

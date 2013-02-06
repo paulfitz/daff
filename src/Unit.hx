@@ -3,10 +3,12 @@
 class Unit {
     public var l : Int;
     public var r : Int;
+    public var p : Int;
     
-    public function new(l: Int, r: Int) : Void {
+    public function new(l: Int, r: Int, p: Int = -2) : Void {
         this.l = l;
         this.r = r;
+        this.p = p;
     }
 
     public static function describe(i: Int) : String {
@@ -14,6 +16,7 @@ class Unit {
     }
 
     public function toString() : String {
+        if (p>=-1) return describe(p) + "|" + describe(l) + ":" + describe(r);
         return describe(l) + ":" + describe(r);
     }
 }

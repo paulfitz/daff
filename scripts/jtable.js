@@ -68,7 +68,8 @@ JTable2.prototype.trim = function() {
 	if (this.height==0) return changed;
 	var row = this.data[this.height-1];
 	for (var i=0; i<this.width; i++) {
-	    if (row[i]!=null) return changed;
+	    var c = row[i];
+	    if (c!=null && c!="") return changed;
 	}
 	this.height--;
     }

@@ -21,7 +21,7 @@ function align_asserts(align,lst) {
 function order_asserts(order,lst) {
     var lst2 = order.getList();
     var txt = order.toString();
-    assert(lst.length == lst2.length);
+    assert(lst.length == lst2.length, "list length " + lst.length + " " + lst2.length);
     for (var i=0; i<lst.length; i++) {
 	var pair = lst[i];
 	var pair2 = lst2[i];
@@ -136,5 +136,27 @@ function order_asserts(order,lst) {
 		  [[0,0],[1,1],[2,4],[3,3]]);
     order_asserts(align.toOrder(),
 		  [[0,0],[1,1],[-1,2],[3,3],[2,4]]);
+}
+
+
+{
+    var t1 = new jtable.JTable2([
+	["Year","Number"],
+	[2009,0],
+	[2011,4],
+	[2012,""]
+    ]);
+    var t2 = new jtable.JTable2([
+	["Year","Number"],
+	[2009,0],
+	[2011,4],
+	[2019,""],
+    ]);
+    
+    var ct = new coopy.CompareTable();
+    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var align = ct.align();
+    order_asserts(align.toOrder(),
+		  [[0,0],[1,1],[2,2],[3,-1],[-1,3]]);
 }
 

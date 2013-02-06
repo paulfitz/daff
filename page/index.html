@@ -16,25 +16,55 @@
 </div>
 
 <div style="width:70%;">
-  <div id="table1"></div>
-  <div id="table2"></div>
+  <form><input id="parent_checkbox" type="checkbox" />Parent</form>
+  <div id="block0" style="display: none;">
+    <p>Parent</p>
+    <div id="table0"></div>
+  </div>
+  <div id="block1">
+    <p>Local</p>
+    <div id="table1"></div>
+  </div>
+  <div id="block2">
+    <p>Remote</p>
+    <div id="table2"></div>
+  </div>
 </div>
 
 <script>
 var coopy = window;
 var jtable = window;
+var use_parent = false;
 function processChange(changes,source,table) {
   var t1 = new jtable.JTable2(data1);
   var t2 = new jtable.JTable2(data2);
   t1.trim();
   t2.trim();
   var ct = new coopy.CompareTable();
-  var comp = coopy.Comparison.compareTables(ct,t1,t2);
+  var comp = null;
+  if (!use_parent) { 
+    comp = coopy.Comparison.compareTables(ct,t1,t2);
+  } else {
+    var t0 = new jtable.JTable2(data0);
+    t0.trim();
+    comp = coopy.Comparison.compareTables3(ct,t0,t1,t2);
+  }
   var align = ct.align();
   var order = align.toOrder();
-  $("#ordering").html(order.toString().replace(/, */g,"<br />\n"));
+  var report = order.toString().replace(/, */g,"<br />\n");
+  report += "<br /><br />";
+  report += (new coopy.TableDiff(align)).test().toString().replace(/, */g,"<br />\n");
+  $("#ordering").html(report);
 }
 
+
+      var data0 = [
+        ["", "Maserati", "Mazda", "Mercedes", "Mini", "Mitsubishi"],
+        ["2009", 0, 2941, 4303, 354, 5814],
+        ["2010", 5, 2905, 2867, 412, 5284],
+        ["2011", 4, 2517, 4822, 552, 6127],
+        ["2012", 2, 2422, 5399, 776, 4151]
+      ];
 
       var data1 = [
         ["", "Maserati", "Mazda", "Mercedes", "Mini", "Mitsubishi"],
@@ -51,6 +81,17 @@ function processChange(changes,source,table) {
         ["2011", 4, 2517, 4822, 552, 6127],
         ["2012", 2, 2422, 5399, 776, 4151]
       ];
+
+      $('#table0').handsontable({
+        data: data0,
+        minRows: 5,
+        minCols: 6,
+        minSpareRows: 1,
+        autoWrapRow: true,
+        colHeaders: true,
+        contextMenu: true,
+        onChange: function(changes,source) { processChange(changes,source,'table1'); }
+      });
 
       $('#table1').handsontable({
         data: data1,
@@ -73,6 +114,17 @@ function processChange(changes,source,table) {
         contextMenu: true,
         onChange: function(changes,source) { processChange(changes,source,'table2'); }
       });
+
+$("#parent_checkbox").click(function() {
+  use_parent = $("#parent_checkbox")[0].checked;
+  if (use_parent) {
+    $("#block0").show();
+  } else {
+    $("#block0").hide();
+  }
+  processChange(null,null,null);
+  return true;
+});
 </script>
 
 </body>

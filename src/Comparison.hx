@@ -1,6 +1,7 @@
 // -*- mode:java; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 
 class Comparison {
+    public var p: Table;
     public var a: Table;
     public var b: Table;
 
@@ -32,6 +33,15 @@ class Comparison {
         var comp = new Comparison();
         comp.a = t1;
         comp.b = t2;
+        ct.compare(comp);
+        return comp;
+    }
+
+    static public function compareTables3(ct: CompareTable, t1: Table, t2: Table, t3: Table) : Comparison {
+        var comp = new Comparison();
+        comp.p = t1;
+        comp.a = t2;
+        comp.b = t3;
         ct.compare(comp);
         return comp;
     }
