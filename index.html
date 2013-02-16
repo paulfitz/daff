@@ -1,44 +1,147 @@
-<!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Coopyhx by paulfitz</title>
+<head>
+<title>Test</title>
+<script src="lib/jquery.min.js"></script>
+<script src="dist/jquery.handsontable.full.js"></script>
+<script src="coopy/coopy.js"></script>
+<script src="coopy/scripts/jtable.js"></script>
+<link rel="stylesheet" media="screen" href="dist/jquery.handsontable.full.css">
+</head>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>Coopyhx</h1>
-        <p></p>
+<body>
 
-        <p class="view"><a href="https://github.com/paulfitz/coopyhx">View the Project on GitHub <small>paulfitz/coopyhx</small></a></p>
+<div style="display: float; float: right;">
+  <b>Row alignment</b><br />
+  <div id="ordering"></div>
+</div>
+
+<div style="width:70%;">
+  <form>
+  <input id="parent_checkbox" type="checkbox" />Parent /
+  <a id="button-clear" href="#">Clear</a>
+  </form>
+  <div id="block0" style="display: none;">
+    <p>Parent</p>
+    <div id="table0"></div>
+  </div>
+  <div id="block1">
+    <p>Local</p>
+    <div id="table1"></div>
+  </div>
+  <div id="block2">
+    <p>Remote</p>
+    <div id="table2"></div>
+  </div>
+</div>
+
+<script>
+var coopy = window;
+var jtable = window;
+var use_parent = false;
+function processChange(changes,source,table) {
+  var t1 = new jtable.JTable2(data1);
+  var t2 = new jtable.JTable2(data2);
+  t1.trim();
+  t2.trim();
+  var ct = new coopy.CompareTable();
+  var comp = null;
+  if (!use_parent) { 
+    comp = coopy.Comparison.compareTables(ct,t1,t2);
+  } else {
+    var t0 = new jtable.JTable2(data0);
+    t0.trim();
+    comp = coopy.Comparison.compareTables3(ct,t0,t1,t2);
+  }
+  var align = ct.align();
+  var order = align.toOrder();
+  var report = order.toString().replace(/, */g,"<br />\n");
+  report += "<br /><br />";
+  report += (new coopy.TableDiff(align)).test().toString().replace(/, */g,"<br />\n");
+  $("#ordering").html(report);
+}
 
 
-        <ul>
-          <li><a href="https://github.com/paulfitz/coopyhx/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/paulfitz/coopyhx/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/paulfitz/coopyhx">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h1>coopyhx</h1>
+      var data0 = [
+        ["", "Maserati", "Mazda", "Mercedes", "Mini", "Mitsubishi"],
+        ["2009", 0, 2941, 4303, 354, 5814],
+        ["2010", 5, 2905, 2867, 412, 5284],
+        ["2011", 4, 2517, 4822, 552, 6127],
+        ["2012", 2, 2422, 5399, 776, 4151]
+      ];
 
-<p>Placeholder for js version of coopy.  Long, long way from anything that would
-interest you.</p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/paulfitz">paulfitz</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
+      var data1 = [
+        ["", "Maserati", "Mazda", "Mercedes", "Mini", "Mitsubishi"],
+        ["2009", 0, 2941, 4303, 354, 5814],
+        ["2010", 5, 2905, 2867, 412, 5284],
+        ["2011", 4, 2517, 4822, 552, 6127],
+        ["2012", 2, 2422, 5399, 776, 4151]
+      ];
+
+      var data2 = [
+        ["", "Maserati", "Mazda", "Mercedes", "Mini", "Mitsubishi"],
+        ["2009", 0, 2941, 4303, 354, 5814],
+        ["2010", 5, 2905, 2867, 412, 5284],
+        ["2011", 4, 2517, 4822, 552, 6127],
+        ["2012", 2, 2422, 5399, 776, 4151]
+      ];
+
+      $('#table0').handsontable({
+        data: data0,
+        minRows: 5,
+        minCols: 6,
+        minSpareRows: 1,
+        autoWrapRow: true,
+        colHeaders: true,
+        contextMenu: true,
+        onChange: function(changes,source) { processChange(changes,source,'table1'); }
+      });
+
+      $('#table1').handsontable({
+        data: data1,
+        minRows: 5,
+        minCols: 6,
+        minSpareRows: 1,
+        autoWrapRow: true,
+        colHeaders: true,
+        contextMenu: true,
+        onChange: function(changes,source) { processChange(changes,source,'table1'); }
+      });
+
+      $('#table2').handsontable({
+        data: data2,
+        minRows: 5,
+        minCols: 6,
+        minSpareRows: 1,
+        autoWrapRow: true,
+        colHeaders: true,
+        contextMenu: true,
+        onChange: function(changes,source) { processChange(changes,source,'table2'); }
+      });
+
+$("#parent_checkbox").click(function() {
+  use_parent = $("#parent_checkbox")[0].checked;
+  if (use_parent) {
+    $("#block0").show();
+  } else {
+    $("#block0").hide();
+  }
+  processChange(null,null,null);
+  return true;
+});
+
+$("#button-clear").click(function() {
+  data0.length = 1;
+  data0[0] = [""];
+  data1.length = 1;
+  data1[0] = [""];
+  data2.length = 1;
+  data2[0] = [""];
+  $('#table0').handsontable('render');
+  $('#table1').handsontable('render');
+  $('#table2').handsontable('render');
+  return false;
+})
+</script>
+
+</body>
 </html>
