@@ -63,6 +63,12 @@ JTable2.prototype.getCellView = function() {
 }
 
 JTable2.prototype.trim = function() {
+    var changed = this.trimRows();
+    changed = changed || this.trimColumns();
+    return changed;
+}
+
+JTable2.prototype.trimRows = function() {
     var changed = false;
     while (true) {
 	if (this.height==0) return changed;
@@ -73,6 +79,25 @@ JTable2.prototype.trim = function() {
 	}
 	this.height--;
     }
+}
+
+JTable2.prototype.trimColumns = function() {
+    var top_content = 0;
+    for (var i=0; i<this.height; i++) {
+	if (top_content>=this.width) break;
+	var row = this.data[i];
+	for (var j=0; j<this.width; j++) {
+	    var c = row[j];
+	    if (c!=null && c!="") {
+		if (j>top_content) {
+		    top_content = j;
+		}
+	    }
+	}
+    }
+    if (this.height==0 || top_content+1==this.width) return false;
+    this.width = top_content+1;
+    return true;
 }
 
 if (typeof exports != "undefined") {

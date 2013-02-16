@@ -16,7 +16,10 @@
 </div>
 
 <div style="width:70%;">
-  <form><input id="parent_checkbox" type="checkbox" />Parent</form>
+  <form>
+  <input id="parent_checkbox" type="checkbox" />Parent /
+  <a id="button-clear" href="#">Clear</a>
+  </form>
   <div id="block0" style="display: none;">
     <p>Parent</p>
     <div id="table0"></div>
@@ -125,6 +128,19 @@ $("#parent_checkbox").click(function() {
   processChange(null,null,null);
   return true;
 });
+
+$("#button-clear").click(function() {
+  data0.length = 1;
+  data0[0] = [""];
+  data1.length = 1;
+  data1[0] = [""];
+  data2.length = 1;
+  data2[0] = [""];
+  $('#table0').handsontable('render');
+  $('#table1').handsontable('render');
+  $('#table2').handsontable('render');
+  return false;
+})
 </script>
 
 </body>
