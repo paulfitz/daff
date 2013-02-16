@@ -38,6 +38,139 @@ class CompareTable {
     }
 
     private function alignCore2(align: Alignment,a: Table, b: Table) : Void {
+        if (!comp.has_same_columns) return;
+
+        // We need to limit the set of indexes we consider, or we blow
+        // up.
+
+        align.range(a.height,b.height);
+        align.tables(a,b);
+        
+        var w : Int = a.width;
+        var ha : Int = a.height;
+        var hb : Int = b.height;
+
+        var av : View = a.getCellView();
+
+        var indexes : Hash<IndexPair> = new Hash<IndexPair>();
+
+        // If we have more columns than we have time to process their
+        // combinations, we need to haul out some heuristics.
+
+        var N : Int = 5;
+        var columns : Array<Int> = new Array<Int>();
+        if (w>N) {
+            var columns_eval : Array<Array<Int>> = new Array<Array<Int>>();
+            for (i in 0...w) {
+                var ct: Int = 0;
+                var mem: Hash<Int> = new Hash<Int>();
+                var mem2: Hash<Int> = new Hash<Int>();
+                for (j in 0...ha) {
+                    var key: String = av.toString(a.getCell(i,j));
+                    if (!mem.exists(key)) {
+                        mem.set(key,1);
+                        ct++;
+                    }
+                }
+                for (j in 0...hb) {
+                    var key: String = av.toString(b.getCell(i,j));
+                    if (!mem2.exists(key)) {
+                        mem2.set(key,1);
+                        ct++;
+                    }
+                }
+                columns_eval.push([i,ct]);
+            }
+            var sorter = function(a,b) { if (a[1]<b[1]) return 1; if (a[1]>b[1]) return -1; return 0; }
+            columns_eval.sort(sorter);
+            columns = Lambda.array(Lambda.map(columns_eval, function(v) { return v[0]; }));
+        } else {
+            for (i in 0...w) {
+                columns.push(i);
+            }
+        }
+
+        var top : Int = Math.round(Math.pow(2,columns.length));
+
+        var pending : IntHash<Int> = new IntHash<Int>();
+        for (j in 0...ha) {
+            pending.set(j,j);
+        }
+        
+        for (k in 0...top) {
+            if (k==0) continue;
+            //var ct: Int = 0;
+            //for (j in pending.keys()) ct++;
+            //trace(ct);
+            if (!pending.keys().hasNext()) break;
+            var active_columns : Array<Int> = new Array<Int>();
+            var kk : Int = k;
+            var at : Int = 0;
+            while (kk>0) {
+                if (kk%2==1) {
+                    active_columns.push(columns[at]);
+                }
+                kk >>= 1;
+                at++;
+            }
+
+            var index : IndexPair = new IndexPair();
+            for (k in 0...active_columns.length) {
+                index.addColumn(active_columns[k]);
+            }
+            index.indexTables(a,b);
+
+            var h : Int = a.height;
+            if (b.height>h) h = b.height;
+            if (h<1) h = 1;
+            var wide_top_freq : Int = index.getTopFreq();
+            var ratio : Float = wide_top_freq;
+            ratio /= (h+20); // "20" allows for low-data 
+            if (ratio>=0.1) continue; // lousy no-good index, move on
+
+            var fixed : Array<Int> = new Array<Int>();
+            for (j in pending.keys()) {
+                var cross: CrossMatch = index.queryLocal(j);
+                var spot_a : Int = cross.spot_a;
+                var spot_b : Int = cross.spot_b;
+                if (spot_a!=1 || spot_b!=1) continue;
+                fixed.push(j);
+                align.link(j,cross.item_b.lst[0]);
+            }
+            for (j in 0...fixed.length) {
+                pending.remove(fixed[j]);
+            }
+        }
+
+        /*
+
+        for (i in 0...ha) {
+            for (j in 0...hb) {
+                // comparing everything with everything - already slow.
+                // and we haven't even started
+
+                var match : Float = 0;
+                var mt : MatchTypes = new MatchTypes(comp,align,a,b,indexes);
+                for (k in 0...w) {
+                    var va : Datum = a.getCell(k,i);
+                    var vb : Datum = b.getCell(k,j);
+                    if (av.equals(va,vb)) {
+                        mt.add(k,va);
+                    }
+                }
+                // ok we know what columns our two rows match in -
+                // now we go and do statistics on matches in those
+                // rows (super slow!)
+
+                if (mt.evaluate()) {
+                    align.link(i,j);
+                }
+            }
+        }
+        */
+    }
+
+    private function alignCore2_slow(align: Alignment,a: Table, b: Table) : Void {
         // just playing with alignment
         // using an exceedingly exceedingly excessively slow algorithm first
         // for fast stuff, see coopy (C++ version)
@@ -52,15 +185,6 @@ class CompareTable {
         var hb : Int = b.height;
 
         var av : View = a.getCellView();
-
-        var apending : IntHash<Int> = new IntHash<Int>();
-        var bpending : IntHash<Int> = new IntHash<Int>();
-        for (i in 0...ha) {
-            apending.set(i,i);
-        }
-        for (i in 0...hb) {
-            bpending.set(i,i);
-        }
 
         var indexes : Hash<IndexPair> = new Hash<IndexPair>();
         for (i in 0...ha) {

@@ -66,9 +66,24 @@ class Alignment {
     }
 
     private function toOrder3() : Ordering {
-        if (reference==null) return toOrder2();
+        //if (reference==null) return toOrder2();
+        //if (reference==null) {
+        //trace(toOrder2().toString());
+        //}
+
         var ref : Alignment = reference;
+        if (ref == null) {
+            ref = new Alignment();
+            ref.range(ha,ha);
+            ref.tables(ta,ta);
+            for (i in 0...ha) {
+                ref.link(i,i);
+            }
+        }
         var order : Ordering = new Ordering();
+        if (reference==null) {
+            order.ignoreParent();
+        }
         var xp : Int = 0;
         var xl : Int = 0;
         var xr : Int = 0;
@@ -81,12 +96,15 @@ class Alignment {
         for (i in 0...hp) vp.set(i,i);
         for (i in 0...hl) vl.set(i,i);
         for (i in 0...hr) vr.set(i,i);
+        var ct_vp: Int = hp;
+        var ct_vl: Int = hl;
+        var ct_vr: Int = hr;
         var prev : Int = -1;
         var ct : Int = 0;
         var max_ct = (hp+hl+hr)*10;
-        while (vp.keys().hasNext() || 
-               vl.keys().hasNext() || 
-               vr.keys().hasNext()) {
+        while (ct_vp>0 || 
+               ct_vl>0 || 
+               ct_vr>0) {
             ct++;
             if (ct>max_ct) {
                 trace("Ordering took too long, something went wrong");
@@ -98,7 +116,7 @@ class Alignment {
             //trace("*** " + order);
             //trace("At " + xp + " " + xl + " " + xr);
             //trace("hs " + hp + " " + hl + " " + hr);
-            if (xp<hp && vp.keys().hasNext()) {
+            if (xp<hp && ct_vp>0) {
                 if (a2b(xp) == null &&
                     ref.a2b(xp) == null) {
                     if (vp.exists(xp)) {
@@ -106,6 +124,7 @@ class Alignment {
                         order.add(-1,-1,xp);
                         prev = xp;
                         vp.remove(xp);
+                        ct_vp--;
                     }
                     xp++;
                     continue;
@@ -113,27 +132,29 @@ class Alignment {
             }
             var zl : Null<Int> = null;
             var zr : Null<Int> = null;
-            if (xl<hl && vl.keys().hasNext()) {
+            if (xl<hl && ct_vl>0) {
                 zl = ref.b2a(xl);
                 if (zl==null) {
                     if (vl.exists(xl)) {
                         //trace("L xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(xl,-1,-1);
-                        prev = -1;
+                        //prev = -1;
                         vl.remove(xl);
+                        ct_vl--;
                     }
                     xl++;
                     continue;
                 }
             }
-            if (xr<hr && vr.keys().hasNext()) {
+            if (xr<hr && ct_vr>0) {
                 zr = b2a(xr);
                 if (zr==null) {
                     if (vr.exists(xr)) {
                         //trace("R xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(-1,xr,-1);
-                        prev = -1;
+                        //prev = -1;
                         vr.remove(xr);
+                        ct_vr--;
                     }
                     xr++;
                     continue;
@@ -147,8 +168,10 @@ class Alignment {
                         order.add(xl,-1,zl);
                         prev = zl;
                         vp.remove(zl);
+                        ct_vp--;
                         vl.remove(xl);
-                        xp = zl;
+                        ct_vl--;
+                        xp = zl+1; //HIT
                     }
                     xl++;
                     continue;
@@ -162,41 +185,58 @@ class Alignment {
                         order.add(-1,xr,zr);
                         prev = zr;
                         vp.remove(zr);
+                        ct_vp--;
                         vr.remove(xr);
-                        xp = zr;
+                        ct_vr--;
+                        xp = zr+1;
                     }
                     xr++;
                     continue;
                 }
             }
+            /*
+            if (zl!=null && zr!=null && zr == zl) {
+                trace("left and right in sync");
+                continue;
+            }
+            */
             if (zl!=null && zr!=null && a2b(zl)!=null && 
                 ref.a2b(zr)!=null) {
+                //trace("We have a choice of order " + zl + " " + zr + " prev is " + prev);
                 // we have a choice of order
                 // local thinks zl should come next
                 // remote thinks zr should come next
                 if (zl==prev+1) {
+                    //trace("left is boring, use right");
                     if (vr.exists(xr)) {
                         //trace("R xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(ref.a2b(zr),xr,zr);
                         prev = zr;
                         vp.remove(zr);
+                        ct_vp--;
                         vl.remove(ref.a2b(zr));
+                        ct_vl--;
                         vr.remove(xr);
-                        xp = zr;
-                        xl = ref.a2b(zr);
+                        ct_vr--;
+                        xp = zr+1;
+                        xl = ref.a2b(zr)+1;
                     }
                     xr++;
                     continue;
                 } else {
+                    //trace("using left");
                     if (vl.exists(xl)) {
                         //trace("L xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(xl,a2b(zl),zl);
                         prev = zl;
                         vp.remove(zl);
+                        ct_vp--;
                         vl.remove(xl);
+                        ct_vl--;
                         vr.remove(a2b(zl));
-                        xp = zl;
-                        xr = a2b(zl);
+                        ct_vr--;
+                        xp = zl+1;
+                        xr = a2b(zl)+1;
                     }
                     xl++;
                     continue;
@@ -206,9 +246,12 @@ class Alignment {
             xl++;
             xr++;
         }
+        //trace("RESULT " + order.toString());
         return order;
     }
 
+    // this function is no longer used, could be brought back
+    // as stripped-down version of toOrder3 once that is stable.
     private function toOrder2() : Ordering {
         //trace("Align! " + ha + " " + hb);
         var order : Ordering = new Ordering();

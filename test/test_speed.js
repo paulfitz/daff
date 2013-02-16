@@ -21,10 +21,9 @@ function enheader(x) {
 var at = 0;
 var data = [];
 
-// 100 should soon be several orders of magnitude greater
-for (var i=0; i<100; i++) {
+for (var i=0; i<10000; i++) {
     var row = [];
-    for (var j=0; j<5; j++) {
+    for (var j=0; j<10; j++) {
 	row.push(at);
 	at++;
     }
@@ -43,5 +42,6 @@ var ct = new coopy.CompareTable();
 console.log("starting...");
 var comp = coopy.Comparison.compareTables(ct,t1,t2);
 var align = ct.align();
-console.log("done...");
+console.log("done alignment...");
 console.log(align.toOrder().getList().length);
+console.log("done ordering...");

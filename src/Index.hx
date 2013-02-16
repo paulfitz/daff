@@ -69,4 +69,8 @@ class Index {
         }
         return wide;
     }
+
+    public function getTable() : Table {
+        return indexed_table;
+    }
 }

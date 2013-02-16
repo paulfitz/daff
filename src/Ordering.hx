@@ -2,12 +2,15 @@
 
 class Ordering {
     private var order : Array<Unit>;
+    private var ignore_parent : Bool;
 
     public function new() : Void {
         order = new Array<Unit>();
+        ignore_parent = false;
     }
 
     public function add(l: Int, r: Int, p: Int = -2) : Void {
+        if (ignore_parent) p = -2;
         order.push(new Unit(l,r,p));
     }
 
@@ -22,5 +25,9 @@ class Ordering {
             txt += order[i];
         }
         return txt;
+    }
+
+    public function ignoreParent() : Void {
+        ignore_parent = true;
     }
 }

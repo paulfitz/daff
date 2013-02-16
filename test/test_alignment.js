@@ -157,6 +157,6 @@ function order_asserts(order,lst) {
     var comp = coopy.Comparison.compareTables(ct,t1,t2);
     var align = ct.align();
     order_asserts(align.toOrder(),
-		  [[0,0],[1,1],[2,2],[3,-1],[-1,3]]);
+		  [[0,0],[1,1],[2,2],[-1,3],[3,-1]]);
 }
 
