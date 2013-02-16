@@ -37,14 +37,23 @@ class CompareTable {
         alignCore2(align.reference,comp.p,comp.a);
     }
 
-    private function alignCore2(align: Alignment,a: Table, b: Table) : Void {
-        if (!comp.has_same_columns) return;
-
-        // We need to limit the set of indexes we consider, or we blow
-        // up.
+    private function alignCore2(align: Alignment,
+                                a: Table, b: Table) : Void {
+        if (align.meta == null) {
+            align.meta = new Alignment();
+        }
+        alignColumns(align.meta,a,b);
+        var column_order : Ordering = align.meta.toOrder();
+        var common_units : Array<Unit> = new Array<Unit>();
+        for (unit in column_order.getList()) {
+            if (unit.l>=0 && unit.r>=0 && unit.p!=-1) {
+                common_units.push(unit);
+            }
+        }
 
         align.range(a.height,b.height);
         align.tables(a,b);
+        align.setRowlike(true);
         
         var w : Int = a.width;
         var ha : Int = a.height;
@@ -59,21 +68,23 @@ class CompareTable {
 
         var N : Int = 5;
         var columns : Array<Int> = new Array<Int>();
-        if (w>N) {
+        if (common_units.length>N) {
             var columns_eval : Array<Array<Int>> = new Array<Array<Int>>();
-            for (i in 0...w) {
+            for (i in 0...common_units.length) {
                 var ct: Int = 0;
                 var mem: Hash<Int> = new Hash<Int>();
                 var mem2: Hash<Int> = new Hash<Int>();
+                var ca: Int = common_units[i].l;
+                var cb: Int = common_units[i].r;
                 for (j in 0...ha) {
-                    var key: String = av.toString(a.getCell(i,j));
+                    var key: String = av.toString(a.getCell(ca,j));
                     if (!mem.exists(key)) {
                         mem.set(key,1);
                         ct++;
                     }
                 }
                 for (j in 0...hb) {
-                    var key: String = av.toString(b.getCell(i,j));
+                    var key: String = av.toString(b.getCell(cb,j));
                     if (!mem2.exists(key)) {
                         mem2.set(key,1);
                         ct++;
@@ -85,7 +96,7 @@ class CompareTable {
             columns_eval.sort(sorter);
             columns = Lambda.array(Lambda.map(columns_eval, function(v) { return v[0]; }));
         } else {
-            for (i in 0...w) {
+            for (i in 0...common_units.length) {
                 columns.push(i);
             }
         }
@@ -96,13 +107,14 @@ class CompareTable {
         for (j in 0...ha) {
             pending.set(j,j);
         }
+        var pending_ct : Int = ha;
         
         for (k in 0...top) {
             if (k==0) continue;
             //var ct: Int = 0;
             //for (j in pending.keys()) ct++;
             //trace(ct);
-            if (!pending.keys().hasNext()) break;
+            if (pending_ct == 0) break;
             var active_columns : Array<Int> = new Array<Int>();
             var kk : Int = k;
             var at : Int = 0;
@@ -116,7 +128,8 @@ class CompareTable {
 
             var index : IndexPair = new IndexPair();
             for (k in 0...active_columns.length) {
-                index.addColumn(active_columns[k]);
+                var unit : Unit = common_units[active_columns[k]];
+                index.addColumns(unit.l,unit.r);
             }
             index.indexTables(a,b);
 
@@ -139,6 +152,7 @@ class CompareTable {
             }
             for (j in 0...fixed.length) {
                 pending.remove(fixed[j]);
+                pending_ct--;
             }
         }
 
@@ -207,6 +221,66 @@ class CompareTable {
 
                 if (mt.evaluate()) {
                     align.link(i,j);
+                }
+            }
+        }
+    }
+
+    private function alignColumns(align: Alignment, a: Table, b: Table) : Void {
+        align.range(a.width,b.width);
+        align.tables(a,b);
+        align.setRowlike(false);
+
+        var wmin : Int = a.width;
+        if (b.width<a.width) wmin = b.width;
+
+        var av : View = a.getCellView();
+
+        var has_header : Bool = true;
+        var submatch : Bool = true;
+        var names : Hash<Int> = new Hash<Int>();
+
+        for (i in 0...a.width) {
+            var key : String = av.toString(a.getCell(i,0));
+            if (names.exists(key)) {
+                has_header = false;
+                break;
+            }
+            names.set(key,-1);
+        }
+        names = new Hash<Int>();
+        if (has_header) {
+            for (i in 0...b.width) {
+                var key : String = av.toString(b.getCell(i,0));
+                if (names.exists(key)) {
+                    has_header = false;
+                    break;
+                }
+                names.set(key,i);
+            }
+        }
+
+        if (has_header) {
+            for (i in 0...wmin) {
+                if (!av.equals(a.getCell(i,0),b.getCell(i,0))) {
+                    submatch = false;
+                    break;
+                }
+            }
+            if (submatch) {
+                for (i in 0...wmin) {
+                    align.link(i,i);
+                }
+                return;
+            }
+        }
+
+        if (has_header) {
+            for (i in 0...a.width) {
+                var key : String = av.toString(a.getCell(i,0));
+                var v : Null<Int> = names.get(key);
+                if (v!=null) {
+                    align.link(i,v);
                 }
             }
         }

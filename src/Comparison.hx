@@ -30,7 +30,7 @@ class Comparison {
     }
 
     static public function compareTables(ct: CompareTable, t1: Table, t2: Table) : Comparison {
-        var comp = new Comparison();
+        var comp : Comparison = new Comparison();
         comp.a = t1;
         comp.b = t2;
         ct.compare(comp);
@@ -38,7 +38,7 @@ class Comparison {
     }
 
     static public function compareTables3(ct: CompareTable, t1: Table, t2: Table, t3: Table) : Comparison {
-        var comp = new Comparison();
+        var comp : Comparison = new Comparison();
         comp.p = t1;
         comp.a = t2;
         comp.b = t3;

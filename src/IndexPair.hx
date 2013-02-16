@@ -16,6 +16,11 @@ class IndexPair {
         ib.addColumn(i);
     }
 
+    public function addColumns(ca: Int, cb: Int) : Void {
+        ia.addColumn(ca);
+        ib.addColumn(cb);
+    }
+
     public function indexTables(a: Table, b: Table) : Void {
         ia.indexTable(a);
         ib.indexTable(b);

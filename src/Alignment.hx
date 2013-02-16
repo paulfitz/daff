@@ -11,6 +11,7 @@ class Alignment {
     private var order_cache : Ordering;
 
     public var reference: Alignment;
+    public var meta: Alignment;
 
     public function new() : Void {
         map_a2b = new IntHash<Int>();
@@ -18,6 +19,7 @@ class Alignment {
         ha = hb = 0;
         map_count = 0;
         reference = null;
+        meta = null;
     }
 
     public function range(ha: Int, hb: Int) : Void {
@@ -28,6 +30,9 @@ class Alignment {
     public function tables(ta: Table, tb: Table) : Void {
         this.ta = ta;
         this.tb = tb;
+    }
+
+    public function setRowlike(flag: Bool) : Void {
     }
 
     public function link(a: Int, b: Int) : Void {
