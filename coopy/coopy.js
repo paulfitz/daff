@@ -531,34 +531,6 @@ CompareTable.prototype = {
 			}
 		}
 	}
-	,alignCore2_slow: function(align,a,b) {
-		if(!this.comp.has_same_columns) return;
-		align.range(a.getHeight(),b.getHeight());
-		align.tables(a,b);
-		var w = a.getWidth();
-		var ha = a.getHeight();
-		var hb = b.getHeight();
-		var av = a.getCellView();
-		var indexes = new Hash();
-		var _g = 0;
-		while(_g < ha) {
-			var i = _g++;
-			var _g1 = 0;
-			while(_g1 < hb) {
-				var j = _g1++;
-				var match = 0;
-				var mt = new MatchTypes(this.comp,align,a,b,indexes);
-				var _g2 = 0;
-				while(_g2 < w) {
-					var k = _g2++;
-					var va = a.getCell(k,i);
-					var vb = b.getCell(k,j);
-					if(av.equals(va,vb)) mt.add(k,va);
-				}
-				if(mt.evaluate()) align.link(i,j);
-			}
-		}
-	}
 	,alignCore2: function(align,a,b) {
 		if(align.meta == null) align.meta = new Alignment();
 		this.alignColumns(align.meta,a,b);
@@ -1398,59 +1370,6 @@ MatchType.__name__ = true;
 MatchType.prototype = {
 	__class__: MatchType
 }
-var MatchTypes = function(comp,align,local,remote,indexes) {
-	this.matches = new Match();
-	this.indexes = indexes;
-	this.comp = comp;
-	this.align = align;
-	this.local = local;
-	this.remote = remote;
-};
-MatchTypes.__name__ = true;
-MatchTypes.prototype = {
-	evaluate: function() {
-		if(this.matches.matches.length == 0) return false;
-		var add_col = function(c,total) {
-			return total += c;
-		};
-		var get_col = function(m) {
-			return m.col;
-		};
-		var indexName = Lambda.fold(Lambda.map(this.matches.matches,get_col),add_col,"");
-		this.index = this.indexes.get(indexName);
-		if(this.index == null) {
-			this.index = new IndexPair();
-			var _g1 = 0, _g = this.matches.matches.length;
-			while(_g1 < _g) {
-				var k = _g1++;
-				var mt = this.matches.matches[k];
-				this.index.addColumn(mt.col);
-			}
-			this.index.indexTables(this.local,this.remote);
-			this.indexes.set(indexName,this.index);
-		}
-		var cross = this.index.query(this.matches);
-		var spot_a = cross.spot_a;
-		var spot_b = cross.spot_b;
-		var wide_top_freq = this.index.getTopFreq();
-		if(spot_a != 1 || spot_b != 1) return false;
-		if(wide_top_freq == 1) return true;
-		var h = this.local.getHeight();
-		if(this.remote.getHeight() > h) h = this.remote.getHeight();
-		if(h < 1) h = 1;
-		var ratio = wide_top_freq;
-		ratio /= h + 20;
-		if(ratio < 0.1) return true;
-		return false;
-	}
-	,add: function(col,val) {
-		var mt = new MatchType();
-		mt.col = col;
-		mt.val = val;
-		this.matches.matches.push(mt);
-	}
-	,__class__: MatchTypes
-}
 var Ordering = function() {
 	this.order = new Array();
 	this.ignore_parent = false;
@@ -1717,10 +1636,6 @@ TableDiff.prototype = {
 			a = this.align.getSource();
 			b = this.align.getTarget();
 			p = a;
-		}
-		if(a.getWidth() != b.getWidth() || p.getWidth() != b.getWidth()) {
-			console.log("TableDiff currently expects constant columns");
-			return null;
 		}
 		var _g1 = 0, _g = units.length;
 		while(_g1 < _g) {

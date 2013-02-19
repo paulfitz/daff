@@ -11,8 +11,14 @@
 <body>
 
 <div style="display: float; float: right;">
+  <div>
   <b>Row alignment</b><br />
   <div id="ordering"></div>
+  </div>
+  <div style="margin-top: 10px;">
+  <b>Column alignment</b><br />
+  <div id="column_ordering"></div>
+  </div>
 </div>
 
 <div style="width:70%;">
@@ -58,6 +64,8 @@ function processChange(changes,source,table) {
   report += "<br /><br />";
   report += (new coopy.TableDiff(align)).test().toString().replace(/, */g,"<br />\n");
   $("#ordering").html(report);
+  var report2 = align.meta.toOrder().toString().replace(/, */g,"<br />\n");
+  $("#column_ordering").html(report2);
 }
 
 
