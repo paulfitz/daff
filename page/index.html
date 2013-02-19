@@ -3,16 +3,22 @@
 <title>Test</title>
 <script src="lib/jquery.min.js"></script>
 <script src="dist/jquery.handsontable.full.js"></script>
-<script src="../coopy.js"></script>
-<script src="../scripts/jtable.js"></script>
+<script src="coopy/coopy.js"></script>
+<script src="coopy/scripts/jtable.js"></script>
 <link rel="stylesheet" media="screen" href="dist/jquery.handsontable.full.css">
 </head>
 
 <body>
 
 <div style="display: float; float: right;">
+  <div>
   <b>Row alignment</b><br />
   <div id="ordering"></div>
+  </div>
+  <div style="margin-top: 10px;">
+  <b>Column alignment</b><br />
+  <div id="column_ordering"></div>
+  </div>
 </div>
 
 <div style="width:70%;">
@@ -58,32 +64,49 @@ function processChange(changes,source,table) {
   report += "<br /><br />";
   report += (new coopy.TableDiff(align)).test().toString().replace(/, */g,"<br />\n");
   $("#ordering").html(report);
+  var report2 = align.meta.toOrder().toString().replace(/, */g,"<br />\n");
+  $("#column_ordering").html(report2);
 }
 
 
-      var data0 = [
-        ["", "Maserati", "Mazda", "Mercedes", "Mini", "Mitsubishi"],
-        ["2009", 0, 2941, 4303, 354, 5814],
-        ["2010", 5, 2905, 2867, 412, 5284],
-        ["2011", 4, 2517, 4822, 552, 6127],
-        ["2012", 2, 2422, 5399, 776, 4151]
-      ];
+      var data0 = 
+	[
+		[ "bridge", "designer", "length" ],
+		[ "Brooklyn", "J. A. Roebling", "1595" ],
+		[ "Williamsburg", "D. Duck", "1600" ],
+		[ "Queensborough", "Palmer & Hornbostel", "1182" ],
+		[ "Triborough", "O. H. Ammann", "1380,383" ],
+		[ "Bronx Whitestone", "O. H. Ammann", "2300" ],
+		[ "Throgs Neck", "O. H. Ammann", "1800" ],
+		[ "George Washington", "O. H. Ammann", "3500" ],
+		[ "Spamspan", "S. Spamington", "10000" ]
+	];
 
-      var data1 = [
-        ["", "Maserati", "Mazda", "Mercedes", "Mini", "Mitsubishi"],
-        ["2009", 0, 2941, 4303, 354, 5814],
-        ["2010", 5, 2905, 2867, 412, 5284],
-        ["2011", 4, 2517, 4822, 552, 6127],
-        ["2012", 2, 2422, 5399, 776, 4151]
-      ];
+      var data1 =
+	[
+		[ "bridge", "designer", "length" ],
+		[ "Brooklyn", "J. A. Roebling", "1595" ],
+		[ "Williamsburg", "D. Duck", "1600" ],
+		[ "Queensborough", "Palmer & Hornbostel", "1182" ],
+		[ "Triborough", "O. H. Ammann", "1380,383" ],
+		[ "Bronx Whitestone", "O. H. Ammann", "2300" ],
+		[ "Throgs Neck", "O. H. Ammann", "1800" ],
+		[ "George Washington", "O. H. Ammann", "3500" ],
+		[ "Spamspan", "S. Spamington", "10000" ]
+	];
 
-      var data2 = [
-        ["", "Maserati", "Mazda", "Mercedes", "Mini", "Mitsubishi"],
-        ["2009", 0, 2941, 4303, 354, 5814],
-        ["2010", 5, 2905, 2867, 412, 5284],
-        ["2011", 4, 2517, 4822, 552, 6127],
-        ["2012", 2, 2422, 5399, 776, 4151]
-      ];
+      var data2 =
+	[
+		[ "bridge", "designer", "length" ],
+		[ "Brooklyn", "J. A. Roebling", "1595" ],
+		[ "Manhattan", "G. Lindenthal", "1470" ],
+		[ "Williamsburg", "L. L. Buck", "1600" ],
+		[ "Queensborough", "Palmer & Hornbostel", "1182" ],
+		[ "Triborough", "O. H. Ammann", "1380,383" ],
+		[ "Bronx Whitestone", "O. H. Ammann", "2300" ],
+		[ "Throgs Neck", "O. H. Ammann", "1800" ],
+		[ "George Washington", "O. H. Ammann", "3500" ]
+	];
 
       $('#table0').handsontable({
         data: data0,

@@ -24,10 +24,10 @@ class TableDiff {
             b = align.getTarget();
             p = a;
         }
-        if (a.width!=b.width || p.width!=b.width) {
-            trace("TableDiff currently expects constant columns");
-            return null;
-        }
+        //if (a.width!=b.width || p.width!=b.width) {
+        //trace("TableDiff currently expects constant columns");
+        //return null;
+        //}
         
         for (i in 0...units.length) {
             var unit : Unit = units[i];
