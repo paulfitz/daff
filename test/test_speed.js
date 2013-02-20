@@ -38,9 +38,8 @@ data2 = enheader(data2);
 
 var t1 = new jtable.JTable2(data1);
 var t2 = new jtable.JTable2(data2);
-var ct = new coopy.CompareTable();
 console.log("starting...");
-var comp = coopy.Comparison.compareTables(ct,t1,t2);
+var ct = new coopy.Coopy.compareTables(t1,t2);
 var align = ct.align();
 console.log("done alignment...");
 console.log(align.toOrder().getList().length);

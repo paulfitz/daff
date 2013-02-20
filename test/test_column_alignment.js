@@ -28,8 +28,7 @@ function order_asserts(order,lst) {
 	[2019,"",40],
     ]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     order_asserts(align.meta.toOrder(),
 		  [[0,0],[1,1],[-1,2]]);
@@ -51,8 +50,7 @@ function order_asserts(order,lst) {
 	[2012,""]
     ]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     order_asserts(align.meta.toOrder(),
 		  [[0,0],[1,1],[2,-1]]);
@@ -76,8 +74,7 @@ function order_asserts(order,lst) {
 	[2012,""]
     ]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     order_asserts(align.meta.toOrder(),
 		  [[2,0],[0,1],[1,-1]]);

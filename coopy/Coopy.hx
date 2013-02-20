@@ -3,6 +3,26 @@
 package coopy;
 
 class Coopy {
+    static public function compareTables(t1: Table, t2: Table) : CompareTable {
+        var ct: CompareTable = new CompareTable();
+        var comp : TableComparisonState = new TableComparisonState();
+        comp.a = t1;
+        comp.b = t2;
+        ct.attach(comp);
+        return ct;
+    }
+
+    static public function compareTables3(t1: Table, t2: Table, t3: Table) : CompareTable {
+        var ct: CompareTable = new CompareTable();
+        var comp : TableComparisonState = new TableComparisonState();
+        comp.p = t1;
+        comp.a = t2;
+        comp.b = t3;
+        ct.attach(comp);
+        return ct;
+    }
+
+
     public static function main() : Int {
         var st : SimpleTable = new SimpleTable(15,6);
         var tab : Table = st;
@@ -38,11 +58,11 @@ class Coopy {
 
         var tv : TableView = new TableView();
 
-        var comp : Comparison = new Comparison();
+        var comp : TableComparisonState = new TableComparisonState();
         var ct : CompareTable = new CompareTable();
         comp.a = st;
         comp.b = st;
-        ct.compare(comp);
+        ct.attach(comp);
 
         trace("comparing tables");
         var t1 : SimpleTable = new SimpleTable(3,2);

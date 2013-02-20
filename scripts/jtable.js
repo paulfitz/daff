@@ -1,4 +1,4 @@
-var coopy = (typeof require != "undefined") ? require('coopy') : window;
+var coopy = (typeof require != "undefined") ? require('coopy') : coopy;
 
 var JTable = function(w,h) {
     this.width = w;

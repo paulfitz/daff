@@ -37,8 +37,7 @@ function order_asserts(order,lst) {
     var t2 = new jtable.JTable2([["Name","Number"],["Mary",17],["John",14],["Jane",99]]);
     var t3 = new jtable.JTable2([["Name","Number"],["John",15],["Sam",21],["Jane",99]]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables3(ct,t1,t2,t3);
+    var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
     var align = ct.align();
     align_asserts(align,
 		  [[0,0],[1,1],[2,3]]);
@@ -58,8 +57,7 @@ function order_asserts(order,lst) {
     var t2 = new jtable.JTable2([["hdr"],["2009"],["2011"],["2012"],["2010"]]);
     var t3 = new jtable.JTable2([["hdr"],["2009"],["2010"],["2011"],["2012"]]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables3(ct,t1,t2,t3);
+    var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
     var align = ct.align();
     order_asserts(align.toOrder(),
 		  [[0,0,0],
@@ -74,8 +72,7 @@ function order_asserts(order,lst) {
     var t2 = new jtable.JTable2([["hdr"],["2009"],["2011"],["2012"],["2010"]]);
     var t3 = new jtable.JTable2([["hdr"],["2009"],["2010"],["2011"],["2012"]]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables3(ct,t1,t2,t3);
+    var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
     var align = ct.align();
     order_asserts(align.toOrder(),
 		  [[0,0,0],

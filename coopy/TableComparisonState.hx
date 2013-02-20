@@ -2,7 +2,7 @@
 
 package coopy;
 
-class Comparison {
+class TableComparisonState {
     public var p: Table;
     public var a: Table;
     public var b: Table;
@@ -29,22 +29,5 @@ class Comparison {
         is_equal = false;
         has_same_columns = false;
         has_same_columns_known = false;
-    }
-
-    static public function compareTables(ct: CompareTable, t1: Table, t2: Table) : Comparison {
-        var comp : Comparison = new Comparison();
-        comp.a = t1;
-        comp.b = t2;
-        ct.compare(comp);
-        return comp;
-    }
-
-    static public function compareTables3(ct: CompareTable, t1: Table, t2: Table, t3: Table) : Comparison {
-        var comp : Comparison = new Comparison();
-        comp.p = t1;
-        comp.a = t2;
-        comp.b = t3;
-        ct.compare(comp);
-        return comp;
     }
 }

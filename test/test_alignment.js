@@ -34,8 +34,7 @@ function order_asserts(order,lst) {
     var t1 = new jtable.JTable2([["Name","Number"],["John",14]]);
     var t2 = new jtable.JTable2([["Name","Number"],["Mary",17],["John",15]]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     align_asserts(align,
 		  [[0,0],[1,2],[null,1]]);
@@ -56,8 +55,7 @@ function order_asserts(order,lst) {
 	["Sam",null,null],
     ]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     align_asserts(align,
 		  [[0,0],[1,1],[2,2],[3,3]]);
@@ -80,8 +78,7 @@ function order_asserts(order,lst) {
 	["John",1992,"www.john.none"]
     ]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     align_asserts(align,
 		  [[0,0],[1,1],[2,2],[3,3],[4,4]]);
@@ -106,8 +103,7 @@ function order_asserts(order,lst) {
 	["John",1992,"www.john.none"]
     ]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     align_asserts(align,
 		  [[0,0],[1,1],[2,2],[3,3],[4,null]]);
@@ -129,8 +125,7 @@ function order_asserts(order,lst) {
 	[2011,4]
     ]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     align_asserts(align,
 		  [[0,0],[1,1],[2,4],[3,3]]);
@@ -153,8 +148,7 @@ function order_asserts(order,lst) {
 	[2019,""],
     ]);
     
-    var ct = new coopy.CompareTable();
-    var comp = coopy.Comparison.compareTables(ct,t1,t2);
+    var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     order_asserts(align.toOrder(),
 		  [[0,0],[1,1],[2,2],[-1,3],[3,-1]]);

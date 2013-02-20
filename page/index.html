@@ -41,7 +41,6 @@
 </div>
 
 <script>
-var coopy = window;
 var jtable = window;
 var use_parent = false;
 function processChange(changes,source,table) {
@@ -49,14 +48,13 @@ function processChange(changes,source,table) {
   var t2 = new jtable.JTable2(data2);
   t1.trim();
   t2.trim();
-  var ct = new coopy.CompareTable();
-  var comp = null;
+  var ct = null;
   if (!use_parent) { 
-    comp = coopy.Comparison.compareTables(ct,t1,t2);
+    ct = coopy.Coopy.compareTables(t1,t2);
   } else {
     var t0 = new jtable.JTable2(data0);
     t0.trim();
-    comp = coopy.Comparison.compareTables3(ct,t0,t1,t2);
+    ct = coopy.Coopy.compareTables3(t0,t1,t2);
   }
   var align = ct.align();
   var order = align.toOrder();

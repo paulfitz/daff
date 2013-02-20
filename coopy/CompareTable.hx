@@ -3,11 +3,11 @@
 package coopy;
 
 class CompareTable {
-    private var comp: Comparison;
+    private var comp: TableComparisonState;
 
     public function new() {}
 
-    public function compare(comp: Comparison) : Bool {
+    public function attach(comp: TableComparisonState) : Bool {
         this.comp = comp;
         var more : Bool = compareCore();
         while (more && comp.run_to_completion) {
@@ -27,6 +27,10 @@ class CompareTable {
         */
         alignCore(alignment);
         return alignment;
+    }
+
+    public function getComparisonState() : TableComparisonState {
+        return comp;
     }
 
     private function alignCore(align: Alignment) : Void {

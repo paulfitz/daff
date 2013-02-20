@@ -37,15 +37,15 @@ class Compare {
     }
 
     private function compareTable(ws : Workspace) : Bool {
-        ws.p2l = new Comparison();
-        ws.p2r = new Comparison();
+        ws.p2l = new TableComparisonState();
+        ws.p2r = new TableComparisonState();
         ws.p2l.a = ws.tparent;
         ws.p2l.b = ws.tlocal;
         ws.p2r.a = ws.tparent;
         ws.p2r.b = ws.tremote;
         var cmp : CompareTable = new CompareTable();
-        cmp.compare(ws.p2l);
-        cmp.compare(ws.p2r);
+        cmp.attach(ws.p2l);
+        cmp.attach(ws.p2r);
 
         var c : Change = new Change();
         c.parent = ws.parent;
@@ -57,10 +57,10 @@ class Compare {
             c.mode = LOCAL_CHANGE;
         } else if ((!ws.p2l.is_equal) && (!ws.p2r.is_equal)) {
             // maybe same change?
-            ws.l2r = new Comparison();
+            ws.l2r = new TableComparisonState();
             ws.l2r.a = ws.tlocal;
             ws.l2r.b = ws.tremote;
-            cmp.compare(ws.l2r);
+            cmp.attach(ws.l2r);
             if (ws.l2r.is_equal) {
                 c.mode = SAME_CHANGE;
             } else {
