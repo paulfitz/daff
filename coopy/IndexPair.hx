@@ -56,21 +56,6 @@ class IndexPair {
         return result;
     }
 
-
-    public function query(match: Match) : CrossMatch {
-        var result : CrossMatch = new CrossMatch();
-        var ka : String = ia.matchToKey(match);
-        var kb : String = ib.matchToKey(match);
-        result.item_a = ia.items.get(ka);
-        result.item_b = ib.items.get(kb);
-        result.spot_a = result.spot_b = 0;
-        if (ka!=""||kb!="") {
-            if (result.item_a!=null) result.spot_a = result.item_a.lst.length;
-            if (result.item_b!=null) result.spot_b = result.item_b.lst.length;
-        }
-        return result;
-    }
-
     public function getTopFreq() : Int {
         if (ib.top_freq>ia.top_freq) return ib.top_freq;
         return ia.top_freq;

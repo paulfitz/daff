@@ -59,19 +59,6 @@ class Index {
         return wide;
     }
 
-    public function matchToKey(m: Match) : String {
-        var wide : String = "";
-        if (v==null) v = indexed_table.getCellView();
-        for (k in 0...m.matches.length) {
-            var d : Datum = m.matches[k].val;
-            var txt : String = v.toString(d);
-            if (txt=="" || txt=="null" || txt=="undefined") continue;
-            if (k>0) wide += " // ";
-            wide += txt;
-        }
-        return wide;
-    }
-
     public function getTable() : Table {
         return indexed_table;
     }
