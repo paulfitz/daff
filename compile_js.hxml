@@ -1,4 +1,4 @@
 -cp src
 -js coopy.js
--main Coopy
+-main coopy.Coopy
 -debug
