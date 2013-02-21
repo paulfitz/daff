@@ -6,42 +6,52 @@
 <script src="coopy/coopy.js"></script>
 <script src="coopy/scripts/jtable.js"></script>
 <link rel="stylesheet" media="screen" href="dist/jquery.handsontable.full.css">
+<link rel="stylesheet" media="screen" href="coopyhx.css">
 </head>
 
 <body>
 
-<div style="display: float; float: right;">
-  <div>
-  <b>Row alignment</b><br />
-  <div id="ordering"></div>
-  </div>
-  <div style="margin-top: 10px;">
-  <b>Column alignment</b><br />
-  <div id="column_ordering"></div>
-  </div>
-  <b>Diff prototype</b><br />
-  <div id="diff"></div>
-  </div>
-</div>
+<table id="pane-collection">
 
-<div style="width:70%;">
-  <form>
-  <input id="parent_checkbox" type="checkbox" />Parent /
-  <a id="button-clear" href="#">Clear</a>
-  </form>
-  <div id="block0" style="display: none;">
-    <p>Parent</p>
-    <div id="table0"></div>
-  </div>
-  <div id="block1">
-    <p>Local</p>
-    <div id="table1"></div>
-  </div>
-  <div id="block2">
-    <p>Remote</p>
-    <div id="table2"></div>
-  </div>
-</div>
+  <tr>
+    <td id="table-pane">
+      <div class="pane-show">
+	<p>
+	This a test of <a href="https://github.com/paulfitz/coopyhx">coopyhx</a>, for comparing tables. Edit tables below, see diffs.
+	</p>
+	<form>
+	  Options: <input id="parent_checkbox" type="checkbox" />3-way comparison /
+	  <a id="button-clear" href="#">Clear all cells</a>
+	</form>
+	<div id="block0" style="display: none;">
+	  <h3>Parent</h3>
+	  <div id="table0"></div>
+	</div>
+	<div id="block1">
+	  <h3>Local</h3>
+	  <div id="table1"></div>
+	</div>
+	<div id="block2">
+	  <h3>Remote</h3>
+	  <div id="table2"></div>
+	</div>
+      </div>
+    </td>
+    
+    <td id="result-pane">
+      <div class="pane-show">
+	<h3>Highlighter difference</h3>
+	<div id="diff"></div>
+	<h3>Row alignment</h3>
+	<div id="ordering"></div>
+	<h3>Column alignment</h3>
+	<div id="column_ordering"></div>
+      </div>
+    </td>
+  </tr>
+
+</table>
+
 
 <script>
 var jtable = window;
