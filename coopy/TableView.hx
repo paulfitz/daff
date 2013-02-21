@@ -27,5 +27,9 @@ class TableView implements View {
         trace("TableView.equals called");
         return false;
     }
+
+    public function toDatum(str: Null<String>) : Datum {
+        return new SimpleCell(str);
+    }    
 }
 

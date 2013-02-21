@@ -27,5 +27,13 @@ class SimpleView implements View {
         if (d1==null && d2==null) return true;
         return ("" + d1) == ("" + d2);
     }
+
+    public function toDatum(str: Null<String>) : Datum {
+#if js
+    return cast str;
+#else
+        return new SimpleCell(str);
+#end
+    }
 }
 

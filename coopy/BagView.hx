@@ -27,5 +27,9 @@ class BagView implements View {
         trace("BagView.equals called");
         return false;
     }
+
+    public function toDatum(str: Null<String>) : Datum {
+        return new SimpleCell(str);
+    }
 }
 

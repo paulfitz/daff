@@ -49,7 +49,10 @@ JTable.prototype.clear = function() {
 var JTable2 = function(data) {
     this.data = data;
     this.height = data.length;
-    this.width = data[0].length;
+    this.width = 0;
+    if (this.height>0) {
+	this.width = data[0].length;
+    }
 }
 
 JTable2.prototype.getWidth = function() {
@@ -76,11 +79,11 @@ JTable2.prototype.getCellView = function() {
     return new coopy.SimpleView();
 }
 
-JTable.prototype.isResizable = function() {
+JTable2.prototype.isResizable = function() {
     return true;
 }
 
-JTable.prototype.resize = function(w,h) {
+JTable2.prototype.resize = function(w,h) {
     this.width = w;
     this.height = h;
     for (var i=0; i<this.data.length; i++) {
@@ -101,7 +104,7 @@ JTable.prototype.resize = function(w,h) {
     return true;
 }
 
-JTable.prototype.clear = function() {
+JTable2.prototype.clear = function() {
     for (var i=0; i<this.data.length; i++) {
 	var row = this.data[i];
 	for (var j=0; j<row.length; j++) {

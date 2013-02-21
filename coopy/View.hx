@@ -11,4 +11,5 @@ interface View {
     function getTable(d: Datum) : Table;
     function hasStructure(d: Datum) : Bool;
     function equals(d1: Datum, d2: Datum) : Bool;
+    function toDatum(str: Null<String>) : Datum;
 }

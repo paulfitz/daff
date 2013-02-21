@@ -3,21 +3,21 @@
 package coopy;
 
 class Coopy {
-    static public function compareTables(t1: Table, t2: Table) : CompareTable {
+    static public function compareTables(local: Table, remote: Table) : CompareTable {
         var ct: CompareTable = new CompareTable();
         var comp : TableComparisonState = new TableComparisonState();
-        comp.a = t1;
-        comp.b = t2;
+        comp.a = local;
+        comp.b = remote;
         ct.attach(comp);
         return ct;
     }
 
-    static public function compareTables3(t1: Table, t2: Table, t3: Table) : CompareTable {
+    static public function compareTables3(parent: Table, local: Table, remote: Table) : CompareTable {
         var ct: CompareTable = new CompareTable();
         var comp : TableComparisonState = new TableComparisonState();
-        comp.p = t1;
-        comp.a = t2;
-        comp.b = t3;
+        comp.p = parent;
+        comp.a = local;
+        comp.b = remote;
         ct.attach(comp);
         return ct;
     }
@@ -83,6 +83,7 @@ class Coopy {
         var v : Viterbi = new Viterbi();
         var td : TableDiff = new TableDiff(null);
         var idx : Index = new Index();
+        var dr : DiffRender = new DiffRender();
 
         return 0;
     }

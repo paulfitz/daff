@@ -19,6 +19,9 @@
   <b>Column alignment</b><br />
   <div id="column_ordering"></div>
   </div>
+  <b>Diff prototype</b><br />
+  <div id="diff"></div>
+  </div>
 </div>
 
 <div style="width:70%;">
@@ -59,11 +62,16 @@ function processChange(changes,source,table) {
   var align = ct.align();
   var order = align.toOrder();
   var report = order.toString().replace(/, */g,"<br />\n");
-  report += "<br /><br />";
-  report += (new coopy.TableDiff(align)).test().toString().replace(/, */g,"<br />\n");
+  //report += "<br /><br />";
+//report += (new coopy.TableDiff(align)).test().toString().replace(/, */g,"<br />\n");
   $("#ordering").html(report);
   var report2 = align.meta.toOrder().toString().replace(/, */g,"<br />\n");
   $("#column_ordering").html(report2);
+  var output = new jtable.JTable2([]);
+  (new coopy.TableDiff(align)).hilite(output);
+  var render = new coopy.DiffRender();
+  render.render(output);
+  $("#diff").html(render.html());
 }
 
 
