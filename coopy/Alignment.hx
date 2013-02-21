@@ -11,6 +11,7 @@ class Alignment {
     private var tb : Table;
     private var map_count : Int;
     private var order_cache : Ordering;
+    private var order_cache_has_reference : Bool;
 
     public var reference: Alignment;
     public var meta: Alignment;
@@ -22,6 +23,7 @@ class Alignment {
         map_count = 0;
         reference = null;
         meta = null;
+        order_cache_has_reference = false;
     }
 
     public function range(ha: Int, hb: Int) : Void {
@@ -60,7 +62,15 @@ class Alignment {
     }
 
     public function toOrder() : Ordering {
+        if (order_cache!=null) {
+            if (reference!=null) {
+                if (!order_cache_has_reference) {
+                    order_cache = null;
+                }
+            }
+        }
         if (order_cache==null) order_cache = toOrder3();
+        if (reference!=null) order_cache_has_reference = true;
         return order_cache;
     }
 
@@ -73,11 +83,6 @@ class Alignment {
     }
 
     private function toOrder3() : Ordering {
-        //if (reference==null) return toOrder2();
-        //if (reference==null) {
-        //trace(toOrder2().toString());
-        //}
-
         var ref : Alignment = reference;
         if (ref == null) {
             ref = new Alignment();

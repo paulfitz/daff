@@ -71,4 +71,19 @@ class SimpleTable implements Table, implements Bag {
     public function getItemView() : View {
         return new BagView();
     }
+
+    public function isResizable() : Bool {
+        return true;
+    }
+
+    public function resize(w: Int, h: Int) : Bool {
+        this.w = w;
+        this.h = h;
+        return true;
+    }
+
+
+    public function clear() : Void {
+        data = new IntHash<Datum>();
+    }
 }

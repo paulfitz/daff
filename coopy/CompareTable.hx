@@ -41,6 +41,7 @@ class CompareTable {
         align.reference = new Alignment();
         alignCore2(align,comp.p,comp.b);
         alignCore2(align.reference,comp.p,comp.a);
+        align.meta.reference = align.reference.meta;
     }
 
     private function alignCore2(align: Alignment,

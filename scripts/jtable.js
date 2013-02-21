@@ -30,6 +30,20 @@ JTable.prototype.getCellView = function() {
     return new coopy.SimpleView();
 }
 
+JTable.prototype.isResizable = function() {
+    return true;
+}
+
+JTable.prototype.resize = function(w,h) {
+    this.width = w;
+    this.height = h;
+    return true;
+}
+
+JTable.prototype.clear = function() {
+    this.data = new Array(w*h);
+}
+
 
 
 var JTable2 = function(data) {
@@ -60,6 +74,40 @@ JTable2.prototype.toString = function() {
 
 JTable2.prototype.getCellView = function() {
     return new coopy.SimpleView();
+}
+
+JTable.prototype.isResizable = function() {
+    return true;
+}
+
+JTable.prototype.resize = function(w,h) {
+    this.width = w;
+    this.height = h;
+    for (var i=0; i<this.data.length; i++) {
+	var row = this.data[i];
+	while (row.length<this.width) {
+	    row.push(null);
+	}
+    }
+    if (this.data.length<this.height) {
+	while (this.data.length<this.height) {
+	    var row = [];
+	    for (var i=0; i<this.width; i++) {
+		row.push(null);
+	    }
+	    this.data.push(row);
+	}
+    }
+    return true;
+}
+
+JTable.prototype.clear = function() {
+    for (var i=0; i<this.data.length; i++) {
+	var row = this.data[i];
+	for (var j=0; j<row.length; j++) {
+	    row[j] = null;
+	}
+    }
 }
 
 JTable2.prototype.trim = function() {

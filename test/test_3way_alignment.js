@@ -81,4 +81,6 @@ function order_asserts(order,lst) {
 		   [3,4,4],
 		   [-1,-1,5],
 		   [4,2,2]]);
+    order_asserts(align.meta.toOrder(),
+		  [[0,0,0]]);
 }
