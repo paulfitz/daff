@@ -19,6 +19,9 @@
   <b>Column alignment</b><br />
   <div id="column_ordering"></div>
   </div>
+  <b>Diff prototype</b><br />
+  <div id="diff"></div>
+  </div>
 </div>
 
 <div style="width:70%;">
@@ -41,7 +44,6 @@
 </div>
 
 <script>
-var coopy = window;
 var jtable = window;
 var use_parent = false;
 function processChange(changes,source,table) {
@@ -49,23 +51,27 @@ function processChange(changes,source,table) {
   var t2 = new jtable.JTable2(data2);
   t1.trim();
   t2.trim();
-  var ct = new coopy.CompareTable();
-  var comp = null;
+  var ct = null;
   if (!use_parent) { 
-    comp = coopy.Comparison.compareTables(ct,t1,t2);
+    ct = coopy.Coopy.compareTables(t1,t2);
   } else {
     var t0 = new jtable.JTable2(data0);
     t0.trim();
-    comp = coopy.Comparison.compareTables3(ct,t0,t1,t2);
+    ct = coopy.Coopy.compareTables3(t0,t1,t2);
   }
   var align = ct.align();
   var order = align.toOrder();
   var report = order.toString().replace(/, */g,"<br />\n");
-  report += "<br /><br />";
-  report += (new coopy.TableDiff(align)).test().toString().replace(/, */g,"<br />\n");
+  //report += "<br /><br />";
+//report += (new coopy.TableDiff(align)).test().toString().replace(/, */g,"<br />\n");
   $("#ordering").html(report);
   var report2 = align.meta.toOrder().toString().replace(/, */g,"<br />\n");
   $("#column_ordering").html(report2);
+  var output = new jtable.JTable2([]);
+  (new coopy.TableDiff(align)).hilite(output);
+  var render = new coopy.DiffRender();
+  render.render(output);
+  $("#diff").html(render.html());
 }
 
 
