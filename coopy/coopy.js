@@ -891,6 +891,13 @@ coopy.Compare.prototype = {
 	}
 	,__class__: coopy.Compare
 }
+coopy.CompareFlags = function() {
+	this.show_unchanged = false;
+};
+coopy.CompareFlags.__name__ = true;
+coopy.CompareFlags.prototype = {
+	__class__: coopy.CompareFlags
+}
 coopy.CompareTable = function() {
 };
 coopy.CompareTable.__name__ = true;
@@ -1232,9 +1239,10 @@ coopy.Coopy.main = function() {
 	compare.compare(dt1,dt2,dt3,report);
 	console.log("report is " + Std.string(report));
 	var v = new coopy.Viterbi();
-	var td = new coopy.TableDiff(null);
+	var td = new coopy.TableDiff(null,null);
 	var idx = new coopy.Index();
 	var dr = new coopy.DiffRender();
+	var cf = new coopy.CompareFlags();
 	return 0;
 }
 coopy.Coopy.show = function(t) {
@@ -1657,6 +1665,7 @@ coopy.SimpleView.__name__ = true;
 coopy.SimpleView.__interfaces__ = [coopy.View];
 coopy.SimpleView.prototype = {
 	toDatum: function(str) {
+		if(str == null) return null;
 		return str;
 	}
 	,equals: function(d1,d2) {
@@ -1723,8 +1732,9 @@ coopy.TableComparisonState.prototype = {
 	}
 	,__class__: coopy.TableComparisonState
 }
-coopy.TableDiff = function(align) {
+coopy.TableDiff = function(align,flags) {
 	this.align = align;
+	this.flags = flags;
 };
 coopy.TableDiff.__name__ = true;
 coopy.TableDiff.prototype = {
@@ -1783,60 +1793,101 @@ coopy.TableDiff.prototype = {
 		}
 		var column_order = this.align.meta.toOrder();
 		var column_units = column_order.getList();
+		var reps_needed = this.flags.show_unchanged?1:2;
 		var v = a.getCellView();
+		var schema = new Array();
+		var have_schema = false;
+		var _g1 = 0, _g = column_units.length;
+		while(_g1 < _g) {
+			var j = _g1++;
+			var cunit = column_units[j];
+			var act = "";
+			if(cunit.r >= 0 && cunit.lp() == -1) {
+				have_schema = true;
+				act = "+++";
+			}
+			if(cunit.r < 0 && cunit.lp() >= 0) {
+				have_schema = true;
+				act = "---";
+			}
+			schema.push(act);
+		}
+		if(have_schema) {
+			var at = output.getHeight();
+			output.resize(column_units.length + 1,at + 1);
+			output.setCell(0,at,v.toDatum("!"));
+			var _g1 = 0, _g = column_units.length;
+			while(_g1 < _g) {
+				var j = _g1++;
+				output.setCell(j + 1,at,v.toDatum(schema[j]));
+			}
+		}
 		var _g1 = 0, _g = units.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var unit = units[i];
 			if(unit.r < 0 && unit.l < 0) continue;
-			var at = output.getHeight();
-			output.resize(column_units.length + 1,at + 1);
 			var act = "";
-			if(unit.p < 0 && unit.l < 0 && unit.r >= 0) act = "+++";
-			if((unit.p >= 0 || !has_parent) && unit.l >= 0 && unit.r < 0) act = "---";
-			var _g3 = 0, _g2 = column_units.length;
-			while(_g3 < _g2) {
-				var j = _g3++;
-				var cunit = column_units[j];
-				var pp = null;
-				var ll = null;
-				var rr = null;
-				var dd = null;
-				var dd_to = null;
-				var have_pp = false;
-				var have_ll = false;
-				var have_rr = false;
-				if(cunit.p >= 0 && unit.p >= 0) {
-					pp = p.getCell(cunit.p,unit.p);
-					have_pp = true;
-				}
-				if(cunit.l >= 0 && unit.l >= 0) {
-					ll = a.getCell(cunit.l,unit.l);
-					have_ll = true;
-				}
-				if(cunit.r >= 0 && unit.r >= 0) {
-					rr = b.getCell(cunit.r,unit.r);
-					have_rr = true;
-				}
-				if(have_pp) {
-					if(!have_rr) dd = pp; else if(v.equals(pp,rr)) dd = pp; else {
-						dd = pp;
-						dd_to = rr;
+			var publish = this.flags.show_unchanged;
+			var _g2 = 0;
+			while(_g2 < reps_needed) {
+				var rep = _g2++;
+				var at = output.getHeight();
+				if(publish) output.resize(column_units.length + 1,at + 1);
+				var have_addition = false;
+				if(unit.p < 0 && unit.l < 0 && unit.r >= 0) act = "+++";
+				if((unit.p >= 0 || !has_parent) && unit.l >= 0 && unit.r < 0) act = "---";
+				var _g4 = 0, _g3 = column_units.length;
+				while(_g4 < _g3) {
+					var j = _g4++;
+					var cunit = column_units[j];
+					var pp = null;
+					var ll = null;
+					var rr = null;
+					var dd = null;
+					var dd_to = null;
+					var have_pp = false;
+					var have_ll = false;
+					var have_rr = false;
+					if(cunit.p >= 0 && unit.p >= 0) {
+						pp = p.getCell(cunit.p,unit.p);
+						have_pp = true;
 					}
-				} else if(have_ll) {
-					if(!have_rr) dd = ll; else if(v.equals(ll,rr)) dd = ll; else {
-						dd = ll;
-						dd_to = rr;
+					if(cunit.l >= 0 && unit.l >= 0) {
+						ll = a.getCell(cunit.l,unit.l);
+						have_ll = true;
 					}
-				} else dd = rr;
-				var txt = v.toString(dd);
-				if(dd_to != null) {
-					txt = txt + "->" + v.toString(dd_to);
-					act = "->";
+					if(cunit.r >= 0 && unit.r >= 0) {
+						rr = b.getCell(cunit.r,unit.r);
+						have_rr = true;
+						if((have_pp?cunit.p:cunit.l) < 0) {
+							if(rr != null) {
+								if(v.toString(rr) != "") have_addition = true;
+							}
+						}
+					}
+					if(have_pp) {
+						if(!have_rr) dd = pp; else if(v.equals(pp,rr)) dd = pp; else {
+							dd = pp;
+							dd_to = rr;
+						}
+					} else if(have_ll) {
+						if(!have_rr) dd = ll; else if(v.equals(ll,rr)) dd = ll; else {
+							dd = ll;
+							dd_to = rr;
+						}
+					} else dd = rr;
+					var txt = v.toString(dd);
+					if(dd_to != null) {
+						txt = txt + "->" + v.toString(dd_to);
+						act = "->";
+					}
+					if(act == "" && have_addition) act = "+";
+					if(publish) output.setCell(j + 1,at,v.toDatum(txt));
 				}
-				output.setCell(j + 1,at,v.toDatum(txt));
+				if(publish) output.setCell(0,at,v.toDatum(act));
+				if(act != "") publish = true; else break;
 			}
-			output.setCell(0,at,v.toDatum(act));
 		}
 		return true;
 	}
@@ -1883,6 +1934,9 @@ coopy.Unit.prototype = {
 	toString: function() {
 		if(this.p >= -1) return coopy.Unit.describe(this.p) + "|" + coopy.Unit.describe(this.l) + ":" + coopy.Unit.describe(this.r);
 		return coopy.Unit.describe(this.l) + ":" + coopy.Unit.describe(this.r);
+	}
+	,lp: function() {
+		return this.p == -2?this.l:this.p;
 	}
 	,__class__: coopy.Unit
 }
@@ -2212,7 +2266,7 @@ var Void = { __ename__ : ["Void"]};
 
 //@ sourceMappingURL=coopy.js.map
 if (typeof exports != "undefined") {
-    var lst = ["Coopy", "SimpleTable", "ViewedDatum", "TableView", "ViewedDatum", "SimpleView", "Compare", "Report", "Change", "ChangeType", "CompareTable", "TableComparisonState", "Viterbi", "TableDiff","DiffRender"];
+    var lst = ["Coopy", "SimpleTable", "ViewedDatum", "TableView", "ViewedDatum", "SimpleView", "Compare", "Report", "Change", "ChangeType", "CompareTable", "TableComparisonState", "Viterbi", "TableDiff", "DiffRender", "CompareFlags"];
   for (f in lst) { exports[lst[f]] = coopy[lst[f]]; } 
 }
 
