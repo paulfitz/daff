@@ -29,6 +29,7 @@ class SimpleView implements View {
     }
 
     public function toDatum(str: Null<String>) : Datum {
+        if (str==null) return null;
 #if js
     return cast str;
 #else

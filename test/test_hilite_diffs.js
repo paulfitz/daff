@@ -50,7 +50,8 @@ function order_asserts(order,lst) {
 		   [-1,2,-1],
 		   [3,3,2]]);
 
-    var td = new coopy.TableDiff(align);
+    var options = new coopy.CompareFlags();
+    var td = new coopy.TableDiff(align,options);
     var output = new jtable.JTable2([]);
     td.hilite(output);
     //coopy.Coopy.show(output);

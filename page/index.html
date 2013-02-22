@@ -72,13 +72,13 @@ function processChange(changes,source,table) {
   var align = ct.align();
   var order = align.toOrder();
   var report = order.toString().replace(/, */g,"<br />\n");
-  //report += "<br /><br />";
-//report += (new coopy.TableDiff(align)).test().toString().replace(/, */g,"<br />\n");
   $("#ordering").html(report);
   var report2 = align.meta.toOrder().toString().replace(/, */g,"<br />\n");
   $("#column_ordering").html(report2);
   var output = new jtable.JTable2([]);
-  (new coopy.TableDiff(align)).hilite(output);
+  var flags = new coopy.CompareFlags();
+  flags.show_unchanged = false;
+  (new coopy.TableDiff(align,flags)).hilite(output);
   var render = new coopy.DiffRender();
   render.render(output);
   $("#diff").html(render.html());

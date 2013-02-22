@@ -81,9 +81,10 @@ class Coopy {
         trace("report is " + report);
 
         var v : Viterbi = new Viterbi();
-        var td : TableDiff = new TableDiff(null);
+        var td : TableDiff = new TableDiff(null,null);
         var idx : Index = new Index();
         var dr : DiffRender = new DiffRender();
+        var cf : CompareFlags = new CompareFlags();
 
         return 0;
     }
