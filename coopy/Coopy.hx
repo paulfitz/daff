@@ -22,8 +22,9 @@ class Coopy {
         return ct;
     }
 
+    static function randomTests() : Int {
+        // disorganized tests from a bygone era.
 
-    public static function main() : Int {
         var st : SimpleTable = new SimpleTable(15,6);
         var tab : Table = st;
         var bag : Bag = st;
@@ -87,6 +88,56 @@ class Coopy {
         var cf : CompareFlags = new CompareFlags();
 
         return 0;
+    }
+
+#if cpp
+    public static function loadFile(name: String) : Dynamic {
+        var txt : String = sys.io.File.getContent(name);
+        return haxe.Json.parse(txt);
+    }
+
+    public static function loadTable(name: String) : Table {
+        var json = loadFile(name);
+        var output : Table = null;
+        for (name in Reflect.fields(json)) {
+            var t = Reflect.field(json,name);
+            var columns : Array<String> = Reflect.field(t,"columns");
+            if (columns==null) continue;
+            var rows : Array<Dynamic> = Reflect.field(t,"rows");
+            if (rows==null) continue;
+            output = new SimpleTable(columns.length,rows.length);
+            for (i in 0...rows.length) {
+                var row = rows[i];
+                for (j in 0...columns.length) {
+                    var val = Reflect.field(row,columns[j]);
+                    output.setCell(j,i,new SimpleCell(val));
+                }
+            }
+        }
+        return output;
+    }
+
+    public static function sysMain() : Int {
+        var args : Array<String> = Sys.args();
+        if (args[0] == "--test") {
+            return randomTests();
+        }
+        if (args.length != 2) {
+            Sys.stderr().writeString("2 arguments please!\n");
+            return 1;
+        }
+        trace(loadTable(args[0]));
+        trace(loadTable(args[1]));
+        return 0;
+    }
+#end
+
+    public static function main() : Int {
+#if cpp
+    return sysMain();
+#else
+    return randomTests();
+#end
     }
 
     public static function show(t: Table) : Void {
