@@ -3,6 +3,11 @@
 package coopy;
 
 class Coopy {
+    private var format_preference : String;
+
+    public function new() : Void {
+    }
+
     static public function compareTables(local: Table, remote: Table) : CompareTable {
         var ct: CompareTable = new CompareTable();
         var comp : TableComparisonState = new TableComparisonState();
@@ -91,10 +96,14 @@ class Coopy {
     }
 
 #if cpp
-    private static function saveTable(name: String, t: Table) : Bool {
-        var csv : Csv = new Csv();
-        var txt : String = csv.renderTable(t);
-        //var txt : String = haxe.Json.stringify(jsonify(t));
+    private function saveTable(name: String, t: Table) : Bool {
+        var txt : String = "";
+        if (format_preference!="json") {
+            var csv : Csv = new Csv();
+            txt = csv.renderTable(t);
+        } else {
+            txt = haxe.Json.stringify(jsonify(t));
+        }
         if (name!="-") {
             sys.io.File.saveContent(name,txt);
         } else {
@@ -141,13 +150,15 @@ class Coopy {
         return output;
     }
 
-    private static function loadTable(name: String) : Table {
+    private function loadTable(name: String) : Table {
         var txt : String = sys.io.File.getContent(name);
         try {
             var json = haxe.Json.parse(txt);
+            format_preference = "json";
             return jsonToTable(json);
         } catch (e: Dynamic) {
             var csv : Csv = new Csv();
+            format_preference = "csv";
             var data : Array<Array<String>> = csv.parseTable(txt);
             var h : Int = data.length;
             var w : Int = 0;
@@ -187,14 +198,16 @@ class Coopy {
             Sys.stderr().writeString("Howdy.  coopyhx doesn't have much of a command line interface.\n");
             Sys.stderr().writeString("You may want the coopy toolbox https://github.com/paulfitz/coopy\n");
             Sys.stderr().writeString("If you do want coopyhx - call as:\n");
+            Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.csv] a.csv b.csv\n");
             Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
             return 1;
         }
         if (output == null) {
             output = "-";
         }
-        var a = loadTable(args[1]);
-        var b = loadTable(args[2]);
+        var tool : Coopy = new Coopy();
+        var a = tool.loadTable(args[1]);
+        var b = tool.loadTable(args[2]);
         var ct : CompareTable = compareTables(a,b);
         var align : Alignment = ct.align();
         var flags : CompareFlags = new CompareFlags();
@@ -203,7 +216,7 @@ class Coopy {
         var td : TableDiff = new TableDiff(align,flags);
         var o = new SimpleTable(0,0);
         td.hilite(o);
-        saveTable(output,o);
+        tool.saveTable(output,o);
         return 0;
     }
 #end
