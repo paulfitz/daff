@@ -4,9 +4,11 @@ package coopy;
 
 class CompareFlags {
     public var show_unchanged : Bool;
+    public var always_show_header : Bool;
 
     public function new() {
         show_unchanged = false;
+        always_show_header = false;
     }
 }
 

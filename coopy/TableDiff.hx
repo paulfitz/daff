@@ -64,10 +64,34 @@ class TableDiff {
             }
         }
 
+        var top_line_done : Bool = false;
+        if (flags.always_show_header) {
+            var at : Int = output.height;
+            output.resize(column_units.length+1,at+1);
+            output.setCell(0,at,v.toDatum("@@"));
+            for (j in 0...column_units.length) {
+                var cunit : Unit = column_units[j];
+                if (cunit.r>=0) {
+                    if (b.height>0) {
+                        output.setCell(j+1,at,
+                                       b.getCell(cunit.r,0));
+                    }
+                } else if (cunit.lp()>=0) {
+                    if (a.height>0) {
+                        output.setCell(j+1,at,
+                                       a.getCell(cunit.lp(),0));
+                    }
+                }
+            }
+            top_line_done = true;
+        }
+
         for (i in 0...units.length) {
             var unit : Unit = units[i];
 
             if (unit.r<0 && unit.l<0) continue;
+
+            if (unit.r==0 && unit.lp()==0 && top_line_done) continue;
 
             var act : String = "";
 

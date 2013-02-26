@@ -22,7 +22,7 @@ class Coopy {
         return ct;
     }
 
-    static function randomTests() : Int {
+    static private function randomTests() : Int {
         // disorganized tests from a bygone era.
 
         var st : SimpleTable = new SimpleTable(15,6);
@@ -91,13 +91,19 @@ class Coopy {
     }
 
 #if cpp
-    public static function loadFile(name: String) : Dynamic {
-        var txt : String = sys.io.File.getContent(name);
-        return haxe.Json.parse(txt);
+    private static function saveTable(name: String, t: Table) : Bool {
+        var csv : Csv = new Csv();
+        var txt : String = csv.renderTable(t);
+        //var txt : String = haxe.Json.stringify(jsonify(t));
+        if (name!="-") {
+            sys.io.File.saveContent(name,txt);
+        } else {
+            Sys.stdout().writeString(txt);
+        }
+        return true;
     }
 
-    public static function loadTable(name: String) : Table {
-        var json = loadFile(name);
+    private static function jsonToTable(json: Dynamic) : Table {
         var output : Table = null;
         for (name in Reflect.fields(json)) {
             var t = Reflect.field(json,name);
@@ -106,28 +112,98 @@ class Coopy {
             var rows : Array<Dynamic> = Reflect.field(t,"rows");
             if (rows==null) continue;
             output = new SimpleTable(columns.length,rows.length);
+            var has_hash : Bool = false;
+            var has_hash_known : Bool = false;
             for (i in 0...rows.length) {
                 var row = rows[i];
-                for (j in 0...columns.length) {
-                    var val = Reflect.field(row,columns[j]);
-                    output.setCell(j,i,new SimpleCell(val));
+                if (!has_hash_known) {
+                    if (Reflect.fields(row).length == columns.length) {
+                        has_hash = true;
+                    }
+                    has_hash_known = true;
+                }
+                if (!has_hash) {
+                    var lst : Array<Dynamic> = cast row;
+                    for (j in 0...columns.length) {
+                        var val = lst[j];
+                        //output.setCell(j,i,val);
+                        output.setCell(j,i,new SimpleCell(val));
+                    }
+                } else {
+                    for (j in 0...columns.length) {
+                        var val = Reflect.field(row,columns[j]);
+                        //output.setCell(j,i,val);
+                        output.setCell(j,i,new SimpleCell(val));
+                    }
                 }
             }
         }
         return output;
     }
 
+    private static function loadTable(name: String) : Table {
+        var txt : String = sys.io.File.getContent(name);
+        try {
+            var json = haxe.Json.parse(txt);
+            return jsonToTable(json);
+        } catch (e: Dynamic) {
+            var csv : Csv = new Csv();
+            var data : Array<Array<String>> = csv.parseTable(txt);
+            var h : Int = data.length;
+            var w : Int = 0;
+            if (h>0) w = data[0].length;
+            var output = new SimpleTable(w,h);
+            for (i in 0...h) {
+                for (j in 0...w) {
+                    var val : String = data[i][j];
+                    output.setCell(j,i,new SimpleCell(val));
+                }
+            }
+            return output;
+        }
+    }
+
     public static function sysMain() : Int {
         var args : Array<String> = Sys.args();
+
         if (args[0] == "--test") {
             return randomTests();
         }
-        if (args.length != 2) {
-            Sys.stderr().writeString("2 arguments please!\n");
+
+        var more : Bool = true;
+        var output : String = null;
+        while (more) {
+            more = false;
+            for (i in 0...args.length) {
+                if (args[i]=="--output") {
+                    more = true;
+                    output = args[i+1];
+                    args.splice(i,2);
+                    break;
+                }
+            }
+        }
+        if (args.length != 3 || args[0] != "diff") {
+            Sys.stderr().writeString("Howdy.  coopyhx doesn't have much of a command line interface.\n");
+            Sys.stderr().writeString("You may want the coopy toolbox https://github.com/paulfitz/coopy\n");
+            Sys.stderr().writeString("If you do want coopyhx - call as:\n");
+            Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
             return 1;
         }
-        trace(loadTable(args[0]));
-        trace(loadTable(args[1]));
+        if (output == null) {
+            output = "-";
+        }
+        var a = loadTable(args[1]);
+        var b = loadTable(args[2]);
+        var ct : CompareTable = compareTables(a,b);
+        var align : Alignment = ct.align();
+        var flags : CompareFlags = new CompareFlags();
+        //flags.show_unchanged = true;
+        flags.always_show_header = true;
+        var td : TableDiff = new TableDiff(align,flags);
+        var o = new SimpleTable(0,0);
+        td.hilite(o);
+        saveTable(output,o);
         return 0;
     }
 #end
@@ -152,5 +228,28 @@ class Coopy {
             txt += "\n";
         }
         trace(txt);
+    }
+
+
+    public static function jsonify(t: Table) : Dynamic {
+        var workbook : Hash<Dynamic> = new Hash<Dynamic>();
+        var sheet : Array<Array<Dynamic>> = new Array<Array<Dynamic>>();
+        var w : Int = t.width;
+        var h : Int = t.height;
+        var txt : String = "";
+        for (y in 0...h) {
+            var row : Array<Dynamic> = new Array<Dynamic>();
+            for (x in 0...w) {
+                var v = t.getCell(x,y);
+                if (v!=null) {
+                    row.push(v.toString());
+                } else {
+                    row.push(null);
+                }
+            }
+            sheet.push(row);
+        }
+        workbook.set("sheet",sheet);
+        return workbook;
     }
 }

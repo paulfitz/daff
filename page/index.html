@@ -78,6 +78,7 @@ function processChange(changes,source,table) {
   var output = new jtable.JTable2([]);
   var flags = new coopy.CompareFlags();
   flags.show_unchanged = false;
+  flags.always_show_header = true;
   (new coopy.TableDiff(align,flags)).hilite(output);
   var render = new coopy.DiffRender();
   render.render(output);
