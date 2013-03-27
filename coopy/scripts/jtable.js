@@ -1,4 +1,4 @@
-var coopy = (typeof require != "undefined") ? require('coopy') : coopy;
+var coopy = (typeof require != "undefined") ? require('coopy_node') : coopy;
 
 var JTable = function(w,h) {
     this.width = w;
@@ -6,11 +6,11 @@ var JTable = function(w,h) {
     this.data = new Array(w*h);
 }
 
-JTable.prototype.getWidth = function() {
+JTable.prototype.get_width = function() {
     return this.width;
 }
 
-JTable.prototype.getHeight = function() {
+JTable.prototype.get_height = function() {
     return this.height;
 }
 
@@ -55,11 +55,11 @@ var JTable2 = function(data) {
     }
 }
 
-JTable2.prototype.getWidth = function() {
+JTable2.prototype.get_width = function() {
     return this.width;
 }
 
-JTable2.prototype.getHeight = function() {
+JTable2.prototype.get_height = function() {
     return this.height;
 }
 
