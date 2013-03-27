@@ -11,29 +11,36 @@
 
 <body>
 
+<div class="top-info">
+
+  <h1>coopyhx</h1>
+  <a href="https://github.com/paulfitz/coopyhx">coopyhx</a> is
+  a javascript library for comparing tables.  Edit the tables below
+  to see it in action.<br />
+	<form>
+	  Demo options: <input id="parent_checkbox" type="checkbox" />Use 3-way comparison /
+	  <a id="button-clear" href="#">Clear all cells</a>
+	</form>
+
+</div>
+
+
 <table id="pane-collection">
 
   <tr>
     <td id="table-pane">
       <div class="pane-show">
-	<p>
-	This a test of <a href="https://github.com/paulfitz/coopyhx">coopyhx</a>, for comparing tables. Edit tables below, see diffs.
-	</p>
-	<form>
-	  Options: <input id="parent_checkbox" type="checkbox" />3-way comparison /
-	  <a id="button-clear" href="#">Clear all cells</a>
-	</form>
 	<div id="block0" style="display: none;">
-	  <h3>Parent</h3>
+	  <h3>Common ancestor of revised and original</h3>
 	  <div id="table0"></div>
 	</div>
-	<div id="block1">
-	  <h3>Local</h3>
-	  <div id="table1"></div>
-	</div>
 	<div id="block2">
-	  <h3>Remote</h3>
+	  <h3>Revised version of table</h3>
 	  <div id="table2"></div>
+	</div>
+	<div id="block1">
+	  <h3>Original version of table</h3>
+	  <div id="table1"></div>
 	</div>
       </div>
     </td>
@@ -41,11 +48,20 @@
     <td id="result-pane">
       <div class="pane-show">
 	<h3>Highlighter difference</h3>
-	<div id="diff"></div>
-	<h3>Row alignment</h3>
-	<div id="ordering"></div>
-	<h3>Column alignment</h3>
-	<div id="column_ordering"></div>
+	<p>
+	The difference between the tables is computed
+	using <tt>coopyhx</tt> and shown in
+	<a href="http://share.find.coop/doc/spec_hilite.html">highlighter diff format</a>.
+	</p>
+	<div id="diff" class="highlighter"></div>
+	<div class="alignment">
+	  <h3>Row alignment</h3>
+	  <div id="ordering"></div>
+	</div>
+	<div class="alignment">
+  	  <h3>Column alignment</h3>
+	  <div id="column_ordering"></div>
+	</div>
       </div>
     </td>
   </tr>

@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class TableView implements View {
     public function new() : Void {
     }

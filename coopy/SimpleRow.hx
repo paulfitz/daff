@@ -2,7 +2,7 @@
 
 package coopy;
 
-class SimpleRow implements Bag, implements Datum {
+class SimpleRow implements Bag implements Datum {
     private var tab : Table;
     private var row_id : Int;
 
@@ -13,9 +13,9 @@ class SimpleRow implements Bag, implements Datum {
         bag = this;
     }
     
-    public var size(getSize,never) : Int;
+    public var size(get_size,never) : Int;
 
-    private function getSize() : Int {
+    private function get_size() : Int {
         return tab.width;
     }
     

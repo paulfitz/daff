@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class Coopy {
     private var format_preference : String;
 
@@ -225,7 +226,8 @@ class Coopy {
 #if cpp
     return sysMain();
 #else
-    return randomTests();
+    // do nothing
+    return 0;
 #end
     }
 
@@ -245,7 +247,7 @@ class Coopy {
 
 
     public static function jsonify(t: Table) : Dynamic {
-        var workbook : Hash<Dynamic> = new Hash<Dynamic>();
+        var workbook : Map<String,Dynamic> = new Map<String,Dynamic>();
         var sheet : Array<Array<Dynamic>> = new Array<Array<Dynamic>>();
         var w : Int = t.width;
         var h : Int = t.height;

@@ -5,7 +5,7 @@ package coopy;
 class SparseSheet<T> {
     private var h : Int;
     private var w : Int;
-    private var row : IntHash<IntHash<T>>;
+    private var row : Map<Int,Map<Int,T>>;
     private var zero : T;
 
     public function new() : Void {
@@ -13,7 +13,7 @@ class SparseSheet<T> {
     }
 
     public function resize(w: Int, h: Int, zero: T) : Void {
-        row = new IntHash<IntHash<T>>();
+        row = new Map<Int,Map<Int,T>>();
         nonDestructiveResize(w,h,zero);
     }
 
@@ -24,7 +24,7 @@ class SparseSheet<T> {
     }
 
     public function get(x: Int, y: Int) : T {
-        var cursor : IntHash<T> = row.get(y);
+        var cursor : Map<Int,T> = row.get(y);
         if (cursor==null) return zero;
         var val : Null<T> = cursor.get(x);
         if (val==null) return zero;
@@ -32,9 +32,9 @@ class SparseSheet<T> {
     }
     
     public function set(x: Int, y: Int, val: T) : Void {
-        var cursor : IntHash<T> = row.get(y);
+        var cursor : Map<Int,T> = row.get(y);
         if (cursor==null) {
-            cursor = new IntHash<T>();
+            cursor = new Map<Int,T>();
             row.set(y,cursor);
         }
         cursor.set(x,val);

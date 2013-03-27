@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 enum ChangeType {
     NO_CHANGE;
     REMOTE_CHANGE;

@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class TableDiff {
     private var align : Alignment;
     private var flags : CompareFlags;

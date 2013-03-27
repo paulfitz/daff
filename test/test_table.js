@@ -1,4 +1,4 @@
-var coopy = require('coopy');
+var coopy = require('coopy_node');
 var assert = require('assert');
 var jtable = require('jtable');
 
@@ -8,8 +8,8 @@ for (var t=0; t<table_classes.length; t++) {
     var TableClass = table_classes[t];
     var table = new TableClass(5,10);
 
-    assert.equal(table.getWidth(),5);
-    assert.equal(table.getHeight(),10);
+    assert.equal(table.get_width(),5);
+    assert.equal(table.get_height(),10);
     
     table.setCell(2,3,42);
     table.setCell(2,2,14);

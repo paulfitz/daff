@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class TableComparisonState {
     public var p: Table;
     public var a: Table;

@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class Change {
     // toy
     public var change : String;

@@ -3,7 +3,7 @@
 package coopy;
 
 class Index {
-    public var items : Hash<IndexItem>;
+    public var items : Map<String,IndexItem>;
     public var keys : Array<String>;
     public var top_freq : Int;
     public var height : Int;
@@ -13,7 +13,7 @@ class Index {
     private var indexed_table : Table;
 
     public function new() : Void {
-        items = new Hash<IndexItem>();
+        items = new Map<String,IndexItem>();
         cols = new Array<Int>();
         keys = new Array<String>();
         top_freq = 0;

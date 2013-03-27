@@ -3,8 +3,8 @@
 package coopy;
 
 class Alignment {
-    private var map_a2b : IntHash<Int>;
-    private var map_b2a : IntHash<Int>;
+    private var map_a2b : Map<Int,Int>;
+    private var map_b2a : Map<Int,Int>;
     private var ha : Int;
     private var hb : Int;
     private var ta : Table;
@@ -17,8 +17,8 @@ class Alignment {
     public var meta: Alignment;
 
     public function new() : Void {
-        map_a2b = new IntHash<Int>();
-        map_b2a = new IntHash<Int>();
+        map_a2b = new Map<Int,Int>();
+        map_b2a = new Map<Int,Int>();
         ha = hb = 0;
         map_count = 0;
         reference = null;
@@ -102,9 +102,9 @@ class Alignment {
         var hp : Int = ha;
         var hl : Int = ref.hb;
         var hr : Int = hb;
-        var vp : IntHash<Int> = new IntHash<Int>();
-        var vl : IntHash<Int> = new IntHash<Int>();
-        var vr : IntHash<Int> = new IntHash<Int>();
+        var vp : Map<Int,Int> = new Map<Int,Int>();
+        var vl : Map<Int,Int> = new Map<Int,Int>();
+        var vr : Map<Int,Int> = new Map<Int,Int>();
         for (i in 0...hp) vp.set(i,i);
         for (i in 0...hl) vl.set(i,i);
         for (i in 0...hr) vr.set(i,i);
@@ -270,7 +270,7 @@ class Alignment {
         var xa : Int = 0;
         var xas : Int = ha;
         var xb : Int = 0;
-        var va : IntHash<Int> = new IntHash<Int>();
+        var va : Map<Int,Int> = new Map<Int,Int>();
         for (i in 0...ha) {
             va.set(i,i);
         }

@@ -2,15 +2,16 @@
 
 package coopy;
 
-class SimpleTable implements Table, implements Bag {
-    private var data : IntHash<Datum>;
+@:expose
+class SimpleTable implements Table implements Bag {
+    private var data : Map<Int,Datum>;
     private var w : Int;
     private var h : Int;
 
     public var bag : Bag;
 
     public function new(w: Int, h: Int) : Void {
-        data = new IntHash<Datum>();
+        data = new Map<Int,Datum>();
         this.w = w;
         this.h = h;
         bag = this;
@@ -20,19 +21,19 @@ class SimpleTable implements Table, implements Bag {
         return this;
     }
 
-    public var height(getHeight,never) : Int;
-    public var width(getWidth,never) : Int;
-    public var size(getSize,never) : Int;
+    public var height(get_height,never) : Int;
+    public var width(get_width,never) : Int;
+    public var size(get_size,never) : Int;
 
-    private function getWidth() : Int {
+    private function get_width() : Int {
         return w;
     }
 
-    private function getHeight() : Int {
+    private function get_height() : Int {
         return h;
     }
 
-    private function getSize() : Int {
+    private function get_size() : Int {
         return h;
     }
 
@@ -84,6 +85,6 @@ class SimpleTable implements Table, implements Bag {
 
 
     public function clear() : Void {
-        data = new IntHash<Datum>();
+        data = new Map<Int,Datum>();
     }
 }

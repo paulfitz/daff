@@ -1,4 +1,4 @@
-var coopy = require('coopy');
+var coopy = require('coopy_node');
 var assert = require('assert');
 var jtable = require('jtable');
 

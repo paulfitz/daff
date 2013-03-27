@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class ViewedDatum {
     public var datum : Datum;
     public var view : View;

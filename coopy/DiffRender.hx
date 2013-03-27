@@ -2,9 +2,7 @@
 
 package coopy;
 
-/*
-  This is really lame legacy code, handy for testing but needs a clean up
- */
+@:expose
 class DiffRender {
     private var text_to_insert : Array<String>;
     private var td_open : String;
@@ -22,7 +20,7 @@ class DiffRender {
     }
 
     private function beginTable() : Void {
-        insert("<table class='csv_sheet'>\n");
+        insert("<table>\n");
     }
 
     private function beginRow(mode: String) : Void {
@@ -35,18 +33,18 @@ class DiffRender {
             td_open = "<th";
             td_close = "</th>";
         case "!":
-            row_color = "#aaaaaa";
+            row_color = "spec";
         case "+++":
-            row_color = "#7fff7f";
+            row_color = "add";
         case "---":
-            row_color = "#ff7f7f";
+            row_color = "remove";
         default:
             this.open = true;
         }
         var tr : String = "<tr>";
         var row_decorate : String = "";
         if (row_color!="") {
-            row_decorate = " bgcolor=\"" + row_color + "\" style=\"background-color: " + row_color + ";\"";
+            row_decorate = " class=\"" + row_color + "\"";
             tr = "<tr" + row_decorate + ">";
         }
         insert(tr);
@@ -57,11 +55,11 @@ class DiffRender {
         var cell_decorate : String = "";
         switch (mode) {
         case "+++":
-            cell_decorate += " bgcolor=\"#7fff7f\" style=\"background-color: #7fff7f;\"";
+            cell_decorate += " class=\"add\"";
         case "---":
-            cell_decorate += " bgcolor=\"#ff7f7f\" style=\"background-color: #ff7f7f;\"";
+            cell_decorate += " class=\"remove\"";
         case "->":
-            cell_decorate += " bgcolor=\"#7f7fff\" style=\"background-color: #7f7fff;\"";
+            cell_decorate += " class=\"modify\"";
         }
         insert(td_open+cell_decorate+">");
         insert(txt);

@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class Viterbi {
     private var K : Int;
     private var T : Int;

@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class SimpleView implements View {
     public function new() : Void {
     }

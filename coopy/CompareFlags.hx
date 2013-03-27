@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class CompareFlags {
     public var show_unchanged : Bool;
     public var always_show_header : Bool;

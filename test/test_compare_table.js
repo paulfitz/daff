@@ -1,4 +1,4 @@
-var coopy = require('coopy');
+var coopy = require('coopy_node');
 var assert = require('assert');
 var jtable = require('jtable');
 
@@ -17,22 +17,22 @@ var report = new coopy.Report();
 
 cmp.compare(d1,d1,d2,report);
 assert.equal(report.changes.length,1);
-assert.equal(report.changes[0].mode,coopy.ChangeType.REMOTE_CHANGE);
+assert.equal(report.changes[0].mode,"REMOTE_CHANGE");
 
 cmp.compare(d1,d2,d1,report);
 assert.equal(report.changes.length,1);
-assert.equal(report.changes[0].mode,coopy.ChangeType.LOCAL_CHANGE);
+assert.equal(report.changes[0].mode,"LOCAL_CHANGE");
 
 cmp.compare(d1,d2,d2,report);
 assert.equal(report.changes.length,1);
-assert.equal(report.changes[0].mode,coopy.ChangeType.SAME_CHANGE);
+assert.equal(report.changes[0].mode,"SAME_CHANGE");
 
 cmp.compare(d1,d1,d1,report);
 assert.equal(report.changes.length,0);
 
 cmp.compare(d1,d2,d3,report);
 assert.equal(report.changes.length,1);
-assert.equal(report.changes[0].mode,coopy.ChangeType.BOTH_CHANGE);
+assert.equal(report.changes[0].mode,"BOTH_CHANGE");
 
 cmp.compare(d1,d1,d1,report);
 assert.equal(report.changes.length,0);
@@ -47,5 +47,5 @@ var d4 = new coopy.ViewedDatum(t4,new coopy.TableView());
 var d5 = new coopy.ViewedDatum(t5,new coopy.TableView());
 cmp.compare(d4,d4,d5,report);
 assert.equal(report.changes.length,1);
-assert.equal(report.changes[0].mode,coopy.ChangeType.REMOTE_CHANGE);
+assert.equal(report.changes[0].mode,"REMOTE_CHANGE");
 

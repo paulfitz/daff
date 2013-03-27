@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class Report {
     public function new() : Void {
         changes = new Array<Change>();

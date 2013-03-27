@@ -1,13 +1,11 @@
-default: js cpp
+default: test
 
 cpp:
 	haxe compile_cpp.hxml
 
 js:
-	haxe compile_js.hxml
-	cat coopy.js scripts/exports.js > coopy_test.js # add node exports
-	sed -i "s|coopy.Coopy.main()|//coopy.Coopy.main()|" coopy_test.js
-	mv coopy_test.js coopy.js
+	haxe compile_js.hxml # generates coopy.js
+	cat coopy.js scripts/post_node.js > coopy_node.js
 
 test: js
 	./scripts/run_tests.sh

@@ -2,6 +2,7 @@
 
 package coopy;
 
+@:expose
 class CompareTable {
     private var comp: TableComparisonState;
 
@@ -68,7 +69,7 @@ class CompareTable {
 
         var av : View = a.getCellView();
 
-        var indexes : Hash<IndexPair> = new Hash<IndexPair>();
+        var indexes : Map<String,IndexPair> = new Map<String,IndexPair>();
 
         // If we have more columns than we have time to process their
         // combinations, we need to haul out some heuristics.
@@ -79,8 +80,8 @@ class CompareTable {
             var columns_eval : Array<Array<Int>> = new Array<Array<Int>>();
             for (i in 0...common_units.length) {
                 var ct: Int = 0;
-                var mem: Hash<Int> = new Hash<Int>();
-                var mem2: Hash<Int> = new Hash<Int>();
+                var mem: Map<String,Int> = new Map<String,Int>();
+                var mem2: Map<String,Int> = new Map<String,Int>();
                 var ca: Int = common_units[i].l;
                 var cb: Int = common_units[i].r;
                 for (j in 0...ha) {
@@ -110,7 +111,7 @@ class CompareTable {
 
         var top : Int = Math.round(Math.pow(2,columns.length));
 
-        var pending : IntHash<Int> = new IntHash<Int>();
+        var pending : Map<Int,Int> = new Map<Int,Int>();
         for (j in 0...ha) {
             pending.set(j,j);
         }
@@ -176,7 +177,7 @@ class CompareTable {
 
         var has_header : Bool = true;
         var submatch : Bool = true;
-        var names : Hash<Int> = new Hash<Int>();
+        var names : Map<String,Int> = new Map<String,Int>();
 
         for (i in 0...a.width) {
             var key : String = av.toString(a.getCell(i,0));
@@ -186,7 +187,7 @@ class CompareTable {
             }
             names.set(key,-1);
         }
-        names = new Hash<Int>();
+        names = new Map<String,Int>();
         if (has_header) {
             for (i in 0...b.width) {
                 var key : String = av.toString(b.getCell(i,0));
