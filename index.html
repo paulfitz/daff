@@ -73,6 +73,7 @@
 var jtable = window;
 var use_parent = false;
 function processChange(changes,source,table) {
+    if (source=="loadData") return;
   var t1 = new jtable.JTable2(data1);
   var t2 = new jtable.JTable2(data2);
   t1.trim();
@@ -96,11 +97,17 @@ function processChange(changes,source,table) {
   flags.show_unchanged = false;
   flags.always_show_header = true;
   (new coopy.TableDiff(align,flags)).hilite(output);
+  $("#diff").handsontable('loadData',output.data);
+  /*
   var render = new coopy.DiffRender();
   render.render(output);
   $("#diff").html(render.html());
+  */
 }
 
+      var data_diff =  [
+	  [ "" ]
+      ];
 
       var data0 = 
 	[
@@ -152,6 +159,43 @@ function processChange(changes,source,table) {
         onChange: function(changes,source) { processChange(changes,source,'table1'); }
       });
 
+     function tableRenderer(instance, td, row, col, prop, value, cellProperties) {
+	 Handsontable.TextCell.renderer.apply(this, arguments);
+	 var v0 = instance.getDataAtCell(row, 0);
+	 var v1 = instance.getDataAtCell(0, col);
+	 var removed_column = false;
+	 if (v1!=null) {
+	     if (v1.indexOf("+++")>=0) {
+ 		 td.className = 'add';
+	     } else if (v1.indexOf("---")>=0) {
+ 		 td.className = 'remove';
+		 removed_column = true;
+	     } 
+	 }
+	 if (v0!=null) {
+	     if (v0.indexOf("!")>=0) {
+ 		 td.className = 'spec';
+	     } else if (v0.indexOf("@@")>=0) {
+ 		 td.className = 'header';
+	     } else if (v0.indexOf("+++")>=0) {
+ 		 if (!removed_column) td.className = 'add';
+	     } else if (v0.indexOf("---")>=0) {
+ 		 td.className = 'remove';
+	     } else if (v0.indexOf("->")>=0) {
+		 if (value!=null) {
+		     if (value.indexOf(v0)>=0) {
+ 			 if (!removed_column) td.className = 'modify';
+		     }
+		 }
+	     }
+	 }
+	 if (value==null || value=="null") {
+	     td.className = td.className + " null";
+	     $(td).text("");
+	 }
+     }
+
+
       $('#table1').handsontable({
         data: data1,
         minRows: 5,
@@ -173,6 +217,25 @@ function processChange(changes,source,table) {
         contextMenu: true,
         onChange: function(changes,source) { processChange(changes,source,'table2'); }
       });
+
+      $('#diff').handsontable({
+        data: data_diff,
+        minRows: 1,
+        minCols: 1,
+        minSpareCols: 0,
+        minSpareRows: 0,
+        autoWrapRow: true,
+        colHeaders: false,
+          //contextMenu: true,
+        cells: function (row, col, prop) {
+	    var cellProperties = {};
+            cellProperties.type = {
+		renderer: tableRenderer
+	    }
+	    return cellProperties;
+	}
+      });
+      processChange(null,null,null);
 
 $("#parent_checkbox").click(function() {
   use_parent = $("#parent_checkbox")[0].checked;
