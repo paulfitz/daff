@@ -151,6 +151,10 @@ JTable2.prototype.trimColumns = function() {
     return true;
 }
 
+JTable2.prototype.getData = function() {
+    return data;
+}
+
 if (typeof exports != "undefined") {
     exports.JTable = JTable;
     exports.JTable2 = JTable2;

@@ -61,6 +61,10 @@ h2, h3 {
   background-color: #aaa;
 }
 
+.highlighter .null { 
+  color: #888;
+}
+
 .highlighter table { 
   border-collapse:collapse;
 }
@@ -70,11 +74,23 @@ h2, h3 {
   padding: 3px 7px 2px;
 }
 
-.highlighter th { 
+.highlighter th, .highlighter .header { 
   background-color: #374f7f;
   color: white;
-  font-size: 110%;
+  font-weight: bold;
   padding-bottom: 4px;
   padding-top: 5px;
   text-align:left;
+}
+
+.highlighter tr:first-child td {
+  border-top: 1px solid #2D4068;
+}
+
+.highlighter td:first-child { 
+  border-left: 1px solid #2D4068;
+}
+
+td {
+  empty-cells: show;
 }
