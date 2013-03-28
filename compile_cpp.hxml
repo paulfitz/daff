@@ -2,3 +2,4 @@
 -cpp bin
 -main coopy.Coopy
 -debug
+# -D static_link
