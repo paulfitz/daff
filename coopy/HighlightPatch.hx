@@ -107,6 +107,13 @@ class HighlightPatch implements Row {
     }
 
     private function applyUpdate() : Void {
+       needSourceIndex();
+       var at : Int = lookUp();
+       if (at==-1) return;
+       var mod : HighlightPatchUnit = new HighlightPatchUnit();
+       mod.sourceRow = at;
+       mod.patchRow = currentRow;
+       mods.push(mod);
     }
 
     private function applyInsert() : Void {
@@ -147,18 +154,32 @@ class HighlightPatch implements Row {
         var at : Int = lookUp();
         if (at==-1) return;
         var mod : HighlightPatchUnit = new HighlightPatchUnit();
-        mod.add = false;
+        mod.rem = true;
         mod.sourceRow = at;
+        mod.patchRow = currentRow;
         mods.push(mod);
     }
 
     private function applyPad() : Void {
     }
 
+    private function getPreString(txt: String) : String {
+        if (getString(0)!="->") {
+            return txt;
+        }
+        return txt.split("->")[0];
+    }
+
+    private function getPostDatum(txt: String) : Datum {
+        var rep : String = txt.split("->")[1];
+        if (rep==null) return null;
+        return new SimpleCell(rep);
+    }
+
     public function getRowString(c: Int) : String {
         var at : Null<Int> = sourceInPatch.get(c);
         if (at == null) return "NOT_FOUND"; // should be avoided
-        return getString(at);
+        return getPreString(getString(at));
     }
 
     private function finish() : Void {
@@ -177,17 +198,19 @@ class HighlightPatch implements Row {
                     last++;
                 }
             }
-            if (!mod.add) {
+            if (mod.rem) {
                 fate.push(-1);
                 offset--;
-            } else {
+            } else if (mod.add) {
                 mod.sourceRow2 = target;
                 target++;
                 offset++;
+            } else {
+                mod.sourceRow2 = target;
             }
             if (mod.sourceRow>=0) {
                 last = mod.sourceRow;
-                if (!mod.add) last++;
+                if (mod.rem) last++;
             } else {
                 last = -1;
             }
@@ -195,12 +218,24 @@ class HighlightPatch implements Row {
         //trace(fate);
         source.insertOrDeleteRows(fate,source.height+offset);
         for (mod in mods) {
-            if (mod.add) {
+            if (!mod.rem) {
                 //trace("Revisiting " + mod);
-                for (c in headerPost) {
-                    source.setCell(patchInSource2.get(c),
-                                   mod.sourceRow2,
-                                   patch.getCell(c,mod.patchRow));
+                if (mod.add) {
+                    for (c in headerPost) {
+                        source.setCell(patchInSource2.get(c),
+                                       mod.sourceRow2,
+                                       patch.getCell(c,mod.patchRow));
+                    }
+                } else if (!mod.rem) {
+                    // update
+                    for (c in headerPre) {
+                        var d : Datum = 
+                            getPostDatum(view.toString(patch.getCell(c,mod.patchRow)));
+                        if (d==null) continue;
+                        source.setCell(patchInSource2.get(c),
+                                       mod.sourceRow2,
+                                       d);
+                    }
                 }
             }
         }
