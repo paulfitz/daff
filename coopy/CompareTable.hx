@@ -5,6 +5,7 @@ package coopy;
 @:expose
 class CompareTable {
     private var comp: TableComparisonState;
+    private var indexes : Array<IndexPair>;
 
     public function new() {}
 
@@ -45,6 +46,7 @@ class CompareTable {
         align.meta.reference = align.reference.meta;
     }
 
+
     private function alignCore2(align: Alignment,
                                 a: Table, b: Table) : Void {
         if (align.meta == null) {
@@ -68,8 +70,6 @@ class CompareTable {
         var hb : Int = b.height;
 
         var av : View = a.getCellView();
-
-        var indexes : Map<String,IndexPair> = new Map<String,IndexPair>();
 
         // If we have more columns than we have time to process their
         // combinations, we need to haul out some heuristics.
@@ -148,6 +148,10 @@ class CompareTable {
             var ratio : Float = wide_top_freq;
             ratio /= (h+20); // "20" allows for low-data 
             if (ratio>=0.1) continue; // lousy no-good index, move on
+
+            if (indexes!=null) {
+                indexes.push(index);
+            }
 
             var fixed : Array<Int> = new Array<Int>();
             for (j in pending.keys()) {
@@ -301,5 +305,13 @@ class CompareTable {
         }
         comp.completed = true;
         return false;
+    }
+
+    public function storeIndexes() : Void {
+        indexes = new Array<IndexPair>();
+    }
+
+    public function getIndexes() : Array<IndexPair> {
+        return indexes;
     }
 }

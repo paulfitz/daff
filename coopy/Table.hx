@@ -12,4 +12,6 @@ interface Table {
     function isResizable() : Bool;
     function resize(w: Int, h: Int) : Bool;
     function clear() : Void;
+
+    function insertOrDeleteRows(fate: Array<Int>, hfate: Int) : Bool;
 }

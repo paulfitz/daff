@@ -92,6 +92,7 @@ class Coopy {
         var idx : Index = new Index();
         var dr : DiffRender = new DiffRender();
         var cf : CompareFlags = new CompareFlags();
+        var hp: HighlightPatch = new HighlightPatch(null,null);
 
         return 0;
     }
@@ -195,29 +196,37 @@ class Coopy {
                 }
             }
         }
-        if (args.length != 3 || args[0] != "diff") {
+        if (args.length != 3 || (args[0] != "diff" && args[0] != "patch")) {
             Sys.stderr().writeString("Howdy.  coopyhx doesn't have much of a command line interface.\n");
             Sys.stderr().writeString("You may want the coopy toolbox https://github.com/paulfitz/coopy\n");
             Sys.stderr().writeString("If you do want coopyhx - call as:\n");
             Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.csv] a.csv b.csv\n");
             Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
+            Sys.stderr().writeString("  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv\n");
             return 1;
         }
         if (output == null) {
             output = "-";
         }
+        var cmd : String = args[0];
         var tool : Coopy = new Coopy();
         var a = tool.loadTable(args[1]);
         var b = tool.loadTable(args[2]);
-        var ct : CompareTable = compareTables(a,b);
-        var align : Alignment = ct.align();
-        var flags : CompareFlags = new CompareFlags();
-        //flags.show_unchanged = true;
-        flags.always_show_header = true;
-        var td : TableDiff = new TableDiff(align,flags);
-        var o = new SimpleTable(0,0);
-        td.hilite(o);
-        tool.saveTable(output,o);
+        if (cmd=="diff") {
+            var ct : CompareTable = compareTables(a,b);
+            var align : Alignment = ct.align();
+            var flags : CompareFlags = new CompareFlags();
+            //flags.show_unchanged = true;
+            flags.always_show_header = true;
+            var td : TableDiff = new TableDiff(align,flags);
+            var o = new SimpleTable(0,0);
+            td.hilite(o);
+            tool.saveTable(output,o);
+        } else {
+            var patcher : HighlightPatch = new HighlightPatch(a,b);
+            patcher.apply();
+            tool.saveTable(output,a);
+        }
         return 0;
     }
 #end

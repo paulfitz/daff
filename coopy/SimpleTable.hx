@@ -83,8 +83,46 @@ class SimpleTable implements Table implements Bag {
         return true;
     }
 
-
     public function clear() : Void {
         data = new Map<Int,Datum>();
+    }
+
+    /*
+    public function deleteRows(y: Int, ct: Int) : Bool {
+        if (ct<=0) return true;
+        var data2 : Map<Int,Datum> = new Map<Int,Datum>();
+        var offset : Int = ct*w;
+        var start : Int = y*w;
+        var end : Int = (y+ct)*w;
+        for (k in data.keys()) {
+            if (k<start) {
+                data2.set(k,data.get(k));
+            } else if (k>=end) {
+                data2.set(k-offset,data.get(k));
+            }
+        }
+        data = data2;
+        h -= ct;
+        return true;
+    }
+    */
+
+    public function insertOrDeleteRows(fate: Array<Int>, hfate: Int) : Bool {
+        var data2 : Map<Int,Datum> = new Map<Int,Datum>();
+        var offsets : Map<Int,Int> = new Map<Int,Int>();
+        for (i in 0...fate.length) {
+            var j : Int = fate[i];
+            if (j!=-1) {
+                for (c in 0...w) {
+                    var idx : Int = i*w+c;
+                    if (data.exists(idx)) {
+                        data2.set(j*w+c,data.get(idx));
+                    }
+                }
+            }
+        }
+        h = hfate;
+        data = data2;
+        return true;
     }
 }

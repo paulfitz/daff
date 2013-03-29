@@ -43,9 +43,8 @@ class IndexPair {
         quality = good/Math.max(1.0,a.height);
     }
 
-    public function queryLocal(row: Int) : CrossMatch {
+    private function queryByKey(ka: String) : CrossMatch {
         var result : CrossMatch = new CrossMatch();
-        var ka : String = ia.toKey(ia.getTable(),row);
         result.item_a = ia.items.get(ka);
         result.item_b = ib.items.get(ka);
         result.spot_a = result.spot_b = 0;
@@ -54,6 +53,17 @@ class IndexPair {
             if (result.item_b!=null) result.spot_b = result.item_b.lst.length;
         }
         return result;
+    }
+
+    public function queryByContent(row: Row) : CrossMatch {
+        var result : CrossMatch = new CrossMatch();
+        var ka : String = ia.toKeyByContent(row);
+        return queryByKey(ka);
+    }
+
+    public function queryLocal(row: Int) : CrossMatch {
+        var ka : String = ia.toKey(ia.getTable(),row);
+        return queryByKey(ka);
     }
 
     public function getTopFreq() : Int {
