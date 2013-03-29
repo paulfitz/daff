@@ -174,7 +174,12 @@ JTable2.prototype.insertOrDeleteRows = function(fate, hfate) {
 	    ndata[j] = this.data[i];
         }
     }
-    this.data = ndata;
+    // let's preserve data
+    //this.data = ndata;
+    this.data.length = 0;
+    for (var i=0; i<ndata.length; i++) {
+	this.data[i] = ndata[i];
+    }
     this.resize(this.width,hfate);
     return true;
 }

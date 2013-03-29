@@ -1741,7 +1741,7 @@ coopy.TableDiff.prototype = {
 					while(_g2 < _g1) {
 						var i = _g2++;
 						if(active[i] == 0 || active[i] == 3) {
-							if(i - mark <= del) active[i] = 2; else if(mark - i == del + 1) active[i] = 3;
+							if(i - mark <= del) active[i] = 2; else if(i - mark == del + 1) active[i] = 3;
 						} else if(active[i] == 1) mark = i;
 					}
 					mark = units.length + del + 1;
@@ -1755,6 +1755,7 @@ coopy.TableDiff.prototype = {
 					}
 				}
 			}
+			var showed_dummy = false;
 			var _g2 = 0, _g1 = units.length;
 			while(_g2 < _g1) {
 				var i = _g2++;
@@ -1767,8 +1768,10 @@ coopy.TableDiff.prototype = {
 				if(out == 1) {
 					publish = active[i] > 0;
 					dummy = active[i] == 3;
+					if(dummy && showed_dummy) continue;
 					if(!publish) continue;
 				}
+				if(!dummy) showed_dummy = false;
 				var at = output.get_height();
 				if(publish) output.resize(column_units.length + 1,at + 1);
 				if(dummy) {
@@ -1776,6 +1779,7 @@ coopy.TableDiff.prototype = {
 					while(_g4 < _g3) {
 						var j = _g4++;
 						output.setCell(j,at,v.toDatum("..."));
+						showed_dummy = true;
 					}
 					continue;
 				}
