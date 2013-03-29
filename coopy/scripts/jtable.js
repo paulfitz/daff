@@ -88,6 +88,9 @@ JTable2.prototype.resize = function(w,h) {
     this.height = h;
     for (var i=0; i<this.data.length; i++) {
 	var row = this.data[i];
+	if (row==null) {
+	    row = this.data[i] = [];
+	}
 	while (row.length<this.width) {
 	    row.push(null);
 	}
@@ -153,6 +156,38 @@ JTable2.prototype.trimColumns = function() {
 
 JTable2.prototype.getData = function() {
     return data;
+}
+
+JTable2.prototype.clone = function() {
+    var ndata = [];
+    for (var i=0; i<this.get_height(); i++) {
+	ndata[i] = this.data[i].slice();
+    }
+    return new JTable2(ndata);
+}
+
+JTable2.prototype.insertOrDeleteRows = function(fate, hfate) {
+    var ndata = [];
+    for (var i=0; i<fate.length; i++) {
+        var j = fate[i];
+        if (j!=-1) {
+	    ndata[j] = this.data[i];
+        }
+    }
+    this.data = ndata;
+    this.resize(this.width,hfate);
+    return true;
+}
+
+JTable2.prototype.isSimilar = function(alt) {
+    if (alt.width!=this.width) return false;
+    if (alt.height!=this.height) return false;
+    for (var c=0; c<this.width; c++) {
+	for (var r=0; r<this.height; r++) {
+	    if ("" + this.getCell(c,r) != "" + alt.getCell(c,r)) return false;
+	}
+    }
+    return true;
 }
 
 if (typeof exports != "undefined") {
