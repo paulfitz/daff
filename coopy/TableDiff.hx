@@ -104,7 +104,7 @@ class TableDiff {
                         if (active[i]==0||active[i]==3) {
                             if (i-mark<=del) {
                                 active[i] = 2;
-                            } else if (mark-i==del+1) {
+                            } else if (i-mark==del+1) {
                                 active[i] = 3;
                             }
                         } else if (active[i]==1) {
@@ -128,6 +128,7 @@ class TableDiff {
                     }
                 }
             }
+            var showed_dummy : Bool = false;
             for (i in 0...units.length) {
                 var unit : Unit = units[i];
                 
@@ -142,9 +143,11 @@ class TableDiff {
                 if (out==1) {
                     publish = active[i]>0;
                     dummy = active[i]==3;
+                    if (dummy&&showed_dummy) continue;
                     if (!publish) continue;
                 }
 
+                if (!dummy) showed_dummy = false;
 
                 var at : Int = output.height;
                 if (publish) {
@@ -154,6 +157,7 @@ class TableDiff {
                 if (dummy) {
                     for (j in 0...(column_units.length+1)) {
                         output.setCell(j,at,v.toDatum("..."));
+                        showed_dummy = true;
                     }
                     continue;
                 }

@@ -18,8 +18,7 @@
   a javascript library for comparing tables.  Edit the tables below
   to see it in action.<br />
 	<form>
-	  Demo options: <input id="parent_checkbox" type="checkbox" />Use 3-way comparison /
-	  <a id="button-clear" href="#">Clear all cells</a>
+	  <input type=button id="button-clear" value="clear all cells" />
 	</form>
 
 </div>
@@ -54,6 +53,7 @@
 	<a href="http://share.find.coop/doc/spec_hilite.html">highlighter diff format</a>.
 	</p>
 	<div id="diff" class="highlighter"></div>
+	<form><input type=button id="apply-diff" value="Apply diff to original" /> (columns must be the same currently)</form>
 	<div class="alignment">
 	  <h3>Row alignment</h3>
 	  <div id="ordering"></div>
@@ -97,6 +97,7 @@ function processChange(changes,source,table) {
   flags.show_unchanged = false;
   flags.always_show_header = true;
   (new coopy.TableDiff(align,flags)).hilite(output);
+  data_diff = output.data;
   $("#diff").handsontable('loadData',output.data);
   /*
   var render = new coopy.DiffRender();
@@ -259,7 +260,19 @@ $("#button-clear").click(function() {
   $('#table1').handsontable('render');
   $('#table2').handsontable('render');
   return false;
-})
+});
+
+$("#apply-diff").click(function() {
+  var t1 = new jtable.JTable2(data1);
+  t1.trim();
+  var patch = new jtable.JTable2(data_diff);
+  patch.trim();
+  var patcher = new coopy.HighlightPatch(t1,patch);
+  patcher.apply();
+  $('#table1').handsontable('render');
+  processChange(null,null,null);
+  return false;
+});
 </script>
 
 </body>
