@@ -32,32 +32,54 @@ function order_asserts(order,lst) {
     }
 }
 
+function round_trip(t1,t2,msg) {
+    var ct = new coopy.Coopy.compareTables(t1,t2);
+    var align = ct.align();
+    var flags = new coopy.CompareFlags();
+    flags.always_show_header = true;
+    var td = new coopy.TableDiff(align,flags);
+    var output = new jtable.JTable2([]);
+    td.hilite(output);
+    console.log(output);
+    
+    var t1c = t1.clone();
+    var patcher = new coopy.HighlightPatch(t1c,output);
+    patcher.apply();
+    assert(t1c.isSimilar(t2),msg);
+}
+
+function bi_round_trip(t1,t2,msg) {
+    round_trip(t1,t2,msg);
+    round_trip(t2,t1,msg + " (reversed)");
+}
+
 {
     var t1 = new jtable.JTable2([["Name","Number"],["John",14],["Jane",99]]);
     var t2 = new jtable.JTable2([["Name","Number"],["Mary",17],["John",14],["Jane",99]]);
     var t3 = new jtable.JTable2([["Name","Number"],["John",15],["Sam",21],["Jane",99]]);
     
-    var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
-    var align = ct.align();
-    align_asserts(align,
-		  [[0,0],[1,1],[2,3]]);
-    align_asserts(align.reference,
-		  [[0,0],[1,2],[2,3]]);
-    order_asserts(align.toOrder(),
-		  [[0,0,0],
-		   [1,-1,-1],
-		   [2,1,1],
-		   [-1,2,-1],
-		   [3,3,2]]);
+    {
+	var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
+	var align = ct.align();
+	align_asserts(align,
+		      [[0,0],[1,1],[2,3]]);
+	align_asserts(align.reference,
+		      [[0,0],[1,2],[2,3]]);
+	order_asserts(align.toOrder(),
+		      [[0,0,0],
+		       [1,-1,-1],
+		       [2,1,1],
+		       [-1,2,-1],
+		       [3,3,2]]);
 
-    var options = new coopy.CompareFlags();
-    var td = new coopy.TableDiff(align,options);
-    var output = new jtable.JTable2([]);
-    td.hilite(output);
-    //coopy.Coopy.show(output);
-    var dr = new coopy.DiffRender();
-    dr.render(output);
-    //console.log(dr.html());
+	var options = new coopy.CompareFlags();
+	var td = new coopy.TableDiff(align,options);
+	var output = new jtable.JTable2([]);
+	td.hilite(output);
+    }
 
-    // NO ACTUAL TESTING YET
+    round_trip(t1,t1,"t1 <-> t1");
+    bi_round_trip(t1,t3,"t1 <-> t3");
+    bi_round_trip(t1,t2,"t1 <-> t2");
+    bi_round_trip(t2,t3,"t2 <-> t3");
 }

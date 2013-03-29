@@ -109,7 +109,6 @@ class SimpleTable implements Table implements Bag {
 
     public function insertOrDeleteRows(fate: Array<Int>, hfate: Int) : Bool {
         var data2 : Map<Int,Datum> = new Map<Int,Datum>();
-        var offsets : Map<Int,Int> = new Map<Int,Int>();
         for (i in 0...fate.length) {
             var j : Int = fate[i];
             if (j!=-1) {

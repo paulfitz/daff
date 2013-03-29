@@ -173,7 +173,7 @@ class HighlightPatch implements Row {
     private function getPostDatum(txt: String) : Datum {
         var rep : String = txt.split("->")[1];
         if (rep==null) return null;
-        return new SimpleCell(rep);
+        return view.toDatum(rep);
     }
 
     public function getRowString(c: Int) : String {
@@ -213,6 +213,13 @@ class HighlightPatch implements Row {
                 if (mod.rem) last++;
             } else {
                 last = -1;
+            }
+        }
+        if (last!=-1) {
+            for (i in last...source.height) {
+                fate.push(i+offset);
+                target++;
+                last++;
             }
         }
         //trace(fate);
