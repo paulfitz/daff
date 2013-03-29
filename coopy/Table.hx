@@ -14,4 +14,5 @@ interface Table {
     function clear() : Void;
 
     function insertOrDeleteRows(fate: Array<Int>, hfate: Int) : Bool;
+    function insertOrDeleteColumns(fate: Array<Int>, wfate: Int) : Bool;
 }

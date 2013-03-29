@@ -184,6 +184,10 @@ JTable2.prototype.insertOrDeleteRows = function(fate, hfate) {
     return true;
 }
 
+JTable2.prototype.insertOrDeleteColumns = function(fate, wfate) {
+    return false;
+}
+
 JTable2.prototype.isSimilar = function(alt) {
     if (alt.width!=this.width) return false;
     if (alt.height!=this.height) return false;

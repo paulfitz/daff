@@ -124,4 +124,22 @@ class SimpleTable implements Table implements Bag {
         data = data2;
         return true;
     }
+
+    public function insertOrDeleteColumns(fate: Array<Int>, wfate: Int) : Bool {
+        var data2 : Map<Int,Datum> = new Map<Int,Datum>();
+        for (i in 0...fate.length) {
+            var j : Int = fate[i];
+            if (j!=-1) {
+                for (r in 0...h) {
+                    var idx : Int = r*w+i;
+                    if (data.exists(idx)) {
+                        data2.set(r*wfate+j,data.get(idx));
+                    }
+                }
+            }
+        }
+        w = wfate;
+        data = data2;
+        return true;
+    }
 }

@@ -10,23 +10,29 @@ class HighlightPatch implements Row {
     private var payloadCol : Int;
     private var payloadTop : Int;
     private var view : View;
+    private var header : Map<Int,String>;
     private var headerPre : Map<String,Int>;
     private var headerPost : Map<String,Int>;
-    private var schemaModifier : Map<Int,String>;
+    private var modifier : Map<Int,String>;
     private var indexes : Array<IndexPair>;
     private var sourceInPatch : Map<Int,Int>;
-    private var patchInSource2 : Map<Int,Int>;
+    private var patchInSource : Map<Int,Int>;
     private var mods : Array<HighlightPatchUnit>;
+    private var cmods : Array<HighlightPatchUnit>;
+    private var haveSourceColumns : Bool;
 
     public function new(source: Table, patch: Table) {
         this.source = source;
         this.patch = patch;
+        header = new Map<Int,String>();
         headerPre = new Map<String,Int>();
         headerPost = new Map<String,Int>();
-        schemaModifier = new Map<Int,String>();
+        modifier = new Map<Int,String>();
         sourceInPatch = new Map<Int,Int>();
-        patchInSource2 = new Map<Int,Int>();
+        patchInSource = new Map<Int,Int>();
         mods = new Array<HighlightPatchUnit>();
+        cmods = new Array<HighlightPatchUnit>();
+        haveSourceColumns = false;
     }
 
     public function apply() : Bool {
@@ -34,8 +40,23 @@ class HighlightPatch implements Row {
         for (r in 0...patch.height) {
             applyRow(r);
         }
-        finish();
+        finishRows();
+        finishColumns();
         return true;
+    }
+
+    private function needSourceColumns() : Void {
+        if (haveSourceColumns) return;
+        // make sure we know where source columns are
+        var av : View = source.getCellView();
+        for (i in 0...source.width) {
+            var name : String = av.toString(source.getCell(i,0));
+            var at : Null<Int> = headerPre.get(name);
+            if (at == null) continue;
+            sourceInPatch.set(i,at);
+            patchInSource.set(at,i);  // needs tweak for add/rems
+        }
+        haveSourceColumns = true;
     }
 
     private function needSourceIndex() : Void {
@@ -48,15 +69,7 @@ class HighlightPatch implements Row {
         comp.attach(state);
         comp.align();
         indexes = comp.getIndexes();
-        // make sure we know where source columns are
-        var av : View = source.getCellView();
-        for (i in 0...source.width) {
-            var name : String = av.toString(source.getCell(i,0));
-            var at : Null<Int> = headerPre.get(name);
-            if (at == null) continue;
-            sourceInPatch.set(i,at);
-            patchInSource2.set(at,i);  // needs tweak for add/rems
-        }
+        needSourceColumns();
     }
 
     private function applyRow(r: Int) : Void {
@@ -94,13 +107,14 @@ class HighlightPatch implements Row {
         for (i in payloadCol...payloadTop) {
             var name : String = getString(i);
             if (name == "") continue;
-            schemaModifier.set(i,name);
+            modifier.set(i,name);
         }
     }
     private function applyHeader() : Void {
         for (i in payloadCol...payloadTop) {
             var name : String = getString(i);
-            var mod : String = schemaModifier.get(i);
+            var mod : String = modifier.get(i);
+            header.set(i,name);
             if (mod!="+++") headerPre.set(name,i);
             if (mod!="---") headerPost.set(name,i);
         }
@@ -182,14 +196,15 @@ class HighlightPatch implements Row {
         return getPreString(getString(at));
     }
 
-    private function finish() : Void {
+    private function processMods(rmods : Array<HighlightPatchUnit>,
+                                 fate: Array<Int>,
+                                 len: Int) : Int {
         var sorter = function(a,b) { if (a.sourceRow==-1 && b.sourceRow!=-1) return 1; if (a.sourceRow!=-1 && b.sourceRow==-1) return -1; if (a.sourceRow>b.sourceRow) return 1; if (a.sourceRow<b.sourceRow) return -1; return 0; }
         mods.sort(sorter);
         var offset : Int = 0;
         var last : Int = 0;
         var target : Int = 0;
-        var fate : Array<Int> = new Array<Int>();
-        for (mod in mods) {
+        for (mod in rmods) {
             //trace("Working on " + mod);
             if (last!=-1) {
                 for (i in last...mod.sourceRow) {
@@ -216,20 +231,27 @@ class HighlightPatch implements Row {
             }
         }
         if (last!=-1) {
-            for (i in last...source.height) {
+            for (i in last...len) {
                 fate.push(i+offset);
                 target++;
                 last++;
             }
         }
         //trace(fate);
-        source.insertOrDeleteRows(fate,source.height+offset);
+        //trace(len+offset);
+        return len+offset;
+    }
+
+    private function finishRows() : Void {
+        var fate : Array<Int> = new Array<Int>();
+        var len : Int = processMods(mods,fate,source.height);
+        source.insertOrDeleteRows(fate,len);
         for (mod in mods) {
             if (!mod.rem) {
                 //trace("Revisiting " + mod);
                 if (mod.add) {
                     for (c in headerPost) {
-                        source.setCell(patchInSource2.get(c),
+                        source.setCell(patchInSource.get(c),
                                        mod.sourceRow2,
                                        patch.getCell(c,mod.patchRow));
                     }
@@ -239,10 +261,65 @@ class HighlightPatch implements Row {
                         var d : Datum = 
                             getPostDatum(view.toString(patch.getCell(c,mod.patchRow)));
                         if (d==null) continue;
-                        source.setCell(patchInSource2.get(c),
+                        source.setCell(patchInSource.get(c),
                                        mod.sourceRow2,
                                        d);
                     }
+                }
+            }
+        }
+    }
+
+    private function finishColumns() : Void {
+        needSourceColumns();
+        for (i in payloadCol...payloadTop) {
+            var mod : String = modifier.get(i);
+            var hdr : String = header.get(i);
+            if (mod=="---") {
+                //trace("Should remove column " + hdr);
+                var at : Int = patchInSource.get(i);
+                var mod : HighlightPatchUnit = new HighlightPatchUnit();
+                mod.rem = true;
+                mod.sourceRow = at;
+                mod.patchRow = i;
+                cmods.push(mod);
+            } else if (mod=="+++") {
+                //trace("Should add column " + hdr);
+                var mod : HighlightPatchUnit = new HighlightPatchUnit();
+                mod.add = true;
+                var prev : Int = -1;
+                var cont : Bool = false;
+                if (i>payloadCol) {
+                    if (modifier.get(i)==modifier.get(i-1)) {
+                        prev = -2;
+                    } else {
+                        var p : Null<Int> = patchInSource.get(i-1);
+                        prev = (p==null)?-1:p;
+                    }
+                }
+                if (prev==-2) {
+                    mod.sourceRow = cmods[mods.length-1].sourceRow;
+                } else {
+                    mod.sourceRow = (prev<0)?prev:(prev+1);
+                }
+                mod.patchRow = i;
+                cmods.push(mod);
+            }
+        }
+        var fate : Array<Int> = new Array<Int>();
+        var len : Int = processMods(cmods,fate,source.width);
+        source.insertOrDeleteColumns(fate,len);
+        for (cmod in cmods) {
+            if (!cmod.rem) {
+                if (cmod.add) {
+                    //trace("Should fill in " + cmod.sourceRow2 + " from " +
+                    //cmod.patchRow);
+                    // we're not ready yet, but at least pop in
+                    // column name
+                    var hdr : String = header.get(cmod.patchRow);
+                    source.setCell(cmod.sourceRow2,
+                                   0,
+                                   view.toDatum(hdr));
                 }
             }
         }
