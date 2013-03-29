@@ -216,7 +216,6 @@ class Coopy {
             var ct : CompareTable = compareTables(a,b);
             var align : Alignment = ct.align();
             var flags : CompareFlags = new CompareFlags();
-            //flags.show_unchanged = true;
             flags.always_show_header = true;
             var td : TableDiff = new TableDiff(align,flags);
             var o = new SimpleTable(0,0);

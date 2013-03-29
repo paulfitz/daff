@@ -4,12 +4,14 @@ package coopy;
 
 @:expose
 class CompareFlags {
-    public var show_unchanged : Bool;
     public var always_show_header : Bool;
+    public var show_unchanged : Bool;
+    public var unchanged_context : Int;
 
     public function new() {
+        always_show_header = true;
         show_unchanged = false;
-        always_show_header = false;
+        unchanged_context = 1;
     }
 }
 

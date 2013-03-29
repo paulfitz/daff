@@ -37,7 +37,7 @@ class TableDiff {
         var column_order : Ordering = align.meta.toOrder();
         var column_units : Array<Unit> = column_order.getList();
 
-        var reps_needed : Int = flags.show_unchanged ? 1 : 2;
+        var outer_reps_needed : Int = flags.show_unchanged ? 1 : 2;
 
         var v : View = a.getCellView();
 
@@ -87,24 +87,79 @@ class TableDiff {
             top_line_done = true;
         }
 
-        for (i in 0...units.length) {
-            var unit : Unit = units[i];
+        var active : Array<Int> = new Array<Int>();
+        if (!flags.show_unchanged) {
+            for (i in 0...units.length) {
+                active[i] = 0;
+            }
+        }
 
-            if (unit.r<0 && unit.l<0) continue;
+        for (out in 0...outer_reps_needed) {
+            if (out==1) {
+                var del : Int = flags.unchanged_context;
+                if (del>0) {
+                    // forward
+                    var mark : Int = -del-1;
+                    for (i in 0...units.length) {
+                        if (active[i]==0||active[i]==3) {
+                            if (i-mark<=del) {
+                                active[i] = 2;
+                            } else if (mark-i==del+1) {
+                                active[i] = 3;
+                            }
+                        } else if (active[i]==1) {
+                            mark = i;
+                        }
+                    }
 
-            if (unit.r==0 && unit.lp()==0 && top_line_done) continue;
+                    // reverse
+                    mark = units.length + del + 1;
+                    for (j in 0...units.length) {
+                        var i : Int = units.length-1-j;
+                        if (active[i]==0||active[i]==3) {
+                            if (mark-i<=del) {
+                                active[i] = 2;
+                            } else if (mark-i==del+1) {
+                                active[i] = 3;
+                            }
+                        } else if (active[i]==1) {
+                            mark = i;
+                        }
+                    }
+                }
+            }
+            for (i in 0...units.length) {
+                var unit : Unit = units[i];
+                
+                if (unit.r<0 && unit.l<0) continue;
+                
+                if (unit.r==0 && unit.lp()==0 && top_line_done) continue;
 
-            var act : String = "";
+                var act : String = "";
 
-            var publish : Bool = flags.show_unchanged;
-            for (rep in 0...reps_needed) {
+                var publish : Bool = flags.show_unchanged;
+                var dummy : Bool = false;
+                if (out==1) {
+                    publish = active[i]>0;
+                    dummy = active[i]==3;
+                    if (!publish) continue;
+                }
+
+
                 var at : Int = output.height;
                 if (publish) {
                     output.resize(column_units.length+1,at+1);
                 }
 
+                if (dummy) {
+                    for (j in 0...(column_units.length+1)) {
+                        output.setCell(j,at,v.toDatum("..."));
+                    }
+                    continue;
+                }
+                
                 var have_addition : Bool = false;
-
+                
                 if (unit.p<0 && unit.l<0 && unit.r>=0) {
                     act = "+++";
                 }
@@ -185,9 +240,11 @@ class TableDiff {
 
                 if (publish) output.setCell(0,at,v.toDatum(act));
                 if (act!="") {
-                    publish = true;
-                } else {
-                    break;
+                    if (!publish) {
+                        if (active!=null) {
+                            active[i] = 1;
+                        }
+                    }
                 }
             }
         }

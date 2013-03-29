@@ -36,11 +36,9 @@ function round_trip(t1,t2,msg) {
     var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     var flags = new coopy.CompareFlags();
-    flags.always_show_header = true;
     var td = new coopy.TableDiff(align,flags);
     var output = new jtable.JTable2([]);
     td.hilite(output);
-    console.log(output);
     
     var t1c = t1.clone();
     var patcher = new coopy.HighlightPatch(t1c,output);
@@ -57,6 +55,7 @@ function bi_round_trip(t1,t2,msg) {
     var t1 = new jtable.JTable2([["Name","Number"],["John",14],["Jane",99]]);
     var t2 = new jtable.JTable2([["Name","Number"],["Mary",17],["John",14],["Jane",99]]);
     var t3 = new jtable.JTable2([["Name","Number"],["John",15],["Sam",21],["Jane",99]]);
+    var t4 = new jtable.JTable2([["Name","Number"],["John",15],["Nimble",88],["Sam",21],["Jane",99]]);
     
     {
 	var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
@@ -78,8 +77,10 @@ function bi_round_trip(t1,t2,msg) {
 	td.hilite(output);
     }
 
-    round_trip(t1,t1,"t1 <-> t1");
-    bi_round_trip(t1,t3,"t1 <-> t3");
-    bi_round_trip(t1,t2,"t1 <-> t2");
-    bi_round_trip(t2,t3,"t2 <-> t3");
+    var tables = [t1, t2, t3, t4];
+    for (var i in tables) {
+	for (var j in tables) {
+	    round_trip(tables[i],tables[j],"t" + i + " <-> t" + j);
+	}
+    }
 }
