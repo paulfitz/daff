@@ -56,6 +56,7 @@ function bi_round_trip(t1,t2,msg) {
     var t2 = new jtable.JTable2([["Name","Number"],["Mary",17],["John",14],["Jane",99]]);
     var t3 = new jtable.JTable2([["Name","Number"],["John",15],["Sam",21],["Jane",99]]);
     var t4 = new jtable.JTable2([["Name","Number"],["John",15],["Nimble",88],["Sam",21],["Jane",99]]);
+    var t5 = new jtable.JTable2([["Name","Number","Planet"],["John",14,"Earth"],["Jane",99,"Mercury"]]);
     
     {
 	var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
@@ -77,10 +78,12 @@ function bi_round_trip(t1,t2,msg) {
 	td.hilite(output);
     }
 
-    var tables = [t1, t2, t3, t4];
+    round_trip(t1,t5,"foo");
+
+    var tables = [t1, t2, t3, t4, t5];
     for (var i in tables) {
 	for (var j in tables) {
-	    round_trip(tables[i],tables[j],"t" + i + " <-> t" + j);
+	    round_trip(tables[i],tables[j],"t" + (i+1) + " <-> t" + (j+1));
 	}
     }
 }

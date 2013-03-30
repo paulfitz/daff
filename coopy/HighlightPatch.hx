@@ -175,6 +175,14 @@ class HighlightPatch implements Row {
     }
 
     private function applyPad() : Void {
+       needSourceIndex();
+       var at : Int = lookUp();
+       if (at==-1) return;
+       var mod : HighlightPatchUnit = new HighlightPatchUnit();
+       mod.pad = true;
+       mod.sourceRow = at;
+       mod.patchRow = currentRow;
+       mods.push(mod);
     }
 
     private function getPreString(txt: String) : String {
@@ -255,7 +263,7 @@ class HighlightPatch implements Row {
                                        mod.sourceRow2,
                                        patch.getCell(c,mod.patchRow));
                     }
-                } else if (!mod.rem) {
+                } else if (!(mod.rem||mod.pad)) {
                     // update
                     for (c in headerPre) {
                         var d : Datum = 
@@ -316,6 +324,15 @@ class HighlightPatch implements Row {
                     //cmod.patchRow);
                     // we're not ready yet, but at least pop in
                     // column name
+                    for (mod in mods) {
+                        if (mod.patchRow!=-1 && mod.sourceRow2!=-1) {
+                            var d : Datum = patch.getCell(cmod.patchRow,
+                                                          mod.patchRow);
+                            source.setCell(cmod.sourceRow2,
+                                           mod.sourceRow2,
+                                           d);
+                        }
+                    }
                     var hdr : String = header.get(cmod.patchRow);
                     source.setCell(cmod.sourceRow2,
                                    0,

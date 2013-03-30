@@ -6,6 +6,7 @@ package coopy;
 class HighlightPatchUnit {
     public var add : Bool;
     public var rem : Bool;
+    public var pad : Bool;
     public var sourceRow : Int;
     public var sourceRow2 : Int;
     public var patchRow : Int;

@@ -8,6 +8,7 @@ class SimpleView implements View {
     }
 
     public function toString(d: Datum) : String {
+        if (d==null) return "";
         return "" + d;
     }
     
@@ -26,6 +27,8 @@ class SimpleView implements View {
     public function equals(d1: Datum, d2: Datum) : Bool {
         //trace("Comparing " + d1 + " and " + d2 + " -- " +  (("" + d1) == ("" + d2)));
         if (d1==null && d2==null) return true;
+        if (d1==null && (""+d2)=="") return true;
+        if ((""+d2)=="" && d2==null) return true;
         return ("" + d1) == ("" + d2);
     }
 

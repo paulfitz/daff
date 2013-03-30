@@ -185,7 +185,30 @@ JTable2.prototype.insertOrDeleteRows = function(fate, hfate) {
 }
 
 JTable2.prototype.insertOrDeleteColumns = function(fate, wfate) {
-    return false;
+    if (wfate==this.width && wfate==fate.length) {
+	var eq = true;
+	for (var i=0; i<wfate; i++) {
+	    if (fate[i]!=i) {
+		eq = false;
+		break;
+	    }
+	}
+	if (eq) return true;
+    }
+    for (var i=0; i<this.height; i++) {
+	var row = this.data[i];
+	var nrow = [];
+	for (var j=0; j<this.width; j++) {
+	    if (fate[j]==-1) continue;
+	    nrow[fate[j]] = row[j];
+	}
+	while (nrow.length<wfate) {
+	    nrow.push(null);
+	}
+	this.data[i] = nrow;
+    }
+    this.width = wfate;
+    return true;
 }
 
 JTable2.prototype.isSimilar = function(alt) {
