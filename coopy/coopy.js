@@ -1004,18 +1004,110 @@ coopy.Row.__name__ = true;
 coopy.HighlightPatch = function(source,patch) {
 	this.source = source;
 	this.patch = patch;
+	this.header = new haxe.ds.IntMap();
 	this.headerPre = new haxe.ds.StringMap();
 	this.headerPost = new haxe.ds.StringMap();
-	this.schemaModifier = new haxe.ds.IntMap();
+	this.modifier = new haxe.ds.IntMap();
 	this.sourceInPatch = new haxe.ds.IntMap();
-	this.patchInSource2 = new haxe.ds.IntMap();
+	this.patchInSource = new haxe.ds.IntMap();
 	this.mods = new Array();
+	this.cmods = new Array();
+	this.haveSourceColumns = false;
 };
 $hxExpose(coopy.HighlightPatch, "coopy.HighlightPatch");
 coopy.HighlightPatch.__name__ = true;
 coopy.HighlightPatch.__interfaces__ = [coopy.Row];
 coopy.HighlightPatch.prototype = {
-	finish: function() {
+	finishColumns: function() {
+		this.needSourceColumns();
+		var _g1 = this.payloadCol, _g = this.payloadTop;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var mod = this.modifier.get(i);
+			var hdr = this.header.get(i);
+			if(mod == "---") {
+				var at = this.patchInSource.get(i);
+				var mod1 = new coopy.HighlightPatchUnit();
+				mod1.rem = true;
+				mod1.sourceRow = at;
+				mod1.patchRow = i;
+				this.cmods.push(mod1);
+			} else if(mod == "+++") {
+				var mod1 = new coopy.HighlightPatchUnit();
+				mod1.add = true;
+				var prev = -1;
+				var cont = false;
+				if(i > this.payloadCol) {
+					if(this.modifier.get(i) == this.modifier.get(i - 1)) prev = -2; else {
+						var p = this.patchInSource.get(i - 1);
+						prev = p == null?-1:p;
+					}
+				}
+				if(prev == -2) mod1.sourceRow = this.cmods[this.mods.length - 1].sourceRow; else mod1.sourceRow = prev < 0?prev:prev + 1;
+				mod1.patchRow = i;
+				this.cmods.push(mod1);
+			}
+		}
+		var fate = new Array();
+		var len = this.processMods(this.cmods,fate,this.source.get_width());
+		this.source.insertOrDeleteColumns(fate,len);
+		var _g = 0, _g1 = this.cmods;
+		while(_g < _g1.length) {
+			var cmod = _g1[_g];
+			++_g;
+			if(!cmod.rem) {
+				if(cmod.add) {
+					var _g2 = 0, _g3 = this.mods;
+					while(_g2 < _g3.length) {
+						var mod = _g3[_g2];
+						++_g2;
+						if(mod.patchRow != -1 && mod.sourceRow2 != -1) {
+							var d = this.patch.getCell(cmod.patchRow,mod.patchRow);
+							this.source.setCell(cmod.sourceRow2,mod.sourceRow2,d);
+						}
+					}
+					var hdr = this.header.get(cmod.patchRow);
+					this.source.setCell(cmod.sourceRow2,0,this.view.toDatum(hdr));
+				}
+			}
+		}
+	}
+	,finishRows: function() {
+		var fate = new Array();
+		var len = this.processMods(this.mods,fate,this.source.get_height());
+		this.source.insertOrDeleteRows(fate,len);
+		var _g = 0, _g1 = this.mods;
+		while(_g < _g1.length) {
+			var mod = _g1[_g];
+			++_g;
+			if(!mod.rem) {
+				if(mod.add) {
+					var $it0 = ((function(_e) {
+						return function() {
+							return _e.iterator();
+						};
+					})(this.headerPost))();
+					while( $it0.hasNext() ) {
+						var c = $it0.next();
+						this.source.setCell(this.patchInSource.get(c),mod.sourceRow2,this.patch.getCell(c,mod.patchRow));
+					}
+				} else if(!(mod.rem || mod.pad)) {
+					var $it1 = ((function(_e1) {
+						return function() {
+							return _e1.iterator();
+						};
+					})(this.headerPre))();
+					while( $it1.hasNext() ) {
+						var c = $it1.next();
+						var d = this.getPostDatum(this.view.toString(this.patch.getCell(c,mod.patchRow)));
+						if(d == null) continue;
+						this.source.setCell(this.patchInSource.get(c),mod.sourceRow2,d);
+					}
+				}
+			}
+		}
+	}
+	,processMods: function(rmods,fate,len) {
 		var sorter = function(a,b) {
 			if(a.sourceRow == -1 && b.sourceRow != -1) return 1;
 			if(a.sourceRow != -1 && b.sourceRow == -1) return -1;
@@ -1027,15 +1119,14 @@ coopy.HighlightPatch.prototype = {
 		var offset = 0;
 		var last = 0;
 		var target = 0;
-		var fate = new Array();
-		var _g = 0, _g1 = this.mods;
-		while(_g < _g1.length) {
-			var mod = _g1[_g];
+		var _g = 0;
+		while(_g < rmods.length) {
+			var mod = rmods[_g];
 			++_g;
 			if(last != -1) {
-				var _g3 = last, _g2 = mod.sourceRow;
-				while(_g3 < _g2) {
-					var i = _g3++;
+				var _g2 = last, _g1 = mod.sourceRow;
+				while(_g2 < _g1) {
+					var i = _g2++;
 					fate.push(i + offset);
 					target++;
 					last++;
@@ -1055,45 +1146,15 @@ coopy.HighlightPatch.prototype = {
 			} else last = -1;
 		}
 		if(last != -1) {
-			var _g1 = last, _g = this.source.get_height();
-			while(_g1 < _g) {
-				var i = _g1++;
+			var _g = last;
+			while(_g < len) {
+				var i = _g++;
 				fate.push(i + offset);
 				target++;
 				last++;
 			}
 		}
-		this.source.insertOrDeleteRows(fate,this.source.get_height() + offset);
-		var _g = 0, _g1 = this.mods;
-		while(_g < _g1.length) {
-			var mod = _g1[_g];
-			++_g;
-			if(!mod.rem) {
-				if(mod.add) {
-					var $it0 = ((function(_e) {
-						return function() {
-							return _e.iterator();
-						};
-					})(this.headerPost))();
-					while( $it0.hasNext() ) {
-						var c = $it0.next();
-						this.source.setCell(this.patchInSource2.get(c),mod.sourceRow2,this.patch.getCell(c,mod.patchRow));
-					}
-				} else if(!mod.rem) {
-					var $it1 = ((function(_e1) {
-						return function() {
-							return _e1.iterator();
-						};
-					})(this.headerPre))();
-					while( $it1.hasNext() ) {
-						var c = $it1.next();
-						var d = this.getPostDatum(this.view.toString(this.patch.getCell(c,mod.patchRow)));
-						if(d == null) continue;
-						this.source.setCell(this.patchInSource2.get(c),mod.sourceRow2,d);
-					}
-				}
-			}
-		}
+		return len + offset;
 	}
 	,getRowString: function(c) {
 		var at = this.sourceInPatch.get(c);
@@ -1110,6 +1171,14 @@ coopy.HighlightPatch.prototype = {
 		return txt.split("->")[0];
 	}
 	,applyPad: function() {
+		this.needSourceIndex();
+		var at = this.lookUp();
+		if(at == -1) return;
+		var mod = new coopy.HighlightPatchUnit();
+		mod.pad = true;
+		mod.sourceRow = at;
+		mod.patchRow = this.currentRow;
+		this.mods.push(mod);
 	}
 	,applyDelete: function() {
 		this.needSourceIndex();
@@ -1163,7 +1232,8 @@ coopy.HighlightPatch.prototype = {
 		while(_g1 < _g) {
 			var i = _g1++;
 			var name = this.getString(i);
-			var mod = this.schemaModifier.get(i);
+			var mod = this.modifier.get(i);
+			this.header.set(i,name);
 			if(mod != "+++") this.headerPre.set(name,i);
 			if(mod != "---") this.headerPost.set(name,i);
 		}
@@ -1174,7 +1244,7 @@ coopy.HighlightPatch.prototype = {
 			var i = _g1++;
 			var name = this.getString(i);
 			if(name == "") continue;
-			this.schemaModifier.set(i,name);
+			this.modifier.set(i,name);
 		}
 	}
 	,getString: function(c) {
@@ -1202,6 +1272,10 @@ coopy.HighlightPatch.prototype = {
 		comp.attach(state);
 		comp.align();
 		this.indexes = comp.getIndexes();
+		this.needSourceColumns();
+	}
+	,needSourceColumns: function() {
+		if(this.haveSourceColumns) return;
 		var av = this.source.getCellView();
 		var _g1 = 0, _g = this.source.get_width();
 		while(_g1 < _g) {
@@ -1210,8 +1284,9 @@ coopy.HighlightPatch.prototype = {
 			var at = this.headerPre.get(name);
 			if(at == null) continue;
 			this.sourceInPatch.set(i,at);
-			this.patchInSource2.set(at,i);
+			this.patchInSource.set(at,i);
 		}
+		this.haveSourceColumns = true;
 	}
 	,apply: function() {
 		if(this.patch.get_width() < 2) return true;
@@ -1220,7 +1295,8 @@ coopy.HighlightPatch.prototype = {
 			var r = _g1++;
 			this.applyRow(r);
 		}
-		this.finish();
+		this.finishRows();
+		this.finishColumns();
 		return true;
 	}
 }
@@ -1481,7 +1557,26 @@ coopy.SimpleTable.tableToString = function(tab) {
 	return x;
 }
 coopy.SimpleTable.prototype = {
-	insertOrDeleteRows: function(fate,hfate) {
+	insertOrDeleteColumns: function(fate,wfate) {
+		var data2 = new haxe.ds.IntMap();
+		var _g1 = 0, _g = fate.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var j = fate[i];
+			if(j != -1) {
+				var _g3 = 0, _g2 = this.h;
+				while(_g3 < _g2) {
+					var r = _g3++;
+					var idx = r * this.w + i;
+					if(this.data.exists(idx)) data2.set(r * wfate + j,this.data.get(idx));
+				}
+			}
+		}
+		this.w = wfate;
+		this.data = data2;
+		return true;
+	}
+	,insertOrDeleteRows: function(fate,hfate) {
 		var data2 = new haxe.ds.IntMap();
 		var _g1 = 0, _g = fate.length;
 		while(_g1 < _g) {
@@ -1554,6 +1649,8 @@ coopy.SimpleView.prototype = {
 	}
 	,equals: function(d1,d2) {
 		if(d1 == null && d2 == null) return true;
+		if(d1 == null && "" + Std.string(d2) == "") return true;
+		if("" + Std.string(d2) == "" && d2 == null) return true;
 		return "" + Std.string(d1) == "" + Std.string(d2);
 	}
 	,hasStructure: function(d) {
@@ -1566,6 +1663,7 @@ coopy.SimpleView.prototype = {
 		return null;
 	}
 	,toString: function(d) {
+		if(d == null) return "";
 		return "" + Std.string(d);
 	}
 }
