@@ -182,12 +182,15 @@ function processChange(changes,source,table) {
  		 td.className = 'remove';
 	     } else if (v0.indexOf("->")>=0) {
 		 if (value!=null) {
-		     var token = v0.replace("!","");
  		     if (!removed_column) {
-			 if (value.indexOf(token)>=0) {
+			 var tokens = v0.split("!");
+			 var full = v0;
+			 var part = tokens[1];
+			 if (part==null) part = full;
+			 if (value.indexOf(part)>=0) {
 			     var name = "modify";
-			     if (token!=v0) {
-				 if (value.indexOf(v0)>=0) {
+			     if (part!=full) {
+				 if (value.indexOf(full)>=0) {
 				     name = 'conflict';
 				 }
 			     }
