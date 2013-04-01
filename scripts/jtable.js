@@ -1,4 +1,4 @@
-var coopy = (typeof require != "undefined") ? require('coopy_node') : coopy;
+var coopy = (typeof require != "undefined") ? require('coopy') : coopy;
 
 var JTable = function(w,h) {
     this.width = w;
@@ -216,7 +216,12 @@ JTable2.prototype.isSimilar = function(alt) {
     if (alt.height!=this.height) return false;
     for (var c=0; c<this.width; c++) {
 	for (var r=0; r<this.height; r++) {
-	    if ("" + this.getCell(c,r) != "" + alt.getCell(c,r)) return false;
+	    var v1 = "" + this.getCell(c,r);
+	    var v2 = "" + alt.getCell(c,r); 
+	    if (v1!=v2) {
+		console.log("MISMATCH "+ v1 + " " + v2);
+		return false;
+	    }
 	}
     }
     return true;

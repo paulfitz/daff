@@ -1,7 +1,9 @@
 #!/bin/bash
 
-for f in `cd test; ls $1*.js`; do
+BASE="$PWD"
+cd test || exit 1
+for f in `ls *$1*.js`; do
     echo "=============================================================================="
     echo "== $f"
-    NODE_PATH=$PWD:$PWD/scripts nodejs --prof ./test/$f || exit 1
+    NODE_PATH=$BASE:$BASE/scripts nodejs --prof ./$f || exit 1
 done

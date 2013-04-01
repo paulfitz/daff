@@ -13,6 +13,44 @@ class TableDiff {
     }
 
 
+    public function getSeparator(t: Table) : String {
+        var sep : String = "->";
+        var w : Int = t.width;
+        var h : Int = t.height;
+        var view : View = t.getCellView();
+        for (y in 0...h) {
+            for (x in 0...w) {
+                var txt : String = view.toString(t.getCell(x,y));
+                while (txt.indexOf(sep)>=0) {
+                    sep = "-" + sep;
+                }
+            }
+        }
+        return sep;
+    }
+
+    public function quoteForDiff(v: View, d: Datum) : String {
+        var nil : String = "NULL";
+        if (v.equals(d,null)) {
+            return nil;
+        }
+        var str : String = v.toString(d);
+        var score : Int = 0;
+        for (i in 0...str.length) {
+            if (str.charCodeAt(score)!='_'.code) break;
+            score++;
+        }
+        /*
+        if (str.indexOf("NULL")>=0) {
+            trace("Looking at " + str + " got score " + score);
+        }
+        */
+        if (str.substr(score)==nil) {
+            str = "_" + str;
+        }
+        return str;
+    }
+
     public function hilite(output: Table) : Bool { 
         if (!output.isResizable()) return false;
         output.resize(0,0);
@@ -40,6 +78,7 @@ class TableDiff {
         var outer_reps_needed : Int = flags.show_unchanged ? 1 : 2;
 
         var v : View = a.getCellView();
+        var sep : String = "";
 
         var schema : Array<String> = new Array<String>();
         var have_schema : Bool = false;
@@ -178,6 +217,7 @@ class TableDiff {
                     var rr : Datum = null;
                     var dd : Datum = null;
                     var dd_to : Datum = null;
+                    var have_dd_to : Bool = false;
                     var have_pp : Bool = false;
                     var have_ll : Bool = false;
                     var have_rr : Bool = false;
@@ -213,6 +253,7 @@ class TableDiff {
                                 // rr is different
                                 dd = pp;
                                 dd_to = rr;
+                                have_dd_to = true;
                             }
                         }
                     } else if (have_ll) {
@@ -225,21 +266,33 @@ class TableDiff {
                                 // rr is different
                                 dd = ll;
                                 dd_to = rr;
+                                have_dd_to = true;
                             }
                         }
                     } else {
                         dd = rr;
                     }
 
-                    var txt : String = v.toString(dd);
-                    if (dd_to!=null) {
-                        txt = txt + "->" + v.toString(dd_to);
-                        act = "->";
+                    var txt : String = null;
+                    if (have_dd_to) {
+                        txt = quoteForDiff(v,dd);
+                        // modification: x -> y
+                        if (sep=="") {
+                            sep = getSeparator(a);
+                        }
+                        txt = txt + sep + quoteForDiff(v,dd_to);
+                        act = sep;
                     }
                     if (act == "" && have_addition) {
                         act = "+";
                     }
-                    if (publish) output.setCell(j+1,at,v.toDatum(txt));
+                    if (publish) {
+                        if (txt != null) {
+                            output.setCell(j+1,at,v.toDatum(txt));
+                        } else {
+                            output.setCell(j+1,at,dd);
+                        }
+                    }
                 }
 
                 if (publish) output.setCell(0,at,v.toDatum(act));

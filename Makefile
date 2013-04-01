@@ -6,6 +6,7 @@ cpp:
 js:
 	haxe compile_js.hxml # generates coopy.js
 	cat coopy.js scripts/post_node.js > coopy_node.js
+	mv coopy_node.js coopy.js
 
 test: js
 	./scripts/run_tests.sh

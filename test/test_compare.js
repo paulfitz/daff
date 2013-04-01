@@ -1,4 +1,4 @@
-var coopy = require("coopy_node");
+var coopy = require("coopy");
 var assert = require("assert");
 
 var d10 = coopy.ViewedDatum.getSimpleView(10);

@@ -28,7 +28,7 @@ class Coopy {
         return ct;
     }
 
-    static private function randomTests() : Int {
+    static private  function randomTests() : Int {
         // disorganized tests from a bygone era.
 
         var st : SimpleTable = new SimpleTable(15,6);
@@ -92,12 +92,14 @@ class Coopy {
         var idx : Index = new Index();
         var dr : DiffRender = new DiffRender();
         var cf : CompareFlags = new CompareFlags();
-        var hp: HighlightPatch = new HighlightPatch(null,null);
+        var hp : HighlightPatch = new HighlightPatch(null,null);
+        var csv : Csv = new Csv();
 
         return 0;
     }
 
 #if cpp
+
     private function saveTable(name: String, t: Table) : Bool {
         var txt : String = "";
         if (format_preference!="json") {

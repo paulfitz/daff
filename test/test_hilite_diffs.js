@@ -1,4 +1,5 @@
-var coopy = require('coopy_node');
+var fs = require('fs');
+var coopy = require('coopy');
 var assert = require('assert');
 var jtable = require('jtable');
 
@@ -42,7 +43,13 @@ function round_trip(t1,t2,msg) {
     
     var t1c = t1.clone();
     var patcher = new coopy.HighlightPatch(t1c,output);
+    //console.log("====================================");
     patcher.apply();
+    //console.log(msg);
+    //console.log(t1);
+    //console.log(t2);
+    //console.log(t1c);
+    //console.log(output);
     assert(t1c.isSimilar(t2),msg);
 }
 
@@ -57,7 +64,18 @@ function bi_round_trip(t1,t2,msg) {
     var t3 = new jtable.JTable2([["Name","Number"],["John",15],["Sam",21],["Jane",99]]);
     var t4 = new jtable.JTable2([["Name","Number"],["John",15],["Nimble",88],["Sam",21],["Jane",99]]);
     var t5 = new jtable.JTable2([["Name","Number","Planet"],["John",14,"Earth"],["Jane",99,"Mercury"]]);
-    
+    var t6 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","Earth"],["Jane","Mercury"]]);
+    var t7 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","Ea->rth"],["Jane","Mercury"]]);
+    var t8 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John",null],["Jane","Mercury"]]);
+    var t9 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","NULL"],["Jane","Mercury"]]);
+    var t10 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","_NULL"],["Jane","Mercury"]]);
+    var t11 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","Pluto but it is not\na planet anymore"],["Jane","Mercury"]]);
+
+    var txt = fs.readFileSync("data/quote_me.csv","utf8");
+    var quote_me = new jtable.JTable2((new coopy.Csv()).parseTable(txt));
+    txt = fs.readFileSync("data/quote_me2.csv","utf8");
+    var quote_me2 = new jtable.JTable2((new coopy.Csv()).parseTable(txt));
+
     {
 	var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
 	var align = ct.align();
@@ -78,12 +96,19 @@ function bi_round_trip(t1,t2,msg) {
 	td.hilite(output);
     }
 
-    round_trip(t1,t5,"foo");
-
-    var tables = [t1, t2, t3, t4, t5];
+    var tables = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11];
+    var names = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"];
     for (var i in tables) {
 	for (var j in tables) {
-	    round_trip(tables[i],tables[j],"t" + (i+1) + " <-> t" + (j+1));
+	    round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);
+	}
+    }
+
+    tables = [quote_me, quote_me2];
+    names = ["quote_me", "quote_me2"];
+    for (var i in tables) {
+	for (var j in tables) {
+	    round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);
 	}
     }
 }

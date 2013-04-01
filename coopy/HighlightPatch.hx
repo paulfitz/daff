@@ -20,6 +20,9 @@ class HighlightPatch implements Row {
     private var mods : Array<HighlightPatchUnit>;
     private var cmods : Array<HighlightPatchUnit>;
     private var haveSourceColumns : Bool;
+    private var actCache : String;
+    private var actIsUpdate : Bool;
+    private var csv: Csv;
 
     public function new(source: Table, patch: Table) {
         this.source = source;
@@ -33,6 +36,9 @@ class HighlightPatch implements Row {
         mods = new Array<HighlightPatchUnit>();
         cmods = new Array<HighlightPatchUnit>();
         haveSourceColumns = false;
+        actCache = "";
+        actIsUpdate = false;
+        csv = new Csv();
     }
 
     public function apply() : Bool {
@@ -81,8 +87,6 @@ class HighlightPatch implements Row {
         var code : String = view.toString(dcode);
         if (code=="@@") {
             applyHeader();
-        } else if (code=="->") {
-            applyUpdate();
         } else if (code=="+++") {
             applyInsert();
         } else if (code=="---") {
@@ -91,6 +95,8 @@ class HighlightPatch implements Row {
             applyPad();
         } else if (code=="!") {
             applyMeta();
+        } else if (code.indexOf("->")>=0) {
+            applyUpdate();
         }
     }
 
@@ -185,17 +191,18 @@ class HighlightPatch implements Row {
        mods.push(mod);
     }
 
-    private function getPreString(txt: String) : String {
-        if (getString(0)!="->") {
-            return txt;
+    private function checkAct() : Void {
+        var act : String = getString(0);
+        if (act!=actCache) {
+            actCache = act;
+            actIsUpdate = actCache.indexOf("->")>=0;
         }
-        return txt.split("->")[0];
     }
 
-    private function getPostDatum(txt: String) : Datum {
-        var rep : String = txt.split("->")[1];
-        if (rep==null) return null;
-        return view.toDatum(rep);
+    private function getPreString(txt: String) : String {
+        checkAct();
+        if (!actIsUpdate) return txt;
+        return txt.split(actCache)[0];
     }
 
     public function getRowString(c: Int) : String {
@@ -265,10 +272,16 @@ class HighlightPatch implements Row {
                     }
                 } else if (!(mod.rem||mod.pad)) {
                     // update
+                    currentRow = mod.patchRow;
+                    checkAct();
+                    if (!actIsUpdate) continue;
                     for (c in headerPre) {
-                        var d : Datum = 
-                            getPostDatum(view.toString(patch.getCell(c,mod.patchRow)));
-                        if (d==null) continue;
+                        
+                        var txt : String = view.toString(patch.getCell(c,mod.patchRow));
+                        var at : Int = txt.indexOf(actCache);
+                        if (at<0) continue;
+                        txt = txt.substr(at+actCache.length);
+                        var d : Datum = view.toDatum(csv.parseSingleCell(txt));
                         source.setCell(patchInSource.get(c),
                                        mod.sourceRow2,
                                        d);

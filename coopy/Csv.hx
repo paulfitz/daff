@@ -2,9 +2,11 @@
 
 package coopy;
 
+@:expose
 class Csv {
     private var cursor: Int;
     private var row_ended: Bool;
+    private var has_structure : Bool;
 
     public function new() : Void {
         cursor = 0;
@@ -31,6 +33,9 @@ class Csv {
 
     public function renderCell(v: View, d: Datum) : String {
         if (d==null) {
+            return "NULL";
+        }
+        if (v.equals(d,null)) {
             return "NULL";
         }
         var str: String = v.toString(d);
@@ -69,6 +74,7 @@ class Csv {
     public function parseTable(txt: String) : Array<Array<String>> {
         cursor = 0;
         row_ended = false;
+        has_structure = true;
         var result: Array<Array<String>> = new Array<Array<String>>();
         var row: Array<String> = new Array<String>();
         while (cursor<txt.length) {
@@ -98,36 +104,38 @@ class Csv {
             if (ch!="_".code && i<first_non_underscore) {
                 first_non_underscore = i;
             }
-            if (!quoting) {
-                if (ch==",".code) {
-                    break;
-                }
-                if (ch=="\r".code || ch=="\n".code) {
-                    var ch2: Null<Int> = txt.charCodeAt(i+1);
-                    if (ch2!=null) {
-                        if (ch2!=ch) {
-                            if (ch2=="\r".code || ch2=="\n".code) {
-                                last_processed++;
+            if (has_structure) {
+                if (!quoting) {
+                    if (ch==",".code) {
+                        break;
+                    }
+                    if (ch=="\r".code || ch=="\n".code) {
+                        var ch2: Null<Int> = txt.charCodeAt(i+1);
+                        if (ch2!=null) {
+                            if (ch2!=ch) {
+                                if (ch2=="\r".code || ch2=="\n".code) {
+                                    last_processed++;
+                                }
                             }
                         }
+                        row_ended = true;
+                        break;
                     }
-                    row_ended = true;
-                    break;
-                }
-                if (ch=="\"".code || ch=="\'".code) {
-                    quoting = true;
-                    quote = ch;
-                    if (i!=start) {
-                        result += String.fromCharCode(ch);
+                    if (ch=="\"".code || ch=="\'".code) {
+                        quoting = true;
+                        quote = ch;
+                        if (i!=start) {
+                            result += String.fromCharCode(ch);
+                        }
+                        continue;
                     }
+                    result += String.fromCharCode(ch);
                     continue;
                 }
-                result += String.fromCharCode(ch);
-                continue;
-            }
-            if (ch==quote) {
-                quoting = false;
-                continue;
+                if (ch==quote) {
+                    quoting = false;
+                    continue;
+                }
             }
             result += String.fromCharCode(ch);
         }
@@ -136,10 +144,21 @@ class Csv {
             if (result=="NULL") {
                 return null;
             }
-            if (txt.substr(first_non_underscore)=="NULL") {
-                return txt.substr(1);
+            if (first_non_underscore>start) {
+                var del : Int = first_non_underscore-start;
+                if (result.substr(del)=="NULL") {
+                    return result.substr(1);
+                }
             }
         }
         return result;
     }
+
+    public function parseSingleCell(txt: String) : String {
+        cursor = 0;
+        row_ended = false;
+        has_structure = false;
+        return parseCell(txt);
+    }
+
 }
