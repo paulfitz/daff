@@ -18,6 +18,7 @@
   a javascript library for comparing tables.  Edit the tables below
   to see it in action.<br />
 	<form>
+	  Demo options: <input id="parent_checkbox" type="checkbox" />Use 3-way comparison /
 	  <input type=button id="button-clear" value="clear all cells" />
 	</form>
 
@@ -33,13 +34,13 @@
 	  <h3>Common ancestor of revised and original</h3>
 	  <div id="table0"></div>
 	</div>
-	<div id="block2">
-	  <h3>Revised version of table</h3>
-	  <div id="table2"></div>
-	</div>
 	<div id="block1">
 	  <h3>Original version of table</h3>
 	  <div id="table1"></div>
+	</div>
+	<div id="block2">
+	  <h3>Revised version of table</h3>
+	  <div id="table2"></div>
 	</div>
       </div>
     </td>
@@ -149,16 +150,13 @@ function processChange(changes,source,table) {
 		[ "George Washington", "O. H. Ammann", "3500" ]
 	];
 
-      $('#table0').handsontable({
-        data: data0,
-        minRows: 5,
-        minCols: 6,
-        minSpareRows: 1,
-        autoWrapRow: true,
-        colHeaders: true,
-        contextMenu: true,
-        onChange: function(changes,source) { processChange(changes,source,'table1'); }
-      });
+      function headerPromptRenderer(instance, td, row, col, prop, value, cellProperties) {
+	 Handsontable.TextCell.renderer.apply(this, arguments);
+	  if (row==0) {
+	      td.className = 'header';
+	  }
+      }
+
 
      function tableRenderer(instance, td, row, col, prop, value, cellProperties) {
 	 Handsontable.TextCell.renderer.apply(this, arguments);
@@ -174,18 +172,27 @@ function processChange(changes,source,table) {
 	     } 
 	 }
 	 if (v0!=null) {
-	     if (v0.indexOf("!")>=0) {
+	     if (v0 == "!") {
  		 td.className = 'spec';
-	     } else if (v0.indexOf("@@")>=0) {
+	     } else if (v0 == "@@") {
  		 td.className = 'header';
-	     } else if (v0.indexOf("+++")>=0) {
+	     } else if (v0 == "+++") {
  		 if (!removed_column) td.className = 'add';
-	     } else if (v0.indexOf("---")>=0) {
+	     } else if (v0 == "---") {
  		 td.className = 'remove';
 	     } else if (v0.indexOf("->")>=0) {
 		 if (value!=null) {
-		     if (value.indexOf(v0)>=0) {
- 			 if (!removed_column) td.className = 'modify';
+		     var token = v0.replace("!","");
+ 		     if (!removed_column) {
+			 if (value.indexOf(token)>=0) {
+			     var name = "modify";
+			     if (token!=v0) {
+				 if (value.indexOf(v0)>=0) {
+				     name = 'conflict';
+				 }
+			     }
+			     td.className = name;
+			 }
 		     }
 		 }
 	     }
@@ -197,15 +204,40 @@ function processChange(changes,source,table) {
      }
 
 
+      $('#table0').handsontable({
+        data: data0,
+        minRows: 5,
+        minCols: 6,
+        minSpareRows: 1,
+        autoWrapRow: true,
+        colHeaders: false,
+        contextMenu: true,
+        onChange: function(changes,source) { processChange(changes,source,'table1'); },
+        cells: function (row, col, prop) {
+	    var cellProperties = {};
+            cellProperties.type = {
+		renderer: headerPromptRenderer
+	    }
+	    return cellProperties;
+	}
+      });
+
       $('#table1').handsontable({
         data: data1,
         minRows: 5,
         minCols: 6,
         minSpareRows: 1,
         autoWrapRow: true,
-        colHeaders: true,
+        colHeaders: false,
         contextMenu: true,
-        onChange: function(changes,source) { processChange(changes,source,'table1'); }
+        onChange: function(changes,source) { processChange(changes,source,'table1'); },
+        cells: function (row, col, prop) {
+	    var cellProperties = {};
+            cellProperties.type = {
+		renderer: headerPromptRenderer
+	    }
+	    return cellProperties;
+	}
       });
 
       $('#table2').handsontable({
@@ -214,9 +246,16 @@ function processChange(changes,source,table) {
         minCols: 6,
         minSpareRows: 1,
         autoWrapRow: true,
-        colHeaders: true,
+        colHeaders: false,
         contextMenu: true,
-        onChange: function(changes,source) { processChange(changes,source,'table2'); }
+        onChange: function(changes,source) { processChange(changes,source,'table2'); },
+        cells: function (row, col, prop) {
+	    var cellProperties = {};
+            cellProperties.type = {
+		renderer: headerPromptRenderer
+	    }
+	    return cellProperties;
+	}
       });
 
       $('#diff').handsontable({
@@ -249,29 +288,43 @@ $("#parent_checkbox").click(function() {
   return true;
 });
 
+function clear_table(t) {
+    t.length = 0;
+    t[0] = ["A","B","C"];
+    t[1] = ["","",""];
+    t[2] = ["","",""];
+}
+
 $("#button-clear").click(function() {
-  data0.length = 1;
-  data0[0] = [""];
-  data1.length = 1;
-  data1[0] = [""];
-  data2.length = 1;
-  data2[0] = [""];
-  $('#table0').handsontable('render');
-  $('#table1').handsontable('render');
-  $('#table2').handsontable('render');
-  return false;
+    clear_table(data0);
+    clear_table(data1);
+    clear_table(data2);
+    $('#table0').handsontable('render');
+    $('#table1').handsontable('render');
+    $('#table2').handsontable('render');
+    processChange(null,null,null);
+    return false;
 });
 
 $("#apply-diff").click(function() {
-  var t1 = new jtable.JTable2(data1);
-  t1.trim();
-  var patch = new jtable.JTable2(data_diff);
-  patch.trim();
-  var patcher = new coopy.HighlightPatch(t1,patch);
-  patcher.apply();
-  $('#table1').handsontable('render');
-  processChange(null,null,null);
-  return false;
+    var t1 = new jtable.JTable2(data1);
+    t1.trim();
+    var patch = new jtable.JTable2(data_diff);
+    patch.trim();
+    var patcher = new coopy.HighlightPatch(t1,patch);
+    patcher.apply();
+    if (use_parent) {
+	var t1 = new jtable.JTable2(data0);
+	t1.trim();
+	var patch = new jtable.JTable2(data_diff);
+	patch.trim();
+	var patcher = new coopy.HighlightPatch(t1,patch);
+	patcher.apply();
+	$('#table0').handsontable('render');
+    }
+    $('#table1').handsontable('render');
+    processChange(null,null,null);
+    return false;
 });
 </script>
 

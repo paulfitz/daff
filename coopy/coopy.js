@@ -1167,7 +1167,9 @@ coopy.HighlightPatch = function(source,patch) {
 	this.cmods = new Array();
 	this.haveSourceColumns = false;
 	this.actCache = "";
+	this.actBaseCache = "";
 	this.actIsUpdate = false;
+	this.actIsConflicted = false;
 	this.csv = new coopy.Csv();
 };
 $hxExpose(coopy.HighlightPatch, "coopy.HighlightPatch");
@@ -1259,9 +1261,13 @@ coopy.HighlightPatch.prototype = {
 					while( $it1.hasNext() ) {
 						var c = $it1.next();
 						var txt = this.view.toString(this.patch.getCell(c,mod.patchRow));
-						var at = txt.indexOf(this.actCache);
+						var at = txt.indexOf(this.actBaseCache);
 						if(at < 0) continue;
-						txt = HxOverrides.substr(txt,at + this.actCache.length,null);
+						if(this.actIsConflicted) {
+							var at2 = txt.indexOf(this.actCache);
+							if(at2 >= 0) continue;
+						}
+						txt = HxOverrides.substr(txt,at + this.actBaseCache.length,null);
 						var d = this.view.toDatum(this.csv.parseSingleCell(txt));
 						this.source.setCell(this.patchInSource.get(c),mod.sourceRow2,d);
 					}
@@ -1326,13 +1332,17 @@ coopy.HighlightPatch.prototype = {
 	,getPreString: function(txt) {
 		this.checkAct();
 		if(!this.actIsUpdate) return txt;
-		return txt.split(this.actCache)[0];
+		if(!this.actIsConflicted) return txt.split(this.actCache)[0];
+		if(txt.indexOf(this.actCache) >= 0) return txt.split(this.actCache)[0];
+		return txt.split(this.actBaseCache)[0];
 	}
 	,checkAct: function() {
 		var act = this.getString(0);
 		if(act != this.actCache) {
 			this.actCache = act;
 			this.actIsUpdate = this.actCache.indexOf("->") >= 0;
+			this.actIsConflicted = this.actCache.indexOf("!") >= 0;
+			if(this.actIsConflicted) this.actBaseCache = this.actCache.split("!")[1]; else this.actBaseCache = this.actCache;
 		}
 	}
 	,applyPad: function() {
@@ -1942,6 +1952,7 @@ coopy.TableDiff.prototype = {
 		var outer_reps_needed = this.flags.show_unchanged?1:2;
 		var v = a.getCellView();
 		var sep = "";
+		var conflict_sep = "";
 		var schema = new Array();
 		var have_schema = false;
 		var _g1 = 0, _g = column_units.length;
@@ -2060,6 +2071,8 @@ coopy.TableDiff.prototype = {
 					var dd = null;
 					var dd_to = null;
 					var have_dd_to = false;
+					var dd_to_alt = null;
+					var have_dd_to_alt = false;
 					var have_pp = false;
 					var have_ll = false;
 					var have_rr = false;
@@ -2085,6 +2098,12 @@ coopy.TableDiff.prototype = {
 							dd = pp;
 							dd_to = rr;
 							have_dd_to = true;
+							if(!v.equals(pp,ll)) {
+								if(!v.equals(pp,rr)) {
+									dd_to_alt = ll;
+									have_dd_to_alt = true;
+								}
+							}
 						}
 					} else if(have_ll) {
 						if(!have_rr) dd = ll; else if(v.equals(ll,rr)) dd = ll; else {
@@ -2096,9 +2115,15 @@ coopy.TableDiff.prototype = {
 					var txt = null;
 					if(have_dd_to) {
 						txt = this.quoteForDiff(v,dd);
-						if(sep == "") sep = this.getSeparator(a);
-						txt = txt + sep + this.quoteForDiff(v,dd_to);
-						act = sep;
+						if(sep == "") sep = this.getSeparator(a,null,"->");
+						if(!have_dd_to_alt) {
+							txt = txt + sep + this.quoteForDiff(v,dd_to);
+							if(sep.length > act.length) act = sep;
+						} else {
+							if(conflict_sep == "") conflict_sep = this.getSeparator(p,a,"!") + sep;
+							txt = txt + conflict_sep + this.quoteForDiff(v,dd_to_alt) + conflict_sep + this.quoteForDiff(v,dd_to);
+							act = conflict_sep;
+						}
 					}
 					if(act == "" && have_addition) act = "+";
 					if(publish) {
@@ -2129,8 +2154,8 @@ coopy.TableDiff.prototype = {
 		if(HxOverrides.substr(str,score,null) == nil) str = "_" + str;
 		return str;
 	}
-	,getSeparator: function(t) {
-		var sep = "->";
+	,getSeparator: function(t,t2,root) {
+		var sep = root;
 		var w = t.get_width();
 		var h = t.get_height();
 		var view = t.getCellView();
@@ -2142,6 +2167,20 @@ coopy.TableDiff.prototype = {
 				var x = _g1++;
 				var txt = view.toString(t.getCell(x,y));
 				while(txt.indexOf(sep) >= 0) sep = "-" + sep;
+			}
+		}
+		if(t2 != null) {
+			w = t2.get_width();
+			h = t2.get_height();
+			var _g = 0;
+			while(_g < h) {
+				var y = _g++;
+				var _g1 = 0;
+				while(_g1 < w) {
+					var x = _g1++;
+					var txt = view.toString(t2.getCell(x,y));
+					while(txt.indexOf(sep) >= 0) sep = "-" + sep;
+				}
 			}
 		}
 		return sep;
