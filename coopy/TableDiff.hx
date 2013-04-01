@@ -13,8 +13,9 @@ class TableDiff {
     }
 
 
-    public function getSeparator(t: Table) : String {
-        var sep : String = "->";
+    public function getSeparator(t: Table,
+                                 t2: Table, root: String) : String {
+        var sep : String = root;
         var w : Int = t.width;
         var h : Int = t.height;
         var view : View = t.getCellView();
@@ -23,6 +24,18 @@ class TableDiff {
                 var txt : String = view.toString(t.getCell(x,y));
                 while (txt.indexOf(sep)>=0) {
                     sep = "-" + sep;
+                }
+            }
+        }
+        if (t2!=null) {
+            w = t2.width;
+            h = t2.height;
+            for (y in 0...h) {
+                for (x in 0...w) {
+                    var txt : String = view.toString(t2.getCell(x,y));
+                    while (txt.indexOf(sep)>=0) {
+                        sep = "-" + sep;
+                    }
                 }
             }
         }
@@ -79,6 +92,7 @@ class TableDiff {
 
         var v : View = a.getCellView();
         var sep : String = "";
+        var conflict_sep : String = "";
 
         var schema : Array<String> = new Array<String>();
         var have_schema : Bool = false;
@@ -218,6 +232,8 @@ class TableDiff {
                     var dd : Datum = null;
                     var dd_to : Datum = null;
                     var have_dd_to : Bool = false;
+                    var dd_to_alt : Datum = null;
+                    var have_dd_to_alt : Bool = false;
                     var have_pp : Bool = false;
                     var have_ll : Bool = false;
                     var have_rr : Bool = false;
@@ -254,6 +270,13 @@ class TableDiff {
                                 dd = pp;
                                 dd_to = rr;
                                 have_dd_to = true;
+
+                                if (!v.equals(pp,ll)) {
+                                    if (!v.equals(pp,rr)) {
+                                        dd_to_alt = ll;
+                                        have_dd_to_alt = true;
+                                    }
+                                }
                             }
                         }
                     } else if (have_ll) {
@@ -278,10 +301,22 @@ class TableDiff {
                         txt = quoteForDiff(v,dd);
                         // modification: x -> y
                         if (sep=="") {
-                            sep = getSeparator(a);
+                            sep = getSeparator(a,null,"->");
                         }
-                        txt = txt + sep + quoteForDiff(v,dd_to);
-                        act = sep;
+                        if (!have_dd_to_alt) {
+                            txt = txt + sep + quoteForDiff(v,dd_to);
+                            if (sep.length>act.length) {
+                                act = sep;
+                            }
+                        } else {
+                            if (conflict_sep=="") {
+                                conflict_sep = getSeparator(p,a,"!") + sep;
+                            }
+                            txt = txt + 
+                                conflict_sep + quoteForDiff(v,dd_to_alt) +
+                                conflict_sep + quoteForDiff(v,dd_to);
+                            act = conflict_sep;
+                        }
                     }
                     if (act == "" && have_addition) {
                         act = "+";

@@ -57,6 +57,10 @@ h2, h3 {
   background-color: #7f7fff;
 }
 
+.highlighter .conflict { 
+  background-color: #f00;
+}
+
 .highlighter .spec { 
   background-color: #aaa;
 }
@@ -75,8 +79,9 @@ h2, h3 {
 }
 
 .highlighter th, .highlighter .header { 
-  background-color: #374f7f;
-  color: white;
+  background-color: #aaf;
+  /*background-color: #374f7f;
+  color: white;*/
   font-weight: bold;
   padding-bottom: 4px;
   padding-top: 5px;
@@ -94,3 +99,10 @@ h2, h3 {
 td {
   empty-cells: show;
 }
+
+
+#table-pane .header { 
+  background-color: #aaf;
+  font-weight: bold;
+}
+

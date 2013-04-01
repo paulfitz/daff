@@ -198,11 +198,12 @@ class Coopy {
                 }
             }
         }
-        if (args.length != 3 || (args[0] != "diff" && args[0] != "patch")) {
+        if (args.length < 3 || (args[0] != "diff" && args[0] != "patch")) {
             Sys.stderr().writeString("Howdy.  coopyhx doesn't have much of a command line interface.\n");
             Sys.stderr().writeString("You may want the coopy toolbox https://github.com/paulfitz/coopy\n");
             Sys.stderr().writeString("If you do want coopyhx - call as:\n");
             Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.csv] a.csv b.csv\n");
+            Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
             Sys.stderr().writeString("  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv\n");
             return 1;
@@ -212,10 +213,16 @@ class Coopy {
         }
         var cmd : String = args[0];
         var tool : Coopy = new Coopy();
-        var a = tool.loadTable(args[1]);
-        var b = tool.loadTable(args[2]);
+        var parent = null;
+        var offset : Int = 0;
+        if (args.length>3) {
+            parent = tool.loadTable(args[1]);
+            offset++;
+        }
+        var a = tool.loadTable(args[1+offset]);
+        var b = tool.loadTable(args[2+offset]);
         if (cmd=="diff") {
-            var ct : CompareTable = compareTables(a,b);
+            var ct : CompareTable = compareTables3(parent,a,b);
             var align : Alignment = ct.align();
             var flags : CompareFlags = new CompareFlags();
             flags.always_show_header = true;

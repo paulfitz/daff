@@ -21,7 +21,9 @@ class HighlightPatch implements Row {
     private var cmods : Array<HighlightPatchUnit>;
     private var haveSourceColumns : Bool;
     private var actCache : String;
+    private var actBaseCache : String;
     private var actIsUpdate : Bool;
+    private var actIsConflicted : Bool;
     private var csv: Csv;
 
     public function new(source: Table, patch: Table) {
@@ -37,7 +39,9 @@ class HighlightPatch implements Row {
         cmods = new Array<HighlightPatchUnit>();
         haveSourceColumns = false;
         actCache = "";
+        actBaseCache = "";
         actIsUpdate = false;
+        actIsConflicted = false;
         csv = new Csv();
     }
 
@@ -196,13 +200,21 @@ class HighlightPatch implements Row {
         if (act!=actCache) {
             actCache = act;
             actIsUpdate = actCache.indexOf("->")>=0;
+            actIsConflicted = actCache.indexOf("!")>=0;
+            if (actIsConflicted) {
+                actBaseCache = actCache.split("!")[1];
+            } else {
+                actBaseCache = actCache;
+            }
         }
     }
 
     private function getPreString(txt: String) : String {
         checkAct();
         if (!actIsUpdate) return txt;
-        return txt.split(actCache)[0];
+        if (!actIsConflicted) return txt.split(actCache)[0];
+        if (txt.indexOf(actCache)>=0) return txt.split(actCache)[0];
+        return txt.split(actBaseCache)[0];
     }
 
     public function getRowString(c: Int) : String {
@@ -278,9 +290,13 @@ class HighlightPatch implements Row {
                     for (c in headerPre) {
                         
                         var txt : String = view.toString(patch.getCell(c,mod.patchRow));
-                        var at : Int = txt.indexOf(actCache);
+                        var at : Int = txt.indexOf(actBaseCache);
                         if (at<0) continue;
-                        txt = txt.substr(at+actCache.length);
+                        if (actIsConflicted) {
+                            var at2 : Int = txt.indexOf(actCache);
+                            if (at2>=0) continue; // skip conflicted element
+                        }
+                        txt = txt.substr(at+actBaseCache.length);
                         var d : Datum = view.toDatum(csv.parseSingleCell(txt));
                         source.setCell(patchInSource.get(c),
                                        mod.sourceRow2,
