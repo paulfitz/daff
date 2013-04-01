@@ -83,3 +83,25 @@ function order_asserts(order,lst) {
 }
 
 
+// stub for when column renaming becomes worth doing
+if (false) {
+    var t1 = new jtable.JTable2([
+	["Number","More","Year"],
+	[0,20,2009],
+	[4,30,2011],
+	["",40,2019],
+    ]);
+    var t2 = new jtable.JTable2([
+	["Number","Less","Year"],
+	[0,20,2009],
+	[4,30,2011],
+	["",40,2019],
+    ]);
+    
+    var ct = new coopy.Coopy.compareTables(t1,t2);
+    var align = ct.align();
+    order_asserts(align.meta.toOrder(),
+		  [[0,0],[1,1],[2,2]]);
+}
+
+
