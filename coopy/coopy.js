@@ -343,6 +343,7 @@ coopy.BagView.__name__ = true;
 coopy.BagView.__interfaces__ = [coopy.View];
 coopy.BagView.prototype = {
 	toDatum: function(str) {
+		if(str == null) return null;
 		return new coopy.SimpleCell(str);
 	}
 	,equals: function(d1,d2) {
@@ -1732,7 +1733,55 @@ coopy.SimpleTable.tableToString = function(tab) {
 	return x;
 }
 coopy.SimpleTable.prototype = {
-	insertOrDeleteColumns: function(fate,wfate) {
+	trimBlank: function() {
+		var view = this.getCellView();
+		var space = view.toDatum("");
+		var more = true;
+		while(more) {
+			if(this.h == 0) return true;
+			var _g1 = 0, _g = this.get_width();
+			while(_g1 < _g) {
+				var i = _g1++;
+				var c = this.getCell(i,this.h - 1);
+				if(!(view.equals(c,space) || c == null)) {
+					more = false;
+					break;
+				}
+			}
+			if(more) this.h--;
+		}
+		more = true;
+		var nw = this.w;
+		while(more) {
+			if(this.w == 0) break;
+			var _g = 0;
+			while(_g < 1) {
+				var i = _g++;
+				var c = this.getCell(nw - 1,i);
+				if(!(view.equals(c,space) || c == null)) {
+					more = false;
+					break;
+				}
+			}
+			if(more) nw--;
+		}
+		if(nw == this.w) return true;
+		var data2 = new haxe.ds.IntMap();
+		var _g = 0;
+		while(_g < nw) {
+			var i = _g++;
+			var _g2 = 0, _g1 = this.h;
+			while(_g2 < _g1) {
+				var r = _g2++;
+				var idx = r * this.w + i;
+				if(this.data.exists(idx)) data2.set(r * nw + i,this.data.get(idx));
+			}
+		}
+		this.w = nw;
+		this.data = data2;
+		return true;
+	}
+	,insertOrDeleteColumns: function(fate,wfate) {
 		var data2 = new haxe.ds.IntMap();
 		var _g1 = 0, _g = fate.length;
 		while(_g1 < _g) {
@@ -1825,7 +1874,7 @@ coopy.SimpleView.prototype = {
 	,equals: function(d1,d2) {
 		if(d1 == null && d2 == null) return true;
 		if(d1 == null && "" + Std.string(d2) == "") return true;
-		if("" + Std.string(d2) == "" && d2 == null) return true;
+		if("" + Std.string(d1) == "" && d2 == null) return true;
 		return "" + Std.string(d1) == "" + Std.string(d2);
 	}
 	,hasStructure: function(d) {
@@ -1838,7 +1887,7 @@ coopy.SimpleView.prototype = {
 		return null;
 	}
 	,toString: function(d) {
-		if(d == null) return "";
+		if(d == null) return null;
 		return "" + Std.string(d);
 	}
 }
@@ -2166,6 +2215,7 @@ coopy.TableDiff.prototype = {
 			while(_g1 < w) {
 				var x = _g1++;
 				var txt = view.toString(t.getCell(x,y));
+				if(txt == null) continue;
 				while(txt.indexOf(sep) >= 0) sep = "-" + sep;
 			}
 		}
