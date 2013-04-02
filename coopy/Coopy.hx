@@ -116,6 +116,11 @@ class Coopy {
         return true;
     }
 
+    private static function cellFor(x: Dynamic) : Datum {
+        if (x==null) return null;
+        return new SimpleCell(x);
+    }
+
     private static function jsonToTable(json: Dynamic) : Table {
         var output : Table = null;
         for (name in Reflect.fields(json)) {
@@ -139,18 +144,17 @@ class Coopy {
                     var lst : Array<Dynamic> = cast row;
                     for (j in 0...columns.length) {
                         var val = lst[j];
-                        //output.setCell(j,i,val);
-                        output.setCell(j,i,new SimpleCell(val));
+                        output.setCell(j,i,cellFor(val));
                     }
                 } else {
                     for (j in 0...columns.length) {
                         var val = Reflect.field(row,columns[j]);
-                        //output.setCell(j,i,val);
-                        output.setCell(j,i,new SimpleCell(val));
+                        output.setCell(j,i,cellFor(val));
                     }
                 }
             }
         }
+        if (output!=null) output.trimBlank();
         return output;
     }
 
@@ -171,9 +175,10 @@ class Coopy {
             for (i in 0...h) {
                 for (j in 0...w) {
                     var val : String = data[i][j];
-                    output.setCell(j,i,new SimpleCell(val));
+                    output.setCell(j,i,cellFor(val));
                 }
             }
+            if (output!=null) output.trimBlank();
             return output;
         }
     }
@@ -198,7 +203,9 @@ class Coopy {
                 }
             }
         }
-        if (args.length < 3 || (args[0] != "diff" && args[0] != "patch")) {
+        var cmd : String = args[0];
+        
+        if (args.length < 2 || (!Lambda.has(["diff","patch","trim"],cmd))) {
             Sys.stderr().writeString("Howdy.  coopyhx doesn't have much of a command line interface.\n");
             Sys.stderr().writeString("You may want the coopy toolbox https://github.com/paulfitz/coopy\n");
             Sys.stderr().writeString("If you do want coopyhx - call as:\n");
@@ -206,6 +213,7 @@ class Coopy {
             Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
             Sys.stderr().writeString("  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv\n");
+            Sys.stderr().writeString("  coopyhx trim [--output OUTPUT.csv] source.csv\n");
             return 1;
         }
         if (output == null) {
@@ -220,7 +228,10 @@ class Coopy {
             offset++;
         }
         var a = tool.loadTable(args[1+offset]);
-        var b = tool.loadTable(args[2+offset]);
+        var b = null;
+        if (args.length>2) {
+            b = tool.loadTable(args[2+offset]);
+        }
         if (cmd=="diff") {
             var ct : CompareTable = compareTables3(parent,a,b);
             var align : Alignment = ct.align();
@@ -230,9 +241,11 @@ class Coopy {
             var o = new SimpleTable(0,0);
             td.hilite(o);
             tool.saveTable(output,o);
-        } else {
+        } else if (cmd=="patch") {
             var patcher : HighlightPatch = new HighlightPatch(a,b);
             patcher.apply();
+            tool.saveTable(output,a);
+        } else if (cmd=="trim") {
             tool.saveTable(output,a);
         }
         return 0;

@@ -22,6 +22,7 @@ class TableDiff {
         for (y in 0...h) {
             for (x in 0...w) {
                 var txt : String = view.toString(t.getCell(x,y));
+                if (txt==null) continue;
                 while (txt.indexOf(sep)>=0) {
                     sep = "-" + sep;
                 }

@@ -29,6 +29,7 @@ class BagView implements View {
     }
 
     public function toDatum(str: Null<String>) : Datum {
+        if (str==null) return null;
         return new SimpleCell(str);
     }
 }

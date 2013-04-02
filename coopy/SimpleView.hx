@@ -8,7 +8,7 @@ class SimpleView implements View {
     }
 
     public function toString(d: Datum) : String {
-        if (d==null) return "";
+        if (d==null) return null;
         return "" + d;
     }
     
@@ -28,11 +28,11 @@ class SimpleView implements View {
         //trace("Comparing " + d1 + " and " + d2 + " -- " +  (("" + d1) == ("" + d2)));
         if (d1==null && d2==null) return true;
         if (d1==null && (""+d2)=="") return true;
-        if ((""+d2)=="" && d2==null) return true;
+        if ((""+d1)=="" && d2==null) return true;
         return ("" + d1) == ("" + d2);
     }
 
-    public function toDatum(str: Null<String>) : Datum {
+    public function toDatum(str: String) : Datum {
         if (str==null) return null;
 #if js
     return cast str;

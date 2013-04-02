@@ -142,4 +142,47 @@ class SimpleTable implements Table implements Bag {
         data = data2;
         return true;
     }
+
+    public function trimBlank() : Bool {
+        var view : View = getCellView();
+        var space : Datum = view.toDatum("");
+        var more : Bool = true;
+        while (more) {
+            if (h==0) return true;
+            for (i in 0...width) {
+                var c : Datum = getCell(i,h-1);
+                if (!(view.equals(c,space)||c==null)) {
+                    more = false;
+                    break;
+                }
+            }
+            if (more) h--;
+        }
+        more = true;
+        var nw : Int = w;
+        while (more) {
+            if (w==0) break;
+            for (i in 0...1) { // just the headers // height) {
+                var c : Datum = getCell(nw-1,i);
+                if (!(view.equals(c,space)||c==null)) {
+                    more = false;
+                    break;
+                }
+            }
+            if (more) nw--;
+        }
+        if (nw==w) return true;
+        var data2 : Map<Int,Datum> = new Map<Int,Datum>();
+        for (i in 0...nw) {
+            for (r in 0...h) {
+                var idx : Int = r*w+i;
+                if (data.exists(idx)) {
+                    data2.set(r*nw+i,data.get(idx));
+                }
+            }
+        }
+        w = nw;
+        data = data2;
+        return true;
+    }
 }

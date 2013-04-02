@@ -5,8 +5,10 @@
 <script src="dist/jquery.handsontable.full.js"></script>
 <script src="coopy/coopy.js"></script>
 <script src="coopy/scripts/jtable.js"></script>
+<script src="coopy/scripts/coopy_handsontable.js"></script>
 <link rel="stylesheet" media="screen" href="dist/jquery.handsontable.full.css">
 <link rel="stylesheet" media="screen" href="coopyhx.css">
+<link rel="stylesheet" media="screen" href="coopy_handsontable.css">
 </head>
 
 <body>
@@ -71,7 +73,7 @@
 
 
 <script>
-var jtable = window;
+var jtable = window.coopy;
 var use_parent = false;
 function processChange(changes,source,table) {
     if (source=="loadData") return;
@@ -157,56 +159,6 @@ function processChange(changes,source,table) {
 	  }
       }
 
-
-     function tableRenderer(instance, td, row, col, prop, value, cellProperties) {
-	 Handsontable.TextCell.renderer.apply(this, arguments);
-	 var v0 = instance.getDataAtCell(row, 0);
-	 var v1 = instance.getDataAtCell(0, col);
-	 var removed_column = false;
-	 if (v1!=null) {
-	     if (v1.indexOf("+++")>=0) {
- 		 td.className = 'add';
-	     } else if (v1.indexOf("---")>=0) {
- 		 td.className = 'remove';
-		 removed_column = true;
-	     } 
-	 }
-	 if (v0!=null) {
-	     if (v0 == "!") {
- 		 td.className = 'spec';
-	     } else if (v0 == "@@") {
- 		 td.className = 'header';
-	     } else if (v0 == "+++") {
- 		 if (!removed_column) td.className = 'add';
-	     } else if (v0 == "---") {
- 		 td.className = 'remove';
-	     } else if (v0.indexOf("->")>=0) {
-		 if (value!=null) {
- 		     if (!removed_column) {
-			 var tokens = v0.split("!");
-			 var full = v0;
-			 var part = tokens[1];
-			 if (part==null) part = full;
-			 if (value.indexOf(part)>=0) {
-			     var name = "modify";
-			     if (part!=full) {
-				 if (value.indexOf(full)>=0) {
-				     name = 'conflict';
-				 }
-			     }
-			     td.className = name;
-			 }
-		     }
-		 }
-	     }
-	 }
-	 if (value==null || value=="null") {
-	     td.className = td.className + " null";
-	     $(td).text("");
-	 }
-     }
-
-
       $('#table0').handsontable({
         data: data0,
         minRows: 5,
@@ -273,7 +225,7 @@ function processChange(changes,source,table) {
         cells: function (row, col, prop) {
 	    var cellProperties = {};
             cellProperties.type = {
-		renderer: tableRenderer
+		renderer: coopy.diffRenderer
 	    }
 	    return cellProperties;
 	}

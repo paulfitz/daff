@@ -1,4 +1,6 @@
-var coopy = (typeof require != "undefined") ? require('coopy') : coopy;
+(function() {
+
+var coopy = (typeof require != "undefined") ? require('coopy') : window.coopy;
 
 var JTable = function(w,h) {
     this.width = w;
@@ -230,5 +232,10 @@ JTable2.prototype.isSimilar = function(alt) {
 if (typeof exports != "undefined") {
     exports.JTable = JTable;
     exports.JTable2 = JTable2;
+} else {
+    if (typeof window["coopy"] == "undefined") window["coopy"] = {};
+    window.coopy.JTable = JTable;
+    window.coopy.JTable2 = JTable2;
 }
 
+})();
