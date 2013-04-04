@@ -852,6 +852,7 @@ coopy.Coopy.randomTests = function() {
 	var cf = new coopy.CompareFlags();
 	var hp = new coopy.HighlightPatch(null,null);
 	var csv = new coopy.Csv();
+	var tm = new coopy.TableModifier(null);
 	return 0;
 }
 coopy.Coopy.main = function() {
@@ -1202,7 +1203,7 @@ coopy.HighlightPatch.prototype = {
 						prev = p == null?-1:p;
 					}
 				}
-				if(prev == -2) mod1.sourceRow = this.cmods[this.cmods.length - 1].sourceRow; else mod1.sourceRow = prev < 0?prev:prev + 1;
+				if(prev == -2) mod1.sourceRow = this.cmods[this.cmods.length - 1].sourceRow; else mod1.sourceRow = prev + 1;
 				mod1.patchRow = i;
 				this.cmods.push(mod1);
 			}
@@ -1248,7 +1249,8 @@ coopy.HighlightPatch.prototype = {
 					})(this.headerPost))();
 					while( $it0.hasNext() ) {
 						var c = $it0.next();
-						this.source.setCell(this.patchInSource.get(c),mod.sourceRow2,this.patch.getCell(c,mod.patchRow));
+						var offset = this.patchInSource.get(c);
+						if(offset >= 0) this.source.setCell(offset,mod.sourceRow2,this.patch.getCell(c,mod.patchRow));
 					}
 				} else if(!(mod.rem || mod.pad)) {
 					this.currentRow = mod.patchRow;
@@ -1282,6 +1284,8 @@ coopy.HighlightPatch.prototype = {
 			if(a.sourceRow != -1 && b.sourceRow == -1) return -1;
 			if(a.sourceRow > b.sourceRow) return 1;
 			if(a.sourceRow < b.sourceRow) return -1;
+			if(a.patchRow > b.patchRow) return 1;
+			if(a.patchRow < b.patchRow) return -1;
 			return 0;
 		};
 		this.mods.sort(sorter);
@@ -1390,7 +1394,7 @@ coopy.HighlightPatch.prototype = {
 				this.currentRow++;
 			}
 		}
-		if(prev == -2) mod.sourceRow = this.mods[this.mods.length - 1].sourceRow; else mod.sourceRow = prev < 0?prev:prev + 1;
+		if(prev == -2) mod.sourceRow = this.mods[this.mods.length - 1].sourceRow; else mod.sourceRow = prev + 1;
 		mod.patchRow = this.currentRow;
 		this.mods.push(mod);
 	}
@@ -1507,7 +1511,7 @@ coopy.Index.prototype = {
 		var _g1 = 0, _g = this.cols.length;
 		while(_g1 < _g) {
 			var k = _g1++;
-			var txt = row.getRowString(k);
+			var txt = row.getRowString(this.cols[k]);
 			if(txt == "" || txt == "null" || txt == "undefined") continue;
 			if(k > 0) wide += " // ";
 			wide += txt;
@@ -2234,6 +2238,22 @@ coopy.TableDiff.prototype = {
 			}
 		}
 		return sep;
+	}
+}
+coopy.TableModifier = function(t) {
+	this.t = t;
+};
+$hxExpose(coopy.TableModifier, "coopy.TableModifier");
+coopy.TableModifier.__name__ = true;
+coopy.TableModifier.prototype = {
+	removeColumn: function(at) {
+		var fate = [];
+		var _g1 = 0, _g = this.t.get_width();
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(i < at) fate.push(i); else if(i > at) fate.push(i - 1); else fate.push(-1);
+		}
+		return this.t.insertOrDeleteColumns(fate,this.t.get_width() - 1);
 	}
 }
 coopy.TableView = function() {
