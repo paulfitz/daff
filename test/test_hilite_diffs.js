@@ -43,13 +43,15 @@ function round_trip(t1,t2,msg) {
     
     var t1c = t1.clone();
     var patcher = new coopy.HighlightPatch(t1c,output);
-    //console.log("====================================");
     patcher.apply();
-    //console.log(msg);
-    //console.log(t1);
-    //console.log(t2);
-    //console.log(t1c);
-    //console.log(output);
+    if (true) {
+	console.log("====================================");
+	console.log(msg);
+	console.log(t1);
+	console.log(t2);
+	console.log(t1c);
+	console.log(output);
+    }
     assert(t1c.isSimilar(t2),msg);
 }
 
@@ -70,6 +72,7 @@ function bi_round_trip(t1,t2,msg) {
     var t9 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","NULL"],["Jane","Mercury"]]);
     var t10 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","_NULL"],["Jane","Mercury"]]);
     var t11 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","Pluto but it is not\na planet anymore"],["Jane","Mercury"]]);
+    //var t12 = new jtable.JTable2([["Planet"],["Jupiter"],["Pluto but it is not\na planet anymore"],["Mercury"]]);
 
     var txt = fs.readFileSync("data/quote_me.csv","utf8");
     var quote_me = new jtable.JTable2((new coopy.Csv()).parseTable(txt));

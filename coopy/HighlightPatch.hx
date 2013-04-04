@@ -335,7 +335,7 @@ class HighlightPatch implements Row {
                     }
                 }
                 if (prev==-2) {
-                    mod.sourceRow = cmods[mods.length-1].sourceRow;
+                    mod.sourceRow = cmods[cmods.length-1].sourceRow;
                 } else {
                     mod.sourceRow = (prev<0)?prev:(prev+1);
                 }
