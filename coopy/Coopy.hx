@@ -94,6 +94,7 @@ class Coopy {
         var cf : CompareFlags = new CompareFlags();
         var hp : HighlightPatch = new HighlightPatch(null,null);
         var csv : Csv = new Csv();
+        var tm : TableModifier = new TableModifier(null);
 
         return 0;
     }

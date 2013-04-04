@@ -158,7 +158,7 @@ class HighlightPatch implements Row {
         if (prev==-2) {
             mod.sourceRow = mods[mods.length-1].sourceRow;
         } else {
-            mod.sourceRow = (prev<0)?prev:(prev+1);
+            mod.sourceRow = prev+1; //(prev<0)?prev:(prev+1);
         }
         mod.patchRow = currentRow;
         mods.push(mod);
@@ -185,14 +185,14 @@ class HighlightPatch implements Row {
     }
 
     private function applyPad() : Void {
-       needSourceIndex();
-       var at : Int = lookUp();
-       if (at==-1) return;
-       var mod : HighlightPatchUnit = new HighlightPatchUnit();
-       mod.pad = true;
-       mod.sourceRow = at;
-       mod.patchRow = currentRow;
-       mods.push(mod);
+        needSourceIndex();
+        var at : Int = lookUp();
+        if (at==-1) return;
+        var mod : HighlightPatchUnit = new HighlightPatchUnit();
+        mod.pad = true;
+        mod.sourceRow = at;
+        mod.patchRow = currentRow;
+        mods.push(mod);
     }
 
     private function checkAct() : Void {
@@ -226,7 +226,7 @@ class HighlightPatch implements Row {
     private function processMods(rmods : Array<HighlightPatchUnit>,
                                  fate: Array<Int>,
                                  len: Int) : Int {
-        var sorter = function(a,b) { if (a.sourceRow==-1 && b.sourceRow!=-1) return 1; if (a.sourceRow!=-1 && b.sourceRow==-1) return -1; if (a.sourceRow>b.sourceRow) return 1; if (a.sourceRow<b.sourceRow) return -1; return 0; }
+        var sorter = function(a,b) { if (a.sourceRow==-1 && b.sourceRow!=-1) return 1; if (a.sourceRow!=-1 && b.sourceRow==-1) return -1; if (a.sourceRow>b.sourceRow) return 1; if (a.sourceRow<b.sourceRow) return -1; if (a.patchRow>b.patchRow) return 1; if (a.patchRow<b.patchRow) return -1; return 0; }
         mods.sort(sorter);
         var offset : Int = 0;
         var last : Int = 0;
@@ -278,9 +278,12 @@ class HighlightPatch implements Row {
                 //trace("Revisiting " + mod);
                 if (mod.add) {
                     for (c in headerPost) {
-                        source.setCell(patchInSource.get(c),
-                                       mod.sourceRow2,
-                                       patch.getCell(c,mod.patchRow));
+                        var offset : Int = patchInSource.get(c);
+                        if (offset>=0) {
+                            source.setCell(offset,
+                                           mod.sourceRow2,
+                                           patch.getCell(c,mod.patchRow));
+                        }
                     }
                 } else if (!(mod.rem||mod.pad)) {
                     // update
@@ -337,7 +340,7 @@ class HighlightPatch implements Row {
                 if (prev==-2) {
                     mod.sourceRow = cmods[cmods.length-1].sourceRow;
                 } else {
-                    mod.sourceRow = (prev<0)?prev:(prev+1);
+                    mod.sourceRow = prev+1; //(prev<0)?prev:(prev+1);
                 }
                 mod.patchRow = i;
                 cmods.push(mod);
@@ -350,7 +353,7 @@ class HighlightPatch implements Row {
             if (!cmod.rem) {
                 if (cmod.add) {
                     //trace("Should fill in " + cmod.sourceRow2 + " from " +
-                    //cmod.patchRow);
+                    //    cmod.patchRow);
                     // we're not ready yet, but at least pop in
                     // column name
                     for (mod in mods) {

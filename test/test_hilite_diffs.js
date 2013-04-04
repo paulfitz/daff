@@ -44,7 +44,7 @@ function round_trip(t1,t2,msg) {
     var t1c = t1.clone();
     var patcher = new coopy.HighlightPatch(t1c,output);
     patcher.apply();
-    if (true) {
+    if (false) {
 	console.log("====================================");
 	console.log(msg);
 	console.log(t1);
@@ -72,12 +72,14 @@ function bi_round_trip(t1,t2,msg) {
     var t9 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","NULL"],["Jane","Mercury"]]);
     var t10 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","_NULL"],["Jane","Mercury"]]);
     var t11 = new jtable.JTable2([["Name","Planet"],["Frank","Jupiter"],["John","Pluto but it is not\na planet anymore"],["Jane","Mercury"]]);
-    //var t12 = new jtable.JTable2([["Planet"],["Jupiter"],["Pluto but it is not\na planet anymore"],["Mercury"]]);
+    var t12 = new jtable.JTable2([["Planet"],["Jupiter"],["Pluto but it is not\na planet anymore"],["Mercury"]]);
 
     var txt = fs.readFileSync("data/quote_me.csv","utf8");
     var quote_me = new jtable.JTable2((new coopy.Csv()).parseTable(txt));
     txt = fs.readFileSync("data/quote_me2.csv","utf8");
     var quote_me2 = new jtable.JTable2((new coopy.Csv()).parseTable(txt));
+    txt = fs.readFileSync("data/bridges.csv","utf8");
+    var bridges = new jtable.JTable2((new coopy.Csv()).parseTable(txt));
 
     {
 	var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
@@ -99,8 +101,8 @@ function bi_round_trip(t1,t2,msg) {
 	td.hilite(output);
     }
 
-    var tables = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11];
-    var names = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11"];
+    var tables = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12];
+    var names = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", "t12"];
     for (var i in tables) {
 	for (var j in tables) {
 	    round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);
@@ -109,6 +111,20 @@ function bi_round_trip(t1,t2,msg) {
 
     tables = [quote_me, quote_me2];
     names = ["quote_me", "quote_me2"];
+    for (var i in tables) {
+	for (var j in tables) {
+	    round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);
+	}
+    }
+
+    tables = [bridges];
+    names = ["bridges"];
+    for (var i=0; i<bridges.get_width(); i++) {
+	var t = bridges.clone();
+	new coopy.TableModifier(t).removeColumn(i);
+	tables.push(t);
+	names.push("bridges_less_column_" + i);
+    }
     for (var i in tables) {
 	for (var j in tables) {
 	    round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);

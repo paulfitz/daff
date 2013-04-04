@@ -62,7 +62,7 @@ class Index {
     public function toKeyByContent(row: Row) : String {
         var wide : String = "";
         for (k in 0...cols.length) {
-            var txt : String = row.getRowString(k);
+            var txt : String = row.getRowString(cols[k]);
             if (txt=="" || txt=="null" || txt=="undefined") continue;
             if (k>0) wide += " // ";
             wide += txt;
