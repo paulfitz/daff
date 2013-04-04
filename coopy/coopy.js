@@ -1202,7 +1202,7 @@ coopy.HighlightPatch.prototype = {
 						prev = p == null?-1:p;
 					}
 				}
-				if(prev == -2) mod1.sourceRow = this.cmods[this.mods.length - 1].sourceRow; else mod1.sourceRow = prev < 0?prev:prev + 1;
+				if(prev == -2) mod1.sourceRow = this.cmods[this.cmods.length - 1].sourceRow; else mod1.sourceRow = prev < 0?prev:prev + 1;
 				mod1.patchRow = i;
 				this.cmods.push(mod1);
 			}
