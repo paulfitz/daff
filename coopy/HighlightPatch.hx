@@ -13,6 +13,7 @@ class HighlightPatch implements Row {
     private var header : Map<Int,String>;
     private var headerPre : Map<String,Int>;
     private var headerPost : Map<String,Int>;
+    private var headerRename : Map<String,String>;
     private var modifier : Map<Int,String>;
     private var indexes : Array<IndexPair>;
     private var sourceInPatch : Map<Int,Int>;
@@ -32,6 +33,7 @@ class HighlightPatch implements Row {
         header = new Map<Int,String>();
         headerPre = new Map<String,Int>();
         headerPost = new Map<String,Int>();
+        headerRename = new Map<String,String>();
         modifier = new Map<Int,String>();
         sourceInPatch = new Map<Int,Int>();
         patchInSource = new Map<Int,Int>();
@@ -125,6 +127,15 @@ class HighlightPatch implements Row {
             var name : String = getString(i);
             var mod : String = modifier.get(i);
             header.set(i,name);
+            if (mod!=null) {
+                if (mod.charCodeAt(0)=="(".code) {
+                    var prev_name = mod.substr(1,mod.length-2);
+                    headerPre.set(prev_name,i);
+                    headerPost.set(name,i);
+                    headerRename.set(prev_name,name);
+                    continue;
+                }
+            }
             if (mod!="+++") headerPre.set(name,i);
             if (mod!="---") headerPost.set(name,i);
         }
@@ -371,6 +382,12 @@ class HighlightPatch implements Row {
                                    view.toDatum(hdr));
                 }
             }
+        }
+        for (i in 0...source.width) {
+            var name : String = view.toString(source.getCell(i,0));
+            var next_name : String = headerRename.get(name);
+            if (next_name==null) continue;
+            source.setCell(i,0,view.toDatum(next_name));
         }
     }
 }

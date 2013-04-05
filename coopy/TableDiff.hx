@@ -76,14 +76,20 @@ class TableDiff {
         var a : Table;
         var b : Table;
         var p : Table;
+        var ra_header : Int = 0;
+        var rb_header : Int = 0;
         if (has_parent) {
             p = align.getSource();
             a = align.reference.getTarget();
             b = align.getTarget();
+            ra_header = align.reference.meta.getTargetHeader();
+            rb_header = align.meta.getTargetHeader();
         } else {
             a = align.getSource();
             b = align.getTarget();
             p = a;
+            ra_header = align.meta.getSourceHeader();
+            rb_header = align.meta.getTargetHeader();
         }
 
         var column_order : Ordering = align.meta.toOrder();
@@ -108,6 +114,18 @@ class TableDiff {
                 have_schema = true;
                 act = "---";
             }
+            if (cunit.r>=0 && cunit.lp()>=0) {
+                if (a.height>=ra_header && b.height>=rb_header) {
+                    var aa : Datum = a.getCell(cunit.lp(),ra_header);
+                    var bb : Datum = b.getCell(cunit.r,rb_header);
+                    if (!v.equals(aa,bb)) {
+                        have_schema = true;
+                        act = "(";
+                        act += v.toString(aa);
+                        act += ")";
+                    }
+                }
+            }
             schema.push(act);
         }
         if (have_schema) {
@@ -129,12 +147,12 @@ class TableDiff {
                 if (cunit.r>=0) {
                     if (b.height>0) {
                         output.setCell(j+1,at,
-                                       b.getCell(cunit.r,0));
+                                       b.getCell(cunit.r,rb_header));
                     }
                 } else if (cunit.lp()>=0) {
                     if (a.height>0) {
                         output.setCell(j+1,at,
-                                       a.getCell(cunit.lp(),0));
+                                       a.getCell(cunit.lp(),ra_header));
                     }
                 }
             }

@@ -9,6 +9,8 @@ class Alignment {
     private var hb : Int;
     private var ta : Table;
     private var tb : Table;
+    private var ia : Int;
+    private var ib : Int;
     private var map_count : Int;
     private var order_cache : Ordering;
     private var order_cache_has_reference : Bool;
@@ -24,6 +26,8 @@ class Alignment {
         reference = null;
         meta = null;
         order_cache_has_reference = false;
+        ia = 0;
+        ib = 0;
     }
 
     public function range(ha: Int, hb: Int) : Void {
@@ -34,6 +38,11 @@ class Alignment {
     public function tables(ta: Table, tb: Table) : Void {
         this.ta = ta;
         this.tb = tb;
+    }
+
+    public function headers(ia: Int, ib: Int) : Void {
+        this.ia = ia;
+        this.ib = ib;
     }
 
     public function setRowlike(flag: Bool) : Void {
@@ -80,6 +89,14 @@ class Alignment {
 
     public function getTarget() : Table {
         return tb;
+    }
+
+    public function getSourceHeader() : Int {
+        return ia;
+    }
+
+    public function getTargetHeader() : Int {
+        return ib;
     }
 
     private function toOrder3() : Ordering {

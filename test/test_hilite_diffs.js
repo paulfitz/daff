@@ -130,4 +130,8 @@ function bi_round_trip(t1,t2,msg) {
 	    round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);
 	}
     }
+
+    var bridges_col0 = bridges.clone();
+    bridges_col0.setCell(0,0,"bridger");
+    round_trip(bridges,bridges_col0,"change column name");
 }
