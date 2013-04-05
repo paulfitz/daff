@@ -83,6 +83,8 @@ coopy.Alignment = function() {
 	this.reference = null;
 	this.meta = null;
 	this.order_cache_has_reference = false;
+	this.ia = 0;
+	this.ib = 0;
 };
 coopy.Alignment.__name__ = true;
 coopy.Alignment.prototype = {
@@ -286,6 +288,12 @@ coopy.Alignment.prototype = {
 		}
 		return order;
 	}
+	,getTargetHeader: function() {
+		return this.ib;
+	}
+	,getSourceHeader: function() {
+		return this.ia;
+	}
 	,getTarget: function() {
 		return this.tb;
 	}
@@ -320,6 +328,10 @@ coopy.Alignment.prototype = {
 		this.map_count++;
 	}
 	,setRowlike: function(flag) {
+	}
+	,headers: function(ia,ib) {
+		this.ia = ia;
+		this.ib = ib;
 	}
 	,tables: function(ta,tb) {
 		this.ta = ta;
@@ -565,7 +577,7 @@ coopy.CompareTable.prototype = {
 		this.comp.has_same_columns_known = true;
 		return true;
 	}
-	,alignColumns: function(align,a,b) {
+	,alignColumns2: function(align,a,b) {
 		align.range(a.get_width(),b.get_width());
 		align.tables(a,b);
 		align.setRowlike(false);
@@ -625,6 +637,93 @@ coopy.CompareTable.prototype = {
 				if(v != null) align.link(i,v);
 			}
 		}
+	}
+	,alignColumns: function(align,a,b) {
+		align.range(a.get_width(),b.get_width());
+		align.tables(a,b);
+		align.setRowlike(false);
+		var slop = 5;
+		var va = a.getCellView();
+		var vb = b.getCellView();
+		var ra_best = 0;
+		var rb_best = 0;
+		var ct_best = -1;
+		var ma_best = null;
+		var mb_best = null;
+		var ra_header = 0;
+		var rb_header = 0;
+		var ra_uniques = 0;
+		var rb_uniques = 0;
+		var _g = 0;
+		while(_g < slop) {
+			var ra = _g++;
+			if(ra >= a.get_height()) break;
+			var _g1 = 0;
+			while(_g1 < slop) {
+				var rb = _g1++;
+				if(rb >= b.get_height()) break;
+				var ma = new haxe.ds.StringMap();
+				var mb = new haxe.ds.StringMap();
+				var ct = 0;
+				var uniques = 0;
+				var _g3 = 0, _g2 = a.get_width();
+				while(_g3 < _g2) {
+					var ca = _g3++;
+					var key = va.toString(a.getCell(ca,ra));
+					if(ma.exists(key)) {
+						ma.set(key,-1);
+						uniques--;
+					} else {
+						ma.set(key,ca);
+						uniques++;
+					}
+				}
+				if(uniques > ra_uniques) {
+					ra_header = ra;
+					ra_uniques = uniques;
+				}
+				uniques = 0;
+				var _g3 = 0, _g2 = b.get_width();
+				while(_g3 < _g2) {
+					var cb = _g3++;
+					var key = vb.toString(b.getCell(cb,rb));
+					if(mb.exists(key)) {
+						mb.set(key,-1);
+						uniques--;
+					} else {
+						mb.set(key,cb);
+						uniques++;
+					}
+				}
+				if(uniques > rb_uniques) {
+					rb_header = rb;
+					rb_uniques = uniques;
+				}
+				var $it0 = ma.keys();
+				while( $it0.hasNext() ) {
+					var key = $it0.next();
+					var i0 = ma.get(key);
+					var i1 = mb.get(key);
+					if(i1 >= 0 && i0 >= 0) ct++;
+				}
+				if(ct > ct_best) {
+					ct_best = ct;
+					ma_best = ma;
+					mb_best = mb;
+					ra_best = ra;
+					rb_best = rb;
+				}
+			}
+		}
+		if(ma_best == null) return;
+		var $it1 = ma_best.keys();
+		while( $it1.hasNext() ) {
+			var key = $it1.next();
+			var i0 = ma_best.get(key);
+			var i1 = mb_best.get(key);
+			if(i1 >= 0 && i0 >= 0) align.link(i0,i1);
+		}
+		align.headers(ra_header,rb_header);
 	}
 	,alignCore2: function(align,a,b) {
 		if(align.meta == null) align.meta = new coopy.Alignment();
@@ -1162,6 +1261,7 @@ coopy.HighlightPatch = function(source,patch) {
 	this.header = new haxe.ds.IntMap();
 	this.headerPre = new haxe.ds.StringMap();
 	this.headerPost = new haxe.ds.StringMap();
+	this.headerRename = new haxe.ds.StringMap();
 	this.modifier = new haxe.ds.IntMap();
 	this.sourceInPatch = new haxe.ds.IntMap();
 	this.patchInSource = new haxe.ds.IntMap();
@@ -1230,6 +1330,14 @@ coopy.HighlightPatch.prototype = {
 					this.source.setCell(cmod.sourceRow2,0,this.view.toDatum(hdr));
 				}
 			}
+		}
+		var _g1 = 0, _g = this.source.get_width();
+		while(_g1 < _g) {
+			var i = _g1++;
+			var name = this.view.toString(this.source.getCell(i,0));
+			var next_name = this.headerRename.get(name);
+			if(next_name == null) continue;
+			this.source.setCell(i,0,this.view.toDatum(next_name));
 		}
 	}
 	,finishRows: function() {
@@ -1414,6 +1522,15 @@ coopy.HighlightPatch.prototype = {
 			var name = this.getString(i);
 			var mod = this.modifier.get(i);
 			this.header.set(i,name);
+			if(mod != null) {
+				if(HxOverrides.cca(mod,0) == 40) {
+					var prev_name = HxOverrides.substr(mod,1,mod.length - 2);
+					this.headerPre.set(prev_name,i);
+					this.headerPost.set(name,i);
+					this.headerRename.set(prev_name,name);
+					continue;
+				}
+			}
 			if(mod != "+++") this.headerPre.set(name,i);
 			if(mod != "---") this.headerPost.set(name,i);
 		}
@@ -1991,14 +2108,20 @@ coopy.TableDiff.prototype = {
 		var a;
 		var b;
 		var p;
+		var ra_header = 0;
+		var rb_header = 0;
 		if(has_parent) {
 			p = this.align.getSource();
 			a = this.align.reference.getTarget();
 			b = this.align.getTarget();
+			ra_header = this.align.reference.meta.getTargetHeader();
+			rb_header = this.align.meta.getTargetHeader();
 		} else {
 			a = this.align.getSource();
 			b = this.align.getTarget();
 			p = a;
+			ra_header = this.align.meta.getSourceHeader();
+			rb_header = this.align.meta.getTargetHeader();
 		}
 		var column_order = this.align.meta.toOrder();
 		var column_units = column_order.getList();
@@ -2020,6 +2143,18 @@ coopy.TableDiff.prototype = {
 			if(cunit.r < 0 && cunit.lp() >= 0) {
 				have_schema = true;
 				act = "---";
+			}
+			if(cunit.r >= 0 && cunit.lp() >= 0) {
+				if(a.get_height() >= ra_header && b.get_height() >= rb_header) {
+					var aa = a.getCell(cunit.lp(),ra_header);
+					var bb = b.getCell(cunit.r,rb_header);
+					if(!v.equals(aa,bb)) {
+						have_schema = true;
+						act = "(";
+						act += v.toString(aa);
+						act += ")";
+					}
+				}
 			}
 			schema.push(act);
 		}
@@ -2043,9 +2178,9 @@ coopy.TableDiff.prototype = {
 				var j = _g1++;
 				var cunit = column_units[j];
 				if(cunit.r >= 0) {
-					if(b.get_height() > 0) output.setCell(j + 1,at,b.getCell(cunit.r,0));
+					if(b.get_height() > 0) output.setCell(j + 1,at,b.getCell(cunit.r,rb_header));
 				} else if(cunit.lp() >= 0) {
-					if(a.get_height() > 0) output.setCell(j + 1,at,a.getCell(cunit.lp(),0));
+					if(a.get_height() > 0) output.setCell(j + 1,at,a.getCell(cunit.lp(),ra_header));
 				}
 			}
 			top_line_done = true;
