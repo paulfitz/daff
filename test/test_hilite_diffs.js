@@ -44,37 +44,21 @@ var tester = require('tester');
 	td.hilite(output);
     }
 
-    var tables = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12];
-    var names = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", "t12"];
-    for (var i in tables) {
-	for (var j in tables) {
-	    tester.round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);
-	}
-    }
-
-    tables = [quote_me, quote_me2];
-    names = ["quote_me", "quote_me2"];
-    for (var i in tables) {
-	for (var j in tables) {
-	    tester.round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);
-	}
-    }
-
-    tables = [bridges];
-    names = ["bridges"];
+    var tables = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, quote_me, quote_me2, bridges];
+    var names = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", "t12", "quote_me", "quote_me2", "bridges"];
     for (var i=0; i<bridges.get_width(); i++) {
 	var t = bridges.clone();
 	new coopy.TableModifier(t).removeColumn(i);
 	tables.push(t);
 	names.push("bridges_less_column_" + i);
     }
+    var bridges_col0 = bridges.clone();
+    bridges_col0.setCell(0,0,"bridger");
+    tables.push(bridges_col0);
+    names.push("bridges_rename_column_0");
     for (var i in tables) {
 	for (var j in tables) {
 	    tester.round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);
 	}
     }
-
-    var bridges_col0 = bridges.clone();
-    bridges_col0.setCell(0,0,"bridger");
-    tester.round_trip(bridges,bridges_col0,"change column name");
 }
