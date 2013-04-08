@@ -1,34 +1,6 @@
 var coopy = require('coopy');
-var assert = require('assert');
 var jtable = require('jtable');
-
-function align_assert(align,a,b) {
-    var msg = "alignment " + align + " " + a + " -> " + b;
-    if (a==null) {
-	assert(align.b2a(b)==null,msg);
-    } else {
-	assert(align.a2b(a)==b,msg);
-    }
-}
-
-function align_asserts(align,lst) {
-    for (var i=0; i<lst.length; i++) {
-	var pair = lst[i];
-	align_assert(align,pair[0],pair[1]);
-    }
-}
-
-function order_asserts(order,lst) {
-    var lst2 = order.getList();
-    var txt = order.toString();
-    assert(lst.length == lst2.length, "list length " + lst.length + " " + lst2.length);
-    for (var i=0; i<lst.length; i++) {
-	var pair = lst[i];
-	var pair2 = lst2[i];
-	assert(pair[0]==pair2.l,txt);
-	assert(pair[1]==pair2.r,txt);
-    }
-}
+var tester = require('tester');
 
 {
     var t1 = new jtable.JTable2([["Name","Number"],["John",14]]);
@@ -36,8 +8,8 @@ function order_asserts(order,lst) {
     
     var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
-    align_asserts(align,
-		  [[0,0],[1,2],[null,1]]);
+    tester.align_asserts(align,
+			 [[0,0],[1,2],[null,1]]);
 }
 
 
@@ -57,8 +29,8 @@ function order_asserts(order,lst) {
     
     var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
-    align_asserts(align,
-		  [[0,0],[1,1],[2,2],[3,3]]);
+    tester.align_asserts(align,
+			 [[0,0],[1,1],[2,2],[3,3]]);
 }
 
 
@@ -80,8 +52,8 @@ function order_asserts(order,lst) {
     
     var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
-    align_asserts(align,
-		  [[0,0],[1,1],[2,2],[3,3],[4,4]]);
+    tester.align_asserts(align,
+			 [[0,0],[1,1],[2,2],[3,3],[4,4]]);
 }
 
 
@@ -105,8 +77,8 @@ function order_asserts(order,lst) {
     
     var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
-    align_asserts(align,
-		  [[0,0],[1,1],[2,2],[3,3],[4,null]]);
+    tester.align_asserts(align,
+			 [[0,0],[1,1],[2,2],[3,3],[4,null]]);
 }
 
 
@@ -127,10 +99,10 @@ function order_asserts(order,lst) {
     
     var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
-    align_asserts(align,
-		  [[0,0],[1,1],[2,4],[3,3]]);
-    order_asserts(align.toOrder(),
-		  [[0,0],[1,1],[-1,2],[3,3],[2,4]]);
+    tester.align_asserts(align,
+			 [[0,0],[1,1],[2,4],[3,3]]);
+    tester.order_asserts(align.toOrder(),
+			 [[0,0],[1,1],[-1,2],[3,3],[2,4]]);
 }
 
 
@@ -150,7 +122,7 @@ function order_asserts(order,lst) {
     
     var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
-    order_asserts(align.toOrder(),
-		  [[0,0],[1,1],[2,2],[-1,3],[3,-1]]);
+    tester.order_asserts(align.toOrder(),
+			 [[0,0],[1,1],[2,2],[-1,3],[3,-1]]);
 }
 
