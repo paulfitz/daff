@@ -2304,7 +2304,11 @@ coopy.TableDiff.prototype = {
 					if(have_dd_to) {
 						txt = this.quoteForDiff(v,dd);
 						if(sep == "") sep = this.getSeparator(a,null,"->");
-						if(!have_dd_to_alt) {
+						var is_conflict = false;
+						if(have_dd_to_alt) {
+							if(!v.equals(dd_to,dd_to_alt)) is_conflict = true;
+						}
+						if(!is_conflict) {
 							txt = txt + sep + this.quoteForDiff(v,dd_to);
 							if(sep.length > act.length) act = sep;
 						} else {

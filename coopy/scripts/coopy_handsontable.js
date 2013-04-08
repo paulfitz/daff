@@ -1,26 +1,31 @@
 if(typeof window["coopy"] == "undefined") window["coopy"] = {};
 window["coopy"]["diffRenderer"] = function (instance, td, row, col, prop, value, cellProperties) {
-    Handsontable.TextCell.renderer.apply(this, arguments);
+
+    var className = "";
+
+    var value2 = value;
+
+    // Compute coloration
     var v0 = instance.getDataAtCell(row, 0);
     var v1 = instance.getDataAtCell(0, col);
     var removed_column = false;
     if (v1!=null) {
 	if (v1.indexOf("+++")>=0) {
- 	    td.className = 'add';
+ 	    className = 'add';
 	} else if (v1.indexOf("---")>=0) {
- 	    td.className = 'remove';
+ 	    className = 'remove';
 	    removed_column = true;
 	} 
     }
     if (v0!=null) {
 	if (v0 == "!") {
- 	    td.className = 'spec';
+ 	    className = 'spec';
 	} else if (v0 == "@@") {
- 	    td.className = 'header';
+ 	    className = 'header';
 	} else if (v0 == "+++") {
- 	    if (!removed_column) td.className = 'add';
+ 	    if (!removed_column) className = 'add';
 	} else if (v0 == "---") {
- 	    td.className = 'remove';
+ 	    className = 'remove';
 	} else if (v0.indexOf("->")>=0) {
 	    if (value!=null) {
  		if (!removed_column) {
@@ -30,20 +35,33 @@ window["coopy"]["diffRenderer"] = function (instance, td, row, col, prop, value,
 		    if (part==null) part = full;
 		    if (value.indexOf(part)>=0) {
 			var name = "modify";
+			var div = part;
+			// render with utf8 -> symbol
 			if (part!=full) {
 			    if (value.indexOf(full)>=0) {
+				div = full;
 				name = 'conflict';
 			    }
 			}
-			td.className = name;
+			value2 = value2.split(div).join(String.fromCharCode(8594));
+			className = name;
 		    }
 		}
 	    }
 	}
     }
+
     if (value==null || value=="null") {
-	td.className = td.className + " null";
-	$(td).text("");
+	className = className + " null";
+	value2 = "";
     }
+
+    Handsontable.TextCell.renderer.apply(this, [instance,
+						td, row, col, prop,
+						value2,
+						cellProperties]);
+    if (className!="") {
+	td.className = className;
+    }    
 }
 
