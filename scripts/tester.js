@@ -1,5 +1,5 @@
 var assert = require('assert');
-var jtable = require('jtable');
+var coopy_view = require('coopy_view');
 var coopy = require('coopy');
 
 function order_asserts(order,lst) {
@@ -40,7 +40,7 @@ function round_trip(t1,t2,msg) {
     var align = ct.align();
     var flags = new coopy.CompareFlags();
     var td = new coopy.TableDiff(align,flags);
-    var output = new jtable.JTable2([]);
+    var output = new coopy_view.CoopyTableView([]);
     td.hilite(output);
     
     var t1c = t1.clone();

@@ -1,8 +1,8 @@
 var coopy = require('coopy');
 var assert = require('assert');
-var jtable = require('jtable');
+var coopy_view = require('coopy_view');
 
-var table_classes = [coopy.SimpleTable, jtable.JTable];
+var table_classes = [coopy.SimpleTable, coopy_view.CoopyTableView];
 
 for (var t=0; t<table_classes.length; t++) {
     var TableClass = table_classes[t];

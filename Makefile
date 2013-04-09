@@ -12,3 +12,8 @@ test: js
 	./scripts/run_tests.sh
 	@echo "=============================================================================="
 
+doc:
+	haxe -xml doc.xml compile_js.hxml
+	haxedoc doc.xml -f coopy
+	# 
+	# result is in index.html and content directory

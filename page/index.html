@@ -4,7 +4,7 @@
 <script src="lib/jquery.min.js"></script>
 <script src="dist/jquery.handsontable.full.js"></script>
 <script src="coopy/coopy.js"></script>
-<script src="coopy/scripts/jtable.js"></script>
+<script src="coopy/scripts/coopy_view.js"></script>
 <script src="coopy/scripts/coopy_handsontable.js"></script>
 <link rel="stylesheet" media="screen" href="dist/jquery.handsontable.full.css">
 <link rel="stylesheet" media="screen" href="coopyhx.css">
@@ -84,19 +84,18 @@
 
 
 <script>
-var jtable = window.coopy;
 var use_parent = false;
 function processChange(changes,source,table) {
-    if (source=="loadData") return;
-  var t1 = new jtable.JTable2(data1);
-  var t2 = new jtable.JTable2(data2);
+  if (source=="loadData") return;
+  var t1 = new coopy.CoopyTableView(data1);
+  var t2 = new coopy.CoopyTableView(data2);
   t1.trim();
   t2.trim();
   var ct = null;
   if (!use_parent) { 
     ct = coopy.Coopy.compareTables(t1,t2);
   } else {
-    var t0 = new jtable.JTable2(data0);
+    var t0 = new coopy.CoopyTableView(data0);
     t0.trim();
     ct = coopy.Coopy.compareTables3(t0,t1,t2);
   }
@@ -106,7 +105,7 @@ function processChange(changes,source,table) {
   $("#ordering").html(report);
   var report2 = align.meta.toOrder().toString().replace(/, */g,"<br />\n");
   $("#column_ordering").html(report2);
-  var output = new jtable.JTable2([]);
+  var output = new coopy.CoopyTableView([]);
   var flags = new coopy.CompareFlags();
   flags.show_unchanged = false;
   flags.always_show_header = true;
@@ -273,16 +272,16 @@ $("#button-clear").click(function() {
 });
 
 $("#apply-diff").click(function() {
-    var t1 = new jtable.JTable2(data1);
+    var t1 = new coopy.CoopyTableView(data1);
     t1.trim();
-    var patch = new jtable.JTable2(data_diff);
+    var patch = new coopy.CoopyTableView(data_diff);
     patch.trim();
     var patcher = new coopy.HighlightPatch(t1,patch);
     patcher.apply();
     if (use_parent) {
-	var t1 = new jtable.JTable2(data0);
+	var t1 = new coopy.CoopyTableView(data0);
 	t1.trim();
-	var patch = new jtable.JTable2(data_diff);
+	var patch = new coopy.CoopyTableView(data_diff);
 	patch.trim();
 	var patcher = new coopy.HighlightPatch(t1,patch);
 	patcher.apply();

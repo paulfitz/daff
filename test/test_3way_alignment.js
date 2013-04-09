@@ -1,11 +1,11 @@
 var coopy = require('coopy');
-var jtable = require('jtable');
+var coopy_view = require('coopy_view');
 var tester = require('tester');
 
 {
-    var t1 = new jtable.JTable2([["Name","Number"],["John",14],["Jane",99]]);
-    var t2 = new jtable.JTable2([["Name","Number"],["Mary",17],["John",14],["Jane",99]]);
-    var t3 = new jtable.JTable2([["Name","Number"],["John",15],["Sam",21],["Jane",99]]);
+    var t1 = new coopy_view.CoopyTableView([["Name","Number"],["John",14],["Jane",99]]);
+    var t2 = new coopy_view.CoopyTableView([["Name","Number"],["Mary",17],["John",14],["Jane",99]]);
+    var t3 = new coopy_view.CoopyTableView([["Name","Number"],["John",15],["Sam",21],["Jane",99]]);
     
     var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
     var align = ct.align();
@@ -23,9 +23,9 @@ var tester = require('tester');
 
 
 {
-    var t1 = new jtable.JTable2([["hdr"],["2009"],["2010"],["2011"],["2012"]]);
-    var t2 = new jtable.JTable2([["hdr"],["2009"],["2011"],["2012"],["2010"]]);
-    var t3 = new jtable.JTable2([["hdr"],["2009"],["2010"],["2011"],["2012"]]);
+    var t1 = new coopy_view.CoopyTableView([["hdr"],["2009"],["2010"],["2011"],["2012"]]);
+    var t2 = new coopy_view.CoopyTableView([["hdr"],["2009"],["2011"],["2012"],["2010"]]);
+    var t3 = new coopy_view.CoopyTableView([["hdr"],["2009"],["2010"],["2011"],["2012"]]);
     
     var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
     var align = ct.align();
@@ -38,9 +38,9 @@ var tester = require('tester');
 }
 
 {
-    var t1 = new jtable.JTable2([["hdr"],["2009"],["2010"],["2011"],["2012"],["2013"]]);
-    var t2 = new jtable.JTable2([["hdr"],["2009"],["2011"],["2012"],["2010"]]);
-    var t3 = new jtable.JTable2([["hdr"],["2009"],["2010"],["2011"],["2012"]]);
+    var t1 = new coopy_view.CoopyTableView([["hdr"],["2009"],["2010"],["2011"],["2012"],["2013"]]);
+    var t2 = new coopy_view.CoopyTableView([["hdr"],["2009"],["2011"],["2012"],["2010"]]);
+    var t3 = new coopy_view.CoopyTableView([["hdr"],["2009"],["2010"],["2011"],["2012"]]);
     
     var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
     var align = ct.align();

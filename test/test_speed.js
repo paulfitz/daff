@@ -1,6 +1,6 @@
 var coopy = require('coopy');
 var assert = require('assert');
-var jtable = require('jtable');
+var coopy_view = require('coopy_view');
 
 function clone2(x) {
     var result = [];
@@ -36,8 +36,8 @@ data2[0][0] = 2;
 data1 = enheader(data1);
 data2 = enheader(data2);
 
-var t1 = new jtable.JTable2(data1);
-var t2 = new jtable.JTable2(data2);
+var t1 = new coopy_view.CoopyTableView(data1);
+var t2 = new coopy_view.CoopyTableView(data2);
 console.log("starting...");
 var ct = new coopy.Coopy.compareTables(t1,t2);
 var align = ct.align();

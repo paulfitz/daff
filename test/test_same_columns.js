@@ -1,9 +1,9 @@
 var coopy = require('coopy');
 var assert = require('assert');
-var jtable = require('jtable');
+var coopy_view = require('coopy_view');
 
-var t1 = new jtable.JTable2([["Name","Number"],["John",14]]);
-var t2 = new jtable.JTable2([["Name","Number"],["Mary",17],["John",15]]);
+var t1 = new coopy_view.CoopyTableView([["Name","Number"],["John",14]]);
+var t2 = new coopy_view.CoopyTableView([["Name","Number"],["Mary",17],["John",15]]);
 var d1 = new coopy.ViewedDatum(t1,new coopy.TableView());
 var d1 = new coopy.ViewedDatum(t2,new coopy.TableView());
 

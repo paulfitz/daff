@@ -1,15 +1,15 @@
 var coopy = require('coopy');
-var jtable = require('jtable');
+var coopy_view = require('coopy_view');
 var tester = require('tester');
 
 {
-    var t1 = new jtable.JTable2([
+    var t1 = new coopy_view.CoopyTableView([
 	["Year","Number"],
 	[2009,0],
 	[2011,4],
 	[2012,""]
     ]);
-    var t2 = new jtable.JTable2([
+    var t2 = new coopy_view.CoopyTableView([
 	["Year","Number","More"],
 	[2009,0,20],
 	[2011,4,30],
@@ -25,13 +25,13 @@ var tester = require('tester');
 }
 
 {
-    var t1 = new jtable.JTable2([
+    var t1 = new coopy_view.CoopyTableView([
 	["Year","Number","More"],
 	[2009,0,20],
 	[2011,4,30],
 	[2019,"",40],
     ]);
-    var t2 = new jtable.JTable2([
+    var t2 = new coopy_view.CoopyTableView([
 	["Year","Number"],
 	[2009,0],
 	[2011,4],
@@ -49,13 +49,13 @@ var tester = require('tester');
 
 
 {
-    var t1 = new jtable.JTable2([
+    var t1 = new coopy_view.CoopyTableView([
 	["Number","More","Year"],
 	[0,20,2009],
 	[4,30,2011],
 	["",40,2019],
     ]);
-    var t2 = new jtable.JTable2([
+    var t2 = new coopy_view.CoopyTableView([
 	["Year","Number"],
 	[2009,0],
 	[2011,4],
@@ -72,13 +72,13 @@ var tester = require('tester');
 
 
 {
-    var t1 = new jtable.JTable2([
+    var t1 = new coopy_view.CoopyTableView([
 	["Number","More","Year"],
 	[0,20,2009],
 	[4,30,2011],
 	["",40,2019],
     ]);
-    var t2 = new jtable.JTable2([
+    var t2 = new coopy_view.CoopyTableView([
 	["Number","Less","Year"],
 	[0,20,2009],
 	[4,30,2011],
