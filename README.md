@@ -60,40 +60,29 @@ var table2 = new coopy.CoopyTableView(data2);
 We can now compute the alignment between the rows and columns
 in the two tables:
 ```js
-var alignment = coopy.Coopy.compareTables(table1,table2).align();
+var alignment = coopy.compareTables(table1,table2).align();
 ```
 
-Here, then, is how to generate a description of the difference
-between two example tables:
+To produce a diff from the alignment, we first need a table
+for the output:
 ```js
-var data1 = [['Country','Capital'],
-    	     ['Ireland','Dublin'],
-	     ['France','Paris'],
-	     ['Spain','Barcelona']];
-var data2 = [['Country','Capital'],
-    	     ['Ireland','Dublin'],
-	     ['France','Paris'],
-	     ['Spain','Madrid'],
-	     ['Germany','Berlin']];
 var data_diff = [];
-
-// wrap raw data in a standard way
 var table_diff = new coopy.CoopyTableView(data_diff);
+```
 
-// compute the alignment between rows and columns - the alignment
-// object is handy for many purposes beyond producing diffs
-var alignment = coopy.Coopy.compareTables(table1,table2).align();
-
-// generate a diff in highlighter format
+Using default options for the diff:
+```js
 var flags = new coopy.CompareFlags();
 var highlighter = new coopy.TableDiff(alignment,flags);
 highlighter.hilite(table_diff);
-
-console.log(data_diff);
 ```
 
+The diff is now in `table_diff`, in highlighter format, see
+specification here:
+> http://share.find.coop/doc/spec_hilite.html
+
 For 3-way differences (that is, comparing two tables given knowledge
-of a common ancestor) use `coopy.Coopy.compareTables3` (give ancestor
+of a common ancestor) use `coopy.compareTables3` (give ancestor
 table as the first argument).
 
 Here is how to apply that difference as a patch:
