@@ -2,53 +2,19 @@
 
 var coopy = (typeof require != "undefined") ? require('coopy') : window.coopy;
 
-var JTable = function(w,h) {
-    this.width = w;
-    this.height = h;
-    this.data = new Array(w*h);
-}
-
-JTable.prototype.get_width = function() {
-    return this.width;
-}
-
-JTable.prototype.get_height = function() {
-    return this.height;
-}
-
-JTable.prototype.getCell = function(x,y) {
-    return this.data[x+y*this.width];
-}
-
-JTable.prototype.setCell = function(x,y,c) {
-    this.data[x+y*this.width] = c;
-}
-
-JTable.prototype.toString = function() {
-    return coopy.SimpleTable.tableToString(this);
-}
-
-JTable.prototype.getCellView = function() {
-    return new coopy.SimpleView();
-}
-
-JTable.prototype.isResizable = function() {
-    return true;
-}
-
-JTable.prototype.resize = function(w,h) {
-    this.width = w;
-    this.height = h;
-    return true;
-}
-
-JTable.prototype.clear = function() {
-    this.data = new Array(w*h);
-}
-
-
-
-var JTable2 = function(data) {
+var CoopyTableView = function(data) {
+    // variant constructor (cols, rows)
+    if (arguments.length==2) {
+	var lst = [];
+	for (var i=0; i<arguments[1]; i++) {
+	    var row = [];
+	    for (var j=0; j<arguments[0]; j++) {
+		row.push(null);
+	    }
+	    lst.push(row);
+	}
+	data = lst;
+    }
     this.data = data;
     this.height = data.length;
     this.width = 0;
@@ -57,35 +23,35 @@ var JTable2 = function(data) {
     }
 }
 
-JTable2.prototype.get_width = function() {
+CoopyTableView.prototype.get_width = function() {
     return this.width;
 }
 
-JTable2.prototype.get_height = function() {
+CoopyTableView.prototype.get_height = function() {
     return this.height;
 }
 
-JTable2.prototype.getCell = function(x,y) {
+CoopyTableView.prototype.getCell = function(x,y) {
     return this.data[y][x];
 }
 
-JTable2.prototype.setCell = function(x,y,c) {
+CoopyTableView.prototype.setCell = function(x,y,c) {
     this.data[y][x] = c;
 }
 
-JTable2.prototype.toString = function() {
+CoopyTableView.prototype.toString = function() {
     return coopy.SimpleTable.tableToString(this);
 }
 
-JTable2.prototype.getCellView = function() {
+CoopyTableView.prototype.getCellView = function() {
     return new coopy.SimpleView();
 }
 
-JTable2.prototype.isResizable = function() {
+CoopyTableView.prototype.isResizable = function() {
     return true;
 }
 
-JTable2.prototype.resize = function(w,h) {
+CoopyTableView.prototype.resize = function(w,h) {
     this.width = w;
     this.height = h;
     for (var i=0; i<this.data.length; i++) {
@@ -109,7 +75,7 @@ JTable2.prototype.resize = function(w,h) {
     return true;
 }
 
-JTable2.prototype.clear = function() {
+CoopyTableView.prototype.clear = function() {
     for (var i=0; i<this.data.length; i++) {
 	var row = this.data[i];
 	for (var j=0; j<row.length; j++) {
@@ -118,13 +84,13 @@ JTable2.prototype.clear = function() {
     }
 }
 
-JTable2.prototype.trim = function() {
+CoopyTableView.prototype.trim = function() {
     var changed = this.trimRows();
     changed = changed || this.trimColumns();
     return changed;
 }
 
-JTable2.prototype.trimRows = function() {
+CoopyTableView.prototype.trimRows = function() {
     var changed = false;
     while (true) {
 	if (this.height==0) return changed;
@@ -137,7 +103,7 @@ JTable2.prototype.trimRows = function() {
     }
 }
 
-JTable2.prototype.trimColumns = function() {
+CoopyTableView.prototype.trimColumns = function() {
     var top_content = 0;
     for (var i=0; i<this.height; i++) {
 	if (top_content>=this.width) break;
@@ -156,19 +122,19 @@ JTable2.prototype.trimColumns = function() {
     return true;
 }
 
-JTable2.prototype.getData = function() {
+CoopyTableView.prototype.getData = function() {
     return data;
 }
 
-JTable2.prototype.clone = function() {
+CoopyTableView.prototype.clone = function() {
     var ndata = [];
     for (var i=0; i<this.get_height(); i++) {
 	ndata[i] = this.data[i].slice();
     }
-    return new JTable2(ndata);
+    return new CoopyTableView(ndata);
 }
 
-JTable2.prototype.insertOrDeleteRows = function(fate, hfate) {
+CoopyTableView.prototype.insertOrDeleteRows = function(fate, hfate) {
     var ndata = [];
     for (var i=0; i<fate.length; i++) {
         var j = fate[i];
@@ -186,7 +152,7 @@ JTable2.prototype.insertOrDeleteRows = function(fate, hfate) {
     return true;
 }
 
-JTable2.prototype.insertOrDeleteColumns = function(fate, wfate) {
+CoopyTableView.prototype.insertOrDeleteColumns = function(fate, wfate) {
     if (wfate==this.width && wfate==fate.length) {
 	var eq = true;
 	for (var i=0; i<wfate; i++) {
@@ -213,7 +179,7 @@ JTable2.prototype.insertOrDeleteColumns = function(fate, wfate) {
     return true;
 }
 
-JTable2.prototype.isSimilar = function(alt) {
+CoopyTableView.prototype.isSimilar = function(alt) {
     if (alt.width!=this.width) return false;
     if (alt.height!=this.height) return false;
     for (var c=0; c<this.width; c++) {
@@ -230,12 +196,10 @@ JTable2.prototype.isSimilar = function(alt) {
 }
 
 if (typeof exports != "undefined") {
-    exports.JTable = JTable;
-    exports.JTable2 = JTable2;
+    exports.CoopyTableView = CoopyTableView;
 } else {
     if (typeof window["coopy"] == "undefined") window["coopy"] = {};
-    window.coopy.JTable = JTable;
-    window.coopy.JTable2 = JTable2;
+    window.coopy.CoopyTableView = CoopyTableView;
 }
 
 })();
