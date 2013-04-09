@@ -39,7 +39,7 @@ data2 = enheader(data2);
 var t1 = new coopy_view.CoopyTableView(data1);
 var t2 = new coopy_view.CoopyTableView(data2);
 console.log("starting...");
-var ct = new coopy.Coopy.compareTables(t1,t2);
+var ct = new coopy.compareTables(t1,t2);
 var align = ct.align();
 console.log("done alignment...");
 console.log(align.toOrder().getList().length);

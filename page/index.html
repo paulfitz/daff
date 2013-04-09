@@ -93,11 +93,11 @@ function processChange(changes,source,table) {
   t2.trim();
   var ct = null;
   if (!use_parent) { 
-    ct = coopy.Coopy.compareTables(t1,t2);
+    ct = coopy.compareTables(t1,t2);
   } else {
     var t0 = new coopy.CoopyTableView(data0);
     t0.trim();
-    ct = coopy.Coopy.compareTables3(t0,t1,t2);
+    ct = coopy.compareTables3(t0,t1,t2);
   }
   var align = ct.align();
   var order = align.toOrder();

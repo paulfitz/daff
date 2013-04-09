@@ -7,4 +7,17 @@ if (typeof exports != "undefined") {
 	    exports[f] = exports.coopy[f]; 
 	}
     } 
+    // promote methods of coopy.Coopy
+    for (f in exports.Coopy) { 
+	if (exports.Coopy.hasOwnProperty(f)) {
+	    exports[f] = exports.Coopy[f]; 
+	}
+    } 
+} else {
+    // promote methods of coopy.Coopy
+    for (f in coopy.Coopy) { 
+	if (coopy.Coopy.hasOwnProperty(f)) {
+	    coopy[f] = coopy.Coopy[f]; 
+	}
+    } 
 }
