@@ -1039,7 +1039,7 @@ coopy.Csv.prototype = {
 						this.row_ended = true;
 						break;
 					}
-					if(ch == 34 || ch == 39) {
+					if(i == this.cursor && (ch == 34 || ch == 39)) {
 						quoting = true;
 						quote = ch;
 						if(i != start) result += String.fromCharCode(ch);
@@ -2795,6 +2795,19 @@ if (typeof exports != "undefined") {
     for (f in exports.coopy) { 
 	if (exports.coopy.hasOwnProperty(f)) {
 	    exports[f] = exports.coopy[f]; 
+	}
+    } 
+    // promote methods of coopy.Coopy
+    for (f in exports.Coopy) { 
+	if (exports.Coopy.hasOwnProperty(f)) {
+	    exports[f] = exports.Coopy[f]; 
+	}
+    } 
+} else {
+    // promote methods of coopy.Coopy
+    for (f in coopy.Coopy) { 
+	if (coopy.Coopy.hasOwnProperty(f)) {
+	    coopy[f] = coopy.Coopy[f]; 
 	}
     } 
 }

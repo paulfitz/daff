@@ -45,15 +45,15 @@
       <div class="pane-show">
 	<div id="block0" style="display: none;">
 	  <h3>Common ancestor of revised and original</h3>
-	  <div id="table0"></div>
+	  <div id="table0" class="tabular"></div>
 	</div>
 	<div id="block1">
 	  <h3>Original version of table</h3>
-	  <div id="table1"></div>
+	  <div id="table1" class="tabular"></div>
 	</div>
 	<div id="block2">
 	  <h3>Revised version of table</h3>
-	  <div id="table2"></div>
+	  <div id="table2" class="tabular"></div>
 	</div>
       </div>
     </td>
@@ -66,8 +66,8 @@
 	using <tt>coopyhx</tt> and shown in
 	<a href="http://share.find.coop/doc/spec_hilite.html">highlighter diff format</a>.
 	</p>
-	<div id="diff" class="highlighter"></div>
 	<form><input type=button id="apply-diff" value="Apply diff to original" /></form>
+	<div id="diff" class="highlighter tabular"></div>
 	<div class="alignment">
 	  <h3>Row alignment</h3>
 	  <div id="ordering"></div>
@@ -87,17 +87,18 @@
 var use_parent = false;
 function processChange(changes,source,table) {
   if (source=="loadData") return;
+  console.log("processChange");
   var t1 = new coopy.CoopyTableView(data1);
   var t2 = new coopy.CoopyTableView(data2);
   t1.trim();
   t2.trim();
   var ct = null;
   if (!use_parent) { 
-    ct = coopy.Coopy.compareTables(t1,t2);
+    ct = coopy.compareTables(t1,t2);
   } else {
     var t0 = new coopy.CoopyTableView(data0);
     t0.trim();
-    ct = coopy.Coopy.compareTables3(t0,t1,t2);
+    ct = coopy.compareTables3(t0,t1,t2);
   }
   var align = ct.align();
   var order = align.toOrder();
@@ -112,11 +113,6 @@ function processChange(changes,source,table) {
   (new coopy.TableDiff(align,flags)).hilite(output);
   data_diff = output.data;
   $("#diff").handsontable('loadData',output.data);
-  /*
-  var render = new coopy.DiffRender();
-  render.render(output);
-  $("#diff").html(render.html());
-  */
 }
 
       var data_diff =  [
@@ -177,6 +173,8 @@ function processChange(changes,source,table) {
         autoWrapRow: true,
         colHeaders: false,
         contextMenu: true,
+        height: 200,
+        asyncRendering: false,
         onChange: function(changes,source) { processChange(changes,source,'table1'); },
         cells: function (row, col, prop) {
 	    var cellProperties = {};
@@ -195,6 +193,8 @@ function processChange(changes,source,table) {
         autoWrapRow: true,
         colHeaders: false,
         contextMenu: true,
+        height: 200,
+        asyncRendering: false,
         onChange: function(changes,source) { processChange(changes,source,'table1'); },
         cells: function (row, col, prop) {
 	    var cellProperties = {};
@@ -213,6 +213,8 @@ function processChange(changes,source,table) {
         autoWrapRow: true,
         colHeaders: false,
         contextMenu: true,
+        height: 200,
+        asyncRendering: false,
         onChange: function(changes,source) { processChange(changes,source,'table2'); },
         cells: function (row, col, prop) {
 	    var cellProperties = {};
@@ -232,6 +234,8 @@ function processChange(changes,source,table) {
         autoWrapRow: true,
         colHeaders: false,
           //contextMenu: true,
+        height: 300,
+        asyncRendering: false,
         cells: function (row, col, prop) {
 	    var cellProperties = {};
             cellProperties.type = {
