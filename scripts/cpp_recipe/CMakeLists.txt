@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(coopyhx)
 
+add_definitions(-DHXCPP_DEBUG=1 -DHXCPP_STACK_TRACE=1)
+set(REPLACE_MAIN TRUE)
 
 set(CGEN ${CMAKE_SOURCE_DIR}/../../bin)
 
@@ -22,9 +24,11 @@ include_directories(${CGEN}/include)
 ## Haxe 3.0.0
 set(HX_BASE /usr/lib/haxe/lib/hxcpp/3,0,0)
 add_definitions(-DHX_LINUX -DHXCPP_DEBUG -DHXCPP_VISIT_ALLOCS -Dhaxe3)
-set_property(SOURCE ${CGEN}/src/__main__.cpp
-  APPEND PROPERTY COMPILE_DEFINITIONS 
-  HX_DECLARE_MAIN=1)
+if (NOT REPLACE_MAIN)
+  set_property(SOURCE ${CGEN}/src/__main__.cpp
+    APPEND PROPERTY COMPILE_DEFINITIONS 
+    HX_DECLARE_MAIN=1)
+endif ()
 
 include_directories(${HX_BASE}/include/)
 #add_definitions(-DHXCPP_DEBUG)
@@ -47,6 +51,10 @@ list(REMOVE_ITEM hx_source ${HX_BASE}/src/ExampleMain.cpp)
 file(GLOB hx_source2 ${HX_BASE}/src/hx/*.cpp)
 list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/NekoAPI.cpp)
 list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/RunLibs.cpp)
+if (REPLACE_MAIN)
+  list(REMOVE_ITEM folder_source ${CGEN}/src/__main__.cpp)
+  list(APPEND folder_source ${CMAKE_SOURCE_DIR}/main.cpp)
+endif ()
 
 link_libraries(pthread dl)
 
