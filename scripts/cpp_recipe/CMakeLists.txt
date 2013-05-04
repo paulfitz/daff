@@ -44,7 +44,7 @@ file(GLOB folder_source_sys_io ${CGEN}/src/sys/io/*.cpp)
 file(GLOB folder_source_cpp ${CGEN}/src/cpp/*.cpp) # this will have to be
 # removed, it loads a neko library for hxcpp3; or maybe -Dstatic_link can
 # be enough, need to investigate...
-file(GLOB folder_header ${CGEN}/include/*.h)
+file(GLOB_RECURSE folder_header ${CGEN}/include/*.h)
 
 file(GLOB hx_source ${HX_BASE}/src/*.cpp)
 list(REMOVE_ITEM hx_source ${HX_BASE}/src/ExampleMain.cpp)
@@ -53,12 +53,16 @@ list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/NekoAPI.cpp)
 list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/RunLibs.cpp)
 if (REPLACE_MAIN)
   list(REMOVE_ITEM folder_source ${CGEN}/src/__main__.cpp)
+  list(REMOVE_ITEM folder_source ${CGEN}/src/__boot__.cpp)
+  list(REMOVE_ITEM folder_source ${CGEN}/src/Sys.cpp)
   list(APPEND folder_source ${CMAKE_SOURCE_DIR}/main.cpp)
 endif ()
 
 link_libraries(pthread dl)
 
-add_executable(test_coopy ${folder_source} ${folder_source_coopy} ${folder_source_haxe} ${folder_source_haxe_ds} ${folder_source_haxe_io} ${folder_source_sys_io} ${folder_source_cpp} ${folder_source_cpp} ${folder_header} ${hx_source} ${hx_source2} ${CGEN}/src/haxe/Log.cpp)
+set(all_sources ${folder_source} ${folder_source_coopy} ${folder_source_haxe} ${folder_source_haxe_ds} ${folder_source_haxe_io} ${folder_source_sys_io} ${folder_source_cpp} ${folder_source_cpp} ${folder_header} ${hx_source} ${hx_source2} ${CGEN}/src/haxe/Log.cpp)
+
+add_executable(test_coopy ${all_sources})
 set_target_properties(test_coopy PROPERTIES LINK_FLAGS -m32)
 
 
@@ -68,3 +72,40 @@ set_target_properties(test_coopy PROPERTIES LINK_FLAGS -m32)
 #add_library(std ${std_source})
 
 
+foreach(f ${all_sources})
+  set(done FALSE)
+  string(REGEX MATCH "^${CGEN}/(.*)" match ${f})
+  if (match)
+    string(REGEX REPLACE "^${CGEN}/" "" match ${match})
+    message(STATUS "Looking at ${f} -> ${match}")
+    set (done TRUE)
+  endif()
+  if (NOT match)
+    string(REGEX MATCH "^${HX_BASE}/(.*)" match ${f})
+    if (match)
+      string(REGEX REPLACE "^${HX_BASE}/" "" match ${match})
+      message(STATUS "Looking at ${f} -> ${match}")
+      set (done TRUE)
+    endif()
+  endif()
+  if (NOT done)
+    message(STATUS "PENDING ${f}")
+  else ()
+    message(STATUS "MATCH ${match}")
+    set(oname ${CMAKE_BINARY_DIR}/coopyhx/${match})
+    get_filename_component(dname ${oname} PATH)
+    file(MAKE_DIRECTORY ${dname})
+    configure_file(${f} ${oname} COPYONLY)
+  endif()
+      
+endforeach()
+
+file(GLOB_RECURSE hx_headers RELATIVE ${HX_BASE} ${HX_BASE}/include/*.h)
+foreach (f ${hx_headers}) 
+    set(oname ${CMAKE_BINARY_DIR}/coopyhx/${f})
+    get_filename_component(dname ${oname} PATH)
+    file(MAKE_DIRECTORY ${dname})
+    configure_file(${HX_BASE}/${f} ${oname} COPYONLY)
+endforeach()
+
+configure_file(coopyhx/CMakeLists.txt ${CMAKE_BINARY_DIR}/coopyhx/ COPYONLY)
