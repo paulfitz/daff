@@ -6,6 +6,7 @@ if [ ! -e scripts/assemble_csv2html.sh ]; then
 fi
 
 target="bin/csv2html.js"
+mkdir -p bin
 
 echo "#!/usr/bin/nodejs" > $target
 echo "var window = {};" >> $target
