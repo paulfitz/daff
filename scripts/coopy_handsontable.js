@@ -56,12 +56,15 @@ window["coopy"]["diffRenderer"] = function (instance, td, row, col, prop, value,
 	value2 = "";
     }
 
-    Handsontable.TextCell.renderer.apply(this, [instance,
-						td, row, col, prop,
-						value2,
-						cellProperties]);
+    if (typeof Handsontable != "undefined") {
+	Handsontable.TextCell.renderer.apply(this, [instance,
+						    td, row, col, prop,
+						    value2,
+						    cellProperties]);
+    }
     if (className!="") {
 	td.className = className;
     }    
+    return value2;
 }
 

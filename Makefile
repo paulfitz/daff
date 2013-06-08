@@ -12,6 +12,9 @@ test: js
 	./scripts/run_tests.sh
 	@echo "=============================================================================="
 
+csv2html: js
+	./scripts/assemble_csv2html.sh
+
 doc:
 	haxe -xml doc.xml compile_js.hxml
 	haxedoc doc.xml -f coopy
