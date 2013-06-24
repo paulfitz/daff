@@ -139,6 +139,9 @@ class HighlightPatch implements Row {
             if (mod!="+++") headerPre.set(name,i);
             if (mod!="---") headerPost.set(name,i);
         }
+        if (source.height==0) {
+            applyInsert();
+        }
     }
 
     private function applyUpdate() : Void {

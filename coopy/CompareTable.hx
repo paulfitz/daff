@@ -254,67 +254,6 @@ class CompareTable {
         align.headers(ra_header,rb_header);
     }
 
-
-    private function alignColumns2(align: Alignment, a: Table, b: Table) : Void {
-        align.range(a.width,b.width);
-        align.tables(a,b);
-        align.setRowlike(false);
-
-        var wmin : Int = a.width;
-        if (b.width<a.width) wmin = b.width;
-
-        var av : View = a.getCellView();
-
-        var has_header : Bool = true;
-        var submatch : Bool = true;
-        var names : Map<String,Int> = new Map<String,Int>();
-
-        for (i in 0...a.width) {
-            var key : String = av.toString(a.getCell(i,0));
-            if (names.exists(key)) {
-                has_header = false;
-                break;
-            }
-            names.set(key,-1);
-        }
-        names = new Map<String,Int>();
-        if (has_header) {
-            for (i in 0...b.width) {
-                var key : String = av.toString(b.getCell(i,0));
-                if (names.exists(key)) {
-                    has_header = false;
-                    break;
-                }
-                names.set(key,i);
-            }
-        }
-
-        if (has_header) {
-            for (i in 0...wmin) {
-                if (!av.equals(a.getCell(i,0),b.getCell(i,0))) {
-                    submatch = false;
-                    break;
-                }
-            }
-            if (submatch) {
-                for (i in 0...wmin) {
-                    align.link(i,i);
-                }
-                return;
-            }
-        }
-
-        if (has_header) {
-            for (i in 0...a.width) {
-                var key : String = av.toString(a.getCell(i,0));
-                var v : Null<Int> = names.get(key);
-                if (v!=null) {
-                    align.link(i,v);
-                }
-            }
-        }
-    }
-
     private function testHasSameColumns() : Bool {
         var p : Table = comp.p;
         var a : Table = comp.a;
