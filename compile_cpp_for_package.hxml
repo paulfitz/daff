@@ -1,0 +1,4 @@
+-cp src
+-cpp cpp_pack
+-main coopy.Coopy
+-D coopyhx_library

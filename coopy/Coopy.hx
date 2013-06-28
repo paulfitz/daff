@@ -100,6 +100,7 @@ class Coopy {
     }
 
 #if cpp
+#if !coopyhx_library
 
     private function saveTable(name: String, t: Table) : Bool {
         var txt : String = "";
@@ -252,9 +253,10 @@ class Coopy {
         return 0;
     }
 #end
+#end
 
     public static function main() : Int {
-#if cpp
+#if (cpp && !coopyhx_library)
     return sysMain();
 #else
     // do nothing
