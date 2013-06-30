@@ -12,13 +12,13 @@ set(BUILD_SHARED_LIBS ON)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR})
-add_library(coopyhx ${folder_headers} ${folder_sources})
+add_library(coopyhx_core ${folder_headers} ${folder_sources})
 # set_target_properties(coopyhx PROPERTIES LINK_FLAGS -m32)
-target_link_libraries(coopyhx pthread dl)
+target_link_libraries(coopyhx_core pthread dl)
 
 add_executable(coopyhx_test main.cpp)
 # set_target_properties(coopyhx_test PROPERTIES LINK_FLAGS -m32)
-target_link_libraries(coopyhx_test coopyhx)
+target_link_libraries(coopyhx_test coopyhx_core)
 
 set(CREATE_RUBY FALSE CACHE BOOL "Do you want to create the Ruby interface")
 
@@ -31,11 +31,11 @@ endif ()
 
 if (CREATE_RUBY)
   find_package(Ruby REQUIRED)
-  set(CMAKE_SWIG_FLAGS "-Wall;-module;coopyhxwrap")
+  set(CMAKE_SWIG_FLAGS "-Wall;-module;coopyhx")
   include_directories(${RUBY_INCLUDE_PATH})
-  swig_add_module(coopyhxwrap ruby coopyhx.i)
-  swig_link_libraries(coopyhxwrap ${RUBY_LIBRARY})
-  set_target_properties(coopyhxwrap PROPERTIES PREFIX "")
-  target_link_libraries(coopyhxwrap coopyhx)
+  swig_add_module(coopyhx ruby coopyhx.i)
+  swig_link_libraries(coopyhx ${RUBY_LIBRARY})
+  set_target_properties(coopyhx PROPERTIES PREFIX "")
+  target_link_libraries(coopyhx coopyhx_core)
 endif (CREATE_RUBY)
 

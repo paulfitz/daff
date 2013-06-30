@@ -1,8 +1,8 @@
 
 # remember to set RUBYLIB, e.g. RUBYLIB=$PWD ruby example.rb from build dir
 
-require 'coopyhxwrap'
-coopy = Coopyhxwrap
+require 'coopyhx'
+coopy = Coopyhx
 $coopy = coopy
 
 coopy::Coopyhx::boot()

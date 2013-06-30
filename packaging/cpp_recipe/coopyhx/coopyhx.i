@@ -1,4 +1,4 @@
-%module coopyhxwrap
+%module coopyhx
 
 %include "std_string.i"
 
