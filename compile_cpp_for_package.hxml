@@ -2,3 +2,4 @@
 -cpp cpp_pack
 -main coopy.Coopy
 -D coopyhx_library
+-D HXCPP_M64

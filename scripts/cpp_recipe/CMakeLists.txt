@@ -29,8 +29,8 @@ set(CGEN ${CMAKE_SOURCE_DIR}/../../bin)
 
 ##########################################333
 ## Haxe 3.0.0
-set(HX_BASE /usr/lib/haxe/lib/hxcpp/3,0,0)
-add_definitions(-DHX_LINUX=1 -DHXCPP_VISIT_ALLOCS=1 -Dhaxe3=1 -Dhaxe_ver="3.")
+set(HX_BASE /usr/lib/haxe/lib/hxcpp/3,0,2)
+add_definitions(-DHX_LINUX=1 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS=1 -Dhaxe3=1 -Dhaxe_ver="3.")
 # -DHXCPP_DEBUG=1 -DHXCPP_VISIT_ALLOCS=1)
 if (NOT REPLACE_MAIN)
   set_property(SOURCE ${CGEN}/src/__main__.cpp
@@ -41,7 +41,7 @@ endif ()
 # include_directories(${HX_BASE}/include/)
 #add_definitions(-DHXCPP_DEBUG)
 add_definitions(-include unistd.h) # getpid not found otherwise
-add_definitions(-m32) # pointer stored as 32-bit integer in haxe code
+# add_definitions(-m32) # pointer stored as 32-bit integer in haxe code
 
 file(GLOB folder_source ${CGEN}/src/*.cpp)
 file(GLOB folder_source_coopy ${CGEN}/src/coopy/*.cpp)
@@ -59,6 +59,7 @@ list(REMOVE_ITEM hx_source ${HX_BASE}/src/ExampleMain.cpp)
 file(GLOB hx_source2 ${HX_BASE}/src/hx/*.cpp)
 list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/NekoAPI.cpp)
 list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/RunLibs.cpp)
+list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/Scriptable.cpp)
 if (REPLACE_MAIN)
   list(REMOVE_ITEM folder_source ${CGEN}/src/__main__.cpp)
   # list(REMOVE_ITEM folder_source ${CGEN}/src/__boot__.cpp)
@@ -114,9 +115,11 @@ foreach (f ${hx_headers} ${hx_headers2})
     configure_file(${HX_BASE}/${f} ${oname} COPYONLY)
 endforeach()
 
-configure_file(coopyhx/CMakeLists.txt ${CMAKE_BINARY_DIR}/coopyhx/ COPYONLY)
+foreach (f CMakeLists.txt coopyhx.i example.rb fix_for_swig.sh fix_for_swig1.pl coopyhx.h coopyhx_obj.h)
+  configure_file(coopyhx/${f} ${CMAKE_BINARY_DIR}/coopyhx/ COPYONLY)
+endforeach ()
 configure_file(main.cpp ${CMAKE_BINARY_DIR}/coopyhx/ COPYONLY)
 
 include_directories(${CMAKE_BINARY_DIR}/coopyhx/include)
 add_executable(test_coopy ${all_sources})
-set_target_properties(test_coopy PROPERTIES LINK_FLAGS -m32)
+# set_target_properties(test_coopy PROPERTIES LINK_FLAGS -m32)

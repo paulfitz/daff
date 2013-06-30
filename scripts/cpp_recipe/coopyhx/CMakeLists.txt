@@ -2,17 +2,40 @@ cmake_minimum_required(VERSION 2.8)
 
 project(coopyhx)
 
-add_definitions(-DHX_LINUX -DHXCPP_VISIT_ALLOCS -Dhaxe3)
-add_definitions(-m32)
+add_definitions(-DHX_LINUX -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS -Dhaxe3)
+# add_definitions(-m32)
 
 file(GLOB_RECURSE folder_headers include/*.h)
 file(GLOB_RECURSE folder_sources src/*.cpp)
 
+set(BUILD_SHARED_LIBS ON)
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR})
 add_library(coopyhx ${folder_headers} ${folder_sources})
-set_target_properties(coopyhx PROPERTIES LINK_FLAGS -m32)
+# set_target_properties(coopyhx PROPERTIES LINK_FLAGS -m32)
 target_link_libraries(coopyhx pthread dl)
 
 add_executable(coopyhx_test main.cpp)
-set_target_properties(coopyhx_test PROPERTIES LINK_FLAGS -m32)
+# set_target_properties(coopyhx_test PROPERTIES LINK_FLAGS -m32)
 target_link_libraries(coopyhx_test coopyhx)
+
+set(CREATE_RUBY FALSE CACHE BOOL "Do you want to create the Ruby interface")
+
+if (CREATE_RUBY)
+  find_package(SWIG REQUIRED)
+  include(${SWIG_USE_FILE})
+  message(STATUS "${SWIG_USE_FILE}")
+  set_source_files_properties(coopyhx.i PROPERTIES CPLUSPLUS ON)
+endif ()
+
+if (CREATE_RUBY)
+  find_package(Ruby REQUIRED)
+  set(CMAKE_SWIG_FLAGS "-Wall;-module;coopyhxwrap")
+  include_directories(${RUBY_INCLUDE_PATH})
+  swig_add_module(coopyhxwrap ruby coopyhx.i)
+  swig_link_libraries(coopyhxwrap ${RUBY_LIBRARY})
+  set_target_properties(coopyhxwrap PROPERTIES PREFIX "")
+  target_link_libraries(coopyhxwrap coopyhx)
+endif (CREATE_RUBY)
+

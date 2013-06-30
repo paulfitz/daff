@@ -25,9 +25,14 @@ cd $WORK || exit 1
 WORK=$PWD
 echo "Working in $WORK"
 
+rm -rf build
 mkdir -p build
 cd build || exit 1
+rm -rf coopyhx || exit 1
 cmake $ORG || exit 1
+cd coopyhx || exit 1
+./fix_for_swig.sh || exit 1
+cd .. || exit 1
 rm -f coopyhx.zip
 zip -r coopyhx coopyhx || exit 1
 if [ ! -e coopyhx.zip ]; then
