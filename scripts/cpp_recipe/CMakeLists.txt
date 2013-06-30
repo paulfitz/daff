@@ -15,7 +15,7 @@ project(coopyhx)
 # add_definitions(-DHXCPP_DEBUG=1 -DHXCPP_STACK_TRACE=1)
 set(REPLACE_MAIN TRUE)
 
-set(CGEN ${CMAKE_SOURCE_DIR}/../../bin)
+set(CGEN ${CMAKE_SOURCE_DIR}/../../cpp_pack)
 
 #include_directories(${CGEN}/include)
 
