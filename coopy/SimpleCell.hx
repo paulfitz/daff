@@ -2,7 +2,7 @@
 
 package coopy;
 
-class SimpleCell implements Datum {
+class SimpleCell {
     private var datum : Dynamic;
 
     public function new(x: Dynamic) {

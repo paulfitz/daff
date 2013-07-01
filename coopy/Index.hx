@@ -50,7 +50,7 @@ class Index {
         var wide : String = "";
         if (v==null) v = t.getCellView();
         for (k in 0...cols.length) {
-            var d : Datum = t.getCell(cols[k],i);
+            var d : Dynamic = t.getCell(cols[k],i);
             var txt : String = v.toString(d);
             if (txt=="" || txt=="null" || txt=="undefined") continue;
             if (k>0) wide += " // ";

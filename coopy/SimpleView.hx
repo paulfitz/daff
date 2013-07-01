@@ -7,24 +7,24 @@ class SimpleView implements View {
     public function new() : Void {
     }
 
-    public function toString(d: Datum) : String {
+    public function toString(d: Dynamic) : String {
         if (d==null) return null;
         return "" + d;
     }
     
-    public function getBag(d: Datum) : Bag {
+    public function getBag(d: Dynamic) : Bag {
         return null;
     }
 
-    public function getTable(d: Datum) : Table {
+    public function getTable(d: Dynamic) : Table {
         return null;
     }
 
-    public function hasStructure(d: Datum) : Bool {
+    public function hasStructure(d: Dynamic) : Bool {
         return false;
     }
 
-    public function equals(d1: Datum, d2: Datum) : Bool {
+    public function equals(d1: Dynamic, d2: Dynamic) : Bool {
         //trace("Comparing " + d1 + " and " + d2 + " -- " +  (("" + d1) == ("" + d2)));
         if (d1==null && d2==null) return true;
         if (d1==null && (""+d2)=="") return true;
@@ -32,7 +32,7 @@ class SimpleView implements View {
         return ("" + d1) == ("" + d2);
     }
 
-    public function toDatum(str: String) : Datum {
+    public function toDatum(str: String) : Dynamic {
         if (str==null) return null;
 #if js
     return cast str;

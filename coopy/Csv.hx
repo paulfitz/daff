@@ -31,7 +31,7 @@ class Csv {
         return txt;
     }
 
-    public function renderCell(v: View, d: Datum) : String {
+    public function renderCell(v: View, d: Dynamic) : String {
         if (d==null) {
             return "NULL";
         }

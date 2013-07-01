@@ -5,8 +5,8 @@ package coopy;
 interface Table {
     var height(get_height,never) : Int; // Read-only height property
     var width(get_width,never) : Int; // Read-only width property
-    function getCell(x: Int, y: Int) : Datum;
-    function setCell(x: Int, y: Int, c : Datum) : Void;
+    function getCell(x: Int, y: Int) : Dynamic;
+    function setCell(x: Int, y: Int, c : Dynamic) : Void;
     function getCellView() : View;
 
     function isResizable() : Bool;

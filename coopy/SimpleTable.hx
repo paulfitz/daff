@@ -3,18 +3,15 @@
 package coopy;
 
 @:expose
-class SimpleTable implements Table implements Bag {
-    private var data : Map<Int,Datum>;
+class SimpleTable implements Table {
+    private var data : Map<Int,Dynamic>;
     private var w : Int;
     private var h : Int;
 
-    public var bag : Bag;
-
     public function new(w: Int, h: Int) : Void {
-        data = new Map<Int,Datum>();
+        data = new Map<Int,Dynamic>();
         this.w = w;
         this.h = h;
-        bag = this;
     }
 
     public function getTable() : Table {
@@ -37,16 +34,12 @@ class SimpleTable implements Table implements Bag {
         return h;
     }
 
-    public function getCell(x: Int, y: Int) : Datum {
+    public function getCell(x: Int, y: Int) : Dynamic {
         return data.get(x+y*w);
     }
 
-    public function setCell(x: Int, y: Int, c: Datum) : Void {
+    public function setCell(x: Int, y: Int, c: Dynamic) : Void {
         data.set(x+y*w,c);
-    }
-
-    public function getItem(y: Int) : Datum {
-        return new SimpleRow(this,y);
     }
 
     public function toString() : String {
@@ -69,10 +62,6 @@ class SimpleTable implements Table implements Bag {
         return new SimpleView();
     }
 
-    public function getItemView() : View {
-        return new BagView();
-    }
-
     public function isResizable() : Bool {
         return true;
     }
@@ -84,7 +73,7 @@ class SimpleTable implements Table implements Bag {
     }
 
     public function clear() : Void {
-        data = new Map<Int,Datum>();
+        data = new Map<Int,Dynamic>();
     }
 
     /*
@@ -108,7 +97,7 @@ class SimpleTable implements Table implements Bag {
     */
 
     public function insertOrDeleteRows(fate: Array<Int>, hfate: Int) : Bool {
-        var data2 : Map<Int,Datum> = new Map<Int,Datum>();
+        var data2 : Map<Int,Dynamic> = new Map<Int,Dynamic>();
         for (i in 0...fate.length) {
             var j : Int = fate[i];
             if (j!=-1) {
@@ -126,7 +115,7 @@ class SimpleTable implements Table implements Bag {
     }
 
     public function insertOrDeleteColumns(fate: Array<Int>, wfate: Int) : Bool {
-        var data2 : Map<Int,Datum> = new Map<Int,Datum>();
+        var data2 : Map<Int,Dynamic> = new Map<Int,Dynamic>();
         for (i in 0...fate.length) {
             var j : Int = fate[i];
             if (j!=-1) {
@@ -145,12 +134,12 @@ class SimpleTable implements Table implements Bag {
 
     public function trimBlank() : Bool {
         var view : View = getCellView();
-        var space : Datum = view.toDatum("");
+        var space : Dynamic = view.toDatum("");
         var more : Bool = true;
         while (more) {
             if (h==0) return true;
             for (i in 0...width) {
-                var c : Datum = getCell(i,h-1);
+                var c : Dynamic = getCell(i,h-1);
                 if (!(view.equals(c,space)||c==null)) {
                     more = false;
                     break;
@@ -163,7 +152,7 @@ class SimpleTable implements Table implements Bag {
         while (more) {
             if (w==0) break;
             for (i in 0...1) { // just the headers // height) {
-                var c : Datum = getCell(nw-1,i);
+                var c : Dynamic = getCell(nw-1,i);
                 if (!(view.equals(c,space)||c==null)) {
                     more = false;
                     break;
@@ -172,7 +161,7 @@ class SimpleTable implements Table implements Bag {
             if (more) nw--;
         }
         if (nw==w) return true;
-        var data2 : Map<Int,Datum> = new Map<Int,Datum>();
+        var data2 : Map<Int,Dynamic> = new Map<Int,Dynamic>();
         for (i in 0...nw) {
             for (r in 0...h) {
                 var idx : Int = r*w+i;

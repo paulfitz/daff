@@ -6,10 +6,10 @@ package coopy;
 // each item to be wrapped individually in some kind of access object.
 // Anticipate future optimization with view pools.
 interface View {
-    function toString(d: Datum) : String;
-    function getBag(d: Datum) : Bag;
-    function getTable(d: Datum) : Table;
-    function hasStructure(d: Datum) : Bool;
-    function equals(d1: Datum, d2: Datum) : Bool;
-    function toDatum(str: String) : Datum;
+    function toString(d: Dynamic) : String;
+    function getBag(d: Dynamic) : Bag;
+    function getTable(d: Dynamic) : Table;
+    function hasStructure(d: Dynamic) : Bool;
+    function equals(d1: Dynamic, d2: Dynamic) : Bool;
+    function toDatum(str: String) : Dynamic;
 }

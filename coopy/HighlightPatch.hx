@@ -89,7 +89,7 @@ class HighlightPatch implements Row {
         payloadCol = 1;
         payloadTop = patch.width;
         view = patch.getCellView();
-        var dcode : Datum = patch.getCell(0,r);
+        var dcode : Dynamic = patch.getCell(0,r);
         var code : String = view.toString(dcode);
         if (code=="@@") {
             applyHeader();
@@ -106,7 +106,7 @@ class HighlightPatch implements Row {
         }
     }
 
-    private function getDatum(c: Int) : Datum {
+    private function getDatum(c: Int) : Dynamic {
         return patch.getCell(c,currentRow);
     }
 
@@ -314,7 +314,7 @@ class HighlightPatch implements Row {
                             if (at2>=0) continue; // skip conflicted element
                         }
                         txt = txt.substr(at+actBaseCache.length);
-                        var d : Datum = view.toDatum(csv.parseSingleCell(txt));
+                        var d : Dynamic = view.toDatum(csv.parseSingleCell(txt));
                         source.setCell(patchInSource.get(c),
                                        mod.sourceRow2,
                                        d);
@@ -372,8 +372,8 @@ class HighlightPatch implements Row {
                     // column name
                     for (mod in mods) {
                         if (mod.patchRow!=-1 && mod.sourceRow2!=-1) {
-                            var d : Datum = patch.getCell(cmod.patchRow,
-                                                          mod.patchRow);
+                            var d : Dynamic = patch.getCell(cmod.patchRow,
+                                                            mod.patchRow);
                             source.setCell(cmod.sourceRow2,
                                            mod.sourceRow2,
                                            d);

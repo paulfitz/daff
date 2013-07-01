@@ -33,15 +33,9 @@ class Coopy {
 
         var st : SimpleTable = new SimpleTable(15,6);
         var tab : Table = st;
-        var bag : Bag = st;
         trace("table size is " + tab.width + "x" + tab.height);
         tab.setCell(3,4,new SimpleCell(33));
         trace("element is " + tab.getCell(3,4));
-
-        trace("table as bag is " + bag);
-        var datum : Datum = bag.getItem(4);
-        var row : Bag = bag.getItemView().getBag(datum);
-        trace("element is " + row.getItem(3));
 
         var compare : Compare = new Compare();
         var d1 : ViewedDatum = ViewedDatum.getSimpleView(new SimpleCell(10));
@@ -118,7 +112,7 @@ class Coopy {
         return true;
     }
 
-    private static function cellFor(x: Dynamic) : Datum {
+    private static function cellFor(x: Dynamic) : Dynamic {
         if (x==null) return null;
         return new SimpleCell(x);
     }

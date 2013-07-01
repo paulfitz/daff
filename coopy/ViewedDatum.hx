@@ -4,15 +4,15 @@ package coopy;
 
 @:expose
 class ViewedDatum {
-    public var datum : Datum;
+    public var datum : Dynamic;
     public var view : View;
 
-    public function new(datum: Datum, view: View) : Void {
+    public function new(datum: Dynamic, view: View) : Void {
         this.datum = datum;
         this.view = view;
     }
 
-    public static function getSimpleView(datum: Datum) : ViewedDatum {
+    public static function getSimpleView(datum: Dynamic) : ViewedDatum {
         return new ViewedDatum(datum,
                                new SimpleView());
     }

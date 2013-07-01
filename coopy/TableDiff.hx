@@ -43,7 +43,7 @@ class TableDiff {
         return sep;
     }
 
-    public function quoteForDiff(v: View, d: Datum) : String {
+    public function quoteForDiff(v: View, d: Dynamic) : String {
         var nil : String = "NULL";
         if (v.equals(d,null)) {
             return nil;
@@ -116,8 +116,8 @@ class TableDiff {
             }
             if (cunit.r>=0 && cunit.lp()>=0) {
                 if (a.height>=ra_header && b.height>=rb_header) {
-                    var aa : Datum = a.getCell(cunit.lp(),ra_header);
-                    var bb : Datum = b.getCell(cunit.r,rb_header);
+                    var aa : Dynamic = a.getCell(cunit.lp(),ra_header);
+                    var bb : Dynamic = b.getCell(cunit.r,rb_header);
                     if (!v.equals(aa,bb)) {
                         have_schema = true;
                         act = "(";
@@ -245,13 +245,13 @@ class TableDiff {
                 
                 for (j in 0...column_units.length) {
                     var cunit : Unit = column_units[j];
-                    var pp : Datum = null;
-                    var ll : Datum = null;
-                    var rr : Datum = null;
-                    var dd : Datum = null;
-                    var dd_to : Datum = null;
+                    var pp : Dynamic = null;
+                    var ll : Dynamic = null;
+                    var rr : Dynamic = null;
+                    var dd : Dynamic = null;
+                    var dd_to : Dynamic = null;
                     var have_dd_to : Bool = false;
-                    var dd_to_alt : Datum = null;
+                    var dd_to_alt : Dynamic = null;
                     var have_dd_to_alt : Bool = false;
                     var have_pp : Bool = false;
                     var have_ll : Bool = false;

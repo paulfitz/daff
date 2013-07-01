@@ -2,8 +2,8 @@
 
 package coopy;
 
-interface Bag extends Datum {
+interface Bag {
     var size(get_size,never) : Int; // Read-only width property
-    function getItem(x: Int) : Datum;
+    function getItem(x: Int) : Dynamic;
     function getItemView() : View;
 }

@@ -2,7 +2,7 @@
 
 package coopy;
 
-class SimpleRow implements Bag implements Datum {
+class SimpleRow implements Bag {
     private var tab : Table;
     private var row_id : Int;
 
