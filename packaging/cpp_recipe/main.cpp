@@ -20,7 +20,7 @@ int my_main() {
     ::coopy::SimpleTable output = ::coopy::SimpleTable_obj::__new(10,20);
     ::coopy::SimpleCell cell = ::coopy::SimpleCell_obj::__new(16);
     output->setCell(3,3,cell);
-    ::coopy::Datum datum = output->getCell(3,3);
+    Dynamic datum = output->getCell(3,3);
     printf("value %s\n", datum->toString().__CStr());
     ::coopy::SimpleTable t1 = ::coopy::SimpleTable_obj::__new(3,3);
     ::coopy::SimpleTable t2 = ::coopy::SimpleTable_obj::__new(3,3);
