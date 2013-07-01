@@ -57,7 +57,9 @@ var tester = require('tester');
     tables.push(bridges_col0);
     names.push("bridges_rename_column_0");
     for (var i in tables) {
+	if (!tables.hasOwnProperty(i)) continue;
 	for (var j in tables) {
+	    if (!tables.hasOwnProperty(j)) continue;
 	    tester.round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);
 	}
     }
