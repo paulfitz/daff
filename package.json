@@ -1,6 +1,6 @@
 {
   "name": "coopyhx",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Diff and patch tables",
   "url": "https://github.com/paulfitz/coopyhx",
   "keywords": ["table", "diff", "patch"],
@@ -19,5 +19,6 @@
   "scripts" : { 
     "prepublish" : "make node"
   },
-  "main" : "coopyhx.js"
+  "main" : "coopyhx.js",
+  "license" : "MIT"
 }
