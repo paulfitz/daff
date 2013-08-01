@@ -5,6 +5,7 @@ package coopy;
 @:expose
 class Coopy {
     private var format_preference : String;
+    private var io : TableIO;
 
     public function new() : Void {
     }
@@ -93,7 +94,6 @@ class Coopy {
         return 0;
     }
 
-#if cpp
 #if !coopyhx_library
 
     private function saveTable(name: String, t: Table) : Bool {
@@ -105,9 +105,9 @@ class Coopy {
             txt = haxe.Json.stringify(jsonify(t));
         }
         if (name!="-") {
-            sys.io.File.saveContent(name,txt);
+            io.saveContent(name,txt);
         } else {
-            Sys.stdout().writeString(txt);
+            io.writeStdout(txt);
         }
         return true;
     }
@@ -155,7 +155,7 @@ class Coopy {
     }
 
     private function loadTable(name: String) : Table {
-        var txt : String = sys.io.File.getContent(name);
+        var txt : String = io.getContent(name);
         try {
             var json = haxe.Json.parse(txt);
             format_preference = "json";
@@ -179,8 +179,8 @@ class Coopy {
         }
     }
 
-    public static function sysMain() : Int {
-        var args : Array<String> = Sys.args();
+    public static function coopyhx(io: TableIO) : Int {
+        var args : Array<String> = io.args();
 
         if (args[0] == "--test") {
             return randomTests();
@@ -202,14 +202,12 @@ class Coopy {
         var cmd : String = args[0];
         
         if (args.length < 2 || (!Lambda.has(["diff","patch","trim"],cmd))) {
-            Sys.stderr().writeString("Howdy.  coopyhx doesn't have much of a command line interface.\n");
-            Sys.stderr().writeString("You may want the coopy toolbox https://github.com/paulfitz/coopy\n");
-            Sys.stderr().writeString("If you do want coopyhx - call as:\n");
-            Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.csv] a.csv b.csv\n");
-            Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
-            Sys.stderr().writeString("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
-            Sys.stderr().writeString("  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv\n");
-            Sys.stderr().writeString("  coopyhx trim [--output OUTPUT.csv] source.csv\n");
+            io.writeStderr("Call coopyhx as:\n");
+            io.writeStderr("  coopyhx diff [--output OUTPUT.csv] a.csv b.csv\n");
+            io.writeStderr("  coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
+            io.writeStderr("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
+            io.writeStderr("  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv\n");
+            io.writeStderr("  coopyhx trim [--output OUTPUT.csv] source.csv\n");
             return 1;
         }
         if (output == null) {
@@ -217,6 +215,7 @@ class Coopy {
         }
         var cmd : String = args[0];
         var tool : Coopy = new Coopy();
+        tool.io = io;
         var parent = null;
         var offset : Int = 0;
         if (args.length>3) {
@@ -247,11 +246,11 @@ class Coopy {
         return 0;
     }
 #end
-#end
 
     public static function main() : Int {
 #if (cpp && !coopyhx_library)
-    return sysMain();
+    var io : TableIO = new TableIO();
+    return coopyhx(io);
 #else
     // do nothing
     return 0;

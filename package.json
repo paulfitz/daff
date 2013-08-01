@@ -1,6 +1,6 @@
 {
   "name": "coopyhx",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Diff and patch tables",
   "url": "https://github.com/paulfitz/coopyhx",
   "keywords": ["table", "diff", "patch"],
@@ -17,8 +17,10 @@
     "url": "http://robotrebuilt.com/people/paulfitz"
   },
   "scripts" : { 
-    "prepublish" : "make node"
+    "prepublish" : "make node",
+    "test": "make test"
   },
   "main" : "coopyhx.js",
-  "license" : "MIT"
+  "license" : "MIT",
+  "bin" : "scripts/coopyhx_util.js"
 }

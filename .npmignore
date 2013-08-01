@@ -6,11 +6,11 @@ web
 *.log
 *.map
 *.txt
-*.sh
 *.tgz
 *~
 csv_test_cache
 cpp*
-Makefile
-
-
+test.js
+pack.sh
+update-web.sh
+go.sh
