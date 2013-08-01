@@ -64,7 +64,10 @@ List.prototype = {
 		this.q = x;
 		this.length++;
 	}
+	,__class__: List
 }
+var IMap = function() { }
+IMap.__name__ = true;
 var Std = function() { }
 Std.__name__ = true;
 Std.string = function(s) {
@@ -74,6 +77,9 @@ var StringBuf = function() {
 	this.b = "";
 };
 StringBuf.__name__ = true;
+StringBuf.prototype = {
+	__class__: StringBuf
+}
 var coopy = {}
 coopy.Alignment = function() {
 	this.map_a2b = new haxe.ds.IntMap();
@@ -341,40 +347,12 @@ coopy.Alignment.prototype = {
 		this.ha = ha;
 		this.hb = hb;
 	}
+	,__class__: coopy.Alignment
 }
-coopy.Datum = function() { }
-coopy.Datum.__name__ = true;
 coopy.Bag = function() { }
 coopy.Bag.__name__ = true;
-coopy.Bag.__interfaces__ = [coopy.Datum];
-coopy.View = function() { }
-coopy.View.__name__ = true;
-coopy.BagView = function() {
-};
-coopy.BagView.__name__ = true;
-coopy.BagView.__interfaces__ = [coopy.View];
-coopy.BagView.prototype = {
-	toDatum: function(str) {
-		if(str == null) return null;
-		return new coopy.SimpleCell(str);
-	}
-	,equals: function(d1,d2) {
-		console.log("BagView.equals called");
-		return false;
-	}
-	,hasStructure: function(d) {
-		return true;
-	}
-	,getTable: function(d) {
-		return null;
-	}
-	,getBag: function(d) {
-		var bag = d;
-		return bag;
-	}
-	,toString: function(d) {
-		return "" + Std.string(d);
-	}
+coopy.Bag.prototype = {
+	__class__: coopy.Bag
 }
 coopy.Change = function(txt) {
 	if(txt != null) {
@@ -416,6 +394,7 @@ coopy.Change.prototype = {
 			return $r;
 		}(this));
 	}
+	,__class__: coopy.Change
 }
 coopy.ChangeType = { __ename__ : true, __constructs__ : ["NO_CHANGE","REMOTE_CHANGE","LOCAL_CHANGE","BOTH_CHANGE","SAME_CHANGE","NOTE_CHANGE"] }
 coopy.ChangeType.NO_CHANGE = ["NO_CHANGE",0];
@@ -501,6 +480,7 @@ coopy.Compare.prototype = {
 		if(parent.hasStructure() || local.hasStructure() || remote.hasStructure()) return this.compareStructured(ws);
 		return this.comparePrimitive(ws);
 	}
+	,__class__: coopy.Compare
 }
 coopy.CompareFlags = function() {
 	this.always_show_header = true;
@@ -509,6 +489,9 @@ coopy.CompareFlags = function() {
 };
 $hxExpose(coopy.CompareFlags, "coopy.CompareFlags");
 coopy.CompareFlags.__name__ = true;
+coopy.CompareFlags.prototype = {
+	__class__: coopy.CompareFlags
+}
 coopy.CompareTable = function() {
 };
 $hxExpose(coopy.CompareTable, "coopy.CompareTable");
@@ -576,67 +559,6 @@ coopy.CompareTable.prototype = {
 		this.comp.has_same_columns = eq;
 		this.comp.has_same_columns_known = true;
 		return true;
-	}
-	,alignColumns2: function(align,a,b) {
-		align.range(a.get_width(),b.get_width());
-		align.tables(a,b);
-		align.setRowlike(false);
-		var wmin = a.get_width();
-		if(b.get_width() < a.get_width()) wmin = b.get_width();
-		var av = a.getCellView();
-		var has_header = true;
-		var submatch = true;
-		var names = new haxe.ds.StringMap();
-		var _g1 = 0, _g = a.get_width();
-		while(_g1 < _g) {
-			var i = _g1++;
-			var key = av.toString(a.getCell(i,0));
-			if(names.exists(key)) {
-				has_header = false;
-				break;
-			}
-			names.set(key,-1);
-		}
-		names = new haxe.ds.StringMap();
-		if(has_header) {
-			var _g1 = 0, _g = b.get_width();
-			while(_g1 < _g) {
-				var i = _g1++;
-				var key = av.toString(b.getCell(i,0));
-				if(names.exists(key)) {
-					has_header = false;
-					break;
-				}
-				names.set(key,i);
-			}
-		}
-		if(has_header) {
-			var _g = 0;
-			while(_g < wmin) {
-				var i = _g++;
-				if(!av.equals(a.getCell(i,0),b.getCell(i,0))) {
-					submatch = false;
-					break;
-				}
-			}
-			if(submatch) {
-				var _g = 0;
-				while(_g < wmin) {
-					var i = _g++;
-					align.link(i,i);
-				}
-				return;
-			}
-		}
-		if(has_header) {
-			var _g1 = 0, _g = a.get_width();
-			while(_g1 < _g) {
-				var i = _g1++;
-				var key = av.toString(a.getCell(i,0));
-				var v = names.get(key);
-				if(v != null) align.link(i,v);
-			}
-		}
 	}
 	,alignColumns: function(align,a,b) {
 		align.range(a.get_width(),b.get_width());
@@ -871,6 +793,7 @@ coopy.CompareTable.prototype = {
 		while(more && comp.run_to_completion) more = this.compareCore();
 		return !more;
 	}
+	,__class__: coopy.CompareTable
 }
 coopy.Coopy = function() {
 };
@@ -896,14 +819,9 @@ coopy.Coopy.compareTables3 = function(parent,local,remote) {
 coopy.Coopy.randomTests = function() {
 	var st = new coopy.SimpleTable(15,6);
 	var tab = st;
-	var bag = st;
 	console.log("table size is " + tab.get_width() + "x" + tab.get_height());
 	tab.setCell(3,4,new coopy.SimpleCell(33));
 	console.log("element is " + Std.string(tab.getCell(3,4)));
-	console.log("table as bag is " + Std.string(bag));
-	var datum = bag.getItem(4);
-	var row = bag.getItemView().getBag(datum);
-	console.log("element is " + Std.string(row.getItem(3)));
 	var compare = new coopy.Compare();
 	var d1 = coopy.ViewedDatum.getSimpleView(new coopy.SimpleCell(10));
 	var d2 = coopy.ViewedDatum.getSimpleView(new coopy.SimpleCell(10));
@@ -995,9 +913,15 @@ coopy.Coopy.jsonify = function(t) {
 	workbook.set("sheet",sheet);
 	return workbook;
 }
+coopy.Coopy.prototype = {
+	__class__: coopy.Coopy
+}
 coopy.CrossMatch = function() {
 };
 coopy.CrossMatch.__name__ = true;
+coopy.CrossMatch.prototype = {
+	__class__: coopy.CrossMatch
+}
 coopy.Csv = function() {
 	this.cursor = 0;
 	this.row_ended = false;
@@ -1135,6 +1059,7 @@ coopy.Csv.prototype = {
 		}
 		return txt;
 	}
+	,__class__: coopy.Csv
 }
 coopy.DiffRender = function() {
 	this.text_to_insert = new Array();
@@ -1252,9 +1177,13 @@ coopy.DiffRender.prototype = {
 	,insert: function(str) {
 		this.text_to_insert.push(str);
 	}
+	,__class__: coopy.DiffRender
 }
 coopy.Row = function() { }
 coopy.Row.__name__ = true;
+coopy.Row.prototype = {
+	__class__: coopy.Row
+}
 coopy.HighlightPatch = function(source,patch) {
 	this.source = source;
 	this.patch = patch;
@@ -1534,6 +1463,7 @@ coopy.HighlightPatch.prototype = {
 			if(mod != "+++") this.headerPre.set(name,i);
 			if(mod != "---") this.headerPost.set(name,i);
 		}
+		if(this.source.get_height() == 0) this.applyInsert();
 	}
 	,applyMeta: function() {
 		var _g1 = this.payloadCol, _g = this.payloadTop;
@@ -1596,6 +1526,7 @@ coopy.HighlightPatch.prototype = {
 		this.finishColumns();
 		return true;
 	}
+	,__class__: coopy.HighlightPatch
 }
 coopy.HighlightPatchUnit = function() {
 	this.add = false;
@@ -1610,6 +1541,7 @@ coopy.HighlightPatchUnit.prototype = {
 	toString: function() {
 		return (this.add?"insert":this.rem?"delete":"update") + " " + this.sourceRow + ":" + this.sourceRow2 + " " + this.patchRow;
 	}
+	,__class__: coopy.HighlightPatchUnit
 }
 coopy.Index = function() {
 	this.items = new haxe.ds.StringMap();
@@ -1672,6 +1604,7 @@ coopy.Index.prototype = {
 	,addColumn: function(i) {
 		this.cols.push(i);
 	}
+	,__class__: coopy.Index
 }
 coopy.IndexItem = function() {
 };
@@ -1682,6 +1615,7 @@ coopy.IndexItem.prototype = {
 		this.lst.push(i);
 		return this.lst.length;
 	}
+	,__class__: coopy.IndexItem
 }
 coopy.IndexPair = function() {
 	this.ia = new coopy.Index();
@@ -1741,6 +1675,7 @@ coopy.IndexPair.prototype = {
 		this.ia.addColumn(i);
 		this.ib.addColumn(i);
 	}
+	,__class__: coopy.IndexPair
 }
 coopy.Ordering = function() {
 	this.order = new Array();
@@ -1769,6 +1704,7 @@ coopy.Ordering.prototype = {
 		if(this.ignore_parent) p = -2;
 		this.order.push(new coopy.Unit(l,r,p));
 	}
+	,__class__: coopy.Ordering
 }
 coopy.Report = function() {
 	this.changes = new Array();
@@ -1782,62 +1718,31 @@ coopy.Report.prototype = {
 	,toString: function() {
 		return this.changes.toString();
 	}
+	,__class__: coopy.Report
 }
 coopy.SimpleCell = function(x) {
 	this.datum = x;
 };
 coopy.SimpleCell.__name__ = true;
-coopy.SimpleCell.__interfaces__ = [coopy.Datum];
 coopy.SimpleCell.prototype = {
 	toString: function() {
 		return this.datum;
 	}
-}
-coopy.SimpleRow = function(tab,row_id) {
-	this.tab = tab;
-	this.row_id = row_id;
-	this.bag = this;
-};
-coopy.SimpleRow.__name__ = true;
-coopy.SimpleRow.__interfaces__ = [coopy.Datum,coopy.Bag];
-coopy.SimpleRow.prototype = {
-	getItemView: function() {
-		return new coopy.SimpleView();
-	}
-	,toString: function() {
-		var x = "";
-		var _g1 = 0, _g = this.tab.get_width();
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(i > 0) x += " ";
-			x += Std.string(this.getItem(i));
-		}
-		return x;
-	}
-	,getTable: function() {
-		return null;
-	}
-	,setItem: function(x,c) {
-		this.tab.setCell(x,this.row_id,c);
-	}
-	,getItem: function(x) {
-		return this.tab.getCell(x,this.row_id);
-	}
-	,get_size: function() {
-		return this.tab.get_width();
-	}
+	,__class__: coopy.SimpleCell
 }
 coopy.Table = function() { }
 coopy.Table.__name__ = true;
+coopy.Table.prototype = {
+	__class__: coopy.Table
+}
 coopy.SimpleTable = function(w,h) {
 	this.data = new haxe.ds.IntMap();
 	this.w = w;
 	this.h = h;
-	this.bag = this;
 };
 $hxExpose(coopy.SimpleTable, "coopy.SimpleTable");
 coopy.SimpleTable.__name__ = true;
-coopy.SimpleTable.__interfaces__ = [coopy.Bag,coopy.Table];
+coopy.SimpleTable.__interfaces__ = [coopy.Table];
 coopy.SimpleTable.tableToString = function(tab) {
 	var x = "";
 	var _g1 = 0, _g = tab.get_height();
@@ -1895,7 +1800,10 @@ coopy.SimpleTable.prototype = {
 			while(_g2 < _g1) {
 				var r = _g2++;
 				var idx = r * this.w + i;
-				if(this.data.exists(idx)) data2.set(r * nw + i,this.data.get(idx));
+				if(this.data.exists(idx)) {
+					var value = this.data.get(idx);
+					data2.set(r * nw + i,value);
+				}
 			}
 		}
 		this.w = nw;
@@ -1913,7 +1821,10 @@ coopy.SimpleTable.prototype = {
 				while(_g3 < _g2) {
 					var r = _g3++;
 					var idx = r * this.w + i;
-					if(this.data.exists(idx)) data2.set(r * wfate + j,this.data.get(idx));
+					if(this.data.exists(idx)) {
+						var value = this.data.get(idx);
+						data2.set(r * wfate + j,value);
+					}
 				}
 			}
 		}
@@ -1932,7 +1843,10 @@ coopy.SimpleTable.prototype = {
 				while(_g3 < _g2) {
 					var c = _g3++;
 					var idx = i * this.w + c;
-					if(this.data.exists(idx)) data2.set(j * this.w + c,this.data.get(idx));
+					if(this.data.exists(idx)) {
+						var value = this.data.get(idx);
+						data2.set(j * this.w + c,value);
+					}
 				}
 			}
 		}
@@ -1951,20 +1865,15 @@ coopy.SimpleTable.prototype = {
 	,isResizable: function() {
 		return true;
 	}
-	,getItemView: function() {
-		return new coopy.BagView();
-	}
 	,getCellView: function() {
 		return new coopy.SimpleView();
 	}
 	,toString: function() {
 		return coopy.SimpleTable.tableToString(this);
 	}
-	,getItem: function(y) {
-		return new coopy.SimpleRow(this,y);
-	}
 	,setCell: function(x,y,c) {
-		this.data.set(x + y * this.w,c);
+		var value = c;
+		this.data.set(x + y * this.w,value);
 	}
 	,getCell: function(x,y) {
 		return this.data.get(x + y * this.w);
@@ -1981,6 +1890,12 @@ coopy.SimpleTable.prototype = {
 	,getTable: function() {
 		return this;
 	}
+	,__class__: coopy.SimpleTable
+}
+coopy.View = function() { }
+coopy.View.__name__ = true;
+coopy.View.prototype = {
+	__class__: coopy.View
 }
 coopy.SimpleView = function() {
 };
@@ -2011,6 +1926,7 @@ coopy.SimpleView.prototype = {
 		if(d == null) return null;
 		return "" + Std.string(d);
 	}
+	,__class__: coopy.SimpleView
 }
 coopy.SparseSheet = function() {
 	this.h = this.w = 0;
@@ -2041,6 +1957,7 @@ coopy.SparseSheet.prototype = {
 		this.row = new haxe.ds.IntMap();
 		this.nonDestructiveResize(w,h,zero);
 	}
+	,__class__: coopy.SparseSheet
 }
 coopy.TableComparisonState = function() {
 	this.reset();
@@ -2056,6 +1973,7 @@ coopy.TableComparisonState.prototype = {
 		this.has_same_columns = false;
 		this.has_same_columns_known = false;
 	}
+	,__class__: coopy.TableComparisonState
 }
 coopy.TableDiff = function(align,flags) {
 	this.align = align;
@@ -2378,6 +2296,7 @@ coopy.TableDiff.prototype = {
 		}
 		return sep;
 	}
+	,__class__: coopy.TableDiff
 }
 coopy.TableModifier = function(t) {
 	this.t = t;
@@ -2394,6 +2313,7 @@ coopy.TableModifier.prototype = {
 		}
 		return this.t.insertOrDeleteColumns(fate,this.t.get_width() - 1);
 	}
+	,__class__: coopy.TableModifier
 }
 coopy.TableView = function() {
 };
@@ -2421,6 +2341,7 @@ coopy.TableView.prototype = {
 	,toString: function(d) {
 		return "" + Std.string(d);
 	}
+	,__class__: coopy.TableView
 }
 coopy.Unit = function(l,r,p) {
 	if(p == null) p = -2;
@@ -2440,6 +2361,7 @@ coopy.Unit.prototype = {
 	,lp: function() {
 		return this.p == -2?this.l:this.p;
 	}
+	,__class__: coopy.Unit
 }
 coopy.ViewedDatum = function(datum,view) {
 	this.datum = datum;
@@ -2463,6 +2385,7 @@ coopy.ViewedDatum.prototype = {
 	,toString: function() {
 		return this.view.toString(this.datum);
 	}
+	,__class__: coopy.ViewedDatum
 }
 coopy.Viterbi = function() {
 	this.K = this.T = 0;
@@ -2586,16 +2509,21 @@ coopy.Viterbi.prototype = {
 		this.path_valid = false;
 		this.best_cost = 0;
 	}
+	,__class__: coopy.Viterbi
 }
 coopy.Workspace = function() {
 };
 coopy.Workspace.__name__ = true;
+coopy.Workspace.prototype = {
+	__class__: coopy.Workspace
+}
 var haxe = {}
 haxe.ds = {}
 haxe.ds.IntMap = function() {
 	this.h = { };
 };
 haxe.ds.IntMap.__name__ = true;
+haxe.ds.IntMap.__interfaces__ = [IMap];
 haxe.ds.IntMap.prototype = {
 	toString: function() {
 		var s = new StringBuf();
@@ -2610,14 +2538,6 @@ haxe.ds.IntMap.prototype = {
 		}
 		s.b += "}";
 		return s.b;
-	}
-	,iterator: function() {
-		return { ref : this.h, it : this.keys(), hasNext : function() {
-			return this.it.hasNext();
-		}, next : function() {
-			var i = this.it.next();
-			return this.ref[i];
-		}};
 	}
 	,keys: function() {
 		var a = [];
@@ -2640,27 +2560,15 @@ haxe.ds.IntMap.prototype = {
 	,set: function(key,value) {
 		this.h[key] = value;
 	}
+	,__class__: haxe.ds.IntMap
 }
 haxe.ds.StringMap = function() {
 	this.h = { };
 };
 haxe.ds.StringMap.__name__ = true;
+haxe.ds.StringMap.__interfaces__ = [IMap];
 haxe.ds.StringMap.prototype = {
-	toString: function() {
-		var s = new StringBuf();
-		s.b += "{";
-		var it = this.keys();
-		while( it.hasNext() ) {
-			var i = it.next();
-			s.b += Std.string(i);
-			s.b += " => ";
-			s.b += Std.string(Std.string(this.get(i)));
-			if(it.hasNext()) s.b += ", ";
-		}
-		s.b += "}";
-		return s.b;
-	}
-	,iterator: function() {
+	iterator: function() {
 		return { ref : this.h, it : this.keys(), hasNext : function() {
 			return this.it.hasNext();
 		}, next : function() {
@@ -2675,12 +2583,6 @@ haxe.ds.StringMap.prototype = {
 		}
 		return HxOverrides.iter(a);
 	}
-	,remove: function(key) {
-		key = "$" + key;
-		if(!this.h.hasOwnProperty(key)) return false;
-		delete(this.h[key]);
-		return true;
-	}
 	,exists: function(key) {
 		return this.h.hasOwnProperty("$" + key);
 	}
@@ -2690,6 +2592,7 @@ haxe.ds.StringMap.prototype = {
 	,set: function(key,value) {
 		this.h["$" + key] = value;
 	}
+	,__class__: haxe.ds.StringMap
 }
 var js = {}
 js.Boot = function() { }
@@ -2760,6 +2663,48 @@ js.Boot.__string_rec = function(o,s) {
 		return String(o);
 	}
 }
+js.Boot.__interfLoop = function(cc,cl) {
+	if(cc == null) return false;
+	if(cc == cl) return true;
+	var intf = cc.__interfaces__;
+	if(intf != null) {
+		var _g1 = 0, _g = intf.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var i1 = intf[i];
+			if(i1 == cl || js.Boot.__interfLoop(i1,cl)) return true;
+		}
+	}
+	return js.Boot.__interfLoop(cc.__super__,cl);
+}
+js.Boot.__instanceof = function(o,cl) {
+	if(cl == null) return false;
+	switch(cl) {
+	case Int:
+		return (o|0) === o;
+	case Float:
+		return typeof(o) == "number";
+	case Bool:
+		return typeof(o) == "boolean";
+	case String:
+		return typeof(o) == "string";
+	case Dynamic:
+		return true;
+	default:
+		if(o != null) {
+			if(typeof(cl) == "function") {
+				if(o instanceof cl) {
+					if(cl == Array) return o.__enum__ == null;
+					return true;
+				}
+				if(js.Boot.__interfLoop(o.__class__,cl)) return true;
+			}
+		} else return false;
+		if(cl == Class && o.__name__ != null) return true; else null;
+		if(cl == Enum && o.__ename__ != null) return true; else null;
+		return o.__enum__ == cl;
+	}
+}
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; };
 var $_;
 function $bind(o,m) { var f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; return f; };
@@ -2773,8 +2718,18 @@ Math.isFinite = function(i) {
 Math.isNaN = function(i) {
 	return isNaN(i);
 };
+String.prototype.__class__ = String;
 String.__name__ = true;
+Array.prototype.__class__ = Array;
 Array.__name__ = true;
+var Int = { __name__ : ["Int"]};
+var Dynamic = { __name__ : ["Dynamic"]};
+var Float = Number;
+Float.__name__ = ["Float"];
+var Bool = Boolean;
+Bool.__ename__ = ["Bool"];
+var Class = { __name__ : ["Class"]};
+var Enum = { };
 coopy.Coopy.main();
 function $hxExpose(src, path) {
 	var o = typeof window != "undefined" ? window : exports;

@@ -1,6 +1,14 @@
 (function() {
 
-var coopy = (typeof require != "undefined") ? require('coopy') : window.coopy;
+var coopy = null;
+if (typeof exports != "undefined") {
+    if (typeof exports.Coopy != "undefined") {
+	coopy = exports;
+    }
+}
+if (coopy == null) {
+    coopy = (typeof require != "undefined") ? require('coopy') : window.coopy;
+}
 
 var CoopyTableView = function(data) {
     // variant constructor (cols, rows)
