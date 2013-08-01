@@ -8,6 +8,10 @@ js:
 	cat coopy.js scripts/post_node.js > coopy_node.js
 	mv coopy_node.js coopy.js
 
+# for node, simpler to bundle coopy_view in with everything else
+node: js
+	cat coopy.js scripts/coopy_view.js > coopyhx.js
+
 test: js
 	./scripts/run_tests.sh
 	@echo "=============================================================================="

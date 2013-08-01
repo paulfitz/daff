@@ -12,10 +12,12 @@ For a live demo, see:
 > http://paulfitz.github.com/coopyhx/
 
 Get the core library here:
-> http://paulfitz.github.com/coopyhx/coopy/coopy.js
+> http://paulfitz.github.com/coopyhx/coopy/coopyhx.js
 
-To apply the library to regular javascript 2D arrays, you'll also want:
-> http://paulfitz.github.com/coopyhx/coopy/scripts/coopy_view.js
+Or with node:
+````sh
+npm install coopyhx
+````
 
 This library is a stripped down version of the coopy toolbox (see
 http://share.find.coop).  To compare tables from different origins, 
@@ -25,11 +27,13 @@ the coopy toolbox.
 The basics
 ----------
 
-First, include `coopy.js` for the basic library
-and `coopy_view.js` to use that library with regular 2D arrays:
+First, include `coopyhx.js` on a webpage:
 ```html
-<script src="coopy.js"></script>
-<script src="coopy_view.js"></script>
+<script src="coopyhx.js"></script>
+```
+Or with nodejs:
+```js
+var coopy = require('coopyhx');
 ```
 
 For concreteness, assume we have two versions of a table,
@@ -77,9 +81,18 @@ var highlighter = new coopy.TableDiff(alignment,flags);
 highlighter.hilite(table_diff);
 ```
 
-The diff is now in `table_diff`, in highlighter format, see
+The diff is now in `data_diff` in highlighter format, see
 specification here:
 > http://share.find.coop/doc/spec_hilite.html
+
+```js
+[ [ '!', '', '+++', '' ],
+  [ '@@', 'Country', 'Code', 'Capital' ],
+  [ '+', 'Ireland', 'ie', 'Dublin' ],
+  [ '+', 'France', 'fr', 'Paris' ],
+  [ '->', 'Spain', 'es', 'Barcelona->Madrid' ],
+  [ '+++', 'Germany', 'de', 'Berlin' ] ]
+```
 
 For 3-way differences (that is, comparing two tables given knowledge
 of a common ancestor) use `coopy.compareTables3` (give ancestor

@@ -1,0 +1,23 @@
+{
+  "name": "coopyhx",
+  "version": "0.0.4",
+  "description": "Diff and patch tables",
+  "url": "https://github.com/paulfitz/coopyhx",
+  "keywords": ["table", "diff", "patch"],
+  "repository" : {
+    "type" : "git",
+    "url" : "git://github.com/paulfitz/coopyhx.git"
+  },
+  "bugs": {
+    "url": "https://github.com/paulfitz/coopyhx/issues"
+  },
+  "author": {
+    "name": "Paul Fitzpatrick",
+    "email": "paul@robotrebuilt.com",
+    "url": "http://robotrebuilt.com/people/paulfitz"
+  },
+  "scripts" : { 
+    "prepublish" : "make node"
+  },
+  "main" : "coopyhx.js"
+}
