@@ -24,8 +24,22 @@ http://share.find.coop).  To compare tables from different origins,
 or with automatically generated IDs, or other complications, check out
 the coopy toolbox.
 
-The basics
-----------
+The program
+-----------
+
+There is a basic test wrapper of the library in the node package:
+````sh
+$ coopyhx
+Call coopyhx as:
+  coopyhx diff [--output OUTPUT.csv] a.csv b.csv
+  coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv
+  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook
+  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv
+  coopyhx trim [--output OUTPUT.csv] source.csv
+````
+
+The library
+-----------
 
 First, include `coopyhx.js` on a webpage:
 ```html
