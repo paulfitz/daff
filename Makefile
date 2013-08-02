@@ -10,7 +10,8 @@ js:
 
 # for node, simpler to bundle coopy_view in with everything else
 node: js
-	cat coopy.js scripts/coopy_view.js > coopyhx.js
+	sed 's/window != "undefined" ? window : exports/exports != "undefined" ? exports : window/' coopy.js > coopyhx.js  # better order for browserify
+	cat scripts/coopy_view.js >> coopyhx.js
 
 test: js
 	./scripts/run_tests.sh

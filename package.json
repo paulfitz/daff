@@ -1,6 +1,6 @@
 {
   "name": "coopyhx",
-  "version": "0.0.6",
+  "version": "0.0.9",
   "description": "Diff and patch tables",
   "url": "https://github.com/paulfitz/coopyhx",
   "keywords": ["table", "diff", "patch"],

@@ -7,7 +7,7 @@ if (typeof exports != "undefined") {
     }
 }
 if (coopy == null) {
-    coopy = (typeof require != "undefined") ? require('coopy') : window.coopy;
+    coopy = window.coopy;
 }
 
 var CoopyTableView = function(data) {
