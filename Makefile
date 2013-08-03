@@ -6,7 +6,7 @@ cpp:
 js:
 	haxe compile_js.hxml # generates coopy.js
 	cat coopy.js scripts/post_node.js > coopy_node.js
-	mv coopy_node.js coopy.js
+	sed 's/window != "undefined" ? window : exports/exports != "undefined" ? exports : window/' coopy_node.js > coopy.js  # better order for browserify
 	cat coopy.js scripts/coopy_view.js > coopyhx.js
 
 test: js
