@@ -17,7 +17,7 @@
     "url": "http://robotrebuilt.com/people/paulfitz"
   },
   "scripts" : { 
-    "prepublish" : "make node",
+    "prepublish" : "make js",
     "test": "make test"
   },
   "main" : "coopyhx.js",
