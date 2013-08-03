@@ -1,6 +1,5 @@
 var assert = require('assert');
-var coopy_view = require('coopy_view');
-var coopy = require('coopy');
+var coopy = require('coopyhx');
 
 function order_asserts(order,lst) {
     var lst2 = order.getList();
@@ -40,7 +39,7 @@ function round_trip(t1,t2,msg) {
     var align = ct.align();
     var flags = new coopy.CompareFlags();
     var td = new coopy.TableDiff(align,flags);
-    var output = new coopy_view.CoopyTableView([]);
+    var output = new coopy.CoopyTableView([]);
     td.hilite(output);
     
     var t1c = t1.clone();

@@ -1,10 +1,9 @@
-var coopy = require('coopy');
+var coopy = require('coopyhx');
 var assert = require('assert');
-var coopy_view = require('coopy_view');
 
-var t1 = new coopy_view.CoopyTableView([[1,2,3],[4,5,6]]);
-var t2 = new coopy_view.CoopyTableView([[1,2,3],[4,5,6]]);
-var t3 = new coopy_view.CoopyTableView([[1,2,3],[4,5,6]]);
+var t1 = new coopy.CoopyTableView([[1,2,3],[4,5,6]]);
+var t2 = new coopy.CoopyTableView([[1,2,3],[4,5,6]]);
+var t3 = new coopy.CoopyTableView([[1,2,3],[4,5,6]]);
 var d1 = new coopy.ViewedDatum(t1,new coopy.TableView());
 var d2 = new coopy.ViewedDatum(t2,new coopy.TableView());
 var d3 = new coopy.ViewedDatum(t3,new coopy.TableView());
@@ -41,8 +40,8 @@ cmp.compare(d1,d1,d2,report);
 assert.equal(report.changes.length,1);
 
 
-var t4 = new coopy_view.CoopyTableView([[1,2,3],[4,5,6]]);
-var t5 = new coopy_view.CoopyTableView([[1,2,3],[4,5,6],[7,8,9]]);
+var t4 = new coopy.CoopyTableView([[1,2,3],[4,5,6]]);
+var t5 = new coopy.CoopyTableView([[1,2,3],[4,5,6],[7,8,9]]);
 var d4 = new coopy.ViewedDatum(t4,new coopy.TableView());
 var d5 = new coopy.ViewedDatum(t5,new coopy.TableView());
 cmp.compare(d4,d4,d5,report);
