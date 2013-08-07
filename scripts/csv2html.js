@@ -5,8 +5,8 @@ var htmlencode = require('node-html-encoder');
 var Encoder = require('node-html-encoder').Encoder;
 var encoder = new Encoder('entity');
 
-var coopy = window.coopy;
-var render = window.coopy.diffRenderer;
+var coopy = exports || window.coopy;
+var render = coopy.diffRenderer;
 
 var puts = function(x) {
     process.stdout.write(x);

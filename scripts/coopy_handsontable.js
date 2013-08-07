@@ -1,5 +1,16 @@
-if(typeof window["coopy"] == "undefined") window["coopy"] = {};
-window["coopy"]["diffRenderer"] = function (instance, td, row, col, prop, value, cellProperties) {
+(function() {
+
+var coopy = null;
+if (typeof exports != "undefined") {
+    if (typeof exports.Coopy != "undefined") {
+	coopy = exports;
+    }
+}
+if (coopy == null) {
+    coopy = window.coopy;
+}
+
+var diffRenderer = function (instance, td, row, col, prop, value, cellProperties) {
 
     var className = "";
 
@@ -68,3 +79,6 @@ window["coopy"]["diffRenderer"] = function (instance, td, row, col, prop, value,
     return value2;
 }
 
+coopy.diffRenderer = diffRenderer;
+
+})();
