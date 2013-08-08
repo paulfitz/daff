@@ -103,6 +103,7 @@ class CompareTable {
             var sorter = function(a,b) { if (a[1]<b[1]) return 1; if (a[1]>b[1]) return -1; return 0; }
             columns_eval.sort(sorter);
             columns = Lambda.array(Lambda.map(columns_eval, function(v) { return v[0]; }));
+            columns = columns.slice(0,N);
         } else {
             for (i in 0...common_units.length) {
                 columns.push(i);
