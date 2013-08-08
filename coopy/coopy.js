@@ -43,6 +43,14 @@ Lambda.map = function(it,f) {
 	}
 	return l;
 }
+Lambda.has = function(it,elt) {
+	var $it0 = $iterator(it)();
+	while( $it0.hasNext() ) {
+		var x = $it0.next();
+		if(x == elt) return true;
+	}
+	return false;
+}
 var List = function() {
 	this.length = 0;
 };
@@ -68,17 +76,107 @@ List.prototype = {
 }
 var IMap = function() { }
 IMap.__name__ = true;
+var Reflect = function() { }
+Reflect.__name__ = true;
+Reflect.field = function(o,field) {
+	var v = null;
+	try {
+		v = o[field];
+	} catch( e ) {
+	}
+	return v;
+}
+Reflect.fields = function(o) {
+	var a = [];
+	if(o != null) {
+		var hasOwnProperty = Object.prototype.hasOwnProperty;
+		for( var f in o ) {
+		if(f != "__id__" && f != "hx__closures__" && hasOwnProperty.call(o,f)) a.push(f);
+		}
+	}
+	return a;
+}
+Reflect.isFunction = function(f) {
+	return typeof(f) == "function" && !(f.__name__ || f.__ename__);
+}
 var Std = function() { }
 Std.__name__ = true;
 Std.string = function(s) {
 	return js.Boot.__string_rec(s,"");
+}
+Std.parseInt = function(x) {
+	var v = parseInt(x,10);
+	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
+	if(isNaN(v)) return null;
+	return v;
+}
+Std.parseFloat = function(x) {
+	return parseFloat(x);
 }
 var StringBuf = function() {
 	this.b = "";
 };
 StringBuf.__name__ = true;
 StringBuf.prototype = {
-	__class__: StringBuf
+	addSub: function(s,pos,len) {
+		this.b += len == null?HxOverrides.substr(s,pos,null):HxOverrides.substr(s,pos,len);
+	}
+	,__class__: StringBuf
+}
+var ValueType = { __ename__ : true, __constructs__ : ["TNull","TInt","TFloat","TBool","TObject","TFunction","TClass","TEnum","TUnknown"] }
+ValueType.TNull = ["TNull",0];
+ValueType.TNull.toString = $estr;
+ValueType.TNull.__enum__ = ValueType;
+ValueType.TInt = ["TInt",1];
+ValueType.TInt.toString = $estr;
+ValueType.TInt.__enum__ = ValueType;
+ValueType.TFloat = ["TFloat",2];
+ValueType.TFloat.toString = $estr;
+ValueType.TFloat.__enum__ = ValueType;
+ValueType.TBool = ["TBool",3];
+ValueType.TBool.toString = $estr;
+ValueType.TBool.__enum__ = ValueType;
+ValueType.TObject = ["TObject",4];
+ValueType.TObject.toString = $estr;
+ValueType.TObject.__enum__ = ValueType;
+ValueType.TFunction = ["TFunction",5];
+ValueType.TFunction.toString = $estr;
+ValueType.TFunction.__enum__ = ValueType;
+ValueType.TClass = function(c) { var $x = ["TClass",6,c]; $x.__enum__ = ValueType; $x.toString = $estr; return $x; }
+ValueType.TEnum = function(e) { var $x = ["TEnum",7,e]; $x.__enum__ = ValueType; $x.toString = $estr; return $x; }
+ValueType.TUnknown = ["TUnknown",8];
+ValueType.TUnknown.toString = $estr;
+ValueType.TUnknown.__enum__ = ValueType;
+var Type = function() { }
+Type.__name__ = true;
+Type["typeof"] = function(v) {
+	var _g = typeof(v);
+	switch(_g) {
+	case "boolean":
+		return ValueType.TBool;
+	case "string":
+		return ValueType.TClass(String);
+	case "number":
+		if(Math.ceil(v) == v % 2147483648.0) return ValueType.TInt;
+		return ValueType.TFloat;
+	case "object":
+		if(v == null) return ValueType.TNull;
+		var e = v.__enum__;
+		if(e != null) return ValueType.TEnum(e);
+		var c = v.__class__;
+		if(c != null) return ValueType.TClass(c);
+		return ValueType.TObject;
+	case "function":
+		if(v.__name__ || v.__ename__) return ValueType.TObject;
+		return ValueType.TFunction;
+	case "undefined":
+		return ValueType.TNull;
+	default:
+		return ValueType.TUnknown;
+	}
+}
+Type.enumIndex = function(e) {
+	return e[1];
 }
 var coopy = {}
 coopy.Alignment = function() {
@@ -706,6 +804,7 @@ coopy.CompareTable.prototype = {
 			columns = Lambda.array(Lambda.map(columns_eval,function(v) {
 				return v[0];
 			}));
+			columns = columns.slice(0,N);
 		} else {
 			var _g1 = 0, _g = common_units.length;
 			while(_g1 < _g) {
@@ -872,6 +971,110 @@ coopy.Coopy.randomTests = function() {
 	var tm = new coopy.TableModifier(null);
 	return 0;
 }
+coopy.Coopy.cellFor = function(x) {
+	if(x == null) return null;
+	return new coopy.SimpleCell(x);
+}
+coopy.Coopy.jsonToTable = function(json) {
+	var output = null;
+	var _g = 0, _g1 = Reflect.fields(json);
+	while(_g < _g1.length) {
+		var name = _g1[_g];
+		++_g;
+		var t = Reflect.field(json,name);
+		var columns = Reflect.field(t,"columns");
+		if(columns == null) continue;
+		var rows = Reflect.field(t,"rows");
+		if(rows == null) continue;
+		output = new coopy.SimpleTable(columns.length,rows.length);
+		var has_hash = false;
+		var has_hash_known = false;
+		var _g3 = 0, _g2 = rows.length;
+		while(_g3 < _g2) {
+			var i = _g3++;
+			var row = rows[i];
+			if(!has_hash_known) {
+				if(Reflect.fields(row).length == columns.length) has_hash = true;
+				has_hash_known = true;
+			}
+			if(!has_hash) {
+				var lst = row;
+				var _g5 = 0, _g4 = columns.length;
+				while(_g5 < _g4) {
+					var j = _g5++;
+					var val = lst[j];
+					output.setCell(j,i,coopy.Coopy.cellFor(val));
+				}
+			} else {
+				var _g5 = 0, _g4 = columns.length;
+				while(_g5 < _g4) {
+					var j = _g5++;
+					var val = Reflect.field(row,columns[j]);
+					output.setCell(j,i,coopy.Coopy.cellFor(val));
+				}
+			}
+		}
+	}
+	if(output != null) output.trimBlank();
+	return output;
+}
+coopy.Coopy.coopyhx = function(io) {
+	var args = io.args();
+	if(args[0] == "--test") return coopy.Coopy.randomTests();
+	var more = true;
+	var output = null;
+	while(more) {
+		more = false;
+		var _g1 = 0, _g = args.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(args[i] == "--output") {
+				more = true;
+				output = args[i + 1];
+				args.splice(i,2);
+				break;
+			}
+		}
+	}
+	var cmd = args[0];
+	if(args.length < 2 || !Lambda.has(["diff","patch","trim"],cmd)) {
+		io.writeStderr("Call coopyhx as:\n");
+		io.writeStderr("  coopyhx diff [--output OUTPUT.csv] a.csv b.csv\n");
+		io.writeStderr("  coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
+		io.writeStderr("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
+		io.writeStderr("  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv\n");
+		io.writeStderr("  coopyhx trim [--output OUTPUT.csv] source.csv\n");
+		return 1;
+	}
+	if(output == null) output = "-";
+	var cmd1 = args[0];
+	var tool = new coopy.Coopy();
+	tool.io = io;
+	var parent = null;
+	var offset = 0;
+	if(args.length > 3) {
+		parent = tool.loadTable(args[1]);
+		offset++;
+	}
+	var a = tool.loadTable(args[1 + offset]);
+	var b = null;
+	if(args.length > 2) b = tool.loadTable(args[2 + offset]);
+	if(cmd1 == "diff") {
+		var ct = coopy.Coopy.compareTables3(parent,a,b);
+		var align = ct.align();
+		var flags = new coopy.CompareFlags();
+		flags.always_show_header = true;
+		var td = new coopy.TableDiff(align,flags);
+		var o = new coopy.SimpleTable(0,0);
+		td.hilite(o);
+		tool.saveTable(output,o);
+	} else if(cmd1 == "patch") {
+		var patcher = new coopy.HighlightPatch(a,b);
+		patcher.apply();
+		tool.saveTable(output,a);
+	} else if(cmd1 == "trim") tool.saveTable(output,a);
+	return 0;
+}
 coopy.Coopy.main = function() {
 	return 0;
 }
@@ -914,7 +1117,46 @@ coopy.Coopy.jsonify = function(t) {
 	return workbook;
 }
 coopy.Coopy.prototype = {
-	__class__: coopy.Coopy
+	loadTable: function(name) {
+		var txt = this.io.getContent(name);
+		try {
+			var json = haxe.Json.parse(txt);
+			this.format_preference = "json";
+			var t = coopy.Coopy.jsonToTable(json);
+			if(t == null) throw "JSON failed";
+			return t;
+		} catch( e ) {
+			var csv = new coopy.Csv();
+			this.format_preference = "csv";
+			var data = csv.parseTable(txt);
+			var h = data.length;
+			var w = 0;
+			if(h > 0) w = data[0].length;
+			var output = new coopy.SimpleTable(w,h);
+			var _g = 0;
+			while(_g < h) {
+				var i = _g++;
+				var _g1 = 0;
+				while(_g1 < w) {
+					var j = _g1++;
+					var val = data[i][j];
+					output.setCell(j,i,coopy.Coopy.cellFor(val));
+				}
+			}
+			if(output != null) output.trimBlank();
+			return output;
+		}
+	}
+	,saveTable: function(name,t) {
+		var txt = "";
+		if(this.format_preference != "json") {
+			var csv = new coopy.Csv();
+			txt = csv.renderTable(t);
+		} else txt = haxe.Json.stringify(coopy.Coopy.jsonify(t));
+		if(name != "-") this.io.saveContent(name,txt); else this.io.writeStdout(txt);
+		return true;
+	}
+	,__class__: coopy.Coopy
 }
 coopy.CrossMatch = function() {
 };
@@ -2298,6 +2540,26 @@ coopy.TableDiff.prototype = {
 	}
 	,__class__: coopy.TableDiff
 }
+coopy.TableIO = function() {
+};
+$hxExpose(coopy.TableIO, "coopy.TableIO");
+coopy.TableIO.__name__ = true;
+coopy.TableIO.prototype = {
+	writeStderr: function(txt) {
+	}
+	,writeStdout: function(txt) {
+	}
+	,args: function() {
+		return [];
+	}
+	,saveContent: function(name,txt) {
+		return false;
+	}
+	,getContent: function(name) {
+		return "";
+	}
+	,__class__: coopy.TableIO
+}
 coopy.TableModifier = function(t) {
 	this.t = t;
 };
@@ -2518,6 +2780,324 @@ coopy.Workspace.prototype = {
 	__class__: coopy.Workspace
 }
 var haxe = {}
+haxe.Json = function() {
+};
+haxe.Json.__name__ = true;
+haxe.Json.parse = function(text) {
+	return new haxe.Json().doParse(text);
+}
+haxe.Json.stringify = function(value,replacer) {
+	return new haxe.Json().toString(value,replacer);
+}
+haxe.Json.prototype = {
+	parseNumber: function(c) {
+		var start = this.pos - 1;
+		var minus = c == 45, digit = !minus, zero = c == 48;
+		var point = false, e = false, pm = false, end = false;
+		while(true) {
+			c = this.str.charCodeAt(this.pos++);
+			switch(c) {
+			case 48:
+				if(zero && !point) this.invalidNumber(start);
+				if(minus) {
+					minus = false;
+					zero = true;
+				}
+				digit = true;
+				break;
+			case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:
+				if(zero && !point) this.invalidNumber(start);
+				if(minus) minus = false;
+				digit = true;
+				zero = false;
+				break;
+			case 46:
+				if(minus || point) this.invalidNumber(start);
+				digit = false;
+				point = true;
+				break;
+			case 101:case 69:
+				if(minus || zero || e) this.invalidNumber(start);
+				digit = false;
+				e = true;
+				break;
+			case 43:case 45:
+				if(!e || pm) this.invalidNumber(start);
+				digit = false;
+				pm = true;
+				break;
+			default:
+				if(!digit) this.invalidNumber(start);
+				this.pos--;
+				end = true;
+			}
+			if(end) break;
+		}
+		var f = Std.parseFloat(HxOverrides.substr(this.str,start,this.pos - start));
+		var i = f | 0;
+		return i == f?i:f;
+	}
+	,invalidNumber: function(start) {
+		throw "Invalid number at position " + start + ": " + HxOverrides.substr(this.str,start,this.pos - start);
+	}
+	,parseString: function() {
+		var start = this.pos;
+		var buf = new StringBuf();
+		while(true) {
+			var c = this.str.charCodeAt(this.pos++);
+			if(c == 34) break;
+			if(c == 92) {
+				buf.addSub(this.str,start,this.pos - start - 1);
+				c = this.str.charCodeAt(this.pos++);
+				switch(c) {
+				case 114:
+					buf.b += "\r";
+					break;
+				case 110:
+					buf.b += "\n";
+					break;
+				case 116:
+					buf.b += "\t";
+					break;
+				case 98:
+					buf.b += "";
+					break;
+				case 102:
+					buf.b += "";
+					break;
+				case 47:case 92:case 34:
+					buf.b += String.fromCharCode(c);
+					break;
+				case 117:
+					var uc = Std.parseInt("0x" + HxOverrides.substr(this.str,this.pos,4));
+					this.pos += 4;
+					buf.b += String.fromCharCode(uc);
+					break;
+				default:
+					throw "Invalid escape sequence \\" + String.fromCharCode(c) + " at position " + (this.pos - 1);
+				}
+				start = this.pos;
+			} else if(c != c) throw "Unclosed string";
+		}
+		buf.addSub(this.str,start,this.pos - start - 1);
+		return buf.b;
+	}
+	,parseRec: function() {
+		while(true) {
+			var c = this.str.charCodeAt(this.pos++);
+			switch(c) {
+			case 32:case 13:case 10:case 9:
+				break;
+			case 123:
+				var obj = { }, field = null, comma = null;
+				while(true) {
+					var c1 = this.str.charCodeAt(this.pos++);
+					switch(c1) {
+					case 32:case 13:case 10:case 9:
+						break;
+					case 125:
+						if(field != null || comma == false) this.invalidChar();
+						return obj;
+					case 58:
+						if(field == null) this.invalidChar();
+						obj[field] = this.parseRec();
+						field = null;
+						comma = true;
+						break;
+					case 44:
+						if(comma) comma = false; else this.invalidChar();
+						break;
+					case 34:
+						if(comma) this.invalidChar();
+						field = this.parseString();
+						break;
+					default:
+						this.invalidChar();
+					}
+				}
+				break;
+			case 91:
+				var arr = [], comma = null;
+				while(true) {
+					var c1 = this.str.charCodeAt(this.pos++);
+					switch(c1) {
+					case 32:case 13:case 10:case 9:
+						break;
+					case 93:
+						if(comma == false) this.invalidChar();
+						return arr;
+					case 44:
+						if(comma) comma = false; else this.invalidChar();
+						break;
+					default:
+						if(comma) this.invalidChar();
+						this.pos--;
+						arr.push(this.parseRec());
+						comma = true;
+					}
+				}
+				break;
+			case 116:
+				var save = this.pos;
+				if(this.str.charCodeAt(this.pos++) != 114 || this.str.charCodeAt(this.pos++) != 117 || this.str.charCodeAt(this.pos++) != 101) {
+					this.pos = save;
+					this.invalidChar();
+				}
+				return true;
+			case 102:
+				var save = this.pos;
+				if(this.str.charCodeAt(this.pos++) != 97 || this.str.charCodeAt(this.pos++) != 108 || this.str.charCodeAt(this.pos++) != 115 || this.str.charCodeAt(this.pos++) != 101) {
+					this.pos = save;
+					this.invalidChar();
+				}
+				return false;
+			case 110:
+				var save = this.pos;
+				if(this.str.charCodeAt(this.pos++) != 117 || this.str.charCodeAt(this.pos++) != 108 || this.str.charCodeAt(this.pos++) != 108) {
+					this.pos = save;
+					this.invalidChar();
+				}
+				return null;
+			case 34:
+				return this.parseString();
+			case 48:case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:case 45:
+				return this.parseNumber(c);
+			default:
+				this.invalidChar();
+			}
+		}
+	}
+	,invalidChar: function() {
+		this.pos--;
+		throw "Invalid char " + this.str.charCodeAt(this.pos) + " at position " + this.pos;
+	}
+	,doParse: function(str) {
+		this.str = str;
+		this.pos = 0;
+		return this.parseRec();
+	}
+	,quote: function(s) {
+		this.buf.b += "\"";
+		var i = 0;
+		while(true) {
+			var c = s.charCodeAt(i++);
+			if(c != c) break;
+			switch(c) {
+			case 34:
+				this.buf.b += "\\\"";
+				break;
+			case 92:
+				this.buf.b += "\\\\";
+				break;
+			case 10:
+				this.buf.b += "\\n";
+				break;
+			case 13:
+				this.buf.b += "\\r";
+				break;
+			case 9:
+				this.buf.b += "\\t";
+				break;
+			case 8:
+				this.buf.b += "\\b";
+				break;
+			case 12:
+				this.buf.b += "\\f";
+				break;
+			default:
+				this.buf.b += String.fromCharCode(c);
+			}
+		}
+		this.buf.b += "\"";
+	}
+	,toStringRec: function(k,v) {
+		if(this.replacer != null) v = this.replacer(k,v);
+		var _g = Type["typeof"](v);
+		var $e = (_g);
+		switch( $e[1] ) {
+		case 8:
+			this.buf.b += "\"???\"";
+			break;
+		case 4:
+			this.objString(v);
+			break;
+		case 1:
+			var v1 = v;
+			this.buf.b += Std.string(v1);
+			break;
+		case 2:
+			this.buf.b += Std.string(Math.isFinite(v)?v:"null");
+			break;
+		case 5:
+			this.buf.b += "\"<fun>\"";
+			break;
+		case 6:
+			var _g_eTClass_0 = $e[2];
+			if(_g_eTClass_0 == String) this.quote(v); else if(_g_eTClass_0 == Array) {
+				var v1 = v;
+				this.buf.b += "[";
+				var len = v1.length;
+				if(len > 0) {
+					this.toStringRec(0,v1[0]);
+					var i = 1;
+					while(i < len) {
+						this.buf.b += ",";
+						this.toStringRec(i,v1[i++]);
+					}
+				}
+				this.buf.b += "]";
+			} else if(_g_eTClass_0 == haxe.ds.StringMap) {
+				var v1 = v;
+				var o = { };
+				var $it0 = v1.keys();
+				while( $it0.hasNext() ) {
+					var k1 = $it0.next();
+					o[k1] = v1.get(k1);
+				}
+				this.objString(o);
+			} else this.objString(v);
+			break;
+		case 7:
+			var i = Type.enumIndex(v);
+			var v1 = i;
+			this.buf.b += Std.string(v1);
+			break;
+		case 3:
+			var v1 = v;
+			this.buf.b += Std.string(v1);
+			break;
+		case 0:
+			this.buf.b += "null";
+			break;
+		}
+	}
+	,objString: function(v) {
+		this.fieldsString(v,Reflect.fields(v));
+	}
+	,fieldsString: function(v,fields) {
+		var first = true;
+		this.buf.b += "{";
+		var _g = 0;
+		while(_g < fields.length) {
+			var f = fields[_g];
+			++_g;
+			var value = Reflect.field(v,f);
+			if(Reflect.isFunction(value)) continue;
+			if(first) first = false; else this.buf.b += ",";
+			this.quote(f);
+			this.buf.b += ":";
+			this.toStringRec(f,value);
+		}
+		this.buf.b += "}";
+	}
+	,toString: function(v,replacer) {
+		this.buf = new StringBuf();
+		this.replacer = replacer;
+		this.toStringRec("",v);
+		return this.buf.b;
+	}
+	,__class__: haxe.Json
+}
 haxe.ds = {}
 haxe.ds.IntMap = function() {
 	this.h = { };
@@ -2730,9 +3310,10 @@ var Bool = Boolean;
 Bool.__ename__ = ["Bool"];
 var Class = { __name__ : ["Class"]};
 var Enum = { };
+if(typeof(JSON) != "undefined") haxe.Json = JSON;
 coopy.Coopy.main();
 function $hxExpose(src, path) {
-	var o = typeof window != "undefined" ? window : exports;
+	var o = typeof exports != "undefined" ? exports : window;
 	var parts = path.split(".");
 	for(var ii = 0; ii < parts.length-1; ++ii) {
 		var p = parts[ii];
