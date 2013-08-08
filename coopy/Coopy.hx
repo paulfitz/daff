@@ -159,7 +159,9 @@ class Coopy {
         try {
             var json = haxe.Json.parse(txt);
             format_preference = "json";
-            return jsonToTable(json);
+            var t : Table = jsonToTable(json);
+            if (t==null) throw "JSON failed";
+            return t;
         } catch (e: Dynamic) {
             var csv : Csv = new Csv();
             format_preference = "csv";
