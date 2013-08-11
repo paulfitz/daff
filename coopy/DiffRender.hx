@@ -7,7 +7,6 @@ class DiffRender {
     private var text_to_insert : Array<String>;
     private var td_open : String;
     private var td_close : String;
-    private var row_color : String;
     private var open : Bool;
 
     public function new() : Void {
@@ -26,40 +25,24 @@ class DiffRender {
     private function beginRow(mode: String) : Void {
         td_open = '<td';
         td_close = '</td>';
-        row_color = "";
-        open = false;
-        switch(mode) {
-        case "@@":
+        var row_class : String = "";
+        if (mode=="header") {
             td_open = "<th";
             td_close = "</th>";
-        case "!":
-            row_color = "spec";
-        case "+++":
-            row_color = "add";
-        case "---":
-            row_color = "remove";
-        default:
-            this.open = true;
+        } else {
+            row_class = mode;
         }
         var tr : String = "<tr>";
-        var row_decorate : String = "";
-        if (row_color!="") {
-            row_decorate = " class=\"" + row_color + "\"";
-            tr = "<tr" + row_decorate + ">";
+        if (row_class!="") {
+            tr = "<tr class=\"" + row_class + "\">";
         }
         insert(tr);
     }
 
-
-    private function insertCell(txt : String,mode : String,separator : String) : Void {
+    private function insertCell(txt : String, mode : String) : Void {
         var cell_decorate : String = "";
-        switch (mode) {
-        case "+++":
-            cell_decorate += " class=\"add\"";
-        case "---":
-            cell_decorate += " class=\"remove\"";
-        case "->":
-            cell_decorate += " class=\"modify\"";
+        if (mode!="") {
+            cell_decorate = " class=\"" + mode + "\"";
         }
         insert(td_open+cell_decorate+">");
         insert(txt);
@@ -83,55 +66,179 @@ class DiffRender {
     }
 
 
+    private static function examineCell(x: Int,
+                                        y: Int,
+                                        value : String,
+                                        vcol : String,
+                                        vrow : String,
+                                        cell : CellInfo) : Void {
+        cell.category = "";
+        cell.category_given_tr = "";
+        cell.value = value;
+        if (cell.value==null) cell.value = "";
+        cell.pretty_value = cell.value;
+        if (vrow==null) vrow = "";
+        if (vcol==null) vcol = "";
+        var removed_column : Bool = false;
+        if (vcol.indexOf("+++")>=0) {
+            cell.category_given_tr = cell.category = 'add';
+        } else if (vcol.indexOf("---")>=0) {
+            cell.category_given_tr = cell.category = 'remove';
+            removed_column = true;
+        }
+        if (vrow == "!") {
+            cell.category = 'spec';
+        } else if (vrow == "@@") {
+            cell.category = 'header';
+        } else if (vrow == "+++") {
+            if (!removed_column) {
+                cell.category = 'add';
+            }
+        } else if (vrow == "---") {
+            cell.category = "remove";
+        } else if (vrow.indexOf("->")>=0) {
+            if (!removed_column) {
+                var tokens : Array<String> = vrow.split("!");
+                var full : String = vrow;
+                var part : String = tokens[1];
+                if (part==null) part = full;
+                if (cell.value.indexOf(part)>=0) {
+                    var cat : String = "modify";
+                    var div = part;
+                    // render with utf8 -> symbol
+                    if (part!=full) {
+                        if (cell.value.indexOf(full)>=0) {
+                            div = full;
+                            cat = "conflict";
+                        }
+                    }
+                    cell.pretty_value = cell.pretty_value.split(div).join(String.fromCharCode(8594));
+                    cell.category_given_tr = cell.category = cat;
+                }
+            }
+        }
+    }
+
+    public static function renderCell(tt: TableText,
+                                      x: Int,
+                                      y: Int) : CellInfo {
+        var cell : CellInfo = new CellInfo();
+        examineCell(x,
+                    y,
+                    tt.getCellText(x,y),
+                    tt.getCellText(x,0),
+                    tt.getCellText(0,y),
+                    cell);
+        return cell;
+    }
+
     public function render(rows: Table) {
         var render : DiffRender = this;
         render.beginTable();
         var change_row : Int = -1;
-        var v : View = rows.getCellView();
+        var tt : TableText = new TableText(rows);
+        var cell : CellInfo = new CellInfo();
         for (row in 0...rows.height) {
-            //var r = rows[row];
-            var row_mode : String = "";
-            var txt : String = "";
+            if (rows.width==0) continue;
+
             var open : Bool = false;
-            if (rows.width>0) {
-                txt = v.toString(rows.getCell(0,row));
-                if (txt=="@"||txt=="@@") {
-                    row_mode = "@@";
-                } else if (txt=="!"||txt=="+++"||txt=="---"||txt=="...") {
-                    row_mode = txt;
-                    if (txt=="!") { change_row = row; }
-                } else if (txt.indexOf("->")>=0) {
-                    row_mode = "->";
-                } else {
-                    open = true;
-                }
+
+            var txt : String = tt.getCellText(0,row);
+            if (txt==null) txt = "";
+            examineCell(0,row,txt,"",txt,cell);
+            var row_mode : String = cell.category;
+            if (row_mode == "spec") {
+                change_row = row;
             }
-            var cmd : String = txt;
+
             render.beginRow(row_mode);
+
             for (c in 0...rows.width) {
-                txt = v.toString(rows.getCell(c,row));
-                if (txt=="NULL") txt = "";
-                if (txt=="null") txt = "";
-                var cell_mode : String = "";
-                var separator : String = "";
-                if (open && change_row>=0) {
-                    var change = v.toString(rows.getCell(c,change_row));
-                    if (change=="+++"||change=="---") {
-                        cell_mode = change;
-                    }
-                }
-                
-                if (cmd.indexOf("->")>=0) {
-                    if (txt.indexOf(cmd)>=0) {
-                        cell_mode = "->";
-                        separator = cmd;
-                    }
-                }
-                render.insertCell(txt,cell_mode,separator);
+                examineCell(c,
+                            row,
+                            tt.getCellText(c,row),
+                            (change_row>=0)?tt.getCellText(c,change_row):"",
+                            txt,
+                            cell);
+                render.insertCell(cell.pretty_value,cell.category_given_tr);
             }
             render.endRow();
         }
         render.endTable();
+    }
+
+    public function sampleCss() : String {
+        return ".highlighter .add { 
+  background-color: #7fff7f;
+}
+
+.highlighter .remove { 
+  background-color: #ff7f7f;
+}
+
+.highlighter .modify { 
+  background-color: #7f7fff;
+}
+
+.highlighter .conflict { 
+  background-color: #f00;
+}
+
+.highlighter .spec { 
+  background-color: #aaa;
+}
+
+.highlighter .null { 
+  color: #888;
+}
+
+.highlighter table { 
+  border-collapse:collapse;
+}
+
+.highlighter td, .highlighter th {
+  border: 1px solid #2D4068;
+  padding: 3px 7px 2px;
+}
+
+.highlighter th, .highlighter .header { 
+  background-color: #aaf;
+  font-weight: bold;
+  padding-bottom: 4px;
+  padding-top: 5px;
+  text-align:left;
+}
+
+.highlighter tr:first-child td {
+  border-top: 1px solid #2D4068;
+}
+
+.highlighter td:first-child { 
+  border-left: 1px solid #2D4068;
+}
+
+.highlighter td {
+  empty-cells: show;
+}
+";
+    }
+
+    public function completeHtml() : Void {
+        text_to_insert.insert(0,"<html>
+<meta charset='utf-8'>
+<head>
+<style TYPE='text/css'>
+");
+        text_to_insert.insert(1,sampleCss());
+        text_to_insert.insert(2,"</style>
+</head>
+<body>
+<div class='highlighter'>
+");
+        text_to_insert.push("</div>
+</body>
+</html>
+");
     }
 }
 

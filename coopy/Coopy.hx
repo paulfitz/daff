@@ -104,12 +104,16 @@ class Coopy {
         } else {
             txt = haxe.Json.stringify(jsonify(t));
         }
+        return saveText(name,txt);
+    }
+
+    private function saveText(name: String, txt: String) : Bool {
         if (name!="-") {
             io.saveContent(name,txt);
         } else {
             io.writeStdout(txt);
         }
-        return true;
+        return true;        
     }
 
     private static function cellFor(x: Dynamic) : Dynamic {
@@ -190,26 +194,39 @@ class Coopy {
 
         var more : Bool = true;
         var output : String = null;
+        var css_output : String = null;
+        var fragment : Bool = false;
         while (more) {
             more = false;
             for (i in 0...args.length) {
-                if (args[i]=="--output") {
+                var tag : String = args[i];
+                if (tag=="--output") {
                     more = true;
                     output = args[i+1];
                     args.splice(i,2);
                     break;
+                } else if (tag=="--css") {
+                    more = true;
+                    fragment = true;
+                    css_output = args[i+1];
+                    args.splice(i,2);
+                } else if (tag=="--fragment") {
+                    more = true;
+                    fragment = true;
+                    args.splice(i,1);
                 }
             }
         }
         var cmd : String = args[0];
         
-        if (args.length < 2 || (!Lambda.has(["diff","patch","trim"],cmd))) {
+        if (args.length < 2 || (!Lambda.has(["diff","patch","trim","render"],cmd))) {
             io.writeStderr("Call coopyhx as:\n");
             io.writeStderr("  coopyhx diff [--output OUTPUT.csv] a.csv b.csv\n");
             io.writeStderr("  coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
             io.writeStderr("  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv\n");
             io.writeStderr("  coopyhx trim [--output OUTPUT.csv] source.csv\n");
+            io.writeStderr("  coopyhx render [--output OUTPUT.html] [--css CSS.css] [--fragment] diff.csv\n");
             return 1;
         }
         if (output == null) {
@@ -244,6 +261,16 @@ class Coopy {
             tool.saveTable(output,a);
         } else if (cmd=="trim") {
             tool.saveTable(output,a);
+        } else if (cmd=="render") {
+            var renderer : DiffRender = new DiffRender();
+            renderer.render(a);
+            if (!fragment) {
+                renderer.completeHtml();
+            }
+            tool.saveText(output,renderer.html());
+            if (css_output!=null) {
+                tool.saveText(css_output,renderer.sampleCss());
+            }
         }
         return 0;
     }
