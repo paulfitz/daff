@@ -1,5 +1,6 @@
 var assert = require('assert');
 var coopy = require('coopyhx');
+var fs = require('fs');
 
 function order_asserts(order,lst) {
     var lst2 = order.getList();
@@ -61,6 +62,10 @@ function bi_round_trip(t1,t2,msg) {
     round_trip(t2,t1,msg + " (reversed)");
 }
 
+function readCsv(fname) {
+    var txt = fs.readFileSync(fname,"utf8");
+    return new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
+}
 
 
 exports.align_assert = align_assert;
@@ -68,5 +73,6 @@ exports.align_asserts = align_asserts;
 exports.order_asserts = order_asserts;
 exports.round_trip = round_trip;
 exports.bi_round_trip = bi_round_trip;
+exports.readCsv = readCsv;
 
 

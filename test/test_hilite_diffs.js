@@ -22,6 +22,8 @@ var tester = require('tester');
     var quote_me2 = new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
     txt = fs.readFileSync("data/bridges.csv","utf8");
     var bridges = new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
+    txt = fs.readFileSync("data/broken_bridges.csv","utf8");
+    var broken_bridges = new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
 
     {
 	var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
@@ -43,8 +45,8 @@ var tester = require('tester');
 	td.hilite(output);
     }
 
-    var tables = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, quote_me, quote_me2, bridges];
-    var names = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", "t12", "quote_me", "quote_me2", "bridges"];
+    var tables = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, quote_me, quote_me2, bridges, broken_bridges];
+    var names = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", "t12", "quote_me", "quote_me2", "bridges", "broken_bridges"];
     for (var i=0; i<bridges.get_width(); i++) {
 	var t = bridges.clone();
 	new coopy.TableModifier(t).removeColumn(i);

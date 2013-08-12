@@ -176,11 +176,11 @@ class DiffRender {
   background-color: #ff7f7f;
 }
 
-.highlighter .modify { 
+.highlighter td.modify { 
   background-color: #7f7fff;
 }
 
-.highlighter .conflict { 
+.highlighter td.conflict { 
   background-color: #f00;
 }
 
