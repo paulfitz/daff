@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
 var coopy = require("coopyhx");
-var fs =  require('fs');
+var fs = require('fs');
+var readline = null;
 
 var tio = {}
 
 tio.getContent = function(name) {
+    if (name=="-") {
+	// only works on Linux, all other solutions seem broken
+	return fs.readFileSync('/dev/stdin',"utf8");
+    }
     return fs.readFileSync(name,"utf8");
 }
 
