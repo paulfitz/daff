@@ -196,6 +196,7 @@ class Coopy {
         var output : String = null;
         var css_output : String = null;
         var fragment : Bool = false;
+        var pretty : Bool = true;
         while (more) {
             more = false;
             for (i in 0...args.length) {
@@ -214,6 +215,10 @@ class Coopy {
                     more = true;
                     fragment = true;
                     args.splice(i,1);
+                } else if (tag=="--plain") {
+                    more = true;
+                    pretty = false;
+                    args.splice(i,1);
                 }
             }
         }
@@ -226,7 +231,7 @@ class Coopy {
             io.writeStderr("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
             io.writeStderr("  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv\n");
             io.writeStderr("  coopyhx trim [--output OUTPUT.csv] source.csv\n");
-            io.writeStderr("  coopyhx render [--output OUTPUT.html] [--css CSS.css] [--fragment] diff.csv\n");
+            io.writeStderr("  coopyhx render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
             return 1;
         }
         if (output == null) {
@@ -263,6 +268,7 @@ class Coopy {
             tool.saveTable(output,a);
         } else if (cmd=="render") {
             var renderer : DiffRender = new DiffRender();
+            renderer.usePrettyArrows(pretty);
             renderer.render(a);
             if (!fragment) {
                 renderer.completeHtml();

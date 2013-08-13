@@ -8,10 +8,16 @@ class DiffRender {
     private var td_open : String;
     private var td_close : String;
     private var open : Bool;
+    private var pretty_arrows: Bool;
 
     public function new() : Void {
         text_to_insert = new Array<String>();
         open = false;
+        pretty_arrows = true;
+    }
+
+    public function usePrettyArrows(flag: Bool) : Void {
+        pretty_arrows = flag;
     }
 
     private function insert(str: String) : Void {
@@ -160,7 +166,8 @@ class DiffRender {
                             (change_row>=0)?tt.getCellText(c,change_row):"",
                             txt,
                             cell);
-                render.insertCell(cell.pretty_value,cell.category_given_tr);
+                render.insertCell(pretty_arrows?cell.pretty_value:cell.value,
+                                  cell.category_given_tr);
             }
             render.endRow();
         }
