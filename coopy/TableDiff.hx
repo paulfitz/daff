@@ -6,6 +6,8 @@ package coopy;
 class TableDiff {
     private var align : Alignment;
     private var flags : CompareFlags;
+    private var l_prev : Int;
+    private var r_prev : Int;
 
     public function new(align: Alignment, flags: CompareFlags) {
         this.align = align;
@@ -64,6 +66,50 @@ class TableDiff {
             str = "_" + str;
         }
         return str;
+    }
+
+    private function isReordered(m: Map<Int,Unit>, ct: Int) : Bool {
+        var reordered : Bool = false;
+        var l : Int = -1;
+        var r : Int = -1;
+        for (i in 0...ct) {
+            var unit : Unit = m.get(i);
+            if (unit==null) continue;
+            if (unit.l>=0) {
+                if (unit.l<l) {
+                    reordered = true;
+                    break;
+                }
+                l = unit.l;
+            }
+            if (unit.r>=0) {
+                if (unit.r<r) {
+                    reordered = true;
+                    break;
+                }
+                r = unit.r;
+            }
+        }
+        return reordered;
+    }
+
+    private function reportUnit(unit: Unit) : String {
+        var txt : String = unit.toString();
+        var reordered : Bool = false;
+        if (unit.l>=0) {
+            if (unit.l<l_prev) {
+                reordered = true;
+            }
+            l_prev = unit.l;
+        }
+        if (unit.r>=0) {
+            if (unit.r<r_prev) {
+                reordered = true;
+            }
+            r_prev = unit.r;
+        }
+        if (reordered) txt = "[" + txt + "]";
+        return txt;
     }
 
     public function hilite(output: Table) : Bool { 
@@ -171,6 +217,9 @@ class TableDiff {
             }
         }
 
+        var show_rc_numbers : Bool = false;
+
+        // If we are dropping unchanged rows, we repeat this loop twice.
         for (out in 0...outer_reps_needed) {
             if (out==1) {
                 var del : Int = flags.unchanged_context;
@@ -206,14 +255,35 @@ class TableDiff {
                 }
             }
             var showed_dummy : Bool = false;
+            var l : Int = -1;
+            var r : Int = -1;
             for (i in 0...units.length) {
                 var unit : Unit = units[i];
-                
+                var reordered : Bool = false;
+
+                if (flags.ordered) {
+                    if (unit.l>=0) {
+                        if (unit.l<l) {
+                            reordered = true;
+                        }
+                        l = unit.l;
+                    }
+                    if (unit.r>=0) {
+                        if (unit.r<r) {
+                            reordered = true;
+                        }
+                        r = unit.r;
+                    }
+                    if (reordered) show_rc_numbers = true;
+                }
+
                 if (unit.r<0 && unit.l<0) continue;
                 
                 if (unit.r==0 && unit.lp()==0 && top_line_done) continue;
 
                 var act : String = "";
+
+                if (reordered) act = ":";
 
                 var publish : Bool = flags.show_unchanged;
                 var dummy : Bool = false;
@@ -325,7 +395,9 @@ class TableDiff {
                         txt = quoteForDiff(v,dd);
                         // modification: x -> y
                         if (sep=="") {
-                            sep = getSeparator(a,null,"->");
+                            // strictly speaking getSeparator(a,null,..)
+                            // would be ok - but very confusing
+                            sep = getSeparator(a,b,"->");
                         }
                         var is_conflict : Bool = false;
                         if (have_dd_to_alt) {
@@ -373,27 +445,43 @@ class TableDiff {
                 }
             }
         }
-        // add row/col numbers
-        if (flags.show_rc_numbers) {
+
+        // add row/col numbers?
+        if (!show_rc_numbers) {
+            if (flags.always_show_order) {
+                show_rc_numbers = true;
+            } else if (flags.ordered) {
+                show_rc_numbers = isReordered(row_map,output.height);
+                if (!show_rc_numbers) {
+                    show_rc_numbers = isReordered(col_map,output.width);
+                }
+            }
+        }
+
+        if (show_rc_numbers&&!flags.never_show_order) {
             var target : Array<Int> = new Array<Int>();
             for (i in 0...output.width) {
                 target.push(i+1);
             }
             output.insertOrDeleteColumns(target,output.width+1);
+            l_prev = -1;
+            r_prev = -1;
             for (i in 0...output.height) {
                 var unit : Unit = row_map.get(i);
                 if (unit==null) continue;
-                output.setCell(0,i,unit.toString());
+                output.setCell(0,i,reportUnit(unit));
             }
             target = new Array<Int>();
             for (i in 0...output.height) {
                 target.push(i+1);
             }
             output.insertOrDeleteRows(target,output.height+1);
+            l_prev = -1;
+            r_prev = -1;
             for (i in 1...output.width) {
                 var unit : Unit = col_map.get(i-1);
                 if (unit==null) continue;
-                output.setCell(i,0,unit.toString());
+                output.setCell(i,0,reportUnit(unit));
             }
             output.setCell(0,0,"@:@");
         }

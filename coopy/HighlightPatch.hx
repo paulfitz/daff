@@ -4,56 +4,69 @@ package coopy;
 
 @:expose
 class HighlightPatch implements Row {
-    private var source : Table;
-    private var patch : Table;
-    private var currentRow : Int;
-    private var payloadCol : Int;
-    private var payloadTop : Int;
-    private var view : View;
-    private var header : Map<Int,String>;
-    private var headerPre : Map<String,Int>;
-    private var headerPost : Map<String,Int>;
-    private var headerRename : Map<String,String>;
-    private var modifier : Map<Int,String>;
-    private var indexes : Array<IndexPair>;
-    private var sourceInPatch : Map<Int,Int>;
-    private var patchInSource : Map<Int,Int>;
-    private var mods : Array<HighlightPatchUnit>;
-    private var cmods : Array<HighlightPatchUnit>;
-    private var haveSourceColumns : Bool;
-    private var actCache : String;
-    private var actBaseCache : String;
-    private var actIsUpdate : Bool;
-    private var actIsConflicted : Bool;
-    private var csv : Csv;
-    private var off : Int;
+
+    private var source : Table; // table to patch (src)
+    private var patch : Table;  // table containing patch
+
+    private var view : View;    // cached view for patch
+    private var csv : Csv;      // cached cell parser
+
+    private var header : Map<Int,String>;            // (col -> name) in patch
+    private var headerPre : Map<String,Int>;         // (name -> col) in src
+    private var headerPost : Map<String,Int>;        // (name -> col) in dest
+    private var headerRename : Map<String,String>;   // (name -> name)
+
+    private var modifier : Map<Int,String>;          // (col -> modifier) patch
+
+    private var currentRow : Int; // current row of patch being evaluated
+
+    private var payloadCol : Int; // first column of data in patch
+    private var payloadTop : Int; // number of columns in patch
+
+    private var mods : Array<HighlightPatchUnit>;  // row modification list
+    private var cmods : Array<HighlightPatchUnit>; // column modification list
+
+    private var rowInfo : CellInfo;  // information gleaned from action column
+    private var cellInfo : CellInfo; // information gleaned from current cell
+
+    private var rcOffset : Int; // offset for row/column information
+
+    private var indexes : Array<IndexPair>; // cached indexes for querying src
+    private var sourceInPatch : Map<Int,Int>; // (src col -> patch col)
+    private var patchInSource : Map<Int,Int>; // (patch col -> src col)
 
     public function new(source: Table, patch: Table) {
         this.source = source;
         this.patch = patch;
+        view = patch.getCellView();
+    }
+     
+    public function reset() : Void {
         header = new Map<Int,String>();
         headerPre = new Map<String,Int>();
         headerPost = new Map<String,Int>();
         headerRename = new Map<String,String>();
         modifier = new Map<Int,String>();
-        sourceInPatch = new Map<Int,Int>();
-        patchInSource = new Map<Int,Int>();
         mods = new Array<HighlightPatchUnit>();
         cmods = new Array<HighlightPatchUnit>();
-        haveSourceColumns = false;
-        actCache = "";
-        actBaseCache = "";
-        actIsUpdate = false;
-        actIsConflicted = false;
         csv = new Csv();
-        off = 0;
+        rcOffset = 0;
+        currentRow = -1;
+        rowInfo = new CellInfo();
+        cellInfo = new CellInfo();
+
+        sourceInPatch = patchInSource = null;
+        indexes = null;
     }
 
     public function apply() : Bool {
+        reset();
         if (patch.width<2) return true;
         if (patch.height<1) return true;
+        payloadCol = 1+rcOffset;
+        payloadTop = patch.width;
         var corner : String = patch.getCellView().toString(patch.getCell(0,0));
-        off = (corner=="@:@") ? 1 : 0;
+        rcOffset = (corner=="@:@") ? 1 : 0;
         for (r in 0...patch.height) {
             applyRow(r);
         }
@@ -63,7 +76,10 @@ class HighlightPatch implements Row {
     }
 
     private function needSourceColumns() : Void {
-        if (haveSourceColumns) return;
+        if (sourceInPatch!=null) return;
+        sourceInPatch = new Map<Int,Int>();
+        patchInSource = new Map<Int,Int>();
+
         // make sure we know where source columns are
         var av : View = source.getCellView();
         for (i in 0...source.width) {
@@ -73,7 +89,6 @@ class HighlightPatch implements Row {
             sourceInPatch.set(i,at);
             patchInSource.set(at,i);  // needs tweak for add/rems
         }
-        haveSourceColumns = true;
     }
 
     private function needSourceIndex() : Void {
@@ -91,20 +106,27 @@ class HighlightPatch implements Row {
 
     private function applyRow(r: Int) : Void {
         currentRow = r;
-        payloadCol = 1+off;
-        payloadTop = patch.width;
-        view = patch.getCellView();
-        var dcode : Dynamic = patch.getCell(off,r);
-        var code : String = view.toString(dcode);
-        if (r==0 && off>0) {
-            // skip index row
+        var code : String = view.toString(patch.getCell(rcOffset,r));
+        /*
+        if (rcOffset>0) {
+            var rows : String = view.toString(patch.getCell(0,r));
+            if (rows!=null) {
+                if (rows.charAt(0) == '[') {
+                    wasMoved = getContextRow();
+                    trace("**** " + rows + " " + wasMoved + " ****");
+                }
+            }
+        }
+        */
+        if (r==0 && rcOffset>0) {
+            // skip rc row if present
         } else if (code=="@@") {
             applyHeader();
         } else if (code=="+++") {
             applyInsert();
         } else if (code=="---") {
             applyDelete();
-        } else if (code=="+") {
+        } else if (code=="+"||code==":") {
             applyPad();
         } else if (code=="!") {
             applyMeta();
@@ -129,6 +151,7 @@ class HighlightPatch implements Row {
             modifier.set(i,name);
         }
     }
+
     private function applyHeader() : Void {
         for (i in payloadCol...payloadTop) {
             var name : String = getString(i);
@@ -161,14 +184,12 @@ class HighlightPatch implements Row {
        mods.push(mod);
     }
 
-    private function applyInsert() : Void {
-        needSourceIndex();
-        var mod : HighlightPatchUnit = new HighlightPatchUnit();
-        mod.add = true;
+    private function getContextRow() : Int {
         var prev : Int = -1;
-        var cont : Bool = false;
+        needSourceIndex();
         if (currentRow>0) {
-            if (view.equals(patch.getCell(off,currentRow),patch.getCell(off,currentRow-1))) {
+            // this next line looks odd, what was it supposed to do?
+            if (view.equals(patch.getCell(rcOffset,currentRow),patch.getCell(rcOffset,currentRow-1))) {
                 prev = -2;
             } else {
                 currentRow--;
@@ -177,10 +198,16 @@ class HighlightPatch implements Row {
             }
         }
         if (prev==-2) {
-            mod.sourceRow = mods[mods.length-1].sourceRow;
-        } else {
-            mod.sourceRow = prev+1; //(prev<0)?prev:(prev+1);
+            return mods[mods.length-1].sourceRow;
         }
+        return prev+1;
+    }
+
+    private function applyInsert() : Void {
+        needSourceIndex();
+        var mod : HighlightPatchUnit = new HighlightPatchUnit();
+        mod.add = true;
+        mod.sourceRow = getContextRow();
         mod.patchRow = currentRow;
         mods.push(mod);
     }
@@ -217,25 +244,20 @@ class HighlightPatch implements Row {
     }
 
     private function checkAct() : Void {
-        var act : String = getString(off);
-        if (act!=actCache) {
-            actCache = act;
-            actIsUpdate = actCache.indexOf("->")>=0;
-            actIsConflicted = actCache.indexOf("!")>=0;
-            if (actIsConflicted) {
-                actBaseCache = actCache.split("!")[1];
-            } else {
-                actBaseCache = actCache;
-            }
+        var act : String = getString(rcOffset);
+
+        if (rowInfo.value != act) {
+            DiffRender.examineCell(0,0,act,"",act,"",rowInfo);
         }
     }
 
     private function getPreString(txt: String) : String {
         checkAct();
-        if (!actIsUpdate) return txt;
-        if (!actIsConflicted) return txt.split(actCache)[0];
-        if (txt.indexOf(actCache)>=0) return txt.split(actCache)[0];
-        return txt.split(actBaseCache)[0];
+
+        if (!rowInfo.updated) return txt;
+        DiffRender.examineCell(0,0,txt,"",rowInfo.value,"",cellInfo);
+        if (!cellInfo.updated) return txt;
+        return cellInfo.lvalue;
     }
 
     public function getRowString(c: Int) : String {
@@ -244,11 +266,22 @@ class HighlightPatch implements Row {
         return getPreString(getString(at));
     }
 
+    private function sortMods(a: HighlightPatchUnit,b: HighlightPatchUnit) {
+        // Sort by sourceRow
+        // Then by patchRow
+        if (a.sourceRow==-1 && b.sourceRow!=-1) return 1; 
+        if (a.sourceRow!=-1 && b.sourceRow==-1) return -1; 
+        if (a.sourceRow>b.sourceRow) return 1; 
+        if (a.sourceRow<b.sourceRow) return -1; 
+        if (a.patchRow>b.patchRow) return 1; 
+        if (a.patchRow<b.patchRow) return -1; return 0;
+    }
+
+    // This works out rows/cols to add or delete or move
     private function processMods(rmods : Array<HighlightPatchUnit>,
                                  fate: Array<Int>,
                                  len: Int) : Int {
-        var sorter = function(a,b) { if (a.sourceRow==-1 && b.sourceRow!=-1) return 1; if (a.sourceRow!=-1 && b.sourceRow==-1) return -1; if (a.sourceRow>b.sourceRow) return 1; if (a.sourceRow<b.sourceRow) return -1; if (a.patchRow>b.patchRow) return 1; if (a.patchRow<b.patchRow) return -1; return 0; }
-        mods.sort(sorter);
+        mods.sort(sortMods);
         var offset : Int = 0;
         var last : Int = 0;
         var target : Int = 0;
@@ -265,11 +298,11 @@ class HighlightPatch implements Row {
                 fate.push(-1);
                 offset--;
             } else if (mod.add) {
-                mod.sourceRow2 = target;
+                mod.destRow = target;
                 target++;
                 offset++;
             } else {
-                mod.sourceRow2 = target;
+                mod.destRow = target;
             }
             if (mod.sourceRow>=0) {
                 last = mod.sourceRow;
@@ -295,14 +328,14 @@ class HighlightPatch implements Row {
         var len : Int = processMods(mods,fate,source.height);
         source.insertOrDeleteRows(fate,len);
         for (mod in mods) {
+            //trace("Revisiting " + mod);
             if (!mod.rem) {
-                //trace("Revisiting " + mod);
                 if (mod.add) {
                     for (c in headerPost) {
                         var offset : Int = patchInSource.get(c);
                         if (offset>=0) {
                             source.setCell(offset,
-                                           mod.sourceRow2,
+                                           mod.destRow,
                                            patch.getCell(c,mod.patchRow));
                         }
                     }
@@ -310,20 +343,16 @@ class HighlightPatch implements Row {
                     // update
                     currentRow = mod.patchRow;
                     checkAct();
-                    if (!actIsUpdate) continue;
+                    if (!rowInfo.updated) continue;
                     for (c in headerPre) {
                         
                         var txt : String = view.toString(patch.getCell(c,mod.patchRow));
-                        var at : Int = txt.indexOf(actBaseCache);
-                        if (at<0) continue;
-                        if (actIsConflicted) {
-                            var at2 : Int = txt.indexOf(actCache);
-                            if (at2>=0) continue; // skip conflicted element
-                        }
-                        txt = txt.substr(at+actBaseCache.length);
-                        var d : Dynamic = view.toDatum(csv.parseSingleCell(txt));
+                        DiffRender.examineCell(0,0,txt,"",rowInfo.value,"",cellInfo);
+                        if (!cellInfo.updated) continue;
+                        if (cellInfo.conflicted) continue; // skip conflicted
+                        var d : Dynamic = view.toDatum(csv.parseSingleCell(cellInfo.rvalue));
                         source.setCell(patchInSource.get(c),
-                                       mod.sourceRow2,
+                                       mod.destRow,
                                        d);
                     }
                 }
@@ -373,21 +402,21 @@ class HighlightPatch implements Row {
         for (cmod in cmods) {
             if (!cmod.rem) {
                 if (cmod.add) {
-                    //trace("Should fill in " + cmod.sourceRow2 + " from " +
+                    //trace("Should fill in " + cmod.destRow + " from " +
                     //    cmod.patchRow);
                     // we're not ready yet, but at least pop in
                     // column name
                     for (mod in mods) {
-                        if (mod.patchRow!=-1 && mod.sourceRow2!=-1) {
+                        if (mod.patchRow!=-1 && mod.destRow!=-1) {
                             var d : Dynamic = patch.getCell(cmod.patchRow,
                                                             mod.patchRow);
-                            source.setCell(cmod.sourceRow2,
-                                           mod.sourceRow2,
+                            source.setCell(cmod.destRow,
+                                           mod.destRow,
                                            d);
                         }
                     }
                     var hdr : String = header.get(cmod.patchRow);
-                    source.setCell(cmod.sourceRow2,
+                    source.setCell(cmod.destRow,
                                    0,
                                    view.toDatum(hdr));
                 }

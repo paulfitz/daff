@@ -7,13 +7,17 @@ class CompareFlags {
     public var always_show_header : Bool;
     public var show_unchanged : Bool;
     public var unchanged_context : Int;
-    public var show_rc_numbers : Bool;
+    public var always_show_order : Bool;
+    public var never_show_order : Bool;
+    public var ordered : Bool;
 
     public function new() {
         always_show_header = true;
         show_unchanged = false;
         unchanged_context = 1;
-        show_rc_numbers = false;
+        always_show_order = false;
+        never_show_order = true;
+        ordered = true;
     }
 }
 

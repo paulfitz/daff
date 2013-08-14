@@ -15,6 +15,7 @@ var tester = require('tester');
     var t10 = new coopy.CoopyTableView([["Name","Planet"],["Frank","Jupiter"],["John","_NULL"],["Jane","Mercury"]]);
     var t11 = new coopy.CoopyTableView([["Name","Planet"],["Frank","Jupiter"],["John","Pluto but it is not\na planet anymore"],["Jane","Mercury"]]);
     var t12 = new coopy.CoopyTableView([["Planet"],["Jupiter"],["Pluto but it is not\na planet anymore"],["Mercury"]]);
+    var t13 = new coopy.CoopyTableView([["Planet"],["Jupiter"],["Mercury"],["Pluto but it is not\na planet anymore"]]);
 
     var txt = fs.readFileSync("data/quote_me.csv","utf8");
     var quote_me = new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
@@ -45,8 +46,8 @@ var tester = require('tester');
 	td.hilite(output);
     }
 
-    var tables = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, quote_me, quote_me2, bridges, broken_bridges];
-    var names = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", "t12", "quote_me", "quote_me2", "bridges", "broken_bridges"];
+    var tables = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, /*t13,*/ quote_me, quote_me2, bridges, broken_bridges];
+    var names = ["t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "t10", "t11", "t12", /*"t13",*/ "quote_me", "quote_me2", "bridges", "broken_bridges"];
     for (var i=0; i<bridges.get_width(); i++) {
 	var t = bridges.clone();
 	new coopy.TableModifier(t).removeColumn(i);

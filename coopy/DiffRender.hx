@@ -72,15 +72,19 @@ class DiffRender {
     }
 
 
-    private static function examineCell(x: Int,
-                                        y: Int,
-                                        value : String,
-                                        vcol : String,
-                                        vrow : String,
-                                        vcorner : String,
-                                        cell : CellInfo) : Void {
+    public static function examineCell(x: Int,
+                                       y: Int,
+                                       value : String,
+                                       vcol : String,
+                                       vrow : String,
+                                       vcorner : String,
+                                       cell : CellInfo) : Void {
         cell.category = "";
         cell.category_given_tr = "";
+        cell.separator = "";
+        cell.conflicted = false;
+        cell.updated = false;
+        cell.pvalue = cell.lvalue = cell.rvalue = null;
         cell.value = value;
         if (cell.value==null) cell.value = "";
         cell.pretty_value = cell.value;
@@ -117,10 +121,18 @@ class DiffRender {
                         if (cell.value.indexOf(full)>=0) {
                             div = full;
                             cat = "conflict";
+                            cell.conflicted = true;
                         }
                     }
-                    cell.pretty_value = cell.pretty_value.split(div).join(String.fromCharCode(8594));
+                    cell.updated = true;
+                    cell.separator = div;
+                    tokens = cell.pretty_value.split(div);
+                    cell.pretty_value = tokens.join(String.fromCharCode(8594));
                     cell.category_given_tr = cell.category = cat;
+                    var offset : Int = cell.conflicted?1:0;
+                    cell.lvalue = tokens[offset];
+                    cell.rvalue = tokens[offset+1];
+                    if (cell.conflicted) cell.pvalue = tokens[0];
                 }
             }
         }
