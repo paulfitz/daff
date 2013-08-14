@@ -76,26 +76,6 @@ class SimpleTable implements Table {
         data = new Map<Int,Dynamic>();
     }
 
-    /*
-    public function deleteRows(y: Int, ct: Int) : Bool {
-        if (ct<=0) return true;
-        var data2 : Map<Int,Datum> = new Map<Int,Datum>();
-        var offset : Int = ct*w;
-        var start : Int = y*w;
-        var end : Int = (y+ct)*w;
-        for (k in data.keys()) {
-            if (k<start) {
-                data2.set(k,data.get(k));
-            } else if (k>=end) {
-                data2.set(k-offset,data.get(k));
-            }
-        }
-        data = data2;
-        h -= ct;
-        return true;
-    }
-    */
-
     public function insertOrDeleteRows(fate: Array<Int>, hfate: Int) : Bool {
         var data2 : Map<Int,Dynamic> = new Map<Int,Dynamic>();
         for (i in 0...fate.length) {

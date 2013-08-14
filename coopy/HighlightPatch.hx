@@ -25,7 +25,8 @@ class HighlightPatch implements Row {
     private var actBaseCache : String;
     private var actIsUpdate : Bool;
     private var actIsConflicted : Bool;
-    private var csv: Csv;
+    private var csv : Csv;
+    private var off : Int;
 
     public function new(source: Table, patch: Table) {
         this.source = source;
@@ -45,10 +46,14 @@ class HighlightPatch implements Row {
         actIsUpdate = false;
         actIsConflicted = false;
         csv = new Csv();
+        off = 0;
     }
 
     public function apply() : Bool {
         if (patch.width<2) return true;
+        if (patch.height<1) return true;
+        var corner : String = patch.getCellView().toString(patch.getCell(0,0));
+        off = (corner=="@:@") ? 1 : 0;
         for (r in 0...patch.height) {
             applyRow(r);
         }
@@ -86,12 +91,14 @@ class HighlightPatch implements Row {
 
     private function applyRow(r: Int) : Void {
         currentRow = r;
-        payloadCol = 1;
+        payloadCol = 1+off;
         payloadTop = patch.width;
         view = patch.getCellView();
-        var dcode : Dynamic = patch.getCell(0,r);
+        var dcode : Dynamic = patch.getCell(off,r);
         var code : String = view.toString(dcode);
-        if (code=="@@") {
+        if (r==0 && off>0) {
+            // skip index row
+        } else if (code=="@@") {
             applyHeader();
         } else if (code=="+++") {
             applyInsert();
@@ -161,7 +168,7 @@ class HighlightPatch implements Row {
         var prev : Int = -1;
         var cont : Bool = false;
         if (currentRow>0) {
-            if (view.equals(patch.getCell(0,currentRow),patch.getCell(0,currentRow-1))) {
+            if (view.equals(patch.getCell(off,currentRow),patch.getCell(off,currentRow-1))) {
                 prev = -2;
             } else {
                 currentRow--;
@@ -210,7 +217,7 @@ class HighlightPatch implements Row {
     }
 
     private function checkAct() : Void {
-        var act : String = getString(0);
+        var act : String = getString(off);
         if (act!=actCache) {
             actCache = act;
             actIsUpdate = actCache.indexOf("->")>=0;

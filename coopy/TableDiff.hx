@@ -71,6 +71,9 @@ class TableDiff {
         output.resize(0,0);
         output.clear();
 
+        var row_map : Map<Int,Unit> = new Map<Int,Unit>();
+        var col_map : Map<Int,Unit> = new Map<Int,Unit>();
+
         var order : Ordering = align.toOrder();
         var units : Array<Unit> = order.getList();
         var has_parent : Bool = (align.reference != null);
@@ -156,6 +159,7 @@ class TableDiff {
                                        a.getCell(cunit.lp(),ra_header));
                     }
                 }
+                col_map.set(j+1,cunit);
             }
             top_line_done = true;
         }
@@ -356,7 +360,10 @@ class TableDiff {
                     }
                 }
 
-                if (publish) output.setCell(0,at,v.toDatum(act));
+                if (publish) {
+                    output.setCell(0,at,v.toDatum(act));
+                    row_map.set(at,unit);
+                }
                 if (act!="") {
                     if (!publish) {
                         if (active!=null) {
@@ -365,6 +372,30 @@ class TableDiff {
                     }
                 }
             }
+        }
+        // add row/col numbers
+        if (flags.show_rc_numbers) {
+            var target : Array<Int> = new Array<Int>();
+            for (i in 0...output.width) {
+                target.push(i+1);
+            }
+            output.insertOrDeleteColumns(target,output.width+1);
+            for (i in 0...output.height) {
+                var unit : Unit = row_map.get(i);
+                if (unit==null) continue;
+                output.setCell(0,i,unit.toString());
+            }
+            target = new Array<Int>();
+            for (i in 0...output.height) {
+                target.push(i+1);
+            }
+            output.insertOrDeleteRows(target,output.height+1);
+            for (i in 1...output.width) {
+                var unit : Unit = col_map.get(i-1);
+                if (unit==null) continue;
+                output.setCell(i,0,unit.toString());
+            }
+            output.setCell(0,0,"@:@");
         }
         return true;
     }

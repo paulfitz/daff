@@ -77,6 +77,7 @@ class DiffRender {
                                         value : String,
                                         vcol : String,
                                         vrow : String,
+                                        vcorner : String,
                                         cell : CellInfo) : Void {
         cell.category = "";
         cell.category_given_tr = "";
@@ -129,29 +130,38 @@ class DiffRender {
                                       x: Int,
                                       y: Int) : CellInfo {
         var cell : CellInfo = new CellInfo();
+        var corner : String = tt.getCellText(0,0);
+        var off : Int = (corner=="@:@") ? 1 : 0;
+
         examineCell(x,
                     y,
                     tt.getCellText(x,y),
-                    tt.getCellText(x,0),
-                    tt.getCellText(0,y),
+                    tt.getCellText(x,off),
+                    tt.getCellText(off,y),
+                    corner,
                     cell);
         return cell;
     }
 
     public function render(rows: Table) {
+        if (rows.width==0||rows.height==0) return;
         var render : DiffRender = this;
         render.beginTable();
         var change_row : Int = -1;
         var tt : TableText = new TableText(rows);
         var cell : CellInfo = new CellInfo();
+        var corner : String = tt.getCellText(0,0);
+        var off : Int = (corner=="@:@") ? 1 : 0;
+        if (off>0) {
+            if (rows.width<=1||rows.height<=1) return;
+        }
         for (row in 0...rows.height) {
-            if (rows.width==0) continue;
 
             var open : Bool = false;
 
-            var txt : String = tt.getCellText(0,row);
+            var txt : String = tt.getCellText(off,row);
             if (txt==null) txt = "";
-            examineCell(0,row,txt,"",txt,cell);
+            examineCell(0,row,txt,"",txt,corner,cell);
             var row_mode : String = cell.category;
             if (row_mode == "spec") {
                 change_row = row;
@@ -165,6 +175,7 @@ class DiffRender {
                             tt.getCellText(c,row),
                             (change_row>=0)?tt.getCellText(c,change_row):"",
                             txt,
+                            corner,
                             cell);
                 render.insertCell(pretty_arrows?cell.pretty_value:cell.value,
                                   cell.category_given_tr);
