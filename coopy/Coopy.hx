@@ -7,6 +7,9 @@ class Coopy {
     private var format_preference : String;
     private var io : TableIO;
 
+    // just to get code included
+    private var mv : Mover;
+
     public function new() : Void {
     }
 
