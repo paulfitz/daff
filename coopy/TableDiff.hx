@@ -57,11 +57,6 @@ class TableDiff {
             if (str.charCodeAt(score)!='_'.code) break;
             score++;
         }
-        /*
-        if (str.indexOf("NULL")>=0) {
-            trace("Looking at " + str + " got score " + score);
-        }
-        */
         if (str.substr(score)==nil) {
             str = "_" + str;
         }
@@ -187,6 +182,15 @@ class TableDiff {
             }
         }
 
+        var row_moves : Map<Int,Int> = null;
+        if (flags.ordered) {
+            row_moves = new Map<Int,Int>();
+            var moves : Array<Int> = Mover.moveUnits(units);
+            for (i in 0...moves.length) {
+                row_moves[moves[i]] = i;
+            }
+        }
+
         var top_line_done : Bool = false;
         if (flags.always_show_header) {
             var at : Int = output.height;
@@ -262,6 +266,10 @@ class TableDiff {
                 var reordered : Bool = false;
 
                 if (flags.ordered) {
+                    if (row_moves.exists(i)) {
+                        reordered = true;
+                    }
+                    /*
                     if (unit.l>=0) {
                         if (unit.l<l) {
                             reordered = true;
@@ -274,6 +282,7 @@ class TableDiff {
                         }
                         r = unit.r;
                     }
+                    */
                     if (reordered) show_rc_numbers = true;
                 }
 

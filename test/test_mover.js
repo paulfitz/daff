@@ -28,8 +28,14 @@ function shuffle_list(lst) {
 }
 
 function move(x,y) {
-    var m = new coopy.Mover();
-    var result = m.move(x,y);
+    var result = coopy.Mover.moveWithExtras(x,y);
+    result.sort(function(a,b){return a-b;});
+    //console.log(x + " -> " + y + " via " + result);
+    return result;
+}
+
+function move_units(u) {
+    var result = coopy.Mover.moveUnits(u);
     result.sort(function(a,b){return a-b;});
     //console.log(x + " -> " + y + " via " + result);
     return result;
@@ -66,3 +72,21 @@ assert.deepEqual(move(long_list,long_list_shift_right), [len-1]);
 
 move(long_list,long_list2); // should terminate in reasonable time
 
+assert.deepEqual(move([1,2,3],[1,2,4,3]), []);
+assert.deepEqual(move([5,1,2,3],[1,2,4,3]), []);
+assert.deepEqual(move([5,2,3,1],[1,2,4,3]), [1]);
+
+{
+    var t1 = new coopy.CoopyTableView([["Name","Number"],
+				       ["John",14],
+				       ["Sam", 82]]);
+    var t2 = new coopy.CoopyTableView([["Name","Number"],
+				       ["Sam",82],
+				       ["Mary",17],
+				       ["John",15]]);
+    
+    var ct = new coopy.Coopy.compareTables(t1,t2);
+    var align = ct.align();
+    var order = align.toOrder();
+    assert.equal(move_units(order.getList()).length,1);
+}

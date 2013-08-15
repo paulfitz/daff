@@ -8,10 +8,64 @@ class Mover {
     public function new() {
     }
 
-    public function move(src: Array<Int>, dest: Array<Int>) : Array<Int> {
+    static public function moveUnits(units: Array<Unit>) : Array<Int> {
+        var isrc : Array<Int> = new Array<Int>();
+        var idest : Array<Int> = new Array<Int>();
+        var len : Int = units.length;
+        var ltop : Int = -1;
+        var rtop : Int = -1;
+        var in_src : Map<Int,Int> = new Map<Int,Int>();
+        var in_dest : Map<Int,Int> = new Map<Int,Int>();
+        for (i in 0...len) {
+            var unit : Unit = units[i];
+            if (ltop<unit.l) ltop = unit.l;
+            if (rtop<unit.r) rtop = unit.r;
+            in_src[unit.l] = i;
+            in_dest[unit.r] = i;
+        }
+        var v : Null<Int>;
+        for (i in 0...ltop+1) {
+            v = in_src[i];
+            if (v!=null) isrc.push(v);
+        }
+        for (i in 0...rtop+1) {
+            v = in_dest[i];
+            if (v!=null) idest.push(v);
+        }
+        return moveWithExtras(isrc,idest);
+    }
+
+    static public function moveWithExtras(isrc: Array<Int>, idest: Array<Int>) : Array<Int> {
+        // First pass: eliminate non-overlapping elements (inserts+deletes)
+        var len : Int = isrc.length;
+        var len2 : Int = idest.length;
+        var in_src : Map<Int,Int> = new Map<Int,Int>();
+        var in_dest : Map<Int,Int> = new Map<Int,Int>();
+        for (i in 0...len) {
+            in_src[isrc[i]] = i;
+        }
+        for (i in 0...len2) {
+            in_dest[idest[i]] = i;
+        }
+        var src : Array<Int> = new Array<Int>();
+        var dest : Array<Int> = new Array<Int>();
+        var v : Int;
+        for (i in 0...len) {
+            v = isrc[i];
+            if (in_dest.exists(v)) src.push(v);
+        }
+        for (i in 0...len2) {
+            v = idest[i];
+            if (in_src.exists(v)) dest.push(v);
+        }
+
+        return moveWithoutExtras(src,dest);
+    }
+
+    static public function moveWithoutExtras(src: Array<Int>, dest: Array<Int>) : Array<Int> {
         if (src.length!=dest.length) return null;
         if (src.length<=1) return src.copy();
-
+        
         var len : Int = src.length;
         var in_src : Map<Int,Int> = new Map<Int,Int>();
         var blk_len : Map<Int,Int> = new Map<Int,Int>();
@@ -24,8 +78,8 @@ class Mover {
         var in_cursor : Int = -2;
         var out_cursor : Int = 0;
         var next : Int;
-        var v : Int;
         var blk : Int = -1;
+        var v : Int;
         while (out_cursor<len) {
             v = dest[out_cursor];
             next = in_src[v];
