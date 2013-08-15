@@ -30,6 +30,7 @@ function shuffle_list(lst) {
 function move(x,y) {
     var m = new coopy.Mover();
     var result = m.move(x,y);
+    result.sort(function(a,b){return a-b;});
     //console.log(x + " -> " + y + " via " + result);
     return result;
 }
@@ -38,9 +39,12 @@ assert.deepEqual(move([1,2,3],[1,2,3]), []);
 assert.deepEqual(move([1,2,3],[2,3,1]), [1]);
 assert.deepEqual(move([1,2,3],[3,1,2]), [3]);
 assert.deepEqual(move([1,2,3,4],[2,1,4,3]).length, 2);
+assert.deepEqual(move([1,2,3,4,5],[4,5,1,2,3]), [4,5]);
 assert.deepEqual(move([1,2,3,4,5],[5,4,3,2,1]).length, 4);
 assert.deepEqual(move([5,4,3,2,1],[1,2,3,4,5]).length, 4);
 assert.deepEqual(move([1,2,4,3,5],[1,2,3,4,5]).length, 1);
+assert.deepEqual(move([10,11,12,20,22,33,30],
+		      [33,30,20,22,10,11,12]), [20,22,30,33]);
 
 var len = 10000;
 var long_list = [];
