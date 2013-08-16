@@ -10,6 +10,7 @@ class HighlightPatchUnit {
 
     public var sourceRow : Int;  // row in original
     public var sourcePrevRow : Int; // row before this in original
+    public var sourceNextRow : Int; // row after this in original
     public var destRow : Int;    // row in output
     public var patchRow : Int;   // row in patch
     
@@ -19,6 +20,7 @@ class HighlightPatchUnit {
         update = false;
         sourceRow = -1;
         sourcePrevRow = -1;
+        sourceNextRow = -1;
         destRow = -1;
         patchRow = -1;
     }

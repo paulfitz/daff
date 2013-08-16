@@ -36,7 +36,8 @@ class HighlightPatch implements Row {
     private var patchInSourceCol : Map<Int,Int>; // (patch col -> src col)
     private var patchInSourceRow : Map<Int,Int>; // (patch row -> src row)
     private var lastSourceRow : Int;
-    private var lastAction : String;
+    private var actions : Array<String>;
+    private var rowPermutation : Array<Int>;
 
     public function new(source: Table, patch: Table) {
         this.source = source;
@@ -62,7 +63,8 @@ class HighlightPatch implements Row {
         patchInSourceRow = new Map<Int,Int>();
         indexes = null;
         lastSourceRow = -1;
-        lastAction = "";
+        actions = new Array<String>();
+        rowPermutation = null;
     }
 
     public function apply() : Bool {
@@ -74,8 +76,13 @@ class HighlightPatch implements Row {
         var corner : String = patch.getCellView().toString(patch.getCell(0,0));
         rcOffset = (corner=="@:@") ? 1 : 0;
         for (r in 0...patch.height) {
+            var str : String = view.toString(patch.getCell(rcOffset,r));
+            actions.push((str!=null)?str:"");
+        }
+        for (r in 0...patch.height) {
             applyRow(r);
         }
+        permuteRows();
         finishRows();
         finishColumns();
         return true;
@@ -112,7 +119,7 @@ class HighlightPatch implements Row {
 
     private function applyRow(r: Int) : Void {
         currentRow = r;
-        var code : String = view.toString(patch.getCell(rcOffset,r));
+        var code : String = actions[r];
         if (r==0 && rcOffset>0) {
             // skip rc row if present
         } else if (code=="@@") {
@@ -129,7 +136,6 @@ class HighlightPatch implements Row {
         } else if (code.indexOf("->")>=0) {
             applyAction("->");
         }
-        lastAction = code;
     }
 
     private function getDatum(c: Int) : Dynamic {
@@ -176,7 +182,7 @@ class HighlightPatch implements Row {
         if (at!=null) return at;
         var result : Int = -1;
         currentRow += del;
-        if (currentRow>=0) {
+        if (currentRow>=0 && currentRow<patch.height) {
             for (idx in indexes) {
                 var match : CrossMatch = idx.queryByContent(this);
                 if (match.spot_a != 1) continue;
@@ -196,14 +202,20 @@ class HighlightPatch implements Row {
         mod.update = (code == "->");
         needSourceIndex();
         mod.sourcePrevRow = lastSourceRow;
+        if (actions[currentRow+1]!="+++") {
+            mod.sourceNextRow = lookUp(1);
+        }
         if (mod.add) {
-            if (lastAction!="+++") {
+            if (actions[currentRow-1]!="+++") {
                 mod.sourcePrevRow = lookUp(-1);
             }
             mod.sourceRow = mod.sourcePrevRow;
             if (mod.sourceRow!=-1) mod.sourceRow++;
         } else {
             mod.sourceRow = lastSourceRow = lookUp();
+        }
+        if (actions[currentRow+1]=="") {
+            lastSourceRow = mod.sourceNextRow;
         }
         mod.patchRow = currentRow;
         if (code!="@@") mods.push(mod);
@@ -289,9 +301,71 @@ class HighlightPatch implements Row {
         return len+offset;
     }
 
+
+    private function permuteRows() : Void {
+        // choose a permutation of source rows s.t. mods
+        // can be rewritten to have pretty mod.sourceRow/mod.sourcePrevRow
+        // relationships
+        var ptr : Array<Int> = new Array<Int>();
+        var idx : Array<Int> = new Array<Int>();
+        for (i in 0...source.height) {
+            ptr.push(-1);
+            idx.push(-1);
+        }
+        var ct : Int = 0;
+        for (mod in mods) {
+            if (mod.add||mod.rem) continue;
+            if (mod.sourceRow<0) continue;
+            if (mod.sourcePrevRow>=0) {
+                if (mod.sourcePrevRow+1!=mod.sourceRow) {
+                    //trace("Curr -> Next " + mod.sourcePrevRow + " " + mod.sourceRow + " // " + mod);
+                    ptr[mod.sourcePrevRow] = mod.sourceRow;
+                    ct++;
+                }
+            }
+            if (mod.sourceNextRow>=0) {
+                if (mod.sourceRow+1!=mod.sourceNextRow) {
+                    //trace("Curr -> Next " + mod.sourceRow + " " + mod.sourceNextRow);
+                    ptr[mod.sourceRow] = mod.sourceNextRow;
+                    ct++;
+                }
+            }
+        }
+        //if (ct>0) {
+        //trace("OUT OF ORDER: " + ct);
+        //}
+        if (ct>0) {
+            var cursor : Int = 0;
+            for (i in 0...source.height) {
+                while (idx[cursor]>=0) {
+                    cursor = (cursor + 1) % source.height;
+                }
+                idx[cursor] = i;
+                if (ptr[cursor]!=-1) {
+                    cursor = ptr[cursor];
+                } else {
+                    cursor = (cursor + 1) % source.height;
+                }
+            }
+            rowPermutation = idx;
+            //} else {
+            //for (i in 0...source.height) {
+            //    idx[i] = i;
+            //}
+        }
+        //trace("MAP: " + idx);
+    }
+
     private function finishRows() : Void {
         var fate : Array<Int> = new Array<Int>();
         var len : Int = processMods(mods,fate,source.height);
+        if (rowPermutation!=null) {
+            var pfate : Array<Int> = new Array<Int>();
+            for (i in 0...fate.length) {
+                pfate.push(fate[rowPermutation[i]]);
+            }
+            fate = pfate;
+        }
         source.insertOrDeleteRows(fate,len);
         for (mod in mods) {
             //trace("Revisiting " + mod);
