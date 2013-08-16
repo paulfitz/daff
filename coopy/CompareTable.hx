@@ -168,6 +168,8 @@ class CompareTable {
                 pending_ct--;
             }
         }
+        // we expect headers on row 0 - link them even if quite different.
+        align.link(0,0);
     }
 
     private function alignColumns(align: Alignment, a: Table, b: Table) : Void {

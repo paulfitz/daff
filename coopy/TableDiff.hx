@@ -14,7 +14,6 @@ class TableDiff {
         this.flags = flags;
     }
 
-
     public function getSeparator(t: Table,
                                  t2: Table, root: String) : String {
         var sep : String = root;
@@ -269,20 +268,6 @@ class TableDiff {
                     if (row_moves.exists(i)) {
                         reordered = true;
                     }
-                    /*
-                    if (unit.l>=0) {
-                        if (unit.l<l) {
-                            reordered = true;
-                        }
-                        l = unit.l;
-                    }
-                    if (unit.r>=0) {
-                        if (unit.r<r) {
-                            reordered = true;
-                        }
-                        r = unit.r;
-                    }
-                    */
                     if (reordered) show_rc_numbers = true;
                 }
 

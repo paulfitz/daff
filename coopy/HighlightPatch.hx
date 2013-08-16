@@ -32,8 +32,11 @@ class HighlightPatch implements Row {
     private var rcOffset : Int; // offset for row/column information
 
     private var indexes : Array<IndexPair>; // cached indexes for querying src
-    private var sourceInPatch : Map<Int,Int>; // (src col -> patch col)
-    private var patchInSource : Map<Int,Int>; // (patch col -> src col)
+    private var sourceInPatchCol : Map<Int,Int>; // (src col -> patch col)
+    private var patchInSourceCol : Map<Int,Int>; // (patch col -> src col)
+    private var patchInSourceRow : Map<Int,Int>; // (patch row -> src row)
+    private var lastSourceRow : Int;
+    private var lastAction : String;
 
     public function new(source: Table, patch: Table) {
         this.source = source;
@@ -55,8 +58,11 @@ class HighlightPatch implements Row {
         rowInfo = new CellInfo();
         cellInfo = new CellInfo();
 
-        sourceInPatch = patchInSource = null;
+        sourceInPatchCol = patchInSourceCol = null;
+        patchInSourceRow = new Map<Int,Int>();
         indexes = null;
+        lastSourceRow = -1;
+        lastAction = "";
     }
 
     public function apply() : Bool {
@@ -76,9 +82,9 @@ class HighlightPatch implements Row {
     }
 
     private function needSourceColumns() : Void {
-        if (sourceInPatch!=null) return;
-        sourceInPatch = new Map<Int,Int>();
-        patchInSource = new Map<Int,Int>();
+        if (sourceInPatchCol!=null) return;
+        sourceInPatchCol = new Map<Int,Int>();
+        patchInSourceCol = new Map<Int,Int>();
 
         // make sure we know where source columns are
         var av : View = source.getCellView();
@@ -86,8 +92,8 @@ class HighlightPatch implements Row {
             var name : String = av.toString(source.getCell(i,0));
             var at : Null<Int> = headerPre.get(name);
             if (at == null) continue;
-            sourceInPatch.set(i,at);
-            patchInSource.set(at,i);  // needs tweak for add/rems
+            sourceInPatchCol.set(i,at);
+            patchInSourceCol.set(at,i);  // needs tweak for add/rems
         }
     }
 
@@ -107,32 +113,23 @@ class HighlightPatch implements Row {
     private function applyRow(r: Int) : Void {
         currentRow = r;
         var code : String = view.toString(patch.getCell(rcOffset,r));
-        /*
-        if (rcOffset>0) {
-            var rows : String = view.toString(patch.getCell(0,r));
-            if (rows!=null) {
-                if (rows.charAt(0) == '[') {
-                    wasMoved = getContextRow();
-                    trace("**** " + rows + " " + wasMoved + " ****");
-                }
-            }
-        }
-        */
         if (r==0 && rcOffset>0) {
             // skip rc row if present
         } else if (code=="@@") {
             applyHeader();
-        } else if (code=="+++") {
-            applyInsert();
-        } else if (code=="---") {
-            applyDelete();
-        } else if (code=="+"||code==":") {
-            applyPad();
+            applyAction("@@");
         } else if (code=="!") {
             applyMeta();
+        } else if (code=="+++") {
+            applyAction(code);
+        } else if (code=="---") {
+            applyAction(code);
+        } else if (code=="+"||code==":") {
+            applyAction(code);
         } else if (code.indexOf("->")>=0) {
-            applyUpdate();
+            applyAction("->");
         }
+        lastAction = code;
     }
 
     private function getDatum(c: Int) : Dynamic {
@@ -170,77 +167,46 @@ class HighlightPatch implements Row {
             if (mod!="---") headerPost.set(name,i);
         }
         if (source.height==0) {
-            applyInsert();
+            applyAction("+++");
         }
     }
 
-    private function applyUpdate() : Void {
-       needSourceIndex();
-       var at : Int = lookUp();
-       if (at==-1) return;
-       var mod : HighlightPatchUnit = new HighlightPatchUnit();
-       mod.sourceRow = at;
-       mod.patchRow = currentRow;
-       mods.push(mod);
-    }
-
-    private function getContextRow() : Int {
-        var prev : Int = -1;
-        needSourceIndex();
-        if (currentRow>0) {
-            // this next line looks odd, what was it supposed to do?
-            if (view.equals(patch.getCell(rcOffset,currentRow),patch.getCell(rcOffset,currentRow-1))) {
-                prev = -2;
-            } else {
-                currentRow--;
-                prev = lookUp();
-                currentRow++;
+    private function lookUp(del : Int = 0) : Int {
+        var at : Null<Int> = patchInSourceRow.get(currentRow+del);
+        if (at!=null) return at;
+        var result : Int = -1;
+        currentRow += del;
+        if (currentRow>=0) {
+            for (idx in indexes) {
+                var match : CrossMatch = idx.queryByContent(this);
+                if (match.spot_a != 1) continue;
+                result = match.item_a.lst[0];
+                break;
             }
         }
-        if (prev==-2) {
-            return mods[mods.length-1].sourceRow;
+        patchInSourceRow[currentRow] = result;
+        currentRow -= del;
+        return result;
+    }
+
+    private function applyAction(code : String) : Void {
+        var mod : HighlightPatchUnit = new HighlightPatchUnit();
+        mod.add = (code == "+++");
+        mod.rem = (code == "---");
+        mod.update = (code == "->");
+        needSourceIndex();
+        mod.sourcePrevRow = lastSourceRow;
+        if (mod.add) {
+            if (lastAction!="+++") {
+                mod.sourcePrevRow = lookUp(-1);
+            }
+            mod.sourceRow = mod.sourcePrevRow;
+            if (mod.sourceRow!=-1) mod.sourceRow++;
+        } else {
+            mod.sourceRow = lastSourceRow = lookUp();
         }
-        return prev+1;
-    }
-
-    private function applyInsert() : Void {
-        needSourceIndex();
-        var mod : HighlightPatchUnit = new HighlightPatchUnit();
-        mod.add = true;
-        mod.sourceRow = getContextRow();
         mod.patchRow = currentRow;
-        mods.push(mod);
-    }
-
-    private function lookUp() : Int {
-        for (idx in indexes) {
-            var match : CrossMatch = idx.queryByContent(this);
-            if (match.spot_a != 1) continue;
-            return match.item_a.lst[0];
-        }
-        return -1;
-    }
-
-    private function applyDelete() : Void {
-        needSourceIndex();
-        var at : Int = lookUp();
-        if (at==-1) return;
-        var mod : HighlightPatchUnit = new HighlightPatchUnit();
-        mod.rem = true;
-        mod.sourceRow = at;
-        mod.patchRow = currentRow;
-        mods.push(mod);
-    }
-
-    private function applyPad() : Void {
-        needSourceIndex();
-        var at : Int = lookUp();
-        if (at==-1) return;
-        var mod : HighlightPatchUnit = new HighlightPatchUnit();
-        mod.pad = true;
-        mod.sourceRow = at;
-        mod.patchRow = currentRow;
-        mods.push(mod);
+        if (code!="@@") mods.push(mod);
     }
 
     private function checkAct() : Void {
@@ -261,7 +227,7 @@ class HighlightPatch implements Row {
     }
 
     public function getRowString(c: Int) : String {
-        var at : Null<Int> = sourceInPatch.get(c);
+        var at : Null<Int> = sourceInPatchCol.get(c);
         if (at == null) return "NOT_FOUND"; // should be avoided
         return getPreString(getString(at));
     }
@@ -332,14 +298,14 @@ class HighlightPatch implements Row {
             if (!mod.rem) {
                 if (mod.add) {
                     for (c in headerPost) {
-                        var offset : Int = patchInSource.get(c);
+                        var offset : Int = patchInSourceCol.get(c);
                         if (offset>=0) {
                             source.setCell(offset,
                                            mod.destRow,
                                            patch.getCell(c,mod.patchRow));
                         }
                     }
-                } else if (!(mod.rem||mod.pad)) {
+                } else if (mod.update) {
                     // update
                     currentRow = mod.patchRow;
                     checkAct();
@@ -351,7 +317,7 @@ class HighlightPatch implements Row {
                         if (!cellInfo.updated) continue;
                         if (cellInfo.conflicted) continue; // skip conflicted
                         var d : Dynamic = view.toDatum(csv.parseSingleCell(cellInfo.rvalue));
-                        source.setCell(patchInSource.get(c),
+                        source.setCell(patchInSourceCol.get(c),
                                        mod.destRow,
                                        d);
                     }
@@ -367,7 +333,7 @@ class HighlightPatch implements Row {
             var hdr : String = header.get(i);
             if (mod=="---") {
                 //trace("Should remove column " + hdr);
-                var at : Int = patchInSource.get(i);
+                var at : Int = patchInSourceCol.get(i);
                 var mod : HighlightPatchUnit = new HighlightPatchUnit();
                 mod.rem = true;
                 mod.sourceRow = at;
@@ -383,7 +349,7 @@ class HighlightPatch implements Row {
                     if (modifier.get(i)==modifier.get(i-1)) {
                         prev = -2;
                     } else {
-                        var p : Null<Int> = patchInSource.get(i-1);
+                        var p : Null<Int> = patchInSourceCol.get(i-1);
                         prev = (p==null)?-1:p;
                     }
                 }

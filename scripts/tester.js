@@ -41,11 +41,7 @@ function round_trip(t1,t2,msg) {
     var flags = new coopy.CompareFlags();
     var td = new coopy.TableDiff(align,flags);
     var output = new coopy.CoopyTableView([]);
-    //console.log("***");
-    //console.log(t1);
-    //console.log(t2); 
     td.hilite(output);
-    //console.log(output);
     
     var t1c = t1.clone();
     var patcher = new coopy.HighlightPatch(t1c,output);
