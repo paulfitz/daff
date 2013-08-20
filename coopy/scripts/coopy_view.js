@@ -131,7 +131,7 @@ CoopyTableView.prototype.trimColumns = function() {
 }
 
 CoopyTableView.prototype.getData = function() {
-    return data;
+    return this.data;
 }
 
 CoopyTableView.prototype.clone = function() {
