@@ -235,8 +235,8 @@ class Alignment {
                 // we have a choice of order
                 // local thinks zl should come next
                 // remote thinks zr should come next
-                if (zl==prev+1) {
-                    //trace("left is boring, use right");
+                if (zl==prev+1 || zr!=prev+1) {
+                    //trace("left is boring or right is interesting, use right");
                     if (vr.exists(xr)) {
                         //trace("R xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(ref.a2b(zr),xr,zr);

@@ -136,7 +136,7 @@ class HighlightPatch implements Row {
             applyAction(code);
         } else if (code.indexOf("->")>=0) {
             applyAction("->");
-        } else if (code == "...") {
+        } else {
             lastSourceRow = -1;
         }
     }
@@ -212,9 +212,7 @@ class HighlightPatch implements Row {
         var nextAct : String = actions[currentRow+1];
         if (nextAct!="+++" && nextAct!="...") {
             mod.sourceNextRow = lookUp(1);
-        } else if (nextAct=="...") {
-            mod.sourceNextRow = lookUp()+1;
-        }
+        } 
         if (mod.add) {
             if (actions[currentRow-1]!="+++") {
                 mod.sourcePrevRow = lookUp(-1);
@@ -232,6 +230,7 @@ class HighlightPatch implements Row {
             mod.sourceRow = 0;
         }
         mods.push(mod);
+        //trace("ADDED " + mod);
     }
 
     private function checkAct() : Void {
@@ -324,40 +323,37 @@ class HighlightPatch implements Row {
         for (i in 0...source.height) {
             emit.push(-1);
             idx.push(-1);
-            if (i>0) from_unit[i] = i-1;
-            if (i<source.height-1) to_unit[i] = i+1;
         }
         var ct : Int = 0;
         for (mod in mods) {
             if (mod.add||mod.rem) continue;
             if (mod.sourceRow<0) continue;
             if (mod.sourcePrevRow>=0) {
+                to_unit[mod.sourcePrevRow] = mod.sourceRow;
+                from_unit[mod.sourceRow] = mod.sourcePrevRow;
                 if (mod.sourcePrevRow+1!=mod.sourceRow) {
-                    to_unit[mod.sourcePrevRow] = mod.sourceRow;
-                    from_unit[mod.sourceRow] = mod.sourcePrevRow;
                     ct++;
                 }
-            } else {
-                to_unit.remove(from_unit[mod.sourceRow]);
-                from_unit.remove(mod.sourceRow);
             }
             if (mod.sourceNextRow>=0) {
+
+                to_unit[mod.sourceRow] = mod.sourceNextRow;
+                from_unit[mod.sourceNextRow] = mod.sourceRow;
                 if (mod.sourceRow+1!=mod.sourceNextRow) {
-                    to_unit[mod.sourceRow] = mod.sourceNextRow;
-                    from_unit[mod.sourceNextRow] = mod.sourceRow;
                     ct++;
                 }
-            } else {
-                from_unit.remove(to_unit[mod.sourceRow]);
-                to_unit.remove(mod.sourceRow);
             }
         }
+        
+        /*
         if (ct>0) {
             var txt = "";
             for (i in 0...source.height) {
                 txt = txt + from_unit[i] + ":" + i + ":" + to_unit[i] + " ";
             }
+            trace(txt);
         }
+        */
 
         if (ct>0) {
             var cursor : Null<Int> = 0;
