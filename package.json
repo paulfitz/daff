@@ -1,12 +1,16 @@
 {
   "name": "coopyhx",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Diff and patch tables",
   "url": "https://github.com/paulfitz/coopyhx",
-  "keywords": ["table", "diff", "patch"],
-  "repository" : {
-    "type" : "git",
-    "url" : "git://github.com/paulfitz/coopyhx.git"
+  "keywords": [
+    "table",
+    "diff",
+    "patch"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/paulfitz/coopyhx.git"
   },
   "bugs": {
     "url": "https://github.com/paulfitz/coopyhx/issues"
@@ -16,11 +20,11 @@
     "email": "paul@robotrebuilt.com",
     "url": "http://robotrebuilt.com/people/paulfitz"
   },
-  "scripts" : { 
-    "prepublish" : "make js",
+  "scripts": {
+    "prepublish": "make js",
     "test": "make test"
   },
-  "main" : "coopyhx.js",
-  "license" : "MIT",
-  "bin" : "scripts/coopyhx_util.js"
+  "main": "coopyhx.js",
+  "license": "MIT",
+  "bin": "scripts/coopyhx_util.js"
 }
