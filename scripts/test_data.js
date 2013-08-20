@@ -38,27 +38,41 @@ var bridge_example = {
     ]
 };
 
-var reorder_example = {
-    "key": "order",
-    "parent": [[]],
+var planets_example = {
+    "key": "planets",
+    "parent": [
+	[ "Planet", "Comment" ],
+	[ "Mercury", "So cool" ],
+	[ "Venus", "Total greenhouse" ],
+	[ "Mars", "A bit dry" ],
+	[ "Jupiter", "Roomy" ],
+	[ "Saturn", "Ringy" ],
+	[ "Uranus", "Unfortunately named" ],
+	[ "Neptune", "Sounds damp" ],
+	[ "Pluto", "What about Charon?" ]
+    ],
     "local": [
-	[ "Test" ],
-	[ "1" ],
-	[ "2" ],
-	[ "3" ],
-	[ "4" ],
-	[ "5" ],
-	[ "6" ]
+	[ "Planet", "Comment" ],
+	[ "Mercury", "So cool" ],
+	[ "Venus", "Total greenhouse" ],
+	[ "Mars", "A bit dry" ],
+	[ "Jupiter", "Roomy" ],
+	[ "Saturn", "Ringy" ],
+	[ "Uranus", "Unfortunately named" ],
+	[ "Neptune", "Sounds damp" ],
+	[ "Pluto", "What about Charon?" ]
     ],
     "remote": [
-	[ "Test" ],
-	[ "6" ],
-	[ "1" ],
-	[ "2" ],
-	[ "3" ],
-	[ "4" ],
-	[ "5" ]
+	[ "Planet", "Comment", "Mean distance (km) from sun" ],
+	[ "Earth", "Totally forgot this one", "149,597,890" ],
+	[ "Jupiter", "Roomy", "778,412,010"  ],
+	[ "Mars", "A bit dry", "227,936,640" ],
+	[ "Mercury", "So cool", "57,909,175" ],
+	[ "Neptune", "Sounds damp", "4,498,252,900" ],
+	[ "Saturn", "Ringy", "1,426,725,400" ],
+	[ "Uranus", "Unfortunately named", "2,870,972,200" ],
+	[ "Venus", "Total greenhouse", "108,208,930" ]
     ]
 };
 
-var all_examples = [ bridge_example, reorder_example ];
+var all_examples = [ bridge_example, planets_example ];

@@ -91,6 +91,9 @@ class DiffRender {
         if (vrow==null) vrow = "";
         if (vcol==null) vcol = "";
         var removed_column : Bool = false;
+        if (vrow == ":") {
+            cell.category = 'move';
+        } 
         if (vcol.indexOf("+++")>=0) {
             cell.category_given_tr = cell.category = 'add';
         } else if (vcol.indexOf("---")>=0) {
@@ -216,6 +219,10 @@ class DiffRender {
 
 .highlighter .spec { 
   background-color: #aaa;
+}
+
+.highlighter .move { 
+  background-color: #ffa;
 }
 
 .highlighter .null { 

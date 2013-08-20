@@ -18,6 +18,10 @@
   background-color: #aaa;
 }
 
+.highlighter .move { 
+  background-color: #ffa;
+}
+
 .highlighter .null { 
   color: #888;
 }

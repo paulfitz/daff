@@ -276,8 +276,7 @@ $("#apply-diff").click(function() {
 for (var i=0; i < all_examples.length; i++) {
     var example = all_examples[i];
     var id = "set_example_" + example["key"];
-    // not quite ready to show other examples
-    // $(".demo-options").append("<span class='unit'><input type=button id='" + id + "' value='load example: " + example["key"] + "' /></span>");
+    $(".demo-options").append("<span class='unit'><input type=button id='" + id + "' value='load example: " + example["key"] + "' /></span>");
     $("#" + id).click((function(example,id) { return function() {
       load_table(data0,example["parent"]);
       load_table(data1,example["local"]);
