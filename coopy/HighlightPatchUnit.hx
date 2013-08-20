@@ -8,7 +8,9 @@ class HighlightPatchUnit {
     public var rem : Bool;
     public var update : Bool;
 
+    public var code : String;
     public var sourceRow : Int;  // row in original
+    public var sourceRowOffset : Int;  // row in original
     public var sourcePrevRow : Int; // row before this in original
     public var sourceNextRow : Int; // row after this in original
     public var destRow : Int;    // row in output
@@ -19,14 +21,16 @@ class HighlightPatchUnit {
         rem = false;
         update = false;
         sourceRow = -1;
+        sourceRowOffset = 0;
         sourcePrevRow = -1;
         sourceNextRow = -1;
         destRow = -1;
         patchRow = -1;
+        code = "";
     }
 
     public function toString() : String {
-        return (add?"insert":(rem?"delete":"update")) + " patchRow " + patchRow + " sourceRows " + sourcePrevRow + "," + sourceRow;
+        return code + " patchRow " + patchRow + " sourceRows " + sourcePrevRow + "," + sourceRow + "," + sourceNextRow + " destRow " + destRow;
     }
 }
 

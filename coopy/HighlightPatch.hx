@@ -38,6 +38,7 @@ class HighlightPatch implements Row {
     private var lastSourceRow : Int;
     private var actions : Array<String>;
     private var rowPermutation : Array<Int>;
+    private var rowPermutationRev : Array<Int>;
 
     public function new(source: Table, patch: Table) {
         this.source = source;
@@ -65,6 +66,7 @@ class HighlightPatch implements Row {
         lastSourceRow = -1;
         actions = new Array<String>();
         rowPermutation = null;
+        rowPermutationRev = null;
     }
 
     public function apply() : Bool {
@@ -82,7 +84,6 @@ class HighlightPatch implements Row {
         for (r in 0...patch.height) {
             applyRow(r);
         }
-        permuteRows();
         finishRows();
         finishColumns();
         return true;
@@ -135,6 +136,8 @@ class HighlightPatch implements Row {
             applyAction(code);
         } else if (code.indexOf("->")>=0) {
             applyAction("->");
+        } else if (code == "...") {
+            lastSourceRow = -1;
         }
     }
 
@@ -197,20 +200,27 @@ class HighlightPatch implements Row {
 
     private function applyAction(code : String) : Void {
         var mod : HighlightPatchUnit = new HighlightPatchUnit();
+        mod.code = code;
         mod.add = (code == "+++");
         mod.rem = (code == "---");
         mod.update = (code == "->");
         needSourceIndex();
+        if (lastSourceRow==-1) {
+            lastSourceRow = lookUp(-1);
+        }
         mod.sourcePrevRow = lastSourceRow;
-        if (actions[currentRow+1]!="+++") {
+        var nextAct : String = actions[currentRow+1];
+        if (nextAct!="+++" && nextAct!="...") {
             mod.sourceNextRow = lookUp(1);
+        } else if (nextAct=="...") {
+            mod.sourceNextRow = lookUp()+1;
         }
         if (mod.add) {
             if (actions[currentRow-1]!="+++") {
                 mod.sourcePrevRow = lookUp(-1);
             }
             mod.sourceRow = mod.sourcePrevRow;
-            if (mod.sourceRow!=-1) mod.sourceRow++;
+            if (mod.sourceRow!=-1) mod.sourceRowOffset = 1;
         } else {
             mod.sourceRow = lastSourceRow = lookUp();
         }
@@ -218,7 +228,10 @@ class HighlightPatch implements Row {
             lastSourceRow = mod.sourceNextRow;
         }
         mod.patchRow = currentRow;
-        if (code!="@@") mods.push(mod);
+        if (code == "@@") {
+            mod.sourceRow = 0;
+        }
+        mods.push(mod);
     }
 
     private function checkAct() : Void {
@@ -249,8 +262,8 @@ class HighlightPatch implements Row {
         // Then by patchRow
         if (a.sourceRow==-1 && b.sourceRow!=-1) return 1; 
         if (a.sourceRow!=-1 && b.sourceRow==-1) return -1; 
-        if (a.sourceRow>b.sourceRow) return 1; 
-        if (a.sourceRow<b.sourceRow) return -1; 
+        if (a.sourceRow+a.sourceRowOffset>b.sourceRow+b.sourceRowOffset) return 1; 
+        if (a.sourceRow+a.sourceRowOffset<b.sourceRow+b.sourceRowOffset) return -1; 
         if (a.patchRow>b.patchRow) return 1; 
         if (a.patchRow<b.patchRow) return -1; return 0;
     }
@@ -266,7 +279,7 @@ class HighlightPatch implements Row {
         for (mod in rmods) {
             //trace("Working on " + mod);
             if (last!=-1) {
-                for (i in last...mod.sourceRow) {
+                for (i in last...(mod.sourceRow+mod.sourceRowOffset)) {
                     fate.push(i+offset);
                     target++;
                     last++;
@@ -283,7 +296,7 @@ class HighlightPatch implements Row {
                 mod.destRow = target;
             }
             if (mod.sourceRow>=0) {
-                last = mod.sourceRow;
+                last = mod.sourceRow+mod.sourceRowOffset;
                 if (mod.rem) last++;
             } else {
                 last = -1;
@@ -296,21 +309,23 @@ class HighlightPatch implements Row {
                 last++;
             }
         }
-        //trace(fate);
-        //trace(len+offset);
         return len+offset;
     }
-
 
     private function permuteRows() : Void {
         // choose a permutation of source rows s.t. mods
         // can be rewritten to have pretty mod.sourceRow/mod.sourcePrevRow
         // relationships
-        var ptr : Array<Int> = new Array<Int>();
+        var emit : Array<Int> = new Array<Int>();
         var idx : Array<Int> = new Array<Int>();
+        var to_unit : Map<Int,Int> = new Map<Int,Int>(); 
+        var from_unit : Map<Int,Int> = new Map<Int,Int>();
+        var meta_from_unit : Map<Int,Int> = new Map<Int,Int>();
         for (i in 0...source.height) {
-            ptr.push(-1);
+            emit.push(-1);
             idx.push(-1);
+            if (i>0) from_unit[i] = i-1;
+            if (i<source.height-1) to_unit[i] = i+1;
         }
         var ct : Int = 0;
         for (mod in mods) {
@@ -318,55 +333,91 @@ class HighlightPatch implements Row {
             if (mod.sourceRow<0) continue;
             if (mod.sourcePrevRow>=0) {
                 if (mod.sourcePrevRow+1!=mod.sourceRow) {
-                    //trace("Curr -> Next " + mod.sourcePrevRow + " " + mod.sourceRow + " // " + mod);
-                    ptr[mod.sourcePrevRow] = mod.sourceRow;
+                    to_unit[mod.sourcePrevRow] = mod.sourceRow;
+                    from_unit[mod.sourceRow] = mod.sourcePrevRow;
                     ct++;
                 }
+            } else {
+                to_unit.remove(from_unit[mod.sourceRow]);
+                from_unit.remove(mod.sourceRow);
             }
             if (mod.sourceNextRow>=0) {
                 if (mod.sourceRow+1!=mod.sourceNextRow) {
-                    //trace("Curr -> Next " + mod.sourceRow + " " + mod.sourceNextRow);
-                    ptr[mod.sourceRow] = mod.sourceNextRow;
+                    to_unit[mod.sourceRow] = mod.sourceNextRow;
+                    from_unit[mod.sourceNextRow] = mod.sourceRow;
                     ct++;
                 }
+            } else {
+                from_unit.remove(to_unit[mod.sourceRow]);
+                to_unit.remove(mod.sourceRow);
             }
         }
-        //if (ct>0) {
-        //trace("OUT OF ORDER: " + ct);
-        //}
         if (ct>0) {
-            var cursor : Int = 0;
+            var txt = "";
             for (i in 0...source.height) {
-                while (idx[cursor]>=0) {
-                    cursor = (cursor + 1) % source.height;
-                }
-                idx[cursor] = i;
-                if (ptr[cursor]!=-1) {
-                    cursor = ptr[cursor];
+                txt = txt + from_unit[i] + ":" + i + ":" + to_unit[i] + " ";
+            }
+        }
+
+        if (ct>0) {
+            var cursor : Null<Int> = 0;
+            var logical : Null<Int> = null;
+            var starts : Array<Int> = [];
+            for (i in 0...source.height) {
+                var u : Null<Int> = from_unit[i];
+                if (u!=null) {
+                    meta_from_unit[u] = i;
                 } else {
-                    cursor = (cursor + 1) % source.height;
+                    starts.push(i);
                 }
             }
-            rowPermutation = idx;
-            //} else {
-            //for (i in 0...source.height) {
-            //    idx[i] = i;
-            //}
+            var used : Map<Int,Int> = new Map<Int,Int>();
+            var len : Int = 0;
+            for (i in 0...source.height) {
+                if (meta_from_unit.exists(logical)) {
+                    cursor = meta_from_unit[logical];
+                } else {
+                    cursor = null;
+                }
+                if (cursor == null) {
+                    cursor = logical = starts.shift();
+                }
+                if (cursor == null) {
+                    cursor = 0;
+                }
+                while (used.exists(cursor)) {
+                    cursor = (cursor + 1) % source.height;
+                }
+                logical = cursor;
+                idx[i] = cursor;
+                used[cursor] = 1;
+            }
+            rowPermutation = idx.copy();
+            for (i in 0...idx.length) {
+                rowPermutation[idx[i]] = i;
+            }
+            rowPermutationRev = idx;
         }
-        //trace("MAP: " + idx);
     }
 
     private function finishRows() : Void {
         var fate : Array<Int> = new Array<Int>();
-        var len : Int = processMods(mods,fate,source.height);
+        permuteRows();
         if (rowPermutation!=null) {
-            var pfate : Array<Int> = new Array<Int>();
-            for (i in 0...fate.length) {
-                pfate.push(fate[rowPermutation[i]]);
+            for (mod in mods) {
+                if (mod.sourceRow>=0) {
+                    mod.sourceRow = rowPermutation[mod.sourceRow];
+                }
             }
-            fate = pfate;
         }
+
+        if (rowPermutation!=null) {
+            source.insertOrDeleteRows(rowPermutation,rowPermutation.length);
+        }
+
+        var len : Int = processMods(mods,fate,source.height);
         source.insertOrDeleteRows(fate,len);
+
         for (mod in mods) {
             //trace("Revisiting " + mod);
             if (!mod.rem) {
@@ -406,7 +457,6 @@ class HighlightPatch implements Row {
             var mod : String = modifier.get(i);
             var hdr : String = header.get(i);
             if (mod=="---") {
-                //trace("Should remove column " + hdr);
                 var at : Int = patchInSourceCol.get(i);
                 var mod : HighlightPatchUnit = new HighlightPatchUnit();
                 mod.rem = true;
@@ -414,7 +464,6 @@ class HighlightPatch implements Row {
                 mod.patchRow = i;
                 cmods.push(mod);
             } else if (mod=="+++") {
-                //trace("Should add column " + hdr);
                 var mod : HighlightPatchUnit = new HighlightPatchUnit();
                 mod.add = true;
                 var prev : Int = -1;

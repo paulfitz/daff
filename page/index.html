@@ -5,6 +5,7 @@
 <script src="dist/jquery.handsontable.full.js"></script>
 <script src="coopy/coopyhx.js"></script>
 <script src="coopy/scripts/coopy_handsontable.js"></script>
+<script src="coopy/scripts/test_data.js"></script>
 <link rel="stylesheet" media="screen" href="dist/jquery.handsontable.full.css">
 <link rel="stylesheet" media="screen" href="coopyhx.css">
 <link rel="stylesheet" media="screen" href="coopy_handsontable.css">
@@ -84,6 +85,13 @@
 
 
 <script>
+function load_table(t,data) {
+    t.length = 0;
+    for (var i=0; i < data.length; i++) {
+        t[i] = data[i].slice();
+    }
+}
+
 var use_parent = false;
 function processChange(changes,source,table) {
   if (source=="loadData") return;
@@ -118,44 +126,14 @@ function processChange(changes,source,table) {
 	  [ "" ]
       ];
 
-      var data0 = 
-	[
-		[ "bridge", "designer", "length" ],
-		[ "Brooklyn", "J. A. Roebling", "1595" ],
-		[ "Williamsburg", "D. Duck", "1600" ],
-		[ "Queensborough", "Palmer & Hornbostel", "1182" ],
-		[ "Triborough", "O. H. Ammann", "1380,383" ],
-		[ "Bronx Whitestone", "O. H. Ammann", "2300" ],
-		[ "Throgs Neck", "O. H. Ammann", "1800" ],
-		[ "George Washington", "O. H. Ammann", "3500" ],
-		[ "Spamspan", "S. Spamington", "10000" ]
-	];
+      var example = all_examples[0];
 
-      var data1 =
-	[
-		[ "bridge", "designer", "length" ],
-		[ "Brooklyn", "J. A. Roebling", "1595" ],
-		[ "Williamsburg", "D. Duck", "1600" ],
-		[ "Queensborough", "Palmer & Hornbostel", "1182" ],
-		[ "Triborough", "O. H. Ammann", "1380,383" ],
-		[ "Bronx Whitestone", "O. H. Ammann", "2300" ],
-		[ "Throgs Neck", "O. H. Ammann", "1800" ],
-		[ "George Washington", "O. H. Ammann", "3500" ],
-		[ "Spamspan", "S. Spamington", "10000" ]
-	];
-
-      var data2 =
-	[
-		[ "bridge", "designer", "length" ],
-		[ "Brooklyn", "J. A. Roebling", "1595" ],
-		[ "Manhattan", "G. Lindenthal", "1470" ],
-		[ "Williamsburg", "L. L. Buck", "1600" ],
-		[ "Queensborough", "Palmer & Hornbostel", "1182" ],
-		[ "Triborough", "O. H. Ammann", "1380,383" ],
-		[ "Bronx Whitestone", "O. H. Ammann", "2300" ],
-		[ "Throgs Neck", "O. H. Ammann", "1800" ],
-		[ "George Washington", "O. H. Ammann", "3500" ]
-	];
+      var data0 = [];
+      var data1 = [];
+      var data2 = [];
+      load_table(data0,example["parent"]);
+      load_table(data1,example["local"]);
+      load_table(data2,example["remote"]);
 
       function headerPromptRenderer(instance, td, row, col, prop, value, cellProperties) {
 	 Handsontable.TextCell.renderer.apply(this, arguments);
@@ -294,6 +272,24 @@ $("#apply-diff").click(function() {
     processChange(null,null,null);
     return false;
 });
+
+for (var i=0; i < all_examples.length; i++) {
+    var example = all_examples[i];
+    var id = "set_example_" + example["key"];
+    // not quite ready to show other examples
+    // $(".demo-options").append("<span class='unit'><input type=button id='" + id + "' value='load example: " + example["key"] + "' /></span>");
+    $("#" + id).click((function(example,id) { return function() {
+      load_table(data0,example["parent"]);
+      load_table(data1,example["local"]);
+      load_table(data2,example["remote"]);
+      $('#table0').handsontable('render');
+      $('#table1').handsontable('render');
+      $('#table2').handsontable('render');
+      processChange(null,null,null);
+      return false; 
+    }})(example,id));
+}
+
 </script>
 
 </body>
