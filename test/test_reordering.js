@@ -39,6 +39,26 @@ function get_flipped_table(n,len_all,len_sel) {
     return new coopy.CoopyTableView([lst]);
 }
 
+
+var test_cases = [
+    { "k1": 5, "k2": 3, "i": 0, "j": 4, "mode": "flipped", "N": 5 },
+    { "k1": 4, "k2": 4, "i": 0, "j": 32, "mode": "flipped", "N": 5 }
+];
+
+for (var k=0; k<test_cases.length; k++) {
+    var c = test_cases[k];
+    var N = c["N"];
+    var k1 = c["k1"];
+    var k2 = c["k2"];
+    var i = c["i"];
+    var j = c["j"];
+    var mode = c["mode"];
+    var fn = (mode=="flipped")?get_flipped_table:get_table;
+    var t1 = fn(i,N,k1);
+    var t2 = fn(j,N,k2);
+    tester.round_trip(t1, t2, "Case " + mode + " " + k1 + " " + k2 + " : " + i + " -> " + j);
+}
+
 var N = 4; // should occasionally test with a higher number
 
 for (var k1=1; k1<=N; k1++) {

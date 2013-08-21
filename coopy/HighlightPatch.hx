@@ -496,24 +496,6 @@ class HighlightPatch implements Row {
                 mod.add = true;
                 var prev : Int = -1;
                 var cont : Bool = false;
-                /*
-                if (i>payloadCol) {
-                    if (modifier.get(i)==modifier.get(i-1)) {
-                        prev = -2;
-                    } else {
-                        var p : Null<Int> = patchInSourceCol.get(i-1);
-                        prev = (p==null)?-1:p;
-                    }
-                }
-                if (prev==-2) {
-                    mod.sourceRow = cmods[cmods.length-1].sourceRow;
-                } else {
-                    mod.sourceRow = prev;
-                    if (prev!=-1) {
-                        mod.sourceRowOffset = 1;
-                    }
-                }
-                */
                 mod.sourceRow = -1;
                 if (cmods.length>0) {
                     mod.sourceRow = cmods[cmods.length-1].sourceRow;
@@ -531,11 +513,18 @@ class HighlightPatch implements Row {
                 cmods.push(mod);
             }
         }
+        var at : Int = -1;
+        var rat : Int = -1;
         for (i in 0...cmods.length-1) {
-            if (cmods[i+1].code != "+++") {
-                cmods[i].sourceNextRow = cmods[i+1].sourceRow;
+            if (cmods[i].code != "+++" && cmods[i].code != "---") {
+                at = cmods[i].sourceRow;
             }
-            cmods[i+1].sourcePrevRow = cmods[i].sourceRow;
+            cmods[i+1].sourcePrevRow = at;
+            var j: Int = cmods.length-1-i;
+            if (cmods[j].code != "+++" && cmods[j].code != "---") {
+                rat = cmods[j].sourceRow;
+            }
+            cmods[j-1].sourceNextRow = rat;            
         }
         var fate : Array<Int> = new Array<Int>();
         permuteColumns();
