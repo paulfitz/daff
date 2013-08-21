@@ -75,4 +75,11 @@ var planets_example = {
     ]
 };
 
-var all_examples = [ bridge_example, planets_example ];
+var move_col_example = {
+    "key": "move_col",
+    "parent": [[]],
+    "local": [["First","Last"],["Paul","Fitzpatrick"]],
+    "remote": [["Last","First"],["Fitzpatrick","Paul"]]
+};
+
+var all_examples = [ bridge_example, planets_example /*, move_col_example*/ ];
