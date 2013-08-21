@@ -139,6 +139,22 @@ class TableDiff {
         var column_order : Ordering = align.meta.toOrder();
         var column_units : Array<Unit> = column_order.getList();
 
+        var show_rc_numbers : Bool = false;
+        var row_moves : Map<Int,Int> = null;
+        var col_moves : Map<Int,Int> = null;
+        if (flags.ordered) {
+            row_moves = new Map<Int,Int>();
+            var moves : Array<Int> = Mover.moveUnits(units);
+            for (i in 0...moves.length) {
+                row_moves[moves[i]] = i;
+            }
+            col_moves = new Map<Int,Int>();
+            moves = Mover.moveUnits(column_units);
+            for (i in 0...moves.length) {
+                col_moves[moves[i]] = i;
+            }
+        }
+
         var outer_reps_needed : Int = flags.show_unchanged ? 1 : 2;
 
         var v : View = a.getCellView();
@@ -149,6 +165,15 @@ class TableDiff {
         var have_schema : Bool = false;
         for (j in 0...column_units.length) {
             var cunit : Unit = column_units[j];
+            var reordered : Bool = false;
+            
+            if (flags.ordered) {
+                if (col_moves.exists(j)) {
+                    reordered = true;
+                }
+                if (reordered) show_rc_numbers = true;
+            }
+
             var act : String = "";
             if (cunit.r>=0 && cunit.lp()==-1) {
                 have_schema = true;
@@ -170,6 +195,11 @@ class TableDiff {
                     }
                 }
             }
+            if (reordered) {
+                act = ":" + act;
+                have_schema = true;
+            }
+
             schema.push(act);
         }
         if (have_schema) {
@@ -178,15 +208,6 @@ class TableDiff {
             output.setCell(0,at,v.toDatum("!"));
             for (j in 0...column_units.length) {
                 output.setCell(j+1,at,v.toDatum(schema[j]));
-            }
-        }
-
-        var row_moves : Map<Int,Int> = null;
-        if (flags.ordered) {
-            row_moves = new Map<Int,Int>();
-            var moves : Array<Int> = Mover.moveUnits(units);
-            for (i in 0...moves.length) {
-                row_moves[moves[i]] = i;
             }
         }
 
@@ -219,8 +240,6 @@ class TableDiff {
                 active[i] = 0;
             }
         }
-
-        var show_rc_numbers : Bool = false;
 
         // If we are dropping unchanged rows, we repeat this loop twice.
         for (out in 0...outer_reps_needed) {

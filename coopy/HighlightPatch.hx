@@ -15,6 +15,7 @@ class HighlightPatch implements Row {
     private var headerPre : Map<String,Int>;         // (name -> col) in src
     private var headerPost : Map<String,Int>;        // (name -> col) in dest
     private var headerRename : Map<String,String>;   // (name -> name)
+    private var headerMove : Map<String,Int>;       // (name -> should_move)
 
     private var modifier : Map<Int,String>;          // (col -> modifier) patch
 
@@ -39,6 +40,8 @@ class HighlightPatch implements Row {
     private var actions : Array<String>;
     private var rowPermutation : Array<Int>;
     private var rowPermutationRev : Array<Int>;
+    private var colPermutation : Array<Int>;
+    private var colPermutationRev : Array<Int>;
 
     public function new(source: Table, patch: Table) {
         this.source = source;
@@ -51,6 +54,7 @@ class HighlightPatch implements Row {
         headerPre = new Map<String,Int>();
         headerPost = new Map<String,Int>();
         headerRename = new Map<String,String>();
+        headerMove = null;
         modifier = new Map<Int,String>();
         mods = new Array<HighlightPatchUnit>();
         cmods = new Array<HighlightPatchUnit>();
@@ -67,6 +71,8 @@ class HighlightPatch implements Row {
         actions = new Array<String>();
         rowPermutation = null;
         rowPermutationRev = null;
+        colPermutation = null;
+        colPermutationRev = null;
     }
 
     public function apply() : Bool {
@@ -162,6 +168,13 @@ class HighlightPatch implements Row {
         for (i in payloadCol...payloadTop) {
             var name : String = getString(i);
             var mod : String = modifier.get(i);
+            var move : Bool = false;
+            if (mod!=null) {
+                if (mod.charCodeAt(0)==":".code) {
+                    move = true;
+                    mod = mod.substr(1,mod.length);
+                }
+            }
             header.set(i,name);
             if (mod!=null) {
                 if (mod.charCodeAt(0)=="(".code) {
@@ -174,6 +187,10 @@ class HighlightPatch implements Row {
             }
             if (mod!="+++") headerPre.set(name,i);
             if (mod!="---") headerPost.set(name,i);
+            if (move) {
+                if (headerMove==null) headerMove = new Map<String,Int>();
+                headerMove.set(name,1);
+            }
         }
         if (source.height==0) {
             applyAction("+++");
@@ -230,7 +247,6 @@ class HighlightPatch implements Row {
             mod.sourceRow = 0;
         }
         mods.push(mod);
-        //trace("ADDED " + mod);
     }
 
     private function checkAct() : Void {
@@ -259,8 +275,10 @@ class HighlightPatch implements Row {
     private function sortMods(a: HighlightPatchUnit,b: HighlightPatchUnit) {
         // Sort by sourceRow
         // Then by patchRow
-        if (a.sourceRow==-1 && b.sourceRow!=-1) return 1; 
-        if (a.sourceRow!=-1 && b.sourceRow==-1) return -1; 
+        if (b.code=="@@" && a.code!="@@") return 1;
+        if (a.code=="@@" && b.code!="@@") return -1;
+        if (a.sourceRow==-1 && (!a.add) && b.sourceRow!=-1) return 1; 
+        if (a.sourceRow!=-1 && (!b.add) && b.sourceRow==-1) return -1; 
         if (a.sourceRow+a.sourceRowOffset>b.sourceRow+b.sourceRowOffset) return 1; 
         if (a.sourceRow+a.sourceRowOffset<b.sourceRow+b.sourceRowOffset) return -1; 
         if (a.patchRow>b.patchRow) return 1; 
@@ -271,12 +289,11 @@ class HighlightPatch implements Row {
     private function processMods(rmods : Array<HighlightPatchUnit>,
                                  fate: Array<Int>,
                                  len: Int) : Int {
-        mods.sort(sortMods);
+        rmods.sort(sortMods);
         var offset : Int = 0;
-        var last : Int = 0;
+        var last : Int = -1;
         var target : Int = 0;
         for (mod in rmods) {
-            //trace("Working on " + mod);
             if (last!=-1) {
                 for (i in last...(mod.sourceRow+mod.sourceRowOffset)) {
                     fate.push(i+offset);
@@ -311,19 +328,16 @@ class HighlightPatch implements Row {
         return len+offset;
     }
 
-    private function permuteRows() : Void {
+    private function computeOrdering(mods : Array<HighlightPatchUnit>,
+                                     permutation : Array<Int>,
+                                     permutationRev : Array<Int>,
+                                     dim : Int) : Void {
         // choose a permutation of source rows s.t. mods
         // can be rewritten to have pretty mod.sourceRow/mod.sourcePrevRow
         // relationships
-        var emit : Array<Int> = new Array<Int>();
-        var idx : Array<Int> = new Array<Int>();
         var to_unit : Map<Int,Int> = new Map<Int,Int>(); 
         var from_unit : Map<Int,Int> = new Map<Int,Int>();
         var meta_from_unit : Map<Int,Int> = new Map<Int,Int>();
-        for (i in 0...source.height) {
-            emit.push(-1);
-            idx.push(-1);
-        }
         var ct : Int = 0;
         for (mod in mods) {
             if (mod.add||mod.rem) continue;
@@ -348,7 +362,7 @@ class HighlightPatch implements Row {
         /*
         if (ct>0) {
             var txt = "";
-            for (i in 0...source.height) {
+            for (i in 0...dim) {
                 txt = txt + from_unit[i] + ":" + i + ":" + to_unit[i] + " ";
             }
             trace(txt);
@@ -356,10 +370,10 @@ class HighlightPatch implements Row {
         */
 
         if (ct>0) {
-            var cursor : Null<Int> = 0;
+            var cursor : Null<Int> = null;
             var logical : Null<Int> = null;
             var starts : Array<Int> = [];
-            for (i in 0...source.height) {
+            for (i in 0...dim) {
                 var u : Null<Int> = from_unit[i];
                 if (u!=null) {
                     meta_from_unit[u] = i;
@@ -369,7 +383,7 @@ class HighlightPatch implements Row {
             }
             var used : Map<Int,Int> = new Map<Int,Int>();
             var len : Int = 0;
-            for (i in 0...source.height) {
+            for (i in 0...dim) {
                 if (meta_from_unit.exists(logical)) {
                     cursor = meta_from_unit[logical];
                 } else {
@@ -382,24 +396,31 @@ class HighlightPatch implements Row {
                     cursor = 0;
                 }
                 while (used.exists(cursor)) {
-                    cursor = (cursor + 1) % source.height;
+                    cursor = (cursor + 1) % dim;
                 }
                 logical = cursor;
-                idx[i] = cursor;
+                permutationRev.push(cursor);
                 used[cursor] = 1;
             }
-            rowPermutation = idx.copy();
-            for (i in 0...idx.length) {
-                rowPermutation[idx[i]] = i;
+            for (i in 0...permutationRev.length) {
+                permutation[i] = -1;
             }
-            rowPermutationRev = idx;
+            for (i in 0...permutation.length) {
+                permutation[permutationRev[i]] = i;
+            }
         }
+    }
+
+    private function permuteRows() : Void {
+        rowPermutation = new Array<Int>();
+        rowPermutationRev = new Array<Int>();
+        computeOrdering(mods,rowPermutation,rowPermutationRev,source.height);
     }
 
     private function finishRows() : Void {
         var fate : Array<Int> = new Array<Int>();
         permuteRows();
-        if (rowPermutation!=null) {
+        if (rowPermutation.length>0) {
             for (mod in mods) {
                 if (mod.sourceRow>=0) {
                     mod.sourceRow = rowPermutation[mod.sourceRow];
@@ -407,7 +428,7 @@ class HighlightPatch implements Row {
             }
         }
 
-        if (rowPermutation!=null) {
+        if (rowPermutation.length>0) {
             source.insertOrDeleteRows(rowPermutation,rowPermutation.length);
         }
 
@@ -447,23 +468,35 @@ class HighlightPatch implements Row {
         }
     }
 
+    private function permuteColumns() : Void {
+        if (headerMove == null) return;
+        colPermutation = new Array<Int>();
+        colPermutationRev = new Array<Int>();
+        computeOrdering(cmods,colPermutation,colPermutationRev,source.width);
+        if (colPermutation.length==0) return;
+    }
+
     private function finishColumns() : Void {
         needSourceColumns();
         for (i in payloadCol...payloadTop) {
-            var mod : String = modifier.get(i);
+            var act : String = modifier.get(i);
             var hdr : String = header.get(i);
-            if (mod=="---") {
+            if (act==null) act = "";
+            if (act=="---") {
                 var at : Int = patchInSourceCol.get(i);
                 var mod : HighlightPatchUnit = new HighlightPatchUnit();
+                mod.code = act;
                 mod.rem = true;
                 mod.sourceRow = at;
                 mod.patchRow = i;
                 cmods.push(mod);
-            } else if (mod=="+++") {
+            } else if (act=="+++") {
                 var mod : HighlightPatchUnit = new HighlightPatchUnit();
+                mod.code = act;
                 mod.add = true;
                 var prev : Int = -1;
                 var cont : Bool = false;
+                /*
                 if (i>payloadCol) {
                     if (modifier.get(i)==modifier.get(i-1)) {
                         prev = -2;
@@ -475,13 +508,48 @@ class HighlightPatch implements Row {
                 if (prev==-2) {
                     mod.sourceRow = cmods[cmods.length-1].sourceRow;
                 } else {
-                    mod.sourceRow = prev+1; //(prev<0)?prev:(prev+1);
+                    mod.sourceRow = prev;
+                    if (prev!=-1) {
+                        mod.sourceRowOffset = 1;
+                    }
+                }
+                */
+                mod.sourceRow = -1;
+                if (cmods.length>0) {
+                    mod.sourceRow = cmods[cmods.length-1].sourceRow;
+                }
+                if (mod.sourceRow!=-1) {
+                    mod.sourceRowOffset = 1;
                 }
                 mod.patchRow = i;
                 cmods.push(mod);
+            } else {
+                var mod : HighlightPatchUnit = new HighlightPatchUnit();
+                mod.code = act;
+                mod.patchRow = i;
+                mod.sourceRow = patchInSourceCol.get(i);
+                cmods.push(mod);
             }
         }
+        for (i in 0...cmods.length-1) {
+            if (cmods[i+1].code != "+++") {
+                cmods[i].sourceNextRow = cmods[i+1].sourceRow;
+            }
+            cmods[i+1].sourcePrevRow = cmods[i].sourceRow;
+        }
         var fate : Array<Int> = new Array<Int>();
+        permuteColumns();
+        if (headerMove!=null) {
+            if (colPermutation.length>0) {
+                for (mod in cmods) {
+                    if (mod.sourceRow>=0) {
+                        mod.sourceRow = colPermutation[mod.sourceRow];
+                    }
+                }
+                source.insertOrDeleteColumns(colPermutation,colPermutation.length);
+            }
+        }
+
         var len : Int = processMods(cmods,fate,source.width);
         source.insertOrDeleteColumns(fate,len);
         for (cmod in cmods) {

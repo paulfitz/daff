@@ -18,10 +18,12 @@ class Mover {
         var in_dest : Map<Int,Int> = new Map<Int,Int>();
         for (i in 0...len) {
             var unit : Unit = units[i];
-            if (ltop<unit.l) ltop = unit.l;
-            if (rtop<unit.r) rtop = unit.r;
-            in_src[unit.l] = i;
-            in_dest[unit.r] = i;
+            if (unit.l>=0 && unit.r>=0) {
+                if (ltop<unit.l) ltop = unit.l;
+                if (rtop<unit.r) rtop = unit.r;
+                in_src[unit.l] = i;
+                in_dest[unit.r] = i;
+            }
         }
         var v : Null<Int>;
         for (i in 0...ltop+1) {
@@ -32,7 +34,7 @@ class Mover {
             v = in_dest[i];
             if (v!=null) idest.push(v);
         }
-        return moveWithExtras(isrc,idest);
+        return moveWithoutExtras(isrc,idest);
     }
 
     static public function moveWithExtras(isrc: Array<Int>, idest: Array<Int>) : Array<Int> {
@@ -64,7 +66,7 @@ class Mover {
 
     static public function moveWithoutExtras(src: Array<Int>, dest: Array<Int>) : Array<Int> {
         if (src.length!=dest.length) return null;
-        if (src.length<=1) return src.copy();
+        if (src.length<=1) return [];
         
         var len : Int = src.length;
         var in_src : Map<Int,Int> = new Map<Int,Int>();
