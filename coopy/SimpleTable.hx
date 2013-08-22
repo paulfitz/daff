@@ -113,11 +113,13 @@ class SimpleTable implements Table {
     }
 
     public function trimBlank() : Bool {
+        if (h==0) return true;
+        var h_test : Int = h;
+        if (h_test>=3) h_test = 3;
         var view : View = getCellView();
         var space : Dynamic = view.toDatum("");
         var more : Bool = true;
         while (more) {
-            if (h==0) return true;
             for (i in 0...width) {
                 var c : Dynamic = getCell(i,h-1);
                 if (!(view.equals(c,space)||c==null)) {
@@ -131,7 +133,7 @@ class SimpleTable implements Table {
         var nw : Int = w;
         while (more) {
             if (w==0) break;
-            for (i in 0...1) { // just the headers // height) {
+            for (i in 0...h_test) {
                 var c : Dynamic = getCell(nw-1,i);
                 if (!(view.equals(c,space)||c==null)) {
                     more = false;
