@@ -36,6 +36,7 @@ Call coopyhx as:
   coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook
   coopyhx patch [--output OUTPUT.csv] source.csv patch.csv
   coopyhx trim [--output OUTPUT.csv] source.csv
+  coopyhx render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv
 ````
 
 The library
@@ -108,6 +109,15 @@ specification here:
   [ '+++', 'Germany', 'de', 'Berlin' ] ]
 ```
 
+For visualization, you may want to convert this to a HTML table
+with appropriate classes on cells so you can color-code inserts,
+deletes, updates, etc.  You can do this with:
+```js
+var diff2html = new coopy.DiffRender();
+diff2html.render(table_diff);
+var table_diff_html = diff2html.html();
+```
+
 For 3-way differences (that is, comparing two tables given knowledge
 of a common ancestor) use `coopy.compareTables3` (give ancestor
 table as the first argument).
@@ -118,6 +128,14 @@ var patcher = new coopy.HighlightPatch(table1,table_diff);
 patcher.apply();
 // table1 should now equal table2
 ```
+
+Reading material
+----------------
+
+ * http://blog.okfn.org/2013/07/02/git-and-github-for-data/
+ * http://okfnlabs.org/blog/2013/08/08/diffing-and-patching-data.html
+ * http://theodi.org/blog/adapting-git-simple-data
+
 
 ## License
 
