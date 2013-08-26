@@ -132,10 +132,10 @@ patcher.apply();
 Reading material
 ----------------
 
- * http://blog.okfn.org/2013/07/02/git-and-github-for-data/
- * http://okfnlabs.org/blog/2013/08/08/diffing-and-patching-data.html
+ * http://www.dataprotocols.org/en/latest/tabular-diff-format.html
  * http://theodi.org/blog/adapting-git-simple-data
-
+ * http://okfnlabs.org/blog/2013/08/08/diffing-and-patching-data.html
+ * http://blog.okfn.org/2013/07/02/git-and-github-for-data/
 
 ## License
 
