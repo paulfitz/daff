@@ -132,10 +132,11 @@ patcher.apply();
 Reading material
 ----------------
 
- * http://www.dataprotocols.org/en/latest/tabular-diff-format.html
- * http://theodi.org/blog/adapting-git-simple-data
- * http://okfnlabs.org/blog/2013/08/08/diffing-and-patching-data.html
- * http://blog.okfn.org/2013/07/02/git-and-github-for-data/
+ * http://www.dataprotocols.org/en/latest/tabular-diff-format.html : a specification of the diff format coopyhx uses.
+ * http://theodi.org/blog/adapting-git-simple-data : discusses using coopyhx with gitlab.
+ * http://okfnlabs.org/blog/2013/08/08/diffing-and-patching-data.html : a summary of where coopyhx came from.
+ * http://blog.okfn.org/2013/07/02/git-and-github-for-data/ : a post about storing small data in git/github.
+ * http://blog.ouseful.info/2013/08/27/diff-or-chop-github-csv-data-files-and-openrefine/ : counterpoint - a post discussing tracked-changes rather than diffs.
 
 ## License
 
