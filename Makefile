@@ -28,3 +28,8 @@ cpp_pack:
 
 php:
 	haxe compile_php.hxml
+	@echo 'Output in php_bin, run "php php_bin/index.php" for help'
+
+java:
+	haxe compile_java.hxml
+	@echo 'Output in java_bin, run "java -jar java_bin/java_bin.jar" for help'
