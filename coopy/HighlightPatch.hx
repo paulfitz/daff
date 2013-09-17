@@ -390,7 +390,9 @@ class HighlightPatch implements Row {
                     cursor = null;
                 }
                 if (cursor == null) {
-                    cursor = logical = starts.shift();
+                    var v : Int = starts.shift();
+                    cursor = v;
+                    logical = v;
                 }
                 if (cursor == null) {
                     cursor = 0;

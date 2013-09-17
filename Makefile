@@ -33,3 +33,7 @@ php:
 java:
 	haxe compile_java.hxml
 	@echo 'Output in java_bin, run "java -jar java_bin/java_bin.jar" for help'
+
+cs:
+	haxe compile_cs.hxml
+	@echo 'Output in cs_bin, do something like "gmcs -recurse:*.cs -main:coopy.Coopy -out:coopyhx.exe" in that directory'

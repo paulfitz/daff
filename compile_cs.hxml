@@ -1,0 +1,5 @@
+-cp src
+-cs cs_bin
+-D coopyhx_util
+-main coopy.Coopy
+-debug
