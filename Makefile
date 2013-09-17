@@ -25,3 +25,6 @@ doc:
 
 cpp_pack:
 	haxe compile_cpp_for_package.hxml
+
+php:
+	haxe compile_php.hxml

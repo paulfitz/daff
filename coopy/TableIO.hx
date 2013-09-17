@@ -8,7 +8,7 @@ class TableIO {
     }
 
     public function getContent(name: String) : String {
-#if (cpp && !coopyhx_library)
+#if coopyhx_util
         return sys.io.File.getContent(name);
 #else
         return "";
@@ -16,7 +16,7 @@ class TableIO {
     }
 
     public function saveContent(name: String, txt: String) : Bool {
-#if (cpp && !coopyhx_library)
+#if coopyhx_util
         sys.io.File.saveContent(name,txt);
         return true;
 #else
@@ -25,7 +25,7 @@ class TableIO {
     }
 
     public function args() : Array<String> {
-#if (cpp && !coopyhx_library)
+#if coopyhx_util
         return Sys.args();
 #else
         return [];
@@ -33,13 +33,13 @@ class TableIO {
     }
 
     public function writeStdout(txt: String) : Void {
-#if (cpp && !coopyhx_library)
+#if coopyhx_util
         Sys.stdout().writeString(txt);
 #end
     }
 
     public function writeStderr(txt: String) : Void {
-#if (cpp && !coopyhx_library)
+#if coopyhx_util
         Sys.stderr().writeString(txt);
 #end
     }

@@ -286,7 +286,7 @@ class Coopy {
 #end
 
     public static function main() : Int {
-#if (cpp && !coopyhx_library)
+#if coopyhx_util
     var io : TableIO = new TableIO();
     return coopyhx(io);
 #else
