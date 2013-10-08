@@ -132,7 +132,7 @@ patcher.apply();
 Reading material
 ----------------
 
- * http://www.dataprotocols.org/en/latest/tabular-diff-format.html : a specification of the diff format coopyhx uses.
+ * http://dataprotocols.org/tabular-diff-format/ : a specification of the diff format coopyhx uses.
  * http://theodi.org/blog/adapting-git-simple-data : discusses using coopyhx with gitlab.
  * http://okfnlabs.org/blog/2013/08/08/diffing-and-patching-data.html : a summary of where coopyhx came from.
  * http://blog.okfn.org/2013/07/02/git-and-github-for-data/ : a post about storing small data in git/github.
