@@ -28,7 +28,11 @@ cpp_pack:
 
 php:
 	haxe compile_php.hxml
-	@echo 'Output in php_bin, run "php php_bin/index.php" for help'
+	cp scripts/PhpTableView.class.php php_bin/lib/coopy/
+	cp scripts/example.php php_bin/
+	@echo 'Output in php_bin, run "php php_bin/index.php" for an example utility'
+	@echo 'or try "php php_bin/example.php" for an example of using coopyhx as a library'
+
 
 java:
 	haxe compile_java.hxml
