@@ -442,8 +442,8 @@ class HighlightPatch implements Row {
             if (!mod.rem) {
                 if (mod.add) {
                     for (c in headerPost) {
-                        var offset : Int = patchInSourceCol.get(c);
-                        if (offset>=0) {
+                        var offset : Null<Int> = patchInSourceCol.get(c);
+                        if (offset!=null && offset>=0) {
                             source.setCell(offset,
                                            mod.destRow,
                                            patch.getCell(c,mod.patchRow));
