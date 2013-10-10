@@ -129,6 +129,31 @@ patcher.apply();
 // table1 should now equal table2
 ```
 
+Other languages
+---------------
+
+The `coopyhx` library is written in [Haxe](http://haxe.org/), which
+can be translated reasonably well into at least the following languages:
+
+ * Javascript
+ * PHP
+ * Java
+ * C#
+ * C++
+
+The Javascript translation is available via npm. To make another translation, 
+follow the 
+[Haxe getting started tutorial](http://haxe.org/doc/start) for the
+language you care about, then do one of:
+
+```
+make js
+make php
+make java
+make cs
+make cpp
+```
+
 Reading material
 ----------------
 
