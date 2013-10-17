@@ -23,7 +23,7 @@ doc:
 	# result is in index.html and content directory
 
 
-cpp_pack:
+cpp_package:
 	haxe compile_cpp_for_package.hxml
 
 php:

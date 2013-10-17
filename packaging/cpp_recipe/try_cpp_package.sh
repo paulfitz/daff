@@ -14,7 +14,7 @@ cd coopyhx || exit 1
 mkdir build || exit 1
 cd build || exit 1
 cmake -DCREATE_RUBY=TRUE .. || exit 1
-make || exit 1
+make VERBOSE=1 || exit 1
 
 
 

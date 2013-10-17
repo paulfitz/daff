@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(coopyhx)
 
-add_definitions(-DHX_LINUX -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS -Dhaxe3)
-# add_definitions(-m32)
+add_definitions(-DHX_LINUX -DHXCPP_VISIT_ALLOCS -Dhaxe3 -DHXCPP_FORCE_OBJ_MAP)
+# add_definitions(-m32)  # -DHXCPP_M64
 
 file(GLOB_RECURSE folder_headers include/*.h)
 file(GLOB_RECURSE folder_sources src/*.cpp)

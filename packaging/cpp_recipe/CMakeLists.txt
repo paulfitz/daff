@@ -29,8 +29,14 @@ set(CGEN ${CMAKE_SOURCE_DIR}/../../cpp_pack)
 
 ##########################################333
 ## Haxe 3.0.0
-set(HX_BASE /usr/lib/haxe/lib/hxcpp/3,0,2)
-add_definitions(-DHX_LINUX=1 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS=1 -Dhaxe3=1 -Dhaxe_ver="3.")
+##set(HX_BASE /usr/lib/haxe/lib/hxcpp/3,0,2)
+##add_definitions(-DHX_LINUX=1 -DHXCPP_M64 -DHXCPP_VISIT_ALLOCS=1 -Dhaxe3=1 -Dhaxe_ver="3.")
+
+##########################################333
+## Haxe 3.1
+set(HX_BASE $ENV{HOME}/scm/hxcpp)
+add_definitions(-DHX_LINUX=1 -DHXCPP_VISIT_ALLOCS=1 -Dhaxe3=1 -Dhaxe_ver="3.")
+
 # -DHXCPP_DEBUG=1 -DHXCPP_VISIT_ALLOCS=1)
 if (NOT REPLACE_MAIN)
   set_property(SOURCE ${CGEN}/src/__main__.cpp
@@ -60,6 +66,8 @@ file(GLOB hx_source2 ${HX_BASE}/src/hx/*.cpp)
 list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/NekoAPI.cpp)
 list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/RunLibs.cpp)
 list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/Scriptable.cpp)
+list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/CppiaBuiltin.cpp)
+list(REMOVE_ITEM hx_source2 ${HX_BASE}/src/hx/Cppia.cpp)
 if (REPLACE_MAIN)
   list(REMOVE_ITEM folder_source ${CGEN}/src/__main__.cpp)
   # list(REMOVE_ITEM folder_source ${CGEN}/src/__boot__.cpp)
