@@ -200,6 +200,8 @@ class Coopy {
         var css_output : String = null;
         var fragment : Bool = false;
         var pretty : Bool = true;
+        var context : Int = -1;
+        var show_all : Bool = false;
         while (more) {
             more = false;
             for (i in 0...args.length) {
@@ -214,14 +216,27 @@ class Coopy {
                     fragment = true;
                     css_output = args[i+1];
                     args.splice(i,2);
+                    break;
                 } else if (tag=="--fragment") {
                     more = true;
                     fragment = true;
                     args.splice(i,1);
+                    break;
                 } else if (tag=="--plain") {
                     more = true;
                     pretty = false;
                     args.splice(i,1);
+                    break;
+                } else if (tag=="--all") {
+                    more = true;
+                    show_all = true;
+                    args.splice(i,1);
+                    break;
+                } else if (tag=="--context") {
+                    more = true;
+                    context = Std.parseInt(args[i+1]);
+                    args.splice(i,2);
+                    break;
                 }
             }
         }
@@ -234,7 +249,17 @@ class Coopy {
             io.writeStderr("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
             io.writeStderr("  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv\n");
             io.writeStderr("  coopyhx trim [--output OUTPUT.csv] source.csv\n");
+            io.writeStderr("  coopyhx render [--output OUTPUT.html] diff.csv\n");
+            io.writeStderr("\n");
+            io.writeStderr("If you need more control, here is the full list of flags:\n");
+            io.writeStderr("  coopyhx diff [--output OUTPUT.csv] [--context NUM] [--all] a.csv b.csv\n");
+            io.writeStderr("     --context NUM: show NUM rows of context\n");
+            io.writeStderr("     --all:         do not prune unchanged rows\n");
+            io.writeStderr("\n");
             io.writeStderr("  coopyhx render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
+            io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
+            io.writeStderr("     --fragment:    generate just a html fragment rather than a page\n");
+            io.writeStderr("     --plain:       do not use fancy utf8 characters to make arrows prettier\n");
             return 1;
         }
         if (output == null) {
@@ -259,6 +284,8 @@ class Coopy {
             var align : Alignment = ct.align();
             var flags : CompareFlags = new CompareFlags();
             flags.always_show_header = true;
+            flags.show_unchanged = show_all;
+            if (context>=0) flags.unchanged_context = context;
             var td : TableDiff = new TableDiff(align,flags);
             var o = new SimpleTable(0,0);
             td.hilite(o);
