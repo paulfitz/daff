@@ -12,7 +12,7 @@ For a live demo, see:
 > http://paulfitz.github.com/coopyhx/
 
 Get the core library here:
-> http://paulfitz.github.com/coopyhx/coopy/coopyhx.js
+> https://github.com/paulfitz/coopyhx/releases
 
 Or with node:
 ````sh
