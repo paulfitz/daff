@@ -8,6 +8,14 @@ js:
 	cat coopy.js scripts/post_node.js > coopy_node.js
 	sed 's/window != "undefined" ? window : exports/exports != "undefined" ? exports : window/' coopy_node.js > coopy.js  # better order for browserify
 	cat coopy.js scripts/coopy_view.js > coopyhx.js
+	@wc coopyhx.js
+
+min: js
+	uglifyjs coopyhx.js > coopyhx.min.js
+	gzip -k -f coopyhx.min.js
+	@wc coopyhx.js
+	@wc coopyhx.min.js
+	@wc coopyhx.min.js.gz
 
 test: js
 	./scripts/run_tests.sh
