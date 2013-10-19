@@ -500,44 +500,5 @@ class TableDiff {
         }
         return true;
     }
-
-
-    public function test() : Report { 
-        var report : Report = new Report();
-        var order : Ordering = align.toOrder();
-        var units : Array<Unit> = order.getList();
-        var has_parent : Bool = (align.reference != null);
-        var a : Table;
-        var b : Table;
-        var p : Table;
-        if (has_parent) {
-            p = align.getSource();
-            a = align.reference.getTarget();
-            b = align.getTarget();
-        } else {
-            a = align.getSource();
-            b = align.getTarget();
-            p = a;
-        }
-        
-        for (i in 0...units.length) {
-            var unit : Unit = units[i];
-            if (unit.p<0 && unit.l<0 && unit.r>=0) {
-                report.changes.push(new Change("inserted row r:" + unit.r));
-            }
-            if ((unit.p>=0||!has_parent) && unit.l>=0 && unit.r<0) {
-                report.changes.push(new Change("deleted row l:" + unit.l));
-            }
-            if (unit.l>=0&&unit.r>=0) {
-                var mod : Bool = false;
-                var av : View = a.getCellView();
-                for (j in 0...a.width) {
-                    // ...
-                }
-            }
-        }
-        // we don't look at any values yet
-        return report;
-    }
 }
 
