@@ -130,7 +130,17 @@ class DiffRender {
                     cell.updated = true;
                     cell.separator = div;
                     tokens = cell.pretty_value.split(div);
-                    cell.pretty_value = tokens.join(String.fromCharCode(8594));
+                    var pretty_tokens : Array<String> = tokens;
+                    if (tokens.length>=2) {
+                        pretty_tokens[0] = markSpaces(tokens[0],tokens[1]);
+                        pretty_tokens[1] = markSpaces(tokens[1],tokens[0]);
+                    }
+                    if (tokens.length>=3) {
+                        var ref : String = pretty_tokens[0];
+                        pretty_tokens[0] = markSpaces(ref,tokens[2]);
+                        pretty_tokens[2] = markSpaces(tokens[2],ref);
+                    }
+                    cell.pretty_value = pretty_tokens.join(String.fromCharCode(8594));
                     cell.category_given_tr = cell.category = cat;
                     var offset : Int = cell.conflicted?1:0;
                     cell.lvalue = tokens[offset];
@@ -139,6 +149,35 @@ class DiffRender {
                 }
             }
         }
+    }
+
+    public static function markSpaces(sl: String, sr: String) : String {
+        if (sl==sr) return sl;
+        if (sl==null || sr==null) return sl;
+        var slc : String = StringTools.replace(sl," ","");
+        var src : String = StringTools.replace(sr," ","");
+        if (slc!=src) return sl;
+        var slo : String = new String("");
+        var il : Int = 0;
+        var ir : Int = 0;
+        while (il<sl.length) {
+            var cl : String = sl.charAt(il);
+            var cr : String = "";
+            if (ir<sr.length) {
+                cr = sr.charAt(ir);
+            }
+            if (cl==cr) {
+                slo += cl;
+                il++;
+                ir++;
+            } else if (cr==" ") {
+                ir++;
+            } else {
+                slo += String.fromCharCode(9251);
+                il++;
+            }
+        }
+        return slo;
     }
 
     public static function renderCell(tt: TableText,
