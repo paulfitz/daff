@@ -49,3 +49,16 @@ java:
 cs:
 	haxe compile_cs.hxml
 	@echo 'Output in cs_bin, do something like "gmcs -recurse:*.cs -main:coopy.Coopy -out:coopyhx.exe" in that directory'
+
+
+release: js test php
+	rm -rf release
+	mkdir -p release
+	cp coopyhx.js release
+	mv php_bin coopyhx_php
+	rm -f coopyhx_php.zip
+	zip -r coopyhx_php coopyhx_php
+	mv coopyhx_php.zip release
+	rm -f /tmp/coopyhx_cpp/build/coopyhx_cpp.zip
+	cd packaging/cpp_recipe && ./build_cpp_package.sh
+	cp /tmp/coopyhx_cpp/build/coopyhx_cpp.zip release

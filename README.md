@@ -5,8 +5,8 @@ This is a library for comparing tables, producing a summary of their
 differences, and using such a summary as a patch file.  It is
 optimized for comparing tables that share a common origin, in other
 words multiple versions of the "same" table.  It is written in Haxe,
-translated to Javascript for in-browser use.  The library may also be
-compiled as C++.
+translated to Javascript for in-browser use.  The library is also 
+available as Haxe-generated PHP or C++.
 
 For a live demo, see:
 > http://paulfitz.github.com/coopyhx/
@@ -18,6 +18,9 @@ Or with node:
 ````sh
 npm install coopyhx
 ````
+
+The diff format used by coopyhx is specified here:
+> http://dataprotocols.org/tabular-diff-format/
 
 This library is a stripped down version of the coopy toolbox (see
 http://share.find.coop).  To compare tables from different origins, 
@@ -42,7 +45,7 @@ Call coopyhx as:
 The library
 -----------
 
-First, include `coopyhx.js` on a webpage:
+For Javascript use - first, include `coopyhx.js` on a webpage:
 ```html
 <script src="coopyhx.js"></script>
 ```
@@ -141,7 +144,10 @@ can be translated reasonably well into at least the following languages:
  * C#
  * C++
 
-The Javascript translation is available via npm. To make another translation, 
+The Javascript translation is available via npm. 
+PHP and C++ translations are posted on the 
+[Releases](https://github.com/paulfitz/coopyhx/releases) page.
+To make another translation, 
 follow the 
 [Haxe getting started tutorial](http://haxe.org/doc/start) for the
 language you care about, then do one of:

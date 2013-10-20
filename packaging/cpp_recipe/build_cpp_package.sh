@@ -35,14 +35,14 @@ cmake $ORG
 cd coopyhx
 ./fix_for_swig.sh
 cd ..
-rm -f coopyhx.zip
-zip -r coopyhx coopyhx
-if [ ! -e coopyhx.zip ]; then
+rm -f coopyhx.zip coopyhx_cpp.zip
+zip -r coopyhx_cpp coopyhx
+if [ ! -e coopyhx_cpp.zip ]; then
     echo "Failed to create zip in $PWD"
     exit 1
 fi
 echo "Zip file created with everything needed to compile coopyhx"
-ls $PWD/coopyhx.zip
+ls $PWD/coopyhx_cpp.zip
 
 
 
