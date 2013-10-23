@@ -87,6 +87,42 @@ class TableDiff {
         return reordered;
     }
 
+
+    private function spreadContext(units: Array<Unit>, 
+                                   del: Int,
+                                   active: Array<Int>) : Void {
+        if (del>0 && active != null) {
+            // forward
+            var mark : Int = -del-1;
+            for (i in 0...units.length) {
+                if (active[i]==0||active[i]==3) {
+                    if (i-mark<=del) {
+                        active[i] = 2;
+                    } else if (i-mark==del+1) {
+                        active[i] = 3;
+                    }
+                } else if (active[i]==1) {
+                    mark = i;
+                }
+            }
+            
+            // reverse
+            mark = units.length + del + 1;
+            for (j in 0...units.length) {
+                var i : Int = units.length-1-j;
+                if (active[i]==0||active[i]==3) {
+                    if (mark-i<=del) {
+                        active[i] = 2;
+                    } else if (mark-i==del+1) {
+                        active[i] = 3;
+                    }
+                } else if (active[i]==1) {
+                    mark = i;
+                }
+            }
+        }
+    }
+
     private function reportUnit(unit: Unit) : String {
         var txt : String = unit.toString();
         var reordered : Bool = false;
@@ -122,18 +158,39 @@ class TableDiff {
         var p : Table;
         var ra_header : Int = 0;
         var rb_header : Int = 0;
+        var is_index_p : Map<Int,Bool> = new Map<Int,Bool>();
+        var is_index_a : Map<Int,Bool> = new Map<Int,Bool>();
+        var is_index_b : Map<Int,Bool> = new Map<Int,Bool>();
         if (has_parent) {
             p = align.getSource();
             a = align.reference.getTarget();
             b = align.getTarget();
             ra_header = align.reference.meta.getTargetHeader();
             rb_header = align.meta.getTargetHeader();
+            if (align.getIndexColumns()!=null) {
+                for (p2b in align.getIndexColumns()) {
+                    if (p2b.l>=0) is_index_p.set(p2b.l,true);
+                    if (p2b.r>=0) is_index_b.set(p2b.r,true);
+                }
+            }
+            if (align.reference.getIndexColumns()!=null) {
+                for (p2a in align.reference.getIndexColumns()) {
+                    if (p2a.l>=0) is_index_p.set(p2a.l,true);
+                    if (p2a.r>=0) is_index_a.set(p2a.r,true);
+                }
+            }
         } else {
             a = align.getSource();
             b = align.getTarget();
             p = a;
             ra_header = align.meta.getSourceHeader();
             rb_header = align.meta.getTargetHeader();
+            if (align.getIndexColumns()!=null) {
+                for (a2b in align.getIndexColumns()) {
+                    if (a2b.l>=0) is_index_a.set(a2b.l,true);
+                    if (a2b.r>=0) is_index_b.set(a2b.r,true);
+                }
+            }
         }
 
         var column_order : Ordering = align.meta.toOrder();
@@ -155,7 +212,27 @@ class TableDiff {
             }
         }
 
-        var outer_reps_needed : Int = flags.show_unchanged ? 1 : 2;
+        var active : Array<Int> = new Array<Int>();
+        var active_column : Array<Int> = null;
+        if (!flags.show_unchanged) {
+            for (i in 0...units.length) {
+                active[i] = 0;
+            }
+        }
+        if (!flags.show_unchanged_columns) {
+            active_column = new Array<Int>();
+            for (i in 0...column_units.length) {
+                var v : Int = 0;
+                var unit : Unit = column_units[i];
+                if (unit.l>=0 && is_index_a.get(unit.l)) v = 1;
+                if (unit.r>=0 && is_index_b.get(unit.r)) v = 1;
+                if (unit.p>=0 && is_index_p.get(unit.p)) v = 1;
+                active_column[i] = v;
+            }
+        }
+
+        var outer_reps_needed : Int = 
+            (flags.show_unchanged&&flags.show_unchanged_columns) ? 1 : 2;
 
         var v : View = a.getCellView();
         var sep : String = "";
@@ -178,10 +255,12 @@ class TableDiff {
             if (cunit.r>=0 && cunit.lp()==-1) {
                 have_schema = true;
                 act = "+++";
+                if (active_column!=null) active_column[j] = 1;
             }
             if (cunit.r<0 && cunit.lp()>=0) {
                 have_schema = true;
                 act = "---";
+                if (active_column!=null) active_column[j] = 1;
             }
             if (cunit.r>=0 && cunit.lp()>=0) {
                 if (a.height>=ra_header && b.height>=rb_header) {
@@ -234,48 +313,14 @@ class TableDiff {
             top_line_done = true;
         }
 
-        var active : Array<Int> = new Array<Int>();
-        if (!flags.show_unchanged) {
-            for (i in 0...units.length) {
-                active[i] = 0;
-            }
-        }
-
-        // If we are dropping unchanged rows, we repeat this loop twice.
+        // If we are dropping unchanged rows/cols, we repeat this loop twice.
         for (out in 0...outer_reps_needed) {
             if (out==1) {
-                var del : Int = flags.unchanged_context;
-                if (del>0) {
-                    // forward
-                    var mark : Int = -del-1;
-                    for (i in 0...units.length) {
-                        if (active[i]==0||active[i]==3) {
-                            if (i-mark<=del) {
-                                active[i] = 2;
-                            } else if (i-mark==del+1) {
-                                active[i] = 3;
-                            }
-                        } else if (active[i]==1) {
-                            mark = i;
-                        }
-                    }
-
-                    // reverse
-                    mark = units.length + del + 1;
-                    for (j in 0...units.length) {
-                        var i : Int = units.length-1-j;
-                        if (active[i]==0||active[i]==3) {
-                            if (mark-i<=del) {
-                                active[i] = 2;
-                            } else if (mark-i==del+1) {
-                                active[i] = 3;
-                            }
-                        } else if (active[i]==1) {
-                            mark = i;
-                        }
-                    }
-                }
+                spreadContext(units,flags.unchanged_context,active);
+                spreadContext(column_units,flags.unchanged_column_context,
+                              active_column);
             }
+
             var showed_dummy : Bool = false;
             var l : Int = -1;
             var r : Int = -1;
@@ -405,6 +450,9 @@ class TableDiff {
 
                     var txt : String = null;
                     if (have_dd_to) {
+                        if (active_column!=null) {
+                            active_column[j] = 1;
+                        }
                         txt = quoteForDiff(v,dd);
                         // modification: x -> y
                         if (sep=="") {
@@ -437,10 +485,12 @@ class TableDiff {
                         act = "+";
                     }
                     if (publish) {
-                        if (txt != null) {
-                            output.setCell(j+1,at,v.toDatum(txt));
-                        } else {
-                            output.setCell(j+1,at,dd);
+                        if (active_column==null || active_column[j]>0) {
+                            if (txt != null) {
+                                output.setCell(j+1,at,v.toDatum(txt));
+                            } else {
+                                output.setCell(j+1,at,dd);
+                            }
                         }
                     }
                 }
@@ -471,7 +521,9 @@ class TableDiff {
             }
         }
 
+        var admin_w : Int = 1;
         if (show_rc_numbers&&!flags.never_show_order) {
+            admin_w++;
             var target : Array<Int> = new Array<Int>();
             for (i in 0...output.width) {
                 target.push(i+1);
@@ -497,6 +549,32 @@ class TableDiff {
                 output.setCell(i,0,reportUnit(unit));
             }
             output.setCell(0,0,"@:@");
+        }
+
+        if (active_column!=null) {
+            var all_active : Bool = true;
+            for (i in 0...active_column.length) {
+                if (active_column[i]==0) {
+                    all_active = false;
+                    break;
+                }
+            }
+            if (!all_active) {
+                var fate : Array<Int> = new Array<Int>();
+                for (i in 0...admin_w) {
+                    fate.push(i);
+                }
+                var at : Int = admin_w;
+                for (i in 0...active_column.length) {
+                    if (active_column[i]==0) {
+                        fate.push(-1);
+                    } else {
+                        fate.push(at);
+                        at++;
+                    }
+                }
+                output.insertOrDeleteColumns(fate,at);
+            }
         }
         return true;
     }

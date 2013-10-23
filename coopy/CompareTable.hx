@@ -20,13 +20,6 @@ class CompareTable {
 
     public function align() : Alignment {
         var alignment : Alignment = new Alignment();
-        /*
-        var count : Int = 0;
-        do {
-            count = alignment.count();
-            alignCore(alignment);
-        } while (false && alignment.count()>count);
-        */
         alignCore(alignment);
         return alignment;
     }
@@ -120,9 +113,6 @@ class CompareTable {
         
         for (k in 0...top) {
             if (k==0) continue;
-            //var ct: Int = 0;
-            //for (j in pending.keys()) ct++;
-            //trace(ct);
             if (pending_ct == 0) break;
             var active_columns : Array<Int> = new Array<Int>();
             var kk : Int = k;
@@ -139,6 +129,7 @@ class CompareTable {
             for (k in 0...active_columns.length) {
                 var unit : Unit = common_units[active_columns[k]];
                 index.addColumns(unit.l,unit.r);
+                align.addIndexColumns(unit);
             }
             index.indexTables(a,b);
 

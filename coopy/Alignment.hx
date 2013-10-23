@@ -14,6 +14,7 @@ class Alignment {
     private var map_count : Int;
     private var order_cache : Ordering;
     private var order_cache_has_reference : Bool;
+    private var index_columns : Array<Unit>;
 
     public var reference: Alignment;
     public var meta: Alignment;
@@ -52,6 +53,17 @@ class Alignment {
         map_a2b.set(a,b);
         map_b2a.set(b,a);
         map_count++;
+    }
+
+    public function addIndexColumns(unit: Unit) : Void {
+        if (index_columns==null) {
+            index_columns = new Array<Unit>();
+        }
+        index_columns.push(unit);
+    }
+
+    public function getIndexColumns() : Array<Unit> {
+        return index_columns;
     }
 
     public function a2b(a: Int) : Null<Int> {
@@ -142,14 +154,10 @@ class Alignment {
             if (xp>=hp) xp = 0;
             if (xl>=hl) xl = 0;
             if (xr>=hr) xr = 0;
-            //trace("*** " + order);
-            //trace("At " + xp + " " + xl + " " + xr);
-            //trace("hs " + hp + " " + hl + " " + hr);
             if (xp<hp && ct_vp>0) {
                 if (a2b(xp) == null &&
                     ref.a2b(xp) == null) {
                     if (vp.exists(xp)) {
-                        //trace("P xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(-1,-1,xp);
                         prev = xp;
                         vp.remove(xp);
@@ -165,9 +173,7 @@ class Alignment {
                 zl = ref.b2a(xl);
                 if (zl==null) {
                     if (vl.exists(xl)) {
-                        //trace("L xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(xl,-1,-1);
-                        //prev = -1;
                         vl.remove(xl);
                         ct_vl--;
                     }
@@ -179,9 +185,7 @@ class Alignment {
                 zr = b2a(xr);
                 if (zr==null) {
                     if (vr.exists(xr)) {
-                        //trace("R xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(-1,xr,-1);
-                        //prev = -1;
                         vr.remove(xr);
                         ct_vr--;
                     }
@@ -193,14 +197,13 @@ class Alignment {
                 if (a2b(zl)==null) {
                     // row deleted in remote
                     if (vl.exists(xl)) {
-                        //trace("L xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(xl,-1,zl);
                         prev = zl;
                         vp.remove(zl);
                         ct_vp--;
                         vl.remove(xl);
                         ct_vl--;
-                        xp = zl+1; //HIT
+                        xp = zl+1;
                     }
                     xl++;
                     continue;
@@ -210,7 +213,6 @@ class Alignment {
                 if (ref.a2b(zr)==null) {
                     // row deleted in local
                     if (vr.exists(xr)) {
-                        //trace("R xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(-1,xr,zr);
                         prev = zr;
                         vp.remove(zr);
@@ -223,22 +225,13 @@ class Alignment {
                     continue;
                 }
             }
-            /*
-            if (zl!=null && zr!=null && zr == zl) {
-                trace("left and right in sync");
-                continue;
-            }
-            */
             if (zl!=null && zr!=null && a2b(zl)!=null && 
                 ref.a2b(zr)!=null) {
-                //trace("We have a choice of order " + zl + " " + zr + " prev is " + prev);
                 // we have a choice of order
                 // local thinks zl should come next
                 // remote thinks zr should come next
                 if (zl==prev+1 || zr!=prev+1) {
-                    //trace("left is boring or right is interesting, use right");
                     if (vr.exists(xr)) {
-                        //trace("R xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(ref.a2b(zr),xr,zr);
                         prev = zr;
                         vp.remove(zr);
@@ -253,9 +246,7 @@ class Alignment {
                     xr++;
                     continue;
                 } else {
-                    //trace("using left");
                     if (vl.exists(xl)) {
-                        //trace("L xp/xl/xr " + xp + " " + xl + " " + xr);
                         order.add(xl,a2b(zl),zl);
                         prev = zl;
                         vp.remove(zl);
@@ -274,55 +265,6 @@ class Alignment {
             xp++;
             xl++;
             xr++;
-        }
-        //trace("RESULT " + order.toString());
-        return order;
-    }
-
-    // this function is no longer used, could be brought back
-    // as stripped-down version of toOrder3 once that is stable.
-    private function toOrder2() : Ordering {
-        //trace("Align! " + ha + " " + hb);
-        var order : Ordering = new Ordering();
-        var xa : Int = 0;
-        var xas : Int = ha;
-        var xb : Int = 0;
-        var va : Map<Int,Int> = new Map<Int,Int>();
-        for (i in 0...ha) {
-            va.set(i,i);
-        }
-        while (va.keys().hasNext() || xb<hb) {
-            if (xa>=ha) xa = 0;
-            //trace("xa " + xa + " xb " + xb);
-            if (xa<ha && a2b(xa) == null) {
-                if (va.exists(xa)) {
-                    //trace("L: " + xa + " -");
-                    order.add(xa,-1);
-                    va.remove(xa);
-                    xas--;
-                }
-                xa++;
-                continue;
-            }
-            if (xb<hb) {
-                var alt : Null<Int> = b2a(xb);
-                if (alt!=null) {
-                    //trace("R: " + alt + " " + xb);
-                    order.add(alt,xb);
-                    if (va.exists(alt)) {
-                        va.remove(alt);
-                        xas--;
-                    }
-                    xa = (alt+1);
-                } else {
-                    //trace("R: - " + xb);
-                    order.add(-1,xb);
-                }
-                xb++;
-                continue;
-            }
-            trace("Oops, alignment problem");
-            break;
         }
         return order;
     }
