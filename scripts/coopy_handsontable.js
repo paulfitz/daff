@@ -13,7 +13,9 @@ if (coopy == null) {
 var diffRenderer = function (instance, td, row, col, prop, value, cellProperties) {
     var tt = {};
     tt.getCellText = function(x,y) {
-	return instance.getDataAtCell(y,x);
+	var v = instance.getDataAtCell(y,x);
+	if (v==null) return v;
+	return "" + v;
     }
 
     var cell = coopy.DiffRender.renderCell(tt,col,row);

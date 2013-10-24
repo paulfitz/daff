@@ -26,3 +26,29 @@ assert(output.getCell(2,0) == "...");
 assert(output.getCell(3,0) == "Mood");
 assert(output.getCell(4,0) == "...");
 tester.round_trip_with_flags(t1,t2,"MoodSandwich",options);
+
+var lots_of_cols_example = {
+    "key": "one_small_change",
+    "parent": [[]],
+    "local": [["Col1","Col2","Col3","Col4","Col5","Col6","Col7","Col8","Col9","Col10"],
+	      [1,2,3,4,5,6,7,8,9,10],
+	      [11,12,13,14,15,16,17,18,19,20],
+	      [21,22,23,24,23,26,27,28,29,30]],
+    "remote": [["Col1","Col2","Col3","Col4","Col5","Col6","Col7","Col8","Col9","Col10"],
+	      [1,2,3,4,5,6,7,8,9,10],
+	      [11,12,13,14,15,16,17,18,19,20],
+	      [21,22,23,24,25,26,27,28,29,30]]
+};
+
+{
+    var eg = lots_of_cols_example;
+    var t1 = new coopy.CoopyTableView(eg["local"]);
+    var t2 = new coopy.CoopyTableView(eg["remote"]);
+    var ct = coopy.Coopy.compareTables(t1,t2);
+    var align = ct.align();
+    var options = new coopy.CompareFlags();
+    var td = new coopy.TableDiff(align,options);
+    var output = new coopy.CoopyTableView([]);
+    td.hilite(output);
+    tester.round_trip_with_flags(t1,t2,"lots_of_cols",options);
+}

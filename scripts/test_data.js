@@ -77,9 +77,22 @@ var planets_example = {
 
 var move_col_example = {
     "key": "move_col",
-    "parent": [[]],
+    "parent": [["First","Last"],["Paul","Fitzpatrick"]],
     "local": [["First","Last"],["Paul","Fitzpatrick"]],
     "remote": [["Last","First"],["Fitzpatrick","Paul"]]
 };
 
-var all_examples = [ bridge_example, planets_example /*, move_col_example*/ ];
+var lots_of_cols_example = {
+    "key": "one_small_change",
+    "parent": [[]],
+    "local": [["Col1","Col2","Col3","Col4","Col5","Col6","Col7","Col8","Col9","Col10"],
+	      [1,2,3,4,5,6,7,8,9,10],
+	      [11,12,13,14,15,16,17,18,19,20],
+	      [21,22,23,24,23,26,27,28,29,30]],
+    "remote": [["Col1","Col2","Col3","Col4","Col5","Col6","Col7","Col8","Col9","Col10"],
+	      [1,2,3,4,5,6,7,8,9,10],
+	      [11,12,13,14,15,16,17,18,19,20],
+	      [21,22,23,24,25,26,27,28,29,30]]
+};
+
+var all_examples = [ bridge_example, planets_example, move_col_example, lots_of_cols_example ];

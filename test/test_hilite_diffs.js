@@ -2,7 +2,13 @@ var fs = require('fs');
 var coopy = require('coopyhx');
 var tester = require('tester');
 
-{
+var goptions = [new coopy.CompareFlags(),
+		new coopy.CompareFlags()];
+var gnames = ["all_columns","some_columns"];
+goptions[0].show_unchanged_columns = true;
+goptions[1].show_unchanged_columns = false;
+
+for (var k=1; k<2; k++) {
     var t1 = new coopy.CoopyTableView([["Name","Number"],["John",14],["Jane",99]]);
     var t2 = new coopy.CoopyTableView([["Name","Number"],["Mary",17],["John",14],["Jane",99]]);
     var t3 = new coopy.CoopyTableView([["Name","Number"],["John",15],["Sam",21],["Jane",99]]);
@@ -42,7 +48,7 @@ var tester = require('tester');
 			      [-1,2,-1],
 			      [3,3,2]]);
 
-	var options = new coopy.CompareFlags();
+	var options = goptions[k];
 	var td = new coopy.TableDiff(align,options);
 	var output = new coopy.CoopyTableView([]);
 	td.hilite(output);
@@ -64,7 +70,7 @@ var tester = require('tester');
 	if (!tables.hasOwnProperty(i)) continue;
 	for (var j in tables) {
 	    if (!tables.hasOwnProperty(j)) continue;
-	    tester.round_trip(tables[i],tables[j],names[i] + " -> " + names[j]);
+	    tester.round_trip_with_flags(tables[i],tables[j],names[i] + " -> " + names[j] + " (" + gnames[k] + ")",goptions[k]);
 	}
     }
 }

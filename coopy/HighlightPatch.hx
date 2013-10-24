@@ -486,7 +486,7 @@ class HighlightPatch implements Row {
     }
 
     private function finishColumns() : Void {
-        if (haveDroppedColumns) return; // Can't deal with column re-ordering
+        //if (haveDroppedColumns) return; // Can't deal with column re-ordering
                                         // plus dropped columns just yet.
         needSourceColumns();
         for (i in payloadCol...payloadTop) {
@@ -516,7 +516,7 @@ class HighlightPatch implements Row {
                 }
                 mod.patchRow = i;
                 cmods.push(mod);
-            } else {
+            } else if (act!="...") {
                 var mod : HighlightPatchUnit = new HighlightPatchUnit();
                 mod.code = act;
                 mod.patchRow = i;
@@ -527,12 +527,14 @@ class HighlightPatch implements Row {
         var at : Int = -1;
         var rat : Int = -1;
         for (i in 0...cmods.length-1) {
-            if (cmods[i].code != "+++" && cmods[i].code != "---") {
+            var icode : String = cmods[i].code;
+            if (icode != "+++" && icode != "---") {
                 at = cmods[i].sourceRow;
             }
             cmods[i+1].sourcePrevRow = at;
             var j: Int = cmods.length-1-i;
-            if (cmods[j].code != "+++" && cmods[j].code != "---") {
+            var jcode : String = cmods[j].code;
+            if (jcode != "+++" && jcode != "---") {
                 rat = cmods[j].sourceRow;
             }
             cmods[j-1].sourceNextRow = rat;            

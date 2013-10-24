@@ -271,12 +271,14 @@ class TableDiff {
                         act = "(";
                         act += v.toString(aa);
                         act += ")";
+                        if (active_column!=null) active_column[j] = 1;
                     }
                 }
             }
             if (reordered) {
                 act = ":" + act;
                 have_schema = true;
+                if (active_column!=null) active_column = null; // bail
             }
 
             schema.push(act);
@@ -319,6 +321,13 @@ class TableDiff {
                 spreadContext(units,flags.unchanged_context,active);
                 spreadContext(column_units,flags.unchanged_column_context,
                               active_column);
+                if (active_column!=null) {
+                    for (i in 0...column_units.length) {
+                        if (active_column[i]==3) {
+                            active_column[i] = 0;
+                        }
+                    }
+                }
             }
 
             var showed_dummy : Bool = false;
@@ -483,6 +492,13 @@ class TableDiff {
                     }
                     if (act == "" && have_addition) {
                         act = "+";
+                    }
+                    if (act == "+++") {
+                        if (have_rr) {
+                            if (active_column!=null) {
+                                active_column[j] = 1;
+                            }
+                        }
                     }
                     if (publish) {
                         if (active_column==null || active_column[j]>0) {

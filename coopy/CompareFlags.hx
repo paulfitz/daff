@@ -37,8 +37,8 @@ class CompareFlags {
         unchanged_context = 1;
         always_show_order = false;
         never_show_order = true;
-        show_unchanged_columns = true;
-        unchanged_column_context = 0;
+        show_unchanged_columns = false;
+        unchanged_column_context = 1;
         always_show_header = true;
     }
 }
