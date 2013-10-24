@@ -29,7 +29,7 @@ var tester = require('tester');
     var broken_bridges = new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
 
     {
-	var ct = new coopy.Coopy.compareTables3(t1,t2,t3);
+	var ct = coopy.Coopy.compareTables3(t1,t2,t3);
 	var align = ct.align();
 	tester.align_asserts(align,
 			     [[0,0],[1,1],[2,3]]);

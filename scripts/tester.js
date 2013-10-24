@@ -35,10 +35,9 @@ function align_asserts(align,lst) {
 }
 
 
-function round_trip(t1,t2,msg) {
+function round_trip_with_flags(t1,t2,msg,flags) {
     var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
-    var flags = new coopy.CompareFlags();
     var td = new coopy.TableDiff(align,flags);
     var output = new coopy.CoopyTableView([]);
     td.hilite(output);
@@ -57,6 +56,11 @@ function round_trip(t1,t2,msg) {
     assert(t1c.isSimilar(t2),msg);
 }
 
+function round_trip(t1,t2,msg) {
+    var flags = new coopy.CompareFlags();
+    round_trip_with_flags(t1,t2,msg,flags);
+}
+
 function bi_round_trip(t1,t2,msg) {
     round_trip(t1,t2,msg);
     round_trip(t2,t1,msg + " (reversed)");
@@ -71,6 +75,7 @@ function readCsv(fname) {
 exports.align_assert = align_assert;
 exports.align_asserts = align_asserts;
 exports.order_asserts = order_asserts;
+exports.round_trip_with_flags = round_trip_with_flags;
 exports.round_trip = round_trip;
 exports.bi_round_trip = bi_round_trip;
 exports.readCsv = readCsv;

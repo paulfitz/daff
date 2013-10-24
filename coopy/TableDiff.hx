@@ -565,15 +565,25 @@ class TableDiff {
                     fate.push(i);
                 }
                 var at : Int = admin_w;
+                var ct : Int = 0;
+                var dots : Array<Int> = new Array<Int>();
                 for (i in 0...active_column.length) {
-                    if (active_column[i]==0) {
+                    var off : Bool = (active_column[i]==0);
+                    ct = off ? (ct+1) : 0;
+                    if (off && ct>1) {
                         fate.push(-1);
                     } else {
+                        if (off) dots.push(at);
                         fate.push(at);
                         at++;
                     }
                 }
                 output.insertOrDeleteColumns(fate,at);
+                for (d in dots) {
+                    for (j in 0...output.height) {
+                        output.setCell(d,j,"...");
+                    }
+                }
             }
         }
         return true;

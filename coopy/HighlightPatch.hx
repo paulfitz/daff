@@ -42,6 +42,7 @@ class HighlightPatch implements Row {
     private var rowPermutationRev : Array<Int>;
     private var colPermutation : Array<Int>;
     private var colPermutationRev : Array<Int>;
+    private var haveDroppedColumns : Bool;
 
     public function new(source: Table, patch: Table) {
         this.source = source;
@@ -73,6 +74,7 @@ class HighlightPatch implements Row {
         rowPermutationRev = null;
         colPermutation = null;
         colPermutationRev = null;
+        haveDroppedColumns = false;
     }
 
     public function apply() : Bool {
@@ -167,6 +169,11 @@ class HighlightPatch implements Row {
     private function applyHeader() : Void {
         for (i in payloadCol...payloadTop) {
             var name : String = getString(i);
+            if (name=="...") {
+                modifier.set(i,"...");
+                haveDroppedColumns = true;
+                continue;
+            }
             var mod : String = modifier.get(i);
             var move : Bool = false;
             if (mod!=null) {
@@ -479,6 +486,8 @@ class HighlightPatch implements Row {
     }
 
     private function finishColumns() : Void {
+        if (haveDroppedColumns) return; // Can't deal with column re-ordering
+                                        // plus dropped columns just yet.
         needSourceColumns();
         for (i in payloadCol...payloadTop) {
             var act : String = modifier.get(i);
