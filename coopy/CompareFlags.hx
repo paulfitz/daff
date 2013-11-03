@@ -31,6 +31,11 @@ class CompareFlags {
     // Should we always give a table header in diffs?
     public var always_show_header : Bool;
 
+    // Optional filters for actions, set any of:
+    //   "update", "insert", "delete"
+    // to true to accept just those actions.
+    public var acts : Map<String, Bool>;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -40,6 +45,22 @@ class CompareFlags {
         show_unchanged_columns = false;
         unchanged_column_context = 1;
         always_show_header = true;
+        acts = null;
+    }
+
+    public function allowUpdate() : Bool {
+        if (acts==null) return true;
+        return acts.exists("update");
+    }
+
+    public function allowInsert() : Bool {
+        if (acts==null) return true;
+        return acts.exists("insert");
+    }
+
+    public function allowDelete() : Bool {
+        if (acts==null) return true;
+        return acts.exists("delete");
     }
 }
 

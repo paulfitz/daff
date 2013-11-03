@@ -200,8 +200,10 @@ class Coopy {
         var css_output : String = null;
         var fragment : Bool = false;
         var pretty : Bool = true;
-        var context : Int = -1;
-        var show_all : Bool = false;
+
+        var flags : CompareFlags = new CompareFlags();
+        flags.always_show_header = true;
+
         while (more) {
             more = false;
             for (i in 0...args.length) {
@@ -229,12 +231,21 @@ class Coopy {
                     break;
                 } else if (tag=="--all") {
                     more = true;
-                    show_all = true;
+                    flags.show_unchanged = true;
                     args.splice(i,1);
+                    break;
+                } else if (tag=="--act") {
+                    more = true;
+                    if (flags.acts == null) {
+                        flags.acts = new Map<String, Bool>();
+                    }
+                    flags.acts[args[i+1]] = true;
+                    args.splice(i,2);
                     break;
                 } else if (tag=="--context") {
                     more = true;
-                    context = Std.parseInt(args[i+1]);
+                    var context : Int = Std.parseInt(args[i+1]);
+                    if (context>=0) flags.unchanged_context = context;
                     args.splice(i,2);
                     break;
                 }
@@ -243,6 +254,7 @@ class Coopy {
         var cmd : String = args[0];
         
         if (args.length < 2 || (!Lambda.has(["diff","patch","trim","render"],cmd))) {
+            io.writeStderr("The coopyhx utility can produce and apply tabular diffs.\n");
             io.writeStderr("Call coopyhx as:\n");
             io.writeStderr("  coopyhx diff [--output OUTPUT.csv] a.csv b.csv\n");
             io.writeStderr("  coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
@@ -252,9 +264,10 @@ class Coopy {
             io.writeStderr("  coopyhx render [--output OUTPUT.html] diff.csv\n");
             io.writeStderr("\n");
             io.writeStderr("If you need more control, here is the full list of flags:\n");
-            io.writeStderr("  coopyhx diff [--output OUTPUT.csv] [--context NUM] [--all] a.csv b.csv\n");
+            io.writeStderr("  coopyhx diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
             io.writeStderr("     --context NUM: show NUM rows of context\n");
             io.writeStderr("     --all:         do not prune unchanged rows\n");
+            io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
             io.writeStderr("\n");
             io.writeStderr("  coopyhx render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
             io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
@@ -282,10 +295,6 @@ class Coopy {
         if (cmd=="diff") {
             var ct : CompareTable = compareTables3(parent,a,b);
             var align : Alignment = ct.align();
-            var flags : CompareFlags = new CompareFlags();
-            flags.always_show_header = true;
-            flags.show_unchanged = show_all;
-            if (context>=0) flags.unchanged_context = context;
             var td : TableDiff = new TableDiff(align,flags);
             var o = new SimpleTable(0,0);
             td.hilite(o);

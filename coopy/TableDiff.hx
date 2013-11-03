@@ -94,30 +94,44 @@ class TableDiff {
         if (del>0 && active != null) {
             // forward
             var mark : Int = -del-1;
+            var skips : Int = 0;
             for (i in 0...units.length) {
+                if (active[i]==-3) {
+                    // inserted/deleted row that is not to be shown, ignore
+                    skips++;
+                    continue;
+                }
                 if (active[i]==0||active[i]==3) {
-                    if (i-mark<=del) {
+                    if (i-mark<=del+skips) {
                         active[i] = 2;
-                    } else if (i-mark==del+1) {
+                    } else if (i-mark==del+1+skips) {
                         active[i] = 3;
                     }
                 } else if (active[i]==1) {
                     mark = i;
+                    skips = 0;
                 }
             }
             
             // reverse
             mark = units.length + del + 1;
+            skips = 0;
             for (j in 0...units.length) {
                 var i : Int = units.length-1-j;
+                if (active[i]==-3) {
+                    // inserted/deleted row that is not to be shown, ignore
+                    skips++;
+                    continue;
+                }
                 if (active[i]==0||active[i]==3) {
-                    if (mark-i<=del) {
+                    if (mark-i<=del+skips) {
                         active[i] = 2;
-                    } else if (mark-i==del+1) {
+                    } else if (mark-i==del+1+skips) {
                         active[i] = 3;
                     }
                 } else if (active[i]==1) {
                     mark = i;
+                    skips = 0;
                 }
             }
         }
@@ -219,6 +233,11 @@ class TableDiff {
                 active[i] = 0;
             }
         }
+
+        var allow_insert : Bool = flags.allowInsert();
+        var allow_delete : Bool = flags.allowDelete();
+        var allow_update : Bool = flags.allowUpdate();
+
         if (!flags.show_unchanged_columns) {
             active_column = new Array<Int>();
             for (i in 0...column_units.length) {
@@ -255,12 +274,16 @@ class TableDiff {
             if (cunit.r>=0 && cunit.lp()==-1) {
                 have_schema = true;
                 act = "+++";
-                if (active_column!=null) active_column[j] = 1;
+                if (active_column!=null) {
+                    if (allow_update) active_column[j] = 1;
+                }
             }
             if (cunit.r<0 && cunit.lp()>=0) {
                 have_schema = true;
                 act = "---";
-                if (active_column!=null) active_column[j] = 1;
+                if (active_column!=null) {
+                    if (allow_update) active_column[j] = 1;
+                }
             }
             if (cunit.r>=0 && cunit.lp()>=0) {
                 if (a.height>=ra_header && b.height>=rb_header) {
@@ -377,14 +400,26 @@ class TableDiff {
                 }
                 
                 var have_addition : Bool = false;
+                var skip : Bool = false;
                 
                 if (unit.p<0 && unit.l<0 && unit.r>=0) {
+                    if (!allow_insert) skip = true;
                     act = "+++";
                 }
                 if ((unit.p>=0||!has_parent) && unit.l>=0 && unit.r<0) {
+                    if (!allow_delete) skip = true;
                     act = "---";
                 }
-                
+
+                if (skip) {
+                    if (!publish) {
+                        if (active!=null) {
+                            active[i] = -3;
+                        }
+                    }
+                    continue;
+                }
+
                 for (j in 0...column_units.length) {
                     var cunit : Unit = column_units[j];
                     var pp : Dynamic = null;
@@ -412,7 +447,9 @@ class TableDiff {
                         if ((have_pp ? cunit.p : cunit.l)<0) {
                             if (rr != null) {
                                 if (v.toString(rr) != "") {
-                                    have_addition = true;
+                                    if (flags.allowUpdate()) {
+                                        have_addition = true;
+                                    }
                                 }
                             }
                         }
@@ -458,7 +495,7 @@ class TableDiff {
                     }
 
                     var txt : String = null;
-                    if (have_dd_to) {
+                    if (have_dd_to&&allow_update) {
                         if (active_column!=null) {
                             active_column[j] = 1;
                         }
