@@ -30,16 +30,28 @@ the coopy toolbox.
 The program
 -----------
 
-There is a basic test wrapper of the library in the node package:
-````sh
+There is a commandline utility wrapping the core functions of the library:
+````
 $ coopyhx
+The coopyhx utility can produce and apply tabular diffs.
 Call coopyhx as:
   coopyhx diff [--output OUTPUT.csv] a.csv b.csv
   coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv
   coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook
   coopyhx patch [--output OUTPUT.csv] source.csv patch.csv
   coopyhx trim [--output OUTPUT.csv] source.csv
+  coopyhx render [--output OUTPUT.html] diff.csv
+
+If you need more control, here is the full list of flags:
+  coopyhx diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv
+     --context NUM: show NUM rows of context
+     --all:         do not prune unchanged rows
+     --act ACT:     show only a certain kind of change (update, insert, delete)
+
   coopyhx render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv
+     --css CSS.css: generate a suitable css file to go with the html
+     --fragment:    generate just a html fragment rather than a page
+     --plain:       do not use fancy utf8 characters to make arrows prettier
 ````
 
 The library
