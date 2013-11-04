@@ -513,7 +513,38 @@ class TableDiff {
                             }
                         }
                         if (!is_conflict) {
-                            txt = txt + sep + quoteForDiff(v,dd_to);
+
+                            var td : TextDiff = new TextDiff();
+                            var os : Array<TextOverlap> = 
+                                td.diff(txt,quoteForDiff(v,dd_to));
+                            var useful : Bool = os.length>=3;
+                            if (!useful) {
+                                for (o in os) {
+                                    if (o.l>=0 && o.r>=0) {
+                                        useful = true;
+                                    }
+                                }
+                            }
+                            if (useful) {
+                                var result : String = "";
+                                for (o in os) {
+                                    if (o.l==-1) {
+                                        result += "+[";
+                                    } else if (o.r==-1) {
+                                        result += "-[";
+                                    }
+                                    result += o.text;
+                                    if (o.l==-1) {
+                                        result += "]+";
+                                    } else if (o.r==-1) {
+                                        result += "]-";
+                                    }
+                                }
+                                txt = result;
+                            } else {
+                                txt = txt + sep + quoteForDiff(v,dd_to);
+                            }
+
                             if (sep.length>act.length) {
                                 act = sep;
                             }
