@@ -172,6 +172,11 @@ make cs
 make cpp
 ```
 
+[@Floppy](https://github.com/Floppy) has made a start on a [native Ruby port](https://github.com/theodi/coopy-ruby),
+otherwise there is a [gem wrapping the C++ translation](https://github.com/paulfitz/coopyhx_gem)
+which has been tried by exactly one person other than the author and
+"exploded impressively at application start".
+
 Reading material
 ----------------
 
