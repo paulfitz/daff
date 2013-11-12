@@ -2,16 +2,34 @@
 
 set -e
 
-if [ ! -e "build_cpp_package.sh" ] ; then
-    echo "Please run as ./build_cpp_package.sh"
+ORG="packaging/cpp_recipe"
+
+if [ ! -e "$ORG/build_cpp_package.sh" ] ; then
+    echo "Please run as ./$ORG/build_cpp_package.sh output_dir"
     exit 1
 fi
+
+which swig || {
+    echo "Please install swig"
+    exit 1
+}
+
+which cmake || {
+    echo "Please install cmake"
+    exit 1
+}
 
 WORK=/tmp/coopyhx_cpp
 if [ ! "k$1" = "k" ] ; then
     WORK="$1"
+    mkdir -p $WORK
+    BASE=$PWD
+    cd $WORK
+    WORK=$PWD
+    cd $BASE
 fi
 
+cd $ORG
 ORG=$PWD
 
 cd ../..
@@ -43,6 +61,10 @@ if [ ! -e coopyhx_cpp.zip ]; then
 fi
 echo "Zip file created with everything needed to compile coopyhx"
 ls $PWD/coopyhx_cpp.zip
+echo "Checking that it works..."
 
-
+ZIP=$PWD/coopyhx_cpp.zip
+cd $ORG
+./try_cpp_package.sh $ZIP
+echo "Working zip file: $ZIP"
 
