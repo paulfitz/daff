@@ -10,6 +10,8 @@
 #include <coopy/TableDiff.h>
 #include <coopy/CompareTable.h>
 #include <coopy/Alignment.h>
+#include <coopy/DiffRender.h>
+#include <coopy/HighlightPatch.h>
 
 
 class Coopyhx {
@@ -51,5 +53,19 @@ namespace coopy {
   TableDiffFactory(coopy::Alignment a, coopy::CompareFlags f) : 
     hx::ObjectPtr<coopy::TableDiff_obj>(coopy::TableDiff_obj::__new(a,f)) {}
     coopy::TableDiff_obj *operator->() { return GetPtr(); }
+  };
+
+  class DiffRenderFactory : public hx::ObjectPtr<coopy::DiffRender_obj> {
+  public:
+  DiffRenderFactory() : 
+    hx::ObjectPtr<coopy::DiffRender_obj>(coopy::DiffRender_obj::__new()) {}
+    coopy::DiffRender_obj *operator->() { return GetPtr(); }
+  };
+
+  class HighlightPatchFactory : public hx::ObjectPtr<coopy::HighlightPatch_obj> {
+  public:
+  HighlightPatchFactory(coopy::Table t1, coopy::Table t2) : 
+    hx::ObjectPtr<coopy::HighlightPatch_obj>(coopy::HighlightPatch_obj::__new(t1,t2)) {}
+    coopy::HighlightPatch_obj *operator->() { return GetPtr(); }
   };
 }
