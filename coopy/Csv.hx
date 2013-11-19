@@ -121,13 +121,17 @@ class Csv {
                         row_ended = true;
                         break;
                     }
-                    if (i==cursor && (ch=="\"".code || ch=="\'".code)) {
-                        quoting = true;
-                        quote = ch;
-                        if (i!=start) {
-                            result += String.fromCharCode(ch);
+                    if (ch=="\"".code || ch=="\'".code) {
+                        if (i==cursor) {
+                            quoting = true;
+                            quote = ch;
+                            if (i!=start) {
+                                result += String.fromCharCode(ch);
+                            }
+                            continue;
+                        } else if (ch==quote) {
+                            quoting = true;
                         }
-                        continue;
                     }
                     result += String.fromCharCode(ch);
                     continue;
