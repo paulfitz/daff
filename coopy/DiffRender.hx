@@ -129,7 +129,11 @@ class DiffRender {
                     }
                     cell.updated = true;
                     cell.separator = div;
-                    tokens = cell.pretty_value.split(div);
+                    if (cell.pretty_value==div) {
+                        tokens = ["",""];
+                    } else {
+                        tokens = cell.pretty_value.split(div);
+                    }
                     var pretty_tokens : Array<String> = tokens;
                     if (tokens.length>=2) {
                         pretty_tokens[0] = markSpaces(tokens[0],tokens[1]);

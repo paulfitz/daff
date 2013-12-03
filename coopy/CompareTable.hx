@@ -222,8 +222,10 @@ class CompareTable {
                 for (key in ma.keys()) {
                     var i0 : Int = ma.get(key);
                     var i1 : Null<Int> = mb.get(key);
-                    if (i1>=0 && i0>=0) {
-                        ct++;
+                    if (i1!=null) {
+                        if (i1>=0 && i0>=0) {
+                            ct++;
+                        }
                     }
                 }
 
