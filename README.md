@@ -172,7 +172,7 @@ make cs
 make cpp
 ```
 
-[@Floppy](https://github.com/Floppy) has made a partial [native Ruby port](https://github.com/theodi/coopy-ruby).
+[@Floppy](https://github.com/Floppy) has made a lovingly-hand-written [native Ruby port](https://github.com/theodi/coopy-ruby) that covers core functionality.  I've made a brutally-machine-converted [Ruby port](https://github.com/paulfitz/coopy-ruby) that is a full translation but may include utter gibberish.
 
 Reading material
 ----------------
