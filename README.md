@@ -1,5 +1,7 @@
-coopyhx
-=======
+dif 
+===
+
+(formerly called coopyhx, of all things)
 
 This is a library for comparing tables, producing a summary of their
 differences, and using such a summary as a patch file.  It is
