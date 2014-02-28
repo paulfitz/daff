@@ -1,7 +1,7 @@
 dif 
 ===
 
-(formerly called coopyhx, of all things)
+(formerly called `coopyhx`, of all things)
 
 This is a library for comparing tables, producing a summary of their
 differences, and using such a summary as a patch file.  It is
@@ -11,17 +11,17 @@ translated to Javascript for in-browser use.  The library is also
 available as Haxe-generated PHP or C++.
 
 For a live demo, see:
-> http://paulfitz.github.com/coopyhx/
+> http://paulfitz.github.com/dif/
 
 Get the core library here:
-> https://github.com/paulfitz/coopyhx/releases
+> https://github.com/paulfitz/dif/releases
 
 Or with node:
 ````sh
 npm install coopyhx
 ````
 
-The diff format used by coopyhx is specified here:
+The diff format used by `dif` is specified here:
 > http://dataprotocols.org/tabular-diff-format/
 
 This library is a stripped down version of the coopy toolbox (see
@@ -149,7 +149,7 @@ patcher.apply();
 Other languages
 ---------------
 
-The `coopyhx` library is written in [Haxe](http://haxe.org/), which
+The `dif` library is written in [Haxe](http://haxe.org/), which
 can be translated reasonably well into at least the following languages:
 
  * Javascript
@@ -160,7 +160,7 @@ can be translated reasonably well into at least the following languages:
 
 The Javascript translation is available via npm. 
 PHP and C++ translations are posted on the 
-[Releases](https://github.com/paulfitz/coopyhx/releases) page.
+[Releases](https://github.com/paulfitz/dif/releases) page.
 To make another translation, 
 follow the 
 [Haxe getting started tutorial](http://haxe.org/doc/start) for the
@@ -179,9 +179,9 @@ make cpp
 Reading material
 ----------------
 
- * http://dataprotocols.org/tabular-diff-format/ : a specification of the diff format coopyhx uses.
- * http://theodi.org/blog/adapting-git-simple-data : discusses using coopyhx with gitlab.
- * http://okfnlabs.org/blog/2013/08/08/diffing-and-patching-data.html : a summary of where coopyhx came from.
+ * http://dataprotocols.org/tabular-diff-format/ : a specification of the diff format we use.
+ * http://theodi.org/blog/adapting-git-simple-data : discusses using this library with gitlab.
+ * http://okfnlabs.org/blog/2013/08/08/diffing-and-patching-data.html : a summary of where the library came from.
  * http://blog.okfn.org/2013/07/02/git-and-github-for-data/ : a post about storing small data in git/github.
  * http://blog.ouseful.info/2013/08/27/diff-or-chop-github-csv-data-files-and-openrefine/ : counterpoint - a post discussing tracked-changes rather than diffs.
 
