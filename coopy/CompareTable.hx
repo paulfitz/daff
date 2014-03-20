@@ -243,7 +243,7 @@ class CompareTable {
         for (key in ma_best.keys()) {
             var i0 : Int = ma_best.get(key);
             var i1 : Null<Int> = mb_best.get(key);
-            if (i1>=0 && i0>=0) {
+            if (i1!=null && i0!=null) {
                 align.link(i0,i1);
             }
         }
