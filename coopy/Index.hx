@@ -52,7 +52,7 @@ class Index {
         for (k in 0...cols.length) {
             var d : Dynamic = t.getCell(cols[k],i);
             var txt : String = v.toString(d);
-            if (txt=="" || txt=="null" || txt=="undefined") continue;
+            if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;
             if (k>0) wide += " // ";
             wide += txt;
         }
@@ -63,7 +63,7 @@ class Index {
         var wide : String = "";
         for (k in 0...cols.length) {
             var txt : String = row.getRowString(cols[k]);
-            if (txt=="" || txt=="null" || txt=="undefined") continue;
+            if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;
             if (k>0) wide += " // ";
             wide += txt;
         }
