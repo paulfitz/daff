@@ -20,6 +20,10 @@ class Change {
         }
     }
 
+    public function getMode() : String {
+        return ""+mode;
+    }
+
     public function toString() : String {
         return switch(mode) {
         case NO_CHANGE: "no change";
