@@ -253,23 +253,23 @@ class Coopy {
         }
         var cmd : String = args[0];
         
-        if (args.length < 2 || (!Lambda.has(["diff","patch","trim","render"],cmd))) {
-            io.writeStderr("The coopyhx utility can produce and apply tabular diffs.\n");
-            io.writeStderr("Call coopyhx as:\n");
-            io.writeStderr("  coopyhx diff [--output OUTPUT.csv] a.csv b.csv\n");
-            io.writeStderr("  coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
-            io.writeStderr("  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
-            io.writeStderr("  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv\n");
-            io.writeStderr("  coopyhx trim [--output OUTPUT.csv] source.csv\n");
-            io.writeStderr("  coopyhx render [--output OUTPUT.html] diff.csv\n");
+        if (args.length < 2) {
+            io.writeStderr("daff can produce and apply tabular diffs.\n");
+            io.writeStderr("Call as:\n");
+            io.writeStderr("  daff [--output OUTPUT.csv] a.csv b.csv\n");
+            io.writeStderr("  daff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
+            io.writeStderr("  daff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
+            io.writeStderr("  daff patch [--output OUTPUT.csv] source.csv patch.csv\n");
+            io.writeStderr("  daff trim [--output OUTPUT.csv] source.csv\n");
+            io.writeStderr("  daff render [--output OUTPUT.html] diff.csv\n");
             io.writeStderr("\n");
             io.writeStderr("If you need more control, here is the full list of flags:\n");
-            io.writeStderr("  coopyhx diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
+            io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
             io.writeStderr("     --context NUM: show NUM rows of context\n");
             io.writeStderr("     --all:         do not prune unchanged rows\n");
             io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
             io.writeStderr("\n");
-            io.writeStderr("  coopyhx render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
+            io.writeStderr("  daff render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
             io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
             io.writeStderr("     --fragment:    generate just a html fragment rather than a page\n");
             io.writeStderr("     --plain:       do not use fancy utf8 characters to make arrows prettier\n");
@@ -279,18 +279,26 @@ class Coopy {
             output = "-";
         }
         var cmd : String = args[0];
+        var offset : Int = 1;
+        // "diff" is optional when followed by a filename with a dot in it,
+        // or by an --option.
+        if (!Lambda.has(["diff","patch","trim","render"],cmd)) {
+            if (cmd.indexOf(".")!=-1 || cmd.indexOf("--")==0) {
+                cmd = "diff";
+                offset = 0;
+            }
+        }
         var tool : Coopy = new Coopy();
         tool.io = io;
         var parent = null;
-        var offset : Int = 0;
-        if (args.length>3) {
-            parent = tool.loadTable(args[1]);
+        if (args.length-offset>=3) {
+            parent = tool.loadTable(args[offset]);
             offset++;
         }
-        var a = tool.loadTable(args[1+offset]);
+        var a = tool.loadTable(args[0+offset]);
         var b = null;
-        if (args.length>2) {
-            b = tool.loadTable(args[2+offset]);
+        if (args.length-offset>=2) {
+            b = tool.loadTable(args[1+offset]);
         }
         if (cmd=="diff") {
             var ct : CompareTable = compareTables3(parent,a,b);
