@@ -2,7 +2,7 @@
   "name": "daff",
   "version": "1.0.2",
   "description": "Diff and patch tables",
-  "url": "https://github.com/paulfitz/dif",
+  "url": "https://github.com/paulfitz/daff",
   "keywords": [
     "table",
     "diff",
@@ -10,10 +10,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/paulfitz/dif.git"
+    "url": "git://github.com/paulfitz/daff.git"
   },
   "bugs": {
-    "url": "https://github.com/paulfitz/dif/issues"
+    "url": "https://github.com/paulfitz/daff/issues"
   },
   "author": {
     "name": "Paul Fitzpatrick",
