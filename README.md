@@ -1,7 +1,5 @@
-dif 
-===
-
-(formerly called `coopyhx`, of all things)
+daff: data diff
+===============
 
 This is a library for comparing tables, producing a summary of their
 differences, and using such a summary as a patch file.  It is
@@ -11,17 +9,17 @@ translated to Javascript for in-browser use.  The library is also
 available as Haxe-generated PHP or C++.
 
 For a live demo, see:
-> http://paulfitz.github.com/dif/
+> http://paulfitz.github.com/daff/
 
 Get the core library here:
-> https://github.com/paulfitz/dif/releases
+> https://github.com/paulfitz/daff/releases
 
 Or with node:
 ````sh
-npm install coopyhx
+npm install daff
 ````
 
-The diff format used by `dif` is specified here:
+The diff format used by `daff` is specified here:
 > http://dataprotocols.org/tabular-diff-format/
 
 This library is a stripped down version of the coopy toolbox (see
@@ -34,7 +32,7 @@ The program
 
 There is a commandline utility wrapping the core functions of the library:
 ````
-$ coopyhx
+$ daff
 The coopyhx utility can produce and apply tabular diffs.
 Call coopyhx as:
   coopyhx diff [--output OUTPUT.csv] a.csv b.csv
@@ -149,7 +147,7 @@ patcher.apply();
 Other languages
 ---------------
 
-The `dif` library is written in [Haxe](http://haxe.org/), which
+The `daff` library is written in [Haxe](http://haxe.org/), which
 can be translated reasonably well into at least the following languages:
 
  * Javascript
