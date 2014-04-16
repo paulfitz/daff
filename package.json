@@ -1,8 +1,8 @@
 {
-  "name": "coopyhx",
+  "name": "daff",
   "version": "1.0.0",
   "description": "Diff and patch tables",
-  "url": "https://github.com/paulfitz/coopyhx",
+  "url": "https://github.com/paulfitz/dif",
   "keywords": [
     "table",
     "diff",
@@ -10,10 +10,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/paulfitz/coopyhx.git"
+    "url": "git://github.com/paulfitz/dif.git"
   },
   "bugs": {
-    "url": "https://github.com/paulfitz/coopyhx/issues"
+    "url": "https://github.com/paulfitz/dif/issues"
   },
   "author": {
     "name": "Paul Fitzpatrick",
