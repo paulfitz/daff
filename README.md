@@ -155,6 +155,7 @@ can be translated reasonably well into at least the following languages:
  * Java
  * C#
  * C++
+ * Python (this is new, I haven't tested yet)
 
 The Javascript translation is available via npm. 
 PHP and C++ translations are posted on the 
