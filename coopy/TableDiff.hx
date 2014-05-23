@@ -164,7 +164,7 @@ class TableDiff {
         var row_map : Map<Int,Unit> = new Map<Int,Unit>();
         var col_map : Map<Int,Unit> = new Map<Int,Unit>();
 
-        var order : Ordering = align.toOrder();
+        var order : Ordering = align.toOrderPruned(true);
         var units : Array<Unit> = order.getList();
         var has_parent : Bool = (align.reference != null);
         var a : Table;
@@ -207,7 +207,7 @@ class TableDiff {
             }
         }
 
-        var column_order : Ordering = align.meta.toOrder();
+        var column_order : Ordering = align.meta.toOrderPruned(false);
         var column_units : Array<Unit> = column_order.getList();
 
         var show_rc_numbers : Bool = false;

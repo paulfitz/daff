@@ -46,7 +46,7 @@ class CompareTable {
             align.meta = new Alignment();
         }
         alignColumns(align.meta,a,b);
-        var column_order : Ordering = align.meta.toOrder();
+        var column_order : Ordering = align.meta.toOrderPruned(false);
         var common_units : Array<Unit> = new Array<Unit>();
         for (unit in column_order.getList()) {
             if (unit.l>=0 && unit.r>=0 && unit.p!=-1) {
