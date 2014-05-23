@@ -1,6 +1,6 @@
 {
   "name": "daff",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Diff and patch tables",
   "url": "https://github.com/paulfitz/daff",
   "keywords": [
