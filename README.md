@@ -19,6 +19,9 @@ Or with node:
 npm install daff
 ````
 
+Or use the library to view csv diffs on github via a chrome extension:
+> https://github.com/theodi/csvhub
+
 The diff format used by `daff` is specified here:
 > http://dataprotocols.org/tabular-diff-format/
 
