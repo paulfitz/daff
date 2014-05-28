@@ -33,8 +33,8 @@ cd $ORG
 ORG=$PWD
 
 cd ../..
-if [ ! -e compile_cpp_for_package.hxml ]; then
-    echo "Could not find compile_cpp_for_package.hxml"
+if [ ! -e language/cpp_for_package.hxml ]; then
+    echo "Could not find language/cpp_for_package.hxml"
     exit 1
 fi
 make cpp_package

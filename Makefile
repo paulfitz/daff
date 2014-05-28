@@ -63,14 +63,20 @@ release: js test php py
 	rm -rf release
 	mkdir -p release
 	cp coopyhx.js release
+	rm -rf coopyhx_php
 	mv php_bin coopyhx_php
 	rm -f coopyhx_php.zip
 	zip -r coopyhx_php coopyhx_php
 	mv coopyhx_php.zip release
+	rm -rf coopyhx_py
 	mv python_bin coopyhx_py
 	rm -f coopyhx_py.zip
 	zip -r coopyhx_py coopyhx_py
 	mv coopyhx_py.zip release
 	rm -f /tmp/coopyhx_cpp/build/coopyhx_cpp.zip
-	cd packaging/cpp_recipe && ./build_cpp_package.sh
+	rm -rf /tmp/coopyhx_cpp
+	./packaging/cpp_recipe/build_cpp_package.sh /tmp/coopyhx_cpp
 	cp /tmp/coopyhx_cpp/build/coopyhx_cpp.zip release
+
+clean:
+	rm -rf bin cpp_pack coopyhx_php coopyhx_py release py_bin php_bin
