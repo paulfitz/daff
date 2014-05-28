@@ -50,8 +50,16 @@ cs:
 	haxe language/cs.hxml
 	@echo 'Output in cs_bin, do something like "gmcs -recurse:*.cs -main:coopy.Coopy -out:coopyhx.exe" in that directory'
 
+py:
+	mkdir -p py_bin
+	haxe language/py.hxml
+	haxe language/py_util.hxml
+	cp scripts/python_table_view.py python_bin/
+	cp scripts/example.py python_bin/
+	@echo 'Output in python_bin, run "python3 python_bin/daff.py" for an example utility'
+	@echo 'or try "python3 python_bin/example.py" for an example of using coopyhx as a library'
 
-release: js test php
+release: js test php py
 	rm -rf release
 	mkdir -p release
 	cp coopyhx.js release
@@ -59,6 +67,10 @@ release: js test php
 	rm -f coopyhx_php.zip
 	zip -r coopyhx_php coopyhx_php
 	mv coopyhx_php.zip release
+	mv python_bin coopyhx_py
+	rm -f coopyhx_py.zip
+	zip -r coopyhx_py coopyhx_py
+	mv coopyhx_py.zip release
 	rm -f /tmp/coopyhx_cpp/build/coopyhx_cpp.zip
 	cd packaging/cpp_recipe && ./build_cpp_package.sh
 	cp /tmp/coopyhx_cpp/build/coopyhx_cpp.zip release
