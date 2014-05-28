@@ -6,12 +6,13 @@ differences, and using such a summary as a patch file.  It is
 optimized for comparing tables that share a common origin, in other
 words multiple versions of the "same" table.  It is written in Haxe,
 translated to Javascript for in-browser use.  The library is also 
-available as Haxe-generated PHP or C++.
+available as Haxe-generated Python3, PHP, or C++.  There are two
+ruby translations.
 
 For a live demo, see:
 > http://paulfitz.github.com/daff/
 
-Get the core library here:
+Get the core library for your preferred language here:
 > https://github.com/paulfitz/daff/releases
 
 Or with node:
@@ -36,22 +37,22 @@ The program
 There is a commandline utility wrapping the core functions of the library:
 ````
 $ daff
-The coopyhx utility can produce and apply tabular diffs.
-Call coopyhx as:
-  coopyhx diff [--output OUTPUT.csv] a.csv b.csv
-  coopyhx diff [--output OUTPUT.csv] parent.csv a.csv b.csv
-  coopyhx diff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook
-  coopyhx patch [--output OUTPUT.csv] source.csv patch.csv
-  coopyhx trim [--output OUTPUT.csv] source.csv
-  coopyhx render [--output OUTPUT.html] diff.csv
+daff can produce and apply tabular diffs.
+Call as:
+  daff [--output OUTPUT.csv] a.csv b.csv
+  daff [--output OUTPUT.csv] parent.csv a.csv b.csv
+  daff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook
+  daff patch [--output OUTPUT.csv] source.csv patch.csv
+  daff trim [--output OUTPUT.csv] source.csv
+  daff render [--output OUTPUT.html] diff.csv
 
 If you need more control, here is the full list of flags:
-  coopyhx diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv
+  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv
      --context NUM: show NUM rows of context
      --all:         do not prune unchanged rows
      --act ACT:     show only a certain kind of change (update, insert, delete)
 
-  coopyhx render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv
+  daff render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv
      --css CSS.css: generate a suitable css file to go with the html
      --fragment:    generate just a html fragment rather than a page
      --plain:       do not use fancy utf8 characters to make arrows prettier
@@ -60,7 +61,8 @@ If you need more control, here is the full list of flags:
 The library
 -----------
 
-For Javascript use - first, include `coopyhx.js` on a webpage:
+The `daff` utility is a thin wrapper around a library called (through an accident of history) `coopyhx`.
+To use this library from Javascript, first include `coopyhx.js` on a webpage:
 ```html
 <script src="coopyhx.js"></script>
 ```
@@ -155,14 +157,14 @@ can be translated reasonably well into at least the following languages:
 
  * Javascript
  * PHP
+ * Python
  * Java
  * C#
  * C++
- * Python (this is new, I haven't tested yet)
 
 The Javascript translation is available via npm. 
 PHP and C++ translations are posted on the 
-[Releases](https://github.com/paulfitz/dif/releases) page.
+[Releases](https://github.com/paulfitz/daff/releases) page.
 To make another translation, 
 follow the 
 [Haxe getting started tutorial](http://haxe.org/doc/start) for the
@@ -171,12 +173,17 @@ language you care about, then do one of:
 ```
 make js
 make php
+make py
 make java
 make cs
 make cpp
 ```
 
 [@Floppy](https://github.com/Floppy) has made a lovingly-hand-written [native Ruby port](https://github.com/theodi/coopy-ruby) that covers core functionality.  I've made a brutally-machine-converted [Ruby port](https://github.com/paulfitz/coopy-ruby) that is a full translation but may include utter gibberish.
+
+For each language, the `coopyhx` library expects to be handed an interface to tables you create, rather than creating them
+itself.  This is to avoid inefficient copies from one format to another.  You'll find a `SimpleTable` class you can use if
+you find this awkward.
 
 Reading material
 ----------------
