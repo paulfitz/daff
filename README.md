@@ -189,7 +189,8 @@ Reading material
 ----------------
 
  * http://dataprotocols.org/tabular-diff-format/ : a specification of the diff format we use.
- * http://theodi.org/blog/adapting-git-simple-data : discusses using this library with gitlab.
+ * http://theodi.org/blog/csvhub-github-diffs-for-csv-files : using this library with github.
+ * http://theodi.org/blog/adapting-git-simple-data : using this library with gitlab.
  * http://okfnlabs.org/blog/2013/08/08/diffing-and-patching-data.html : a summary of where the library came from.
  * http://blog.okfn.org/2013/07/02/git-and-github-for-data/ : a post about storing small data in git/github.
  * http://blog.ouseful.info/2013/08/27/diff-or-chop-github-csv-data-files-and-openrefine/ : counterpoint - a post discussing tracked-changes rather than diffs.
