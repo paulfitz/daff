@@ -1,6 +1,8 @@
 // -*- mode:java; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 
+#if !TOPLEVEL
 package coopy;
+#end
 
 class Alignment {
     private var map_a2b : Map<Int,Int>;

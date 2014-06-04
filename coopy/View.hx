@@ -1,6 +1,8 @@
 // -*- mode:java; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
 
+#if !TOPLEVEL
 package coopy;
+#end
 
 // Optimize access to arrays of primitives, avoid needing 
 // each item to be wrapped individually in some kind of access object.
