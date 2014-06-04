@@ -1,5 +1,5 @@
-import coopyhx
-from python_table_view import coopy_PythonTableView
+import coopyhx as daff
+from python_table_view import PythonTableView
 
 data1 = [
   ['Country','Capital'],
@@ -16,23 +16,20 @@ data2 = [
   ['Germany','de','Berlin']
   ]
 
-table1 = coopy_PythonTableView(data1)
-table2 = coopy_PythonTableView(data2)
+table1 = PythonTableView(data1)
+table2 = PythonTableView(data2)
 
-
-alignment = coopyhx.coopy_Coopy.compareTables(table1,table2).align()
+alignment = daff.Coopy.compareTables(table1,table2).align()
 
 data_diff = []
-table_diff = coopy_PythonTableView(data_diff)
+table_diff = PythonTableView(data_diff)
 
-flags = coopyhx.coopy_CompareFlags()
-highlighter = coopyhx.coopy_TableDiff(alignment,flags)
+flags = daff.CompareFlags()
+highlighter = daff.TableDiff(alignment,flags)
 highlighter.hilite(table_diff)
 
-diff2html = coopyhx.coopy_DiffRender()
+diff2html = daff.DiffRender()
 diff2html.usePrettyArrows(False)
 diff2html.render(table_diff)
 table_diff_html = diff2html.html()
 print(table_diff_html)
-
-

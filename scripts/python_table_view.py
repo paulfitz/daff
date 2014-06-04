@@ -1,6 +1,6 @@
-import coopyhx
+import coopyhx as daff
 
-class coopy_PythonTableView(coopyhx.coopy_Table):
+class PythonTableView(daff.Table):
     def __init__(self,data):
         self.data = data
         self.height = len(data)
@@ -21,10 +21,10 @@ class coopy_PythonTableView(coopyhx.coopy_Table):
         self.data[y][x] = c
 
     def toString(self):
-        return coopyhx.coopy_SimpleTable.tableToString(self)
+        return daff.SimpleTable.tableToString(self)
 
     def getCellView(self):
-        return coopyhx.coopy_SimpleView()
+        return daff.SimpleView()
 
     def isResizable(self):
         return True
