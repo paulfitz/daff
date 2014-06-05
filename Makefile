@@ -59,6 +59,13 @@ py:
 	@echo 'Output in python_bin, run "python3 python_bin/daff.py" for an example utility'
 	@echo 'or try "python3 python_bin/example.py" for an example of using coopyhx as a library'
 
+setup_py: py
+	echo "#!/usr/bin/env python" > daff.py
+	cat python_bin/daff.py | sed "s|.*Coopy.main.*||" >> daff.py
+	cat python_bin/python_table_view.py | sed "s|import coopyhx as daff||" | sed "s|daff[.]||g" >> daff.py
+	echo "if __name__ == '__main__':" >> daff.py
+	echo "\tCoopy.main()" >> daff.py
+
 release: js test php py
 	rm -rf release
 	mkdir -p release
