@@ -4,10 +4,7 @@ daff: data diff
 This is a library for comparing tables, producing a summary of their
 differences, and using such a summary as a patch file.  It is
 optimized for comparing tables that share a common origin, in other
-words multiple versions of the "same" table.  It is written in Haxe,
-translated to Javascript for in-browser use.  The library is also 
-available as Haxe-generated Python3, PHP, or C++.  There are two
-ruby translations.
+words multiple versions of the "same" table.
 
 For a live demo, see:
 > http://paulfitz.github.com/daff/
@@ -18,6 +15,11 @@ Get the core library for your preferred language here:
 Or with node:
 ````sh
 npm install daff
+````
+
+Or with pip:
+````sh
+pip3 install daff  # currently needs python3
 ````
 
 Or use the library to view csv diffs on github via a chrome extension:
