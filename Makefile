@@ -59,13 +59,6 @@ py:
 	@echo 'Output in python_bin, run "python3 python_bin/daff.py" for an example utility'
 	@echo 'or try "python3 python_bin/example.py" for an example of using coopyhx as a library'
 
-setup_py: py
-	echo "#!/usr/bin/env python" > daff.py
-	cat python_bin/daff.py | sed "s|.*Coopy.main.*||" >> daff.py
-	cat python_bin/python_table_view.py | sed "s|import coopyhx as daff||" | sed "s|daff[.]||g" >> daff.py
-	echo "if __name__ == '__main__':" >> daff.py
-	echo "\tCoopy.main()" >> daff.py
-
 release: js test php py
 	rm -rf release
 	mkdir -p release
@@ -87,3 +80,30 @@ release: js test php py
 
 clean:
 	rm -rf bin cpp_pack coopyhx_php coopyhx_py release py_bin php_bin
+
+
+
+##############################################################################
+##############################################################################
+## 
+## PYTHON PACKAGING
+##
+
+setup_py: py
+	echo "#!/usr/bin/env python" > daff.py
+	cat python_bin/daff.py | sed "s|.*Coopy.main.*||" >> daff.py
+	cat python_bin/python_table_view.py | sed "s|import coopyhx as daff||" | sed "s|daff[.]||g" >> daff.py
+	echo "if __name__ == '__main__':" >> daff.py
+	echo "\tCoopy.main()" >> daff.py
+	mkdir -p daff
+	cp daff.py daff/__init__.py
+
+sdist: setup_py
+	rm -rf dist
+	mv page /tmp/sdist_does_not_like_page
+	python3 setup.py sdist
+	cd dist && mkdir tmp && cd tmp && tar xzvf ../daff*.tar.gz && cd daff-*[0-9] && ./setup.py build
+	python3 setup.py sdist upload
+	rm -rf dist/tmp
+	mv /tmp/sdist_does_not_like_page page
+

@@ -5,11 +5,13 @@ from distutils.core import setup
 from distutils.command.build_py import build_py
 from subprocess import call
 import json
+import os.path
 
 class my_build_py(build_py):
     def run(self):
-        if call(["make","setup_py"])!=0:
-            exit(1)
+        if os.path.isfile("Makefile"):
+            if call(["make","setup_py"])!=0:
+                exit(1)
         build_py.run(self)
 
 def read(fname):
@@ -25,7 +27,7 @@ setup(
     description = (package['description']),
     license = package['license'],
     keywords = "data diff patch",
-    url = "http://packages.python.org/daff",
+    url = package['url'],
     packages=['daff'],
     scripts=['daff.py'],
     long_description=read('README.md'),
@@ -33,6 +35,7 @@ setup(
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3"
     ],
     cmdclass={'build_py': my_build_py}
 )
