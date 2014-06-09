@@ -63,8 +63,7 @@ If you need more control, here is the full list of flags:
 The library
 -----------
 
-The `daff` utility is a thin wrapper around a library called (through an accident of history) `coopyhx`.
-To use this library from Javascript, first include `coopyhx.js` on a webpage:
+To use this library from Javascript, first include `daff.js` on a webpage:
 ```html
 <script src="daff.js"></script>
 ```
@@ -92,10 +91,10 @@ var data2 = [
 ```
 
 To make those tables accessible to the library, we wrap them
-in `daff.CoopyTableView`:
+in `daff.TableView`:
 ```js
-var table1 = new daff.CoopyTableView(data1);
-var table2 = new daff.CoopyTableView(data2);
+var table1 = new daff.TableView(data1);
+var table2 = new daff.TableView(data2);
 ```
 
 We can now compute the alignment between the rows and columns
@@ -108,7 +107,7 @@ To produce a diff from the alignment, we first need a table
 for the output:
 ```js
 var data_diff = [];
-var table_diff = new daff.CoopyTableView(data_diff);
+var table_diff = new daff.TableView(data_diff);
 ```
 
 Using default options for the diff:
