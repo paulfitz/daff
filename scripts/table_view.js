@@ -7,7 +7,7 @@ if (typeof exports != "undefined") {
     }
 }
 if (coopy == null) {
-    coopy = window.coopy;
+    coopy = window.daff;
 }
 
 var TableView = function(data) {
@@ -206,8 +206,8 @@ TableView.prototype.isSimilar = function(alt) {
 if (typeof exports != "undefined") {
     exports.TableView = TableView;
 } else {
-    if (typeof window["coopy"] == "undefined") window["coopy"] = {};
-    window.coopy.TableView = TableView;
+    if (typeof window["daff"] == "undefined") window["daff"] = {};
+    window.daff.TableView = TableView;
 }
 
 })();

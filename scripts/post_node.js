@@ -20,4 +20,5 @@ if (typeof exports != "undefined") {
 	    coopy[f] = coopy.Coopy[f]; 
 	}
     } 
+    daff = coopy;
 }
