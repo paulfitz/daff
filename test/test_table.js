@@ -1,7 +1,7 @@
-var coopy = require('coopyhx');
+var coopy = require('daff');
 var assert = require('assert');
 
-var table_classes = [coopy.SimpleTable, coopy.CoopyTableView];
+var table_classes = [coopy.SimpleTable, coopy.TableView];
 
 for (var t=0; t<table_classes.length; t++) {
     var TableClass = table_classes[t];

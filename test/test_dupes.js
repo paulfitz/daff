@@ -1,15 +1,15 @@
 var fs = require('fs');
-var coopy = require('coopyhx');
+var coopy = require('daff');
 var assert = require('assert');
 
-var t1 = new coopy.CoopyTableView([["color","sound"],
+var t1 = new coopy.TableView([["color","sound"],
 				   ["red","boink"],
 				   ["yellow","whine"],
 				   ["yellow","whine"],
 				   ["gold","jingle"]]);
 
 
-var t2 = new coopy.CoopyTableView([["color","sound"],
+var t2 = new coopy.TableView([["color","sound"],
 				   ["red","boink"],
 				   ["yellow","whine"],
 				   ["yellow","whine"],
@@ -19,7 +19,7 @@ var t2 = new coopy.CoopyTableView([["color","sound"],
 var alignment = coopy.compareTables(t1,t2).align();
 
 var data_diff = [];      
-var table_diff = new coopy.CoopyTableView(data_diff);
+var table_diff = new coopy.TableView(data_diff);
 
 var flags = new coopy.CompareFlags();
 var highlighter = new coopy.TableDiff(alignment,flags);

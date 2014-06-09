@@ -1,5 +1,5 @@
 var fs = require('fs');
-var coopy = require('coopyhx');
+var coopy = require('daff');
 var tester = require('tester');
 
 var goptions = [new coopy.CompareFlags(),
@@ -9,30 +9,30 @@ goptions[0].show_unchanged_columns = true;
 goptions[1].show_unchanged_columns = false;
 
 for (var k=1; k<2; k++) {
-    var t1 = new coopy.CoopyTableView([["Name","Number"],["John",14],["Jane",99]]);
-    var t2 = new coopy.CoopyTableView([["Name","Number"],["Mary",17],["John",14],["Jane",99]]);
-    var t3 = new coopy.CoopyTableView([["Name","Number"],["John",15],["Sam",21],["Jane",99]]);
-    var t4 = new coopy.CoopyTableView([["Name","Number"],["John",15],["Nimble",88],["Sam",21],["Jane",99]]);
-    var t5 = new coopy.CoopyTableView([["Name","Number","Planet"],["John",14,"Earth"],["Jane",99,"Mercury"]]);
-    var t6 = new coopy.CoopyTableView([["Name","Planet"],["Frank","Jupiter"],["John","Earth"],["Jane","Mercury"]]);
-    var t7 = new coopy.CoopyTableView([["Name","Planet"],["Frank","Jupiter"],["John","Ea->rth"],["Jane","Mercury"]]);
-    var t8 = new coopy.CoopyTableView([["Name","Planet"],["Frank","Jupiter"],["John",null],["Jane","Mercury"]]);
-    var t9 = new coopy.CoopyTableView([["Name","Planet"],["Frank","Jupiter"],["John","NULL"],["Jane","Mercury"]]);
-    var t10 = new coopy.CoopyTableView([["Name","Planet"],["Frank","Jupiter"],["John","_NULL"],["Jane","Mercury"]]);
-    var t11 = new coopy.CoopyTableView([["Name","Planet"],["Frank","Jupiter"],["John","Pluto but it is not\na planet anymore"],["Jane","Mercury"]]);
-    var t12 = new coopy.CoopyTableView([["Planet"],["Jupiter"],["Pluto but it is not\na planet anymore"],["Mercury"]]);
-    var t13 = new coopy.CoopyTableView([["Planet"],["Jupiter"],["Mercury"],["Pluto but it is not\na planet anymore"]]);
-    var t14 = new coopy.CoopyTableView([["Planet"],["Mercury"],["Jupiter"],["Pluto but it is not\na planet anymore"]]);
-    var t15 = new coopy.CoopyTableView([["Planet","Name"],["Jupiter","Frank"],["Pluto but it is not\na planet anymore","John"],["Mercury","Jane"]]);
+    var t1 = new coopy.TableView([["Name","Number"],["John",14],["Jane",99]]);
+    var t2 = new coopy.TableView([["Name","Number"],["Mary",17],["John",14],["Jane",99]]);
+    var t3 = new coopy.TableView([["Name","Number"],["John",15],["Sam",21],["Jane",99]]);
+    var t4 = new coopy.TableView([["Name","Number"],["John",15],["Nimble",88],["Sam",21],["Jane",99]]);
+    var t5 = new coopy.TableView([["Name","Number","Planet"],["John",14,"Earth"],["Jane",99,"Mercury"]]);
+    var t6 = new coopy.TableView([["Name","Planet"],["Frank","Jupiter"],["John","Earth"],["Jane","Mercury"]]);
+    var t7 = new coopy.TableView([["Name","Planet"],["Frank","Jupiter"],["John","Ea->rth"],["Jane","Mercury"]]);
+    var t8 = new coopy.TableView([["Name","Planet"],["Frank","Jupiter"],["John",null],["Jane","Mercury"]]);
+    var t9 = new coopy.TableView([["Name","Planet"],["Frank","Jupiter"],["John","NULL"],["Jane","Mercury"]]);
+    var t10 = new coopy.TableView([["Name","Planet"],["Frank","Jupiter"],["John","_NULL"],["Jane","Mercury"]]);
+    var t11 = new coopy.TableView([["Name","Planet"],["Frank","Jupiter"],["John","Pluto but it is not\na planet anymore"],["Jane","Mercury"]]);
+    var t12 = new coopy.TableView([["Planet"],["Jupiter"],["Pluto but it is not\na planet anymore"],["Mercury"]]);
+    var t13 = new coopy.TableView([["Planet"],["Jupiter"],["Mercury"],["Pluto but it is not\na planet anymore"]]);
+    var t14 = new coopy.TableView([["Planet"],["Mercury"],["Jupiter"],["Pluto but it is not\na planet anymore"]]);
+    var t15 = new coopy.TableView([["Planet","Name"],["Jupiter","Frank"],["Pluto but it is not\na planet anymore","John"],["Mercury","Jane"]]);
 
     var txt = fs.readFileSync("data/quote_me.csv","utf8");
-    var quote_me = new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
+    var quote_me = new coopy.TableView((new coopy.Csv()).parseTable(txt));
     txt = fs.readFileSync("data/quote_me2.csv","utf8");
-    var quote_me2 = new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
+    var quote_me2 = new coopy.TableView((new coopy.Csv()).parseTable(txt));
     txt = fs.readFileSync("data/bridges.csv","utf8");
-    var bridges = new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
+    var bridges = new coopy.TableView((new coopy.Csv()).parseTable(txt));
     txt = fs.readFileSync("data/broken_bridges.csv","utf8");
-    var broken_bridges = new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
+    var broken_bridges = new coopy.TableView((new coopy.Csv()).parseTable(txt));
 
     {
 	var ct = coopy.Coopy.compareTables3(t1,t2,t3);
@@ -50,7 +50,7 @@ for (var k=1; k<2; k++) {
 
 	var options = goptions[k];
 	var td = new coopy.TableDiff(align,options);
-	var output = new coopy.CoopyTableView([]);
+	var output = new coopy.TableView([]);
 	td.hilite(output);
     }
 

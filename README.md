@@ -66,11 +66,11 @@ The library
 The `daff` utility is a thin wrapper around a library called (through an accident of history) `coopyhx`.
 To use this library from Javascript, first include `coopyhx.js` on a webpage:
 ```html
-<script src="coopyhx.js"></script>
+<script src="daff.js"></script>
 ```
 Or with nodejs:
 ```js
-var coopy = require('coopyhx');
+var daff = require('daff');
 ```
 
 For concreteness, assume we have two versions of a table,
@@ -92,29 +92,29 @@ var data2 = [
 ```
 
 To make those tables accessible to the library, we wrap them
-in `coopy.CoopyTableView`:
+in `daff.CoopyTableView`:
 ```js
-var table1 = new coopy.CoopyTableView(data1);
-var table2 = new coopy.CoopyTableView(data2);
+var table1 = new daff.CoopyTableView(data1);
+var table2 = new daff.CoopyTableView(data2);
 ```
 
 We can now compute the alignment between the rows and columns
 in the two tables:
 ```js
-var alignment = coopy.compareTables(table1,table2).align();
+var alignment = daff.compareTables(table1,table2).align();
 ```
 
 To produce a diff from the alignment, we first need a table
 for the output:
 ```js
 var data_diff = [];
-var table_diff = new coopy.CoopyTableView(data_diff);
+var table_diff = new daff.CoopyTableView(data_diff);
 ```
 
 Using default options for the diff:
 ```js
-var flags = new coopy.CompareFlags();
-var highlighter = new coopy.TableDiff(alignment,flags);
+var flags = new daff.CompareFlags();
+var highlighter = new daff.TableDiff(alignment,flags);
 highlighter.hilite(table_diff);
 ```
 
@@ -135,18 +135,18 @@ For visualization, you may want to convert this to a HTML table
 with appropriate classes on cells so you can color-code inserts,
 deletes, updates, etc.  You can do this with:
 ```js
-var diff2html = new coopy.DiffRender();
+var diff2html = new daff.DiffRender();
 diff2html.render(table_diff);
 var table_diff_html = diff2html.html();
 ```
 
 For 3-way differences (that is, comparing two tables given knowledge
-of a common ancestor) use `coopy.compareTables3` (give ancestor
+of a common ancestor) use `daff.compareTables3` (give ancestor
 table as the first argument).
 
 Here is how to apply that difference as a patch:
 ```js
-var patcher = new coopy.HighlightPatch(table1,table_diff);
+var patcher = new daff.HighlightPatch(table1,table_diff);
 patcher.apply();
 // table1 should now equal table2
 ```
@@ -183,7 +183,7 @@ make cpp
 
 [@Floppy](https://github.com/Floppy) has made a lovingly-hand-written [native Ruby port](https://github.com/theodi/coopy-ruby) that covers core functionality.  I've made a brutally-machine-converted [Ruby port](https://github.com/paulfitz/coopy-ruby) that is a full translation but may include utter gibberish.
 
-For each language, the `coopyhx` library expects to be handed an interface to tables you create, rather than creating them
+For each language, the `daff` library expects to be handed an interface to tables you create, rather than creating them
 itself.  This is to avoid inefficient copies from one format to another.  You'll find a `SimpleTable` class you can use if
 you find this awkward.
 
@@ -199,4 +199,4 @@ Reading material
 
 ## License
 
-Coopyhx is distributed under the MIT License.
+daff is distributed under the MIT License.

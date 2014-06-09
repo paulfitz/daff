@@ -1,5 +1,5 @@
 var fs = require('fs');
-var coopy = require('coopyhx');
+var coopy = require('daff');
 var tester = require('tester');
 var assert = require('assert');
 
@@ -10,7 +10,7 @@ var ct = new coopy.compareTables(broken_bridges,bridges);
 var align = ct.align();
 var options = new coopy.CompareFlags();	
 var td = new coopy.TableDiff(align,options);
-var output = new coopy.CoopyTableView([]);
+var output = new coopy.TableView([]);
 td.hilite(output);
 var dr = new coopy.DiffRender();
 dr.render(output);

@@ -1,4 +1,4 @@
-var coopy = require('coopyhx');
+var coopy = require('daff');
 var assert = require('assert');
 
 function clone2(x) {
@@ -35,8 +35,8 @@ data2[0][0] = 2;
 data1 = enheader(data1);
 data2 = enheader(data2);
 
-var t1 = new coopy.CoopyTableView(data1);
-var t2 = new coopy.CoopyTableView(data2);
+var t1 = new coopy.TableView(data1);
+var t2 = new coopy.TableView(data2);
 console.log("starting many rows...");
 var ct = new coopy.compareTables(t1,t2);
 var align = ct.align();
@@ -61,8 +61,8 @@ data2.length = data2.length - 1;
 data1 = enheader(data1);
 data2 = enheader(data2);
 
-var t1 = new coopy.CoopyTableView(data1);
-var t2 = new coopy.CoopyTableView(data2);
+var t1 = new coopy.TableView(data1);
+var t2 = new coopy.TableView(data2);
 console.log("starting many columns...");
 var ct = new coopy.compareTables(t1,t2);
 var align = ct.align();

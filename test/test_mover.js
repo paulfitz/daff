@@ -1,4 +1,4 @@
-var coopy = require('coopyhx');
+var coopy = require('daff');
 var assert = require('assert');
 
 function copy_list(lst) {
@@ -77,10 +77,10 @@ assert.deepEqual(move([5,1,2,3],[1,2,4,3]), []);
 assert.deepEqual(move([5,2,3,1],[1,2,4,3]), [1]);
 
 {
-    var t1 = new coopy.CoopyTableView([["Name","Number"],
+    var t1 = new coopy.TableView([["Name","Number"],
 				       ["John",14],
 				       ["Sam", 82]]);
-    var t2 = new coopy.CoopyTableView([["Name","Number"],
+    var t2 = new coopy.TableView([["Name","Number"],
 				       ["Sam",82],
 				       ["Mary",17],
 				       ["John",15]]);

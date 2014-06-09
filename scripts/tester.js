@@ -1,5 +1,5 @@
 var assert = require('assert');
-var coopy = require('coopyhx');
+var coopy = require('daff');
 var fs = require('fs');
 
 function order_asserts(order,lst) {
@@ -39,7 +39,7 @@ function round_trip_with_flags(t1,t2,msg,flags) {
     var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     var td = new coopy.TableDiff(align,flags);
-    var output = new coopy.CoopyTableView([]);
+    var output = new coopy.TableView([]);
     td.hilite(output);
     
     var t1c = t1.clone();
@@ -68,7 +68,7 @@ function bi_round_trip(t1,t2,msg) {
 
 function readCsv(fname) {
     var txt = fs.readFileSync(fname,"utf8");
-    return new coopy.CoopyTableView((new coopy.Csv()).parseTable(txt));
+    return new coopy.TableView((new coopy.Csv()).parseTable(txt));
 }
 
 

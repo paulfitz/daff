@@ -63,8 +63,6 @@ class Coopy {
         compare.compare(d1,d2,d3,report);
         trace("report is " + report);
 
-        var tv : TableView = new TableView();
-
         var comp : TableComparisonState = new TableComparisonState();
         var ct : CompareTable = new CompareTable();
         comp.a = st;
@@ -75,9 +73,9 @@ class Coopy {
         var t1 : SimpleTable = new SimpleTable(3,2);
         var t2 : SimpleTable = new SimpleTable(3,2);
         var t3 : SimpleTable = new SimpleTable(3,2);
-        var dt1 : ViewedDatum = new ViewedDatum(t1,new TableView());
-        var dt2 : ViewedDatum = new ViewedDatum(t2,new TableView());
-        var dt3 : ViewedDatum = new ViewedDatum(t3,new TableView());
+        var dt1 : ViewedDatum = new ViewedDatum(t1,new SimpleView());
+        var dt2 : ViewedDatum = new ViewedDatum(t2,new SimpleView());
+        var dt3 : ViewedDatum = new ViewedDatum(t3,new SimpleView());
         compare.compare(dt1,dt2,dt3,report);
         trace("report is " + report);
         t3.setCell(1,1,new SimpleCell("hello"));

@@ -1,0 +1,3 @@
+-rb ruby_bin
+-D coopyhx_util
+-main coopy.Coopy

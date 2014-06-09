@@ -1,4 +1,4 @@
-var coopy = require('coopyhx');
+var coopy = require('daff');
 var assert = require('assert');
 
 var v = new coopy.Viterbi();

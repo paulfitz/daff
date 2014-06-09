@@ -10,7 +10,7 @@ if (coopy == null) {
     coopy = window.coopy;
 }
 
-var CoopyTableView = function(data) {
+var TableView = function(data) {
     // variant constructor (cols, rows)
     if (arguments.length==2) {
 	var lst = [];
@@ -31,35 +31,35 @@ var CoopyTableView = function(data) {
     }
 }
 
-CoopyTableView.prototype.get_width = function() {
+TableView.prototype.get_width = function() {
     return this.width;
 }
 
-CoopyTableView.prototype.get_height = function() {
+TableView.prototype.get_height = function() {
     return this.height;
 }
 
-CoopyTableView.prototype.getCell = function(x,y) {
+TableView.prototype.getCell = function(x,y) {
     return this.data[y][x];
 }
 
-CoopyTableView.prototype.setCell = function(x,y,c) {
+TableView.prototype.setCell = function(x,y,c) {
     this.data[y][x] = c;
 }
 
-CoopyTableView.prototype.toString = function() {
+TableView.prototype.toString = function() {
     return coopy.SimpleTable.tableToString(this);
 }
 
-CoopyTableView.prototype.getCellView = function() {
+TableView.prototype.getCellView = function() {
     return new coopy.SimpleView();
 }
 
-CoopyTableView.prototype.isResizable = function() {
+TableView.prototype.isResizable = function() {
     return true;
 }
 
-CoopyTableView.prototype.resize = function(w,h) {
+TableView.prototype.resize = function(w,h) {
     this.width = w;
     this.height = h;
     for (var i=0; i<this.data.length; i++) {
@@ -83,7 +83,7 @@ CoopyTableView.prototype.resize = function(w,h) {
     return true;
 }
 
-CoopyTableView.prototype.clear = function() {
+TableView.prototype.clear = function() {
     for (var i=0; i<this.data.length; i++) {
 	var row = this.data[i];
 	for (var j=0; j<row.length; j++) {
@@ -92,13 +92,13 @@ CoopyTableView.prototype.clear = function() {
     }
 }
 
-CoopyTableView.prototype.trim = function() {
+TableView.prototype.trim = function() {
     var changed = this.trimRows();
     changed = changed || this.trimColumns();
     return changed;
 }
 
-CoopyTableView.prototype.trimRows = function() {
+TableView.prototype.trimRows = function() {
     var changed = false;
     while (true) {
 	if (this.height==0) return changed;
@@ -111,7 +111,7 @@ CoopyTableView.prototype.trimRows = function() {
     }
 }
 
-CoopyTableView.prototype.trimColumns = function() {
+TableView.prototype.trimColumns = function() {
     var top_content = 0;
     for (var i=0; i<this.height; i++) {
 	if (top_content>=this.width) break;
@@ -130,19 +130,19 @@ CoopyTableView.prototype.trimColumns = function() {
     return true;
 }
 
-CoopyTableView.prototype.getData = function() {
+TableView.prototype.getData = function() {
     return this.data;
 }
 
-CoopyTableView.prototype.clone = function() {
+TableView.prototype.clone = function() {
     var ndata = [];
     for (var i=0; i<this.get_height(); i++) {
 	ndata[i] = this.data[i].slice();
     }
-    return new CoopyTableView(ndata);
+    return new TableView(ndata);
 }
 
-CoopyTableView.prototype.insertOrDeleteRows = function(fate, hfate) {
+TableView.prototype.insertOrDeleteRows = function(fate, hfate) {
     var ndata = [];
     for (var i=0; i<fate.length; i++) {
         var j = fate[i];
@@ -160,7 +160,7 @@ CoopyTableView.prototype.insertOrDeleteRows = function(fate, hfate) {
     return true;
 }
 
-CoopyTableView.prototype.insertOrDeleteColumns = function(fate, wfate) {
+TableView.prototype.insertOrDeleteColumns = function(fate, wfate) {
     if (wfate==this.width && wfate==fate.length) {
 	var eq = true;
 	for (var i=0; i<wfate; i++) {
@@ -187,7 +187,7 @@ CoopyTableView.prototype.insertOrDeleteColumns = function(fate, wfate) {
     return true;
 }
 
-CoopyTableView.prototype.isSimilar = function(alt) {
+TableView.prototype.isSimilar = function(alt) {
     if (alt.width!=this.width) return false;
     if (alt.height!=this.height) return false;
     for (var c=0; c<this.width; c++) {
@@ -204,10 +204,10 @@ CoopyTableView.prototype.isSimilar = function(alt) {
 }
 
 if (typeof exports != "undefined") {
-    exports.CoopyTableView = CoopyTableView;
+    exports.TableView = TableView;
 } else {
     if (typeof window["coopy"] == "undefined") window["coopy"] = {};
-    window.coopy.CoopyTableView = CoopyTableView;
+    window.coopy.TableView = TableView;
 }
 
 })();

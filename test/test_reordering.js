@@ -1,5 +1,5 @@
 var fs = require('fs');
-var coopy = require('coopyhx');
+var coopy = require('daff');
 var tester = require('tester');
 
 var planets = [ ["Mercury"], ["Venus"], ["Mars"], ["Earth"], ["Jupiter"], ["Saturn"], ["Uranus"], ["Neptune"] ];
@@ -27,7 +27,7 @@ function pick_planets(remaining,picked,k,target) {
 function get_table(n,len_all,len_sel) {
     var lst = [];
     pick_planets(planets.slice(0,len_all),lst,n,len_sel);
-    return new coopy.CoopyTableView([["Planets"]].concat(lst));
+    return new coopy.TableView([["Planets"]].concat(lst));
 }
 
 function get_flipped_table(n,len_all,len_sel) {
@@ -36,7 +36,7 @@ function get_flipped_table(n,len_all,len_sel) {
     for (var i=0; i<lst.length; i++) {
 	lst[i] = lst[i][0];
     }
-    return new coopy.CoopyTableView([lst]);
+    return new coopy.TableView([lst]);
 }
 
 

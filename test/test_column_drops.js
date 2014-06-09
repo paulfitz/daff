@@ -1,13 +1,13 @@
 var fs = require('fs');
-var coopy = require('coopyhx');
+var coopy = require('daff');
 var tester = require('tester');
 var assert = require('assert');
 
-var t1 = new coopy.CoopyTableView([["Name","Number","Color","Mood","Food"],
+var t1 = new coopy.TableView([["Name","Number","Color","Mood","Food"],
 				   ["John",14,"Blue","Sad","Sandwich"],
 				   ["Jane",99,"Green","Happy","Apple"]]);
 
-var t2 = new coopy.CoopyTableView([["Name","Number","Color","Mood","Food"],
+var t2 = new coopy.TableView([["Name","Number","Color","Mood","Food"],
 				   ["John",14,"Blue","Sad","Sandwich"],
 				   ["Jane",99,"Green","Happy-ish","Apple"]]);
 
@@ -18,7 +18,7 @@ var options = new coopy.CompareFlags();
 options.show_unchanged_columns = false;
 options.unchanged_column_context = 0;
 var td = new coopy.TableDiff(align,options);
-var output = new coopy.CoopyTableView([]);
+var output = new coopy.TableView([]);
 td.hilite(output);
 assert(output.getCell(0,0) == "@@");
 assert(output.getCell(1,0) == "Name");
@@ -42,13 +42,13 @@ var lots_of_cols_example = {
 
 {
     var eg = lots_of_cols_example;
-    var t1 = new coopy.CoopyTableView(eg["local"]);
-    var t2 = new coopy.CoopyTableView(eg["remote"]);
+    var t1 = new coopy.TableView(eg["local"]);
+    var t2 = new coopy.TableView(eg["remote"]);
     var ct = coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     var options = new coopy.CompareFlags();
     var td = new coopy.TableDiff(align,options);
-    var output = new coopy.CoopyTableView([]);
+    var output = new coopy.TableView([]);
     td.hilite(output);
     tester.round_trip_with_flags(t1,t2,"lots_of_cols",options);
 }

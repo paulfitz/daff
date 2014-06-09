@@ -7,15 +7,15 @@ js:
 	haxe language/js.hxml # generates coopy.js
 	cat coopy.js scripts/post_node.js > coopy_node.js
 	sed 's/window != "undefined" ? window : exports/exports != "undefined" ? exports : window/' coopy_node.js > coopy.js  # better order for browserify
-	cat coopy.js scripts/coopy_view.js > coopyhx.js
-	@wc coopyhx.js
+	cat coopy.js scripts/table_view.js > daff.js
+	@wc daff.js
 
 min: js
-	uglifyjs coopyhx.js > coopyhx.min.js
-	gzip -k -f coopyhx.min.js
-	@wc coopyhx.js
-	@wc coopyhx.min.js
-	@wc coopyhx.min.js.gz
+	uglifyjs daff.js > daff.min.js
+	gzip -k -f daff.min.js
+	@wc daff.js
+	@wc daff.min.js
+	@wc daff.min.js.gz
 
 test: js
 	./scripts/run_tests.sh
@@ -39,7 +39,7 @@ php:
 	cp scripts/PhpTableView.class.php php_bin/lib/coopy/
 	cp scripts/example.php php_bin/
 	@echo 'Output in php_bin, run "php php_bin/index.php" for an example utility'
-	@echo 'or try "php php_bin/example.php" for an example of using coopyhx as a library'
+	@echo 'or try "php php_bin/example.php" for an example of using daff as a library'
 
 
 java:
@@ -57,30 +57,47 @@ py:
 	cp scripts/python_table_view.py python_bin/
 	cp scripts/example.py python_bin/
 	@echo 'Output in python_bin, run "python3 python_bin/daff.py" for an example utility'
-	@echo 'or try "python3 python_bin/example.py" for an example of using coopyhx as a library'
+	@echo 'or try "python3 python_bin/example.py" for an example of using daff as a library'
 
-release: js test php py
+rb:
+	haxe language/rb.hxml || { echo "Ruby failed, do you have paulfitz/haxe?"; exit 1; }
+	grep -v "Coopy.main" < ruby_bin/index.rb > ruby_bin/daff.rb
+	echo "Daff = Coopy" >> ruby_bin/daff.rb
+	echo 'if __FILE__ == $$0' >> ruby_bin/daff.rb
+	echo "\tCoopy::Coopy.main" >> ruby_bin/daff.rb
+	echo "end" >> ruby_bin/daff.rb
+	rm -f ruby_bin/index.rb
+	chmod u+x ruby_bin/daff.rb
+	cp scripts/ruby_table_view.rb ruby_bin/
+	cp scripts/example.rb ruby_bin/
+	chmod u+x ruby_bin/example.rb
+
+release: js test php py rb
 	rm -rf release
 	mkdir -p release
-	cp coopyhx.js release
+	cp daff.js release
 	rm -rf coopyhx_php
-	mv php_bin coopyhx_php
-	rm -f coopyhx_php.zip
-	zip -r coopyhx_php coopyhx_php
-	mv coopyhx_php.zip release
-	rm -rf coopyhx_py
-	mv python_bin coopyhx_py
-	rm -f coopyhx_py.zip
-	zip -r coopyhx_py coopyhx_py
-	mv coopyhx_py.zip release
-	rm -f /tmp/coopyhx_cpp/build/coopyhx_cpp.zip
+	mv php_bin daff_php
+	rm -f daff_php.zip
+	zip -r daff_php daff_php
+	mv daff_php.zip release
+	rm -rf daff_py
+	mv python_bin daff_py
+	rm -f daff_py.zip
+	zip -r daff_py daff_py
+	mv daff_py.zip release
+	rm -rf daff_rb
+	mv ruby_bin daff_rb
+	rm -f daff_rb.zip
+	zip -r daff_rb daff_rb
+	mv daff_rb.zip release
+	rm -f /tmp/coopyhx_cpp/build/daff_cpp.zip
 	rm -rf /tmp/coopyhx_cpp
 	./packaging/cpp_recipe/build_cpp_package.sh /tmp/coopyhx_cpp
-	cp /tmp/coopyhx_cpp/build/coopyhx_cpp.zip release
+	cp /tmp/coopyhx_cpp/build/coopyhx_cpp.zip release/daff_cpp.zip
 
 clean:
-	rm -rf bin cpp_pack coopyhx_php coopyhx_py release py_bin php_bin
-
+	rm -rf bin cpp_pack daff_php daff_py daff_rb release py_bin php_bin ruby_bin
 
 
 ##############################################################################

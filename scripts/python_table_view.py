@@ -50,6 +50,8 @@ class PythonTableView(daff.Table):
             row = self.data[i]
             for j in range(len(row)):
                 row[j] = None
+        self.width = 0
+        self.height = 0
 
     def trimBlank(self): 
         return False
@@ -71,7 +73,7 @@ class PythonTableView(daff.Table):
         return True
 
     def insertOrDeleteColumns(self,fate,wfate):
-        if wfate==self.width and wfate==self.length:
+        if wfate==self.width and wfate==fate.length:
             eq = True
             for i in range(wfate):
                 if fate[i]!=i:

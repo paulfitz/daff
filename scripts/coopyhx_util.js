@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var coopy = require("coopyhx");
+var coopy = require("daff");
 var fs = require('fs');
 var readline = null;
 

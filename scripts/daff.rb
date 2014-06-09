@@ -1,0 +1,2 @@
+require 'index'
+Daff = Coopy
