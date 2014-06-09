@@ -3,12 +3,12 @@
 <title>Daff - diff tabular data in javascript</title>
 <script src="lib/jquery.min.js"></script>
 <script src="dist/jquery.handsontable.full.js"></script>
-<script src="coopy/coopyhx.js"></script>
-<script src="coopy/scripts/coopy_handsontable.js"></script>
-<script src="coopy/scripts/test_data.js"></script>
+<script src="daff.js"></script>
+<script src="daff_handsontable.js"></script>
+<script src="test_data.js"></script>
 <link rel="stylesheet" media="screen" href="dist/jquery.handsontable.full.css">
-<link rel="stylesheet" media="screen" href="coopyhx.css">
-<link rel="stylesheet" media="screen" href="coopy_handsontable.css">
+<link rel="stylesheet" media="screen" href="daff.css">
+<link rel="stylesheet" media="screen" href="daff_handsontable.css">
 </head>
 
 <body>
@@ -95,17 +95,17 @@ function load_table(t,data) {
 var use_parent = false;
 function processChange(changes,source,table) {
   if (source=="loadData") return;
-  var t1 = new coopy.CoopyTableView(data1);
-  var t2 = new coopy.CoopyTableView(data2);
+  var t1 = new daff.TableView(data1);
+  var t2 = new daff.TableView(data2);
   t1.trim();
   t2.trim();
   var ct = null;
   if (!use_parent) { 
-    ct = coopy.compareTables(t1,t2);
+    ct = daff.compareTables(t1,t2);
   } else {
-    var t0 = new coopy.CoopyTableView(data0);
+    var t0 = new daff.TableView(data0);
     t0.trim();
-    ct = coopy.compareTables3(t0,t1,t2);
+    ct = daff.compareTables3(t0,t1,t2);
   }
   var align = ct.align();
   var order = align.toOrder();
@@ -113,11 +113,11 @@ function processChange(changes,source,table) {
   $("#ordering").html(report);
   var report2 = align.meta.toOrder().toString().replace(/, */g,"<br />\n");
   $("#column_ordering").html(report2);
-  var output = new coopy.CoopyTableView([]);
-  var flags = new coopy.CompareFlags();
+  var output = new daff.TableView([]);
+  var flags = new daff.CompareFlags();
   flags.show_unchanged = false;
   flags.always_show_header = true;
-  (new coopy.TableDiff(align,flags)).hilite(output);
+  (new daff.TableDiff(align,flags)).hilite(output);
   data_diff = output.data;
   $("#diff").handsontable('loadData',output.data);
 }
@@ -216,7 +216,7 @@ function processChange(changes,source,table) {
         cells: function (row, col, prop) {
 	    var cellProperties = {};
             cellProperties.type = {
-		renderer: coopy.diffRenderer
+		renderer: daff.diffRenderer
 	    }
 	    return cellProperties;
 	}
@@ -253,18 +253,18 @@ $("#button-clear").click(function() {
 });
 
 $("#apply-diff").click(function() {
-    var t1 = new coopy.CoopyTableView(data1);
+    var t1 = new daff.TableView(data1);
     t1.trim();
-    var patch = new coopy.CoopyTableView(data_diff);
+    var patch = new daff.TableView(data_diff);
     patch.trim();
-    var patcher = new coopy.HighlightPatch(t1,patch);
+    var patcher = new daff.HighlightPatch(t1,patch);
     patcher.apply();
     if (use_parent) {
-	var t1 = new coopy.CoopyTableView(data0);
+	var t1 = new daff.TableView(data0);
 	t1.trim();
-	var patch = new coopy.CoopyTableView(data_diff);
+	var patch = new daff.TableView(data_diff);
 	patch.trim();
-	var patcher = new coopy.HighlightPatch(t1,patch);
+	var patcher = new daff.HighlightPatch(t1,patch);
 	patcher.apply();
 	$('#table0').handsontable('render');
     }
