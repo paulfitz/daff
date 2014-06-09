@@ -18,13 +18,13 @@
   "author": {
     "name": "Paul Fitzpatrick",
     "email": "paul@robotrebuilt.com",
-    "url": "http://robotrebuilt.com/people/paulfitz"
+    "url": "http://paulfitz.github.io/"
   },
   "scripts": {
     "prepublish": "make js",
     "test": "make test"
   },
-  "main": "coopyhx.js",
+  "main": "daff.js",
   "license": "MIT",
-  "bin": "scripts/coopyhx_util.js"
+  "bin": "daff.js"
 }

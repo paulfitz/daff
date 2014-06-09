@@ -8,6 +8,7 @@ js:
 	cat coopy.js scripts/post_node.js > coopy_node.js
 	sed 's/window != "undefined" ? window : exports/exports != "undefined" ? exports : window/' coopy_node.js > coopy.js  # better order for browserify
 	cat coopy.js scripts/table_view.js > daff.js
+	cat scripts/daff.js >> daff.js
 	@wc daff.js
 
 min: js
@@ -76,7 +77,7 @@ release: js test php py rb
 	rm -rf release
 	mkdir -p release
 	cp daff.js release
-	rm -rf coopyhx_php
+	rm -rf daff_php
 	mv php_bin daff_php
 	rm -f daff_php.zip
 	zip -r daff_php daff_php
