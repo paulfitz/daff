@@ -26,5 +26,5 @@
   },
   "main": "daff.js",
   "license": "MIT",
-  "bin": "daff.js"
+  "bin": "daff_util.js"
 }

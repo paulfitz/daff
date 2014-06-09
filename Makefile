@@ -7,9 +7,12 @@ js:
 	haxe language/js.hxml # generates coopy.js
 	cat coopy.js scripts/post_node.js > coopy_node.js
 	sed 's/window != "undefined" ? window : exports/exports != "undefined" ? exports : window/' coopy_node.js > coopy.js  # better order for browserify
-	cat coopy.js scripts/table_view.js > daff.js
+	cat coopy.js scripts/table_view.js > daff.js	
 	cat scripts/daff.js >> daff.js
 	@wc daff.js
+	echo "#!/usr/bin/env node" > daff_util.js
+	cat daff.js >> daff_util.js
+	chmod u+x ./daff_util.js
 
 min: js
 	uglifyjs daff.js > daff.min.js
