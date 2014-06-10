@@ -128,3 +128,22 @@ sdist: setup_py
 	rm -rf dist/tmp
 	mv /tmp/sdist_does_not_like_page page
 
+
+##############################################################################
+##############################################################################
+## 
+## RUBY PACKAGING
+##
+
+rdist:
+	make rb
+	rm -rf lib bin
+	mkdir -p lib
+	cp ruby_bin/daff.rb lib
+	cp -R ruby_bin/lib lib
+	mkdir -p bin
+	echo "#!/usr/bin/env ruby" > bin/daff.rb
+	echo "require 'daff'" >> bin/daff.rb
+	echo "Daff::Coopy.main" >> bin/daff.rb
+	rm -f daff-*.gem
+	gem build daff.gemspec
