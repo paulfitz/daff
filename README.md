@@ -9,17 +9,14 @@ words multiple versions of the "same" table.
 For a live demo, see:
 > http://paulfitz.github.com/daff/
 
-Get the core library for your preferred language here:
+Download the code for your preferred language here:
 > https://github.com/paulfitz/daff/releases
 
-Or with node:
+For certain languages you can use the command-line:
 ````sh
-npm install daff
-````
-
-Or with pip:
-````sh
-pip3 install daff  # currently needs python3
+npm install daff   # node/javascript
+pip3 install daff  # python3
+gem install daff   # ruby
 ````
 
 Or use the library to view csv diffs on github via a chrome extension:
@@ -36,7 +33,7 @@ the coopy toolbox.
 The program
 -----------
 
-There is a commandline utility wrapping the core functions of the library:
+You can run `daff`/`daff.py`/`daff.rb` as a utility program:
 ````
 $ daff
 daff can produce and apply tabular diffs.
@@ -63,11 +60,13 @@ If you need more control, here is the full list of flags:
 The library
 -----------
 
-To use this library from Javascript, first include `daff.js` on a webpage:
+You can use `daff` as a library from any supported language.  We take 
+here the example of Javascript.  To use `daff` on a webpage,
+first include `daff.js`:
 ```html
 <script src="daff.js"></script>
 ```
-Or with nodejs:
+Or if using node outside the browser:
 ```js
 var daff = require('daff');
 ```
@@ -150,8 +149,12 @@ patcher.apply();
 // table1 should now equal table2
 ```
 
-Other languages
----------------
+For other languages, you should find sample code in 
+the packages on the [Releases](https://github.com/paulfitz/daff/releases) page.
+
+
+Supported languages
+-------------------
 
 The `daff` library is written in [Haxe](http://haxe.org/), which
 can be translated reasonably well into at least the following languages:
@@ -162,9 +165,9 @@ can be translated reasonably well into at least the following languages:
  * Java
  * C#
  * C++
+ * (via a hack, just for `daff`) Ruby
 
-The Javascript translation is available via npm. 
-PHP and C++ translations are posted on the 
+Some translations are done for you on the
 [Releases](https://github.com/paulfitz/daff/releases) page.
 To make another translation, 
 follow the 
@@ -180,7 +183,7 @@ make cs
 make cpp
 ```
 
-[@Floppy](https://github.com/Floppy) has made a lovingly-hand-written [native Ruby port](https://github.com/theodi/coopy-ruby) that covers core functionality.  I've made a brutally-machine-converted [Ruby port](https://github.com/paulfitz/coopy-ruby) that is a full translation but may include utter gibberish.
+[@Floppy](https://github.com/Floppy) has made a lovingly-hand-written [native Ruby port](https://github.com/theodi/coopy-ruby) that covers core functionality.  I've made a brutally-machine-converted port that is a full translation but less idiomatic.
 
 For each language, the `daff` library expects to be handed an interface to tables you create, rather than creating them
 itself.  This is to avoid inefficient copies from one format to another.  You'll find a `SimpleTable` class you can use if
