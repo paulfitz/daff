@@ -48,7 +48,16 @@ php:
 
 java:
 	haxe language/java.hxml
-	@echo 'Output in java_bin, run "java -jar java_bin/java_bin.jar" for help'
+	mv java_bin/java_bin.jar java_bin/daff.jar
+	cp scripts/JavaTableView.java java_bin/src/coopy
+	cp scripts/Example.java java_bin
+	echo "src/coopy/JavaTableView.java" >> java_bin/cmd
+	cd java_bin && javac -sourcepath src -d obj -g:none "@cmd"
+	cd java_bin && rm *.jar
+	cd java_bin/obj && jar cvfm ../daff.jar ../manifest .
+	cd java_bin && javac -cp daff.jar Example.java
+	@echo 'Output in java_bin, run "java -jar java_bin/daff.jar" for help'
+	@echo 'Run example with "java -cp java_bin/daff.jar:java_bin Example"'
 
 cs:
 	haxe language/cs.hxml
@@ -76,25 +85,48 @@ rb:
 	cp scripts/example.rb ruby_bin/
 	chmod u+x ruby_bin/example.rb
 
-release: js test php py rb
+release: js test php py rb java
+	echo "========================================================"
+	echo "=== Setup"
 	rm -rf release
 	mkdir -p release
+	echo "========================================================"
+	echo "=== Javascript"
 	cp daff.js release
+	echo "========================================================"
+	echo "=== PHP"
 	rm -rf daff_php
 	mv php_bin daff_php
 	rm -f daff_php.zip
 	zip -r daff_php daff_php
 	mv daff_php.zip release
+	echo "========================================================"
+	echo "=== Python"
 	rm -rf daff_py
 	mv python_bin daff_py
 	rm -f daff_py.zip
 	zip -r daff_py daff_py
 	mv daff_py.zip release
+	echo "========================================================"
+	echo "=== Ruby"
 	rm -rf daff_rb
 	mv ruby_bin daff_rb
 	rm -f daff_rb.zip
 	zip -r daff_rb daff_rb
 	mv daff_rb.zip release
+	echo "========================================================"
+	echo "=== Java"
+	rm -rf daff_java
+	mv java_bin daff_java
+	rm -rf daff_java/obj
+	rm -rf daff_java/hxjava_build.txt
+	rm -rf daff_java/cmd
+	rm -rf daff_java/manifest
+	rm -f daff_java.zip
+	zip -r daff_java daff_java
+	mv daff_java.zip release
+	echo "========================================================"
+	echo "=== C++"
 	rm -f /tmp/coopyhx_cpp/build/daff_cpp.zip
 	rm -rf /tmp/coopyhx_cpp
 	./packaging/cpp_recipe/build_cpp_package.sh /tmp/coopyhx_cpp
