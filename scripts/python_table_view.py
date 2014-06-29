@@ -1,6 +1,5 @@
-import coopyhx as daff
 
-class PythonTableView(daff.Table):
+class PythonTableView(Table):
     def __init__(self,data):
         self.data = data
         self.height = len(data)
@@ -21,10 +20,10 @@ class PythonTableView(daff.Table):
         self.data[y][x] = c
 
     def toString(self):
-        return daff.SimpleTable.tableToString(self)
+        return SimpleTable.tableToString(self)
 
     def getCellView(self):
-        return daff.SimpleView()
+        return SimpleView()
 
     def isResizable(self):
         return True
@@ -64,16 +63,19 @@ class PythonTableView(daff.Table):
         for i in range(len(fate)):
             j = fate[i];
             if j!=-1:
+                if j>=len(ndata):
+                    for k in range(len(ndata)-j+1):
+                        ndata.append(None)
                 ndata[j] = self.data[i]
 
         del self.data[:]
         for i in range(len(ndata)):
-            self.data[i] = ndata[i]
+            self.data.append(ndata[i])
         self.resize(self.width,hfate)
         return True
 
     def insertOrDeleteColumns(self,fate,wfate):
-        if wfate==self.width and wfate==fate.length:
+        if wfate==self.width and wfate==len(fate):
             eq = True
             for i in range(wfate):
                 if fate[i]!=i:
@@ -90,7 +92,7 @@ class PythonTableView(daff.Table):
                 if fate[j]==-1:
                     continue
                 nrow[fate[j]] = row[j]
-            while nrow.length<wfate:
+            while len(nrow)<wfate:
                 nrow.append(None)
             self.data[i] = nrow
         self.width = wfate

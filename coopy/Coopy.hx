@@ -200,6 +200,7 @@ class Coopy {
         var css_output : String = null;
         var fragment : Bool = false;
         var pretty : Bool = true;
+        var inplace : Bool = false;
 
         var flags : CompareFlags = new CompareFlags();
         flags.always_show_header = true;
@@ -248,9 +249,15 @@ class Coopy {
                     if (context>=0) flags.unchanged_context = context;
                     args.splice(i,2);
                     break;
+                } else if (tag=="--inplace") {
+                    more = true;
+                    inplace = true;
+                    args.splice(i,1);
+                    break;
                 }
             }
         }
+
         var cmd : String = args[0];
         
         if (args.length < 2) {
@@ -259,9 +266,12 @@ class Coopy {
             io.writeStderr("  daff [--output OUTPUT.csv] a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
-            io.writeStderr("  daff patch [--output OUTPUT.csv] source.csv patch.csv\n");
+            io.writeStderr("  daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv\n");
+            io.writeStderr("  daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff trim [--output OUTPUT.csv] source.csv\n");
             io.writeStderr("  daff render [--output OUTPUT.html] diff.csv\n");
+            io.writeStderr("\n");
+            io.writeStderr("The --inplace option to patch and merge will result in modification of a.csv.\n");
             io.writeStderr("\n");
             io.writeStderr("If you need more control, here is the full list of flags:\n");
             io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
@@ -275,14 +285,11 @@ class Coopy {
             io.writeStderr("     --plain:       do not use fancy utf8 characters to make arrows prettier\n");
             return 1;
         }
-        if (output == null) {
-            output = "-";
-        }
         var cmd : String = args[0];
         var offset : Int = 1;
         // "diff" is optional when followed by a filename with a dot in it,
         // or by an --option.
-        if (!Lambda.has(["diff","patch","trim","render"],cmd)) {
+        if (!Lambda.has(["diff","patch","merge","trim","render"],cmd)) {
             if (cmd.indexOf(".")!=-1 || cmd.indexOf("--")==0) {
                 cmd = "diff";
                 offset = 0;
@@ -295,11 +302,26 @@ class Coopy {
             parent = tool.loadTable(args[offset]);
             offset++;
         }
-        var a = tool.loadTable(args[0+offset]);
+        var aname = args[0+offset];
+        var a = tool.loadTable(aname);
         var b = null;
         if (args.length-offset>=2) {
             b = tool.loadTable(args[1+offset]);
         }
+
+        if (inplace) {
+            if (output!=null) {
+                io.writeStderr("Please do not use --inplace when specifying an output.\n");
+            }
+            output = aname;
+            return 1;
+        }
+
+        if (output == null) {
+            output = "-";
+        }
+
+        var ok : Bool = true;
         if (cmd=="diff") {
             var ct : CompareTable = compareTables3(parent,a,b);
             var align : Alignment = ct.align();
@@ -310,6 +332,14 @@ class Coopy {
         } else if (cmd=="patch") {
             var patcher : HighlightPatch = new HighlightPatch(a,b);
             patcher.apply();
+            tool.saveTable(output,a);
+        } else if (cmd=="merge") {
+            var merger : Merger = new Merger(parent,a,b,flags);
+            var conflicts = merger.apply();
+            ok = (conflicts==0);
+            if (conflicts>0) {
+                io.writeStderr(conflicts + " conflict" + ((conflicts>1)?"s":"") + "\n");
+            }
             tool.saveTable(output,a);
         } else if (cmd=="trim") {
             tool.saveTable(output,a);
@@ -325,7 +355,7 @@ class Coopy {
                 tool.saveText(css_output,renderer.sampleCss());
             }
         }
-        return 0;
+        return ok?0:1;
     }
 #end
 

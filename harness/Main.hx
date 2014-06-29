@@ -7,6 +7,7 @@ class Main {
     static public function main(){
         var r = new haxe.unit.TestRunner();
         r.add(new BasicTest());
+        r.add(new MergeTest());
         r.run();
     }
 }

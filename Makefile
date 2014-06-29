@@ -158,7 +158,7 @@ ntest_js:
 
 ntest_py:
 	haxe -python ntest.py -main harness.Main
-	PYTHON_PATH=$$PWD/lib python3 ntest.py 
+	PYTHONPATH=$$PWD/lib python3 ntest.py 
 
 # Not ready for this yet
 #ntest_rb:

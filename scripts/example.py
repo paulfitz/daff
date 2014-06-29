@@ -1,5 +1,4 @@
-import coopyhx as daff
-from python_table_view import PythonTableView
+import daff
 
 data1 = [
   ['Country','Capital'],
@@ -16,8 +15,8 @@ data2 = [
   ['Germany','de','Berlin']
   ]
 
-table1 = PythonTableView(data1)
-table2 = PythonTableView(data2)
+table1 = daff.PythonTableView(data1)
+table2 = daff.PythonTableView(data2)
 
 alignment = daff.Coopy.compareTables(table1,table2).align()
 
