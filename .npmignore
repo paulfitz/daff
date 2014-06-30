@@ -1,4 +1,3 @@
-bin
 packaging
 node_modules
 page
@@ -14,3 +13,12 @@ test.js
 pack.sh
 update-web.sh
 go.sh
+website
+__pycache__
+build
+daff_java
+daff_php
+daff_py
+daff_rb
+release
+
