@@ -1,3 +1,2 @@
--js coopy.js
+-js lib/daff.js
 -main coopy.Coopy
--dce std

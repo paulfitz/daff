@@ -1,39 +1,48 @@
+
+# This is not so much a Makefile as a collection of scripts.
+# If you are just interested in Javascript only the js
+# and test targets are important.
+
 default: test
+
+js:
+	@echo "#######################################################"
+	@echo "## Set up directories"
+	mkdir -p bin
+	mkdir -p lib
+	@echo "#######################################################"
+	@echo "## Generate javascript"
+	haxe language/js.hxml # produces lib/daff.js
+	@echo "#######################################################"
+	@echo "## Make library version"
+	cat env/js/fix_exports.js >> lib/daff.js
+	cat env/js/table_view.js >> lib/daff.js
+	cat env/js/util.js >> lib/daff.js
+	@echo "#######################################################"
+	@echo "## Make executable version (just add shebang)"
+	echo "#!/usr/bin/env node" > bin/daff.js
+	cat lib/daff.js >> bin/daff.js
+	chmod u+x bin/daff.js
+	@echo "#######################################################"
+	@echo "## Check size"
+	@wc bin/daff.js
+
+test: js
+	./scripts/run_tests.sh
+
+min: js
+	uglifyjs lib/daff.js > lib/daff.min.js
+	gzip -k -f lib/daff.min.js
+	@wc lib/daff.js
+	@wc lib/daff.min.js
+	@wc lib/daff.min.js.gz
 
 cpp:
 	haxe language/cpp.hxml
 
-js:
-	haxe language/js.hxml # generates coopy.js
-	cat coopy.js scripts/post_node.js > coopy_node.js
-	sed 's/window != "undefined" ? window : exports/exports != "undefined" ? exports : window/' coopy_node.js > coopy.js  # better order for browserify
-	cat coopy.js scripts/table_view.js > daff.js	
-	cat scripts/daff.js >> daff.js
-	@wc daff.js
-	echo "#!/usr/bin/env node" > daff_util.js
-	cat daff.js >> daff_util.js
-	chmod u+x ./daff_util.js
-
-min: js
-	uglifyjs daff.js > daff.min.js
-	gzip -k -f daff.min.js
-	@wc daff.js
-	@wc daff.min.js
-	@wc daff.min.js.gz
-
-test: js
-	./scripts/run_tests.sh
-	@echo "=============================================================================="
-
-csv2html: js
-	./scripts/assemble_csv2html.sh
-
 doc:
 	haxe -xml doc.xml language/js.hxml
 	haxedoc doc.xml -f coopy
-	# 
-	# result is in index.html and content directory
-
 
 cpp_package:
 	haxe language/cpp_for_package.hxml
@@ -92,7 +101,7 @@ release: js test php py rb java
 	mkdir -p release
 	echo "========================================================"
 	echo "=== Javascript"
-	cp daff.js release
+	cp bin/daff.js release
 	echo "========================================================"
 	echo "=== PHP"
 	rm -rf daff_php
@@ -133,7 +142,7 @@ release: js test php py rb java
 	cp /tmp/coopyhx_cpp/build/coopyhx_cpp.zip release/daff_cpp.zip
 
 clean:
-	rm -rf bin cpp_pack daff_php daff_py daff_rb release py_bin php_bin ruby_bin
+	rm -rf bin cpp_pack daff_php daff_py daff_rb release py_bin php_bin ruby_bin coopy.js coopy_node.js daff.js daff_java daff_util.js MANIFEST Gemfile
 
 
 ##############################################################################

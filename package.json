@@ -24,7 +24,7 @@
     "prepublish": "make js",
     "test": "make test"
   },
-  "main": "daff.js",
+  "main": "./lib/daff.js",
   "license": "MIT",
-  "bin": "daff_util.js"
+  "bin": "./bin/daff.js"
 }

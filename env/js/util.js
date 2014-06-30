@@ -31,6 +31,6 @@ if (typeof require != "undefined") {
 	    process.stderr.write(txt);
 	}
 	
-	return coopy.coopyhx(tio);
+	process.exit(coopy.coopyhx(tio));
     }
 }
