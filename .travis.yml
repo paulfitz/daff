@@ -1,0 +1,19 @@
+language: node_js
+
+node_js:
+  - "0.11"
+  - "0.10"
+  - "0.8"
+  - "0.6"
+ 
+# Install Haxe before running the test.
+before_script:
+  - sudo apt-get update                                # run update before installing anything
+  - sudo apt-get install python-software-properties -y # for the next command
+  - sudo add-apt-repository ppa:eyecreate/haxe -y      # add the ubuntu ppa that contains haxe
+  - sudo apt-get update                                # pull info from ppa
+  - sudo apt-get install haxe -y                       # install haxe (and neko)
+ 
+# Run the test!
+script:
+  - make test
