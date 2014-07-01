@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/paulfitz/daff.svg?branch=master)](https://travis-ci.org/paulfitz/daff)
+[![NPM version](https://badge.fury.io/js/daff.svg)](http://badge.fury.io/js/daff)
+[![Gem Version](https://badge.fury.io/rb/daff.svg)](http://badge.fury.io/rb/daff)
+[![PyPI version](https://badge.fury.io/py/daff.svg)](http://badge.fury.io/py/daff)
 
 daff: data diff
 ===============
