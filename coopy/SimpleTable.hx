@@ -24,11 +24,11 @@ class SimpleTable implements Table {
     public var width(get_width,never) : Int;
     public var size(get_size,never) : Int;
 
-    private function get_width() : Int {
+    public function get_width() : Int {
         return w;
     }
 
-    private function get_height() : Int {
+    public function get_height() : Int {
         return h;
     }
 
