@@ -14,7 +14,18 @@ before_install:
   - sudo apt-get update                                # pull info from ppa
 
 install:
-  - sudo apt-get install haxe -y                       # install haxe (and neko)
- 
+  - sudo apt-get install haxe -y                       # install haxe
+  - sudo apt-get install gcc-multilib g++-multilib -y  # VM is 64bit but hxcpp builds 32bit
+  - mkdir -p ~/haxelib
+  - haxelib setup ~/haxelib
+  - haxelib install hxcpp
+  - haxelib install hxjava
+  - sudo apt-get install mono-mcs
+  - haxelib install hxcs
+
 script:
   - make test
+  - make php   # make sure other languages at least generate
+  - make java
+  - make cpp
+  - make cs
