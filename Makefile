@@ -72,10 +72,11 @@ cs:
 	@echo 'Output in cs_bin, do something like "gmcs -recurse:*.cs -main:coopy.Coopy -out:coopyhx.exe" in that directory'
 
 py:
-	mkdir -p py_bin
+	mkdir -p python_bin lib
 	haxe language/py.hxml
 	haxe language/py_util.hxml
 	cp scripts/python_table_view.py python_bin/
+	cat python_bin/coopyhx.py scripts/python_table_view.py > lib/daff.py
 	cp scripts/example.py python_bin/
 	@echo 'Output in python_bin, run "python3 python_bin/daff.py" for an example utility'
 	@echo 'or try "python3 python_bin/example.py" for an example of using daff as a library'
@@ -143,6 +144,26 @@ release: js test php py rb java
 clean:
 	rm -rf bin cpp_pack daff_php daff_py daff_rb release py_bin php_bin ruby_bin coopy.js coopy_node.js daff.js daff_java daff_util.js MANIFEST Gemfile
 
+##############################################################################
+##############################################################################
+## 
+## This is a stub where I'll be adding cross-target tests
+##
+
+ntest: ntest_js ntest_py
+
+ntest_js:
+	haxe -js ntest.js -main harness.Main
+	NODE_PATH=$$PWD/lib node ntest.js
+
+ntest_py:
+	haxe -python ntest.py -main harness.Main
+	PYTHON_PATH=$$PWD/lib python3 ntest.py 
+
+# Not ready for this yet
+#ntest_rb:
+#	haxe -rb ntestdotrb -main harness.Main
+#	RUBYLIB=$$PWD/ruby_bin ruby ntestdotrb/index.rb 
 
 ##############################################################################
 ##############################################################################
