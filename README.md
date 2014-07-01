@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/paulfitz/daff.svg?branch=master)](https://travis-ci.org/paulfitz/daff)
+
 daff: data diff
 ===============
 
