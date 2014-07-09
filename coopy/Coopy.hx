@@ -201,6 +201,7 @@ class Coopy {
         var fragment : Bool = false;
         var pretty : Bool = true;
         var inplace : Bool = false;
+        var git : Bool = false;
 
         var flags : CompareFlags = new CompareFlags();
         flags.always_show_header = true;
@@ -254,6 +255,11 @@ class Coopy {
                     inplace = true;
                     args.splice(i,1);
                     break;
+                } else if (tag=="--git") {
+                    more = true;
+                    git = true;
+                    args.splice(i,1);
+                    break;
                 }
             }
         }
@@ -270,6 +276,7 @@ class Coopy {
             io.writeStderr("  daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff trim [--output OUTPUT.csv] source.csv\n");
             io.writeStderr("  daff render [--output OUTPUT.html] diff.csv\n");
+            io.writeStderr("  daff git csv\n");
             io.writeStderr("\n");
             io.writeStderr("The --inplace option to patch and merge will result in modification of a.csv.\n");
             io.writeStderr("\n");
@@ -278,6 +285,9 @@ class Coopy {
             io.writeStderr("     --context NUM: show NUM rows of context\n");
             io.writeStderr("     --all:         do not prune unchanged rows\n");
             io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
+            io.writeStderr("\n");
+            io.writeStderr("  daff diff --git path old-file old-hex old-mode new-file new-hex new-mode\n");
+            io.writeStderr("     --git:         process arguments provided by git to diff drivers\n");
             io.writeStderr("\n");
             io.writeStderr("  daff render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
             io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
@@ -289,11 +299,50 @@ class Coopy {
         var offset : Int = 1;
         // "diff" is optional when followed by a filename with a dot in it,
         // or by an --option.
-        if (!Lambda.has(["diff","patch","merge","trim","render"],cmd)) {
+        if (!Lambda.has(["diff","patch","merge","trim","render","git"],cmd)) {
             if (cmd.indexOf(".")!=-1 || cmd.indexOf("--")==0) {
                 cmd = "diff";
                 offset = 0;
             }
+        }
+        if (cmd == "git") {
+            var types = args.splice(offset,args.length-offset);
+            io.writeStdout("You can use daff to improve git's handling of csv files, by using it as a\ndiff driver (for showing what has changed) and as a merge driver (for merging\nchanges between multiple versions).  Here is how.\n");
+            io.writeStdout("\n");
+            io.writeStdout("Create and add a file called .gitattributes in the root directory of your\nrepository, containing:\n\n");
+            for (t in types) {
+                io.writeStdout("  *." + t + " diff=daff-diff\n");
+                io.writeStdout("  *." + t + " merge=daff-merge\n");
+            }
+            io.writeStdout("\nCreate a file called .gitconfig in your home directory (or alternatively\nopen .git/config for a particular repository) and add:\n\n");
+            io.writeStdout("  [merge \"daff-merge\"]\n");
+            io.writeStdout("  name = daff tabular merge\n");
+            io.writeStdout("  driver = daff merge --output %A %O %A %B\n\n");
+            io.writeStdout("  [diff \"daff-diff\"]\n");
+            io.writeStdout("  command = daff diff --git\n");
+            io.writeStderr("\n");
+
+            io.writeStderr("Make sure you can run daff from the command-line as just \"daff\" - if not,\nreplace \"daff\" in the driver and command lines above with the correct way\nto call it.");
+            io.writeStderr("\n");
+
+            return 0;
+        }
+        if (git) {
+            var ct = args.length-offset;
+            if (ct!=7) {
+                io.writeStderr("Expected 7 parameters from git, but got " + ct + "\n");
+                return 1;
+            }
+            var git_args = args.splice(offset,ct);
+            args.splice(0,args.length);
+            offset = 0;
+            var path = git_args[0];
+            var old_file = git_args[1];
+            var new_file = git_args[4];
+            io.writeStdout("--- a/" + path + "\n");
+            io.writeStdout("+++ b/" + path + "\n");
+            args.push(old_file);
+            args.push(new_file);
         }
         var tool : Coopy = new Coopy();
         tool.io = io;
