@@ -19,9 +19,9 @@ Download the code for your preferred language here:
 
 For certain languages you can use the command-line:
 ````sh
-npm install daff   # node/javascript
-pip3 install daff  # python3
-gem install daff   # ruby
+npm install daff -g  # node/javascript
+pip3 install daff    # python3
+gem install daff     # ruby
 ````
 
 Or use the library to view csv diffs on github via a chrome extension:
