@@ -40,6 +40,14 @@ min: js
 cpp:
 	haxe language/cpp.hxml
 
+version:
+	grep "\"version\"" package.json | grep -E -o "[.0-9]+" > version.txt
+	cat coopy/Coopy.hx | sed "s/VERSION = .*;/VERSION = \"`cat version.txt`\";/" > coopy/Coopy.hx.next
+	cmp coopy/Coopy.hx.next coopy/Coopy.hx || cp coopy/Coopy.hx.next coopy/Coopy.hx
+	rm -f coopy/Coopy.hx.next version.txt
+	@grep "\"version\"" package.json
+	@grep "var VERSION" coopy/Coopy.hx
+
 doc:
 	haxe -xml doc.xml language/js.hxml
 	haxedoc doc.xml -f coopy

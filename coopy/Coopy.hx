@@ -6,6 +6,8 @@ package coopy;
 
 @:expose
 class Coopy {
+    static public var VERSION = "1.1.6";
+
     private var format_preference : String;
     private var io : TableIO;
 
@@ -188,7 +190,175 @@ class Coopy {
         }
     }
 
-    public static function coopyhx(io: TableIO) : Int {
+    private var status : Map<String,Int>;
+    private var daff_cmd : String;
+
+    private function command(io: TableIO, cmd: String, args: Array<String>) : Int {
+        var r = 0;
+        if (io.async()) r = io.command(cmd,args);
+        if (r!=999) {
+            io.writeStdout("$ " + cmd);
+            for (arg in args) {
+                io.writeStdout(" ");
+                var spaced = arg.indexOf(" ")>=0;
+                if (spaced) io.writeStdout("\"");
+                io.writeStdout(arg);
+                if (spaced) io.writeStdout("\"");
+            }
+            io.writeStdout("\n");
+        }
+        if (!io.async()) r = io.command(cmd,args);
+        return r;
+    }
+
+    public function installGitDriver(io: TableIO, formats: Array<String>) : Int {
+        var r = 0;
+
+        if (status==null) {
+            status = new Map<String,Int>();
+            daff_cmd = "";
+        }
+
+        var key = "hello";
+        if (!status.exists(key)) {
+            io.writeStdout("Setting up git to use daff on");
+            for (format in formats) {
+                io.writeStdout(" *." + format);
+            }
+            io.writeStdout(" files\n");
+            status.set(key,r);
+        }
+
+        key = "can_run_git";
+        if (!status.exists(key)) {
+            r = command(io,"git",["--version"]);
+            if (r==999) return r;
+            status.set(key,r);
+            if (r!=0) {
+                io.writeStderr("! Cannot run git, aborting\n");
+                return 1;
+            }
+            io.writeStdout("- Can run git\n");
+        }
+
+        var daffs = ["daff","daff.rb","daff.py"];
+        if (daff_cmd == "") {
+            for (daff in daffs) {
+                var key = "can_run_" + daff;
+                if (!status.exists(key)) {
+                    r = command(io,daff,["version"]);
+                    if (r==999) return r;
+                    status.set(key,r);
+                    if (r==0) {
+                        daff_cmd = daff;
+                        io.writeStdout("- Can run " + daff + " as \"" + daff + "\"\n");
+                        break;
+                    }
+                }
+            }
+            if (daff_cmd=="") {
+                io.writeStderr("! Cannot find daff, is it in your path?\n");
+                return 1;
+            }
+        }
+
+
+        for (format in formats) {
+
+            key = "have_diff_driver_" + format;
+            if (!status.exists(key)) {
+                r = command(io,"git",["config","--global","--get","diff.daff-" + format + ".command"]);
+                if (r==999) return r;
+                status.set(key,r);
+            }
+            
+            var have_diff_driver = status.get(key)==0;
+
+            key = "add_diff_driver_" + format;
+            if (!status.exists(key)) {
+                if (!have_diff_driver) {
+                    r = command(io,"git",["config","--global","diff.daff-" + format + ".command",daff_cmd + " diff --git"]);
+                    if (r==999) return r;
+                    io.writeStdout("- Added diff driver for " + format + "\n");
+                } else {
+                    r = 0;
+                    io.writeStdout("- Already have diff driver for " + format + ", not touching it\n");
+                }
+                status.set(key,r);
+            }
+
+            key = "have_merge_driver_" + format;
+            if (!status.exists(key)) {
+                r = command(io,"git",["config","--global","--get","merge.daff-" + format + ".driver"]);
+                if (r==999) return r;
+                status.set(key,r);
+            }
+            
+            var have_merge_driver = status.get(key)==0;
+
+            key = "name_merge_driver_" + format;
+            if (!status.exists(key)) {
+                if (!have_merge_driver) {
+                    r = command(io,"git",["config","--global","merge.daff-" + format + ".name","daff tabular " + format + " merge"]);
+                    if (r==999) return r;
+                } else {
+                    r = 0;
+                }
+                status.set(key,r);
+            }
+
+            key = "add_merge_driver_" + format;
+            if (!status.exists(key)) {
+                if (!have_merge_driver) {
+                    r = command(io,"git",["config","--global","merge.daff-" + format + ".driver",daff_cmd + " merge --output %A %O %A %B"]);
+                    if (r==999) return r;
+                    io.writeStdout("- Added merge driver for " + format + "\n");
+                } else {
+                    r = 0;
+                    io.writeStdout("- Already have merge driver for " + format + ", not touching it\n");
+                }
+                status.set(key,r);
+            }
+        }
+
+        if (!io.exists(".git/config")) {
+            io.writeStderr("! This next part needs to happen in a git repository.\n");
+            io.writeStderr("! Please run again from the root of a git repository.\n");
+            return 1;
+        }
+            
+        var attr = ".gitattributes";
+        var txt = "";
+        var post = "";
+        if (!io.exists(attr)) {
+            io.writeStdout("- No .gitattributes file\n");
+        } else {
+            io.writeStdout("- You have a .gitattributes file\n");
+            txt = io.getContent(attr);
+        }
+
+        var need_update = false;
+        for (format in formats) {
+            if (txt.indexOf("*." + format)>=0) {
+                io.writeStderr("- Your .gitattributes file already mentions *." + format + "\n");
+            } else {
+                post += "*." + format + " diff=daff-" + format + "\n";
+                post += "*." + format + " merge=daff-" + format + "\n";
+                io.writeStdout("- Placing the following lines in .gitattributes:\n");
+                io.writeStdout(post);
+                if (txt!=""&&!need_update) txt += "\n";
+                txt += post;
+                need_update = true;
+            }
+        }
+        if (need_update) io.saveContent(attr,txt);
+
+        io.writeStdout("- Done!\n");
+
+        return 0;
+    }
+
+    public function coopyhx(io: TableIO) : Int {
         var args : Array<String> = io.args();
 
         if (args[0] == "--test") {
@@ -267,6 +437,35 @@ class Coopy {
         var cmd : String = args[0];
         
         if (args.length < 2) {
+            if (cmd == "version") {
+                io.writeStdout(VERSION + "\n");
+                return 0;
+            }
+            if (cmd == "git") {
+                io.writeStdout("You can use daff to improve git's handling of csv files, by using it as a\ndiff driver (for showing what has changed) and as a merge driver (for merging\nchanges between multiple versions).\n");
+                io.writeStdout("\n");
+                io.writeStdout("Automatic setup\n");
+                io.writeStdout("---------------\n\n");
+                io.writeStdout("Run:\n");
+                io.writeStdout("  daff git csv\n");
+                io.writeStdout("\n");
+                io.writeStdout("Manual setup\n");
+                io.writeStdout("------------\n\n");
+                io.writeStdout("Create and add a file called .gitattributes in the root directory of your\nrepository, containing:\n\n");
+                io.writeStdout("  *.csv diff=daff-csv\n");
+                io.writeStdout("  *.csv merge=daff-csv\n");
+                io.writeStdout("\nCreate a file called .gitconfig in your home directory (or alternatively\nopen .git/config for a particular repository) and add:\n\n");
+                io.writeStdout("  [diff \"daff-csv\"]\n");
+                io.writeStdout("  command = daff diff --git\n");
+                io.writeStderr("\n");
+                io.writeStdout("  [merge \"daff-csv\"]\n");
+                io.writeStdout("  name = daff tabular merge\n");
+                io.writeStdout("  driver = daff merge --output %A %O %A %B\n\n");
+                
+                io.writeStderr("Make sure you can run daff from the command-line as just \"daff\" - if not,\nreplace \"daff\" in the driver and command lines above with the correct way\nto call it.");
+                io.writeStderr("\n");
+                return 0;
+            }
             io.writeStderr("daff can produce and apply tabular diffs.\n");
             io.writeStderr("Call as:\n");
             io.writeStderr("  daff [--output OUTPUT.csv] a.csv b.csv\n");
@@ -276,7 +475,8 @@ class Coopy {
             io.writeStderr("  daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff trim [--output OUTPUT.csv] source.csv\n");
             io.writeStderr("  daff render [--output OUTPUT.html] diff.csv\n");
-            io.writeStderr("  daff git csv\n");
+            io.writeStderr("  daff git\n");
+            io.writeStderr("  daff version\n");
             io.writeStderr("\n");
             io.writeStderr("The --inplace option to patch and merge will result in modification of a.csv.\n");
             io.writeStderr("\n");
@@ -299,7 +499,7 @@ class Coopy {
         var offset : Int = 1;
         // "diff" is optional when followed by a filename with a dot in it,
         // or by an --option.
-        if (!Lambda.has(["diff","patch","merge","trim","render","git"],cmd)) {
+        if (!Lambda.has(["diff","patch","merge","trim","render","git","version"],cmd)) {
             if (cmd.indexOf(".")!=-1 || cmd.indexOf("--")==0) {
                 cmd = "diff";
                 offset = 0;
@@ -307,25 +507,7 @@ class Coopy {
         }
         if (cmd == "git") {
             var types = args.splice(offset,args.length-offset);
-            io.writeStdout("You can use daff to improve git's handling of csv files, by using it as a\ndiff driver (for showing what has changed) and as a merge driver (for merging\nchanges between multiple versions).  Here is how.\n");
-            io.writeStdout("\n");
-            io.writeStdout("Create and add a file called .gitattributes in the root directory of your\nrepository, containing:\n\n");
-            for (t in types) {
-                io.writeStdout("  *." + t + " diff=daff-diff\n");
-                io.writeStdout("  *." + t + " merge=daff-merge\n");
-            }
-            io.writeStdout("\nCreate a file called .gitconfig in your home directory (or alternatively\nopen .git/config for a particular repository) and add:\n\n");
-            io.writeStdout("  [merge \"daff-merge\"]\n");
-            io.writeStdout("  name = daff tabular merge\n");
-            io.writeStdout("  driver = daff merge --output %A %O %A %B\n\n");
-            io.writeStdout("  [diff \"daff-diff\"]\n");
-            io.writeStdout("  command = daff diff --git\n");
-            io.writeStderr("\n");
-
-            io.writeStderr("Make sure you can run daff from the command-line as just \"daff\" - if not,\nreplace \"daff\" in the driver and command lines above with the correct way\nto call it.");
-            io.writeStderr("\n");
-
-            return 0;
+            return installGitDriver(io,types);
         }
         if (git) {
             var ct = args.length-offset;
@@ -410,8 +592,9 @@ class Coopy {
 
     public static function main() : Int {
 #if coopyhx_util
-    var io : TableIO = new TableIO();
-    return coopyhx(io);
+    var io = new TableIO();
+    var coopy = new Coopy();
+    return coopy.coopyhx(io);
 #else
     // do nothing
     return 0;

@@ -45,5 +45,27 @@ class TableIO {
         Sys.stderr().writeString(txt);
 #end
     }
+
+    public function command(cmd:String, args:Array<String>) : Int {
+#if coopyhx_util
+        try {
+            return Sys.command(cmd,args);
+        } catch (e: Dynamic) {
+            return 1;
+        }
+#end
+        return 1;
+    }
+
+    public function async() : Bool {
+        return false;
+    }
+
+    public function exists(path:String) : Bool {
+#if coopyhx_util
+        return sys.FileSystem.exists(path);
+#end
+        return false;
+    }
 }
 

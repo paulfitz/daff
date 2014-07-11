@@ -1,12 +1,13 @@
 {
   "name": "daff",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Diff and patch tables",
   "url": "https://github.com/paulfitz/daff",
   "keywords": [
     "table",
     "diff",
-    "patch"
+    "patch",
+    "merge"
   ],
   "repository": {
     "type": "git",
