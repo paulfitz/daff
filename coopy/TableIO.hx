@@ -53,8 +53,9 @@ class TableIO {
         } catch (e: Dynamic) {
             return 1;
         }
-#end
+#else
         return 1;
+#end
     }
 
     public function async() : Bool {
@@ -64,8 +65,9 @@ class TableIO {
     public function exists(path:String) : Bool {
 #if coopyhx_util
         return sys.FileSystem.exists(path);
-#end
+#else
         return false;
+#end
     }
 }
 
