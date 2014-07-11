@@ -46,15 +46,23 @@ Call as:
   daff [--output OUTPUT.csv] a.csv b.csv
   daff [--output OUTPUT.csv] parent.csv a.csv b.csv
   daff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook
-  daff patch [--output OUTPUT.csv] source.csv patch.csv
+  daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv
+  daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv
   daff trim [--output OUTPUT.csv] source.csv
   daff render [--output OUTPUT.html] diff.csv
+  daff git
+  daff version
+
+The --inplace option to patch and merge will result in modification of a.csv.
 
 If you need more control, here is the full list of flags:
   daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv
      --context NUM: show NUM rows of context
      --all:         do not prune unchanged rows
      --act ACT:     show only a certain kind of change (update, insert, delete)
+
+  daff diff --git path old-file old-hex old-mode new-file new-hex new-mode
+     --git:         process arguments provided by git to diff drivers
 
   daff render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv
      --css CSS.css: generate a suitable css file to go with the html
@@ -65,35 +73,9 @@ If you need more control, here is the full list of flags:
 Using with git
 --------------
 
-Run `daff git csv` to see how to use daff to improve `git`'s handling
-of csv files.
-
-````
-$ daff git csv
-You can use daff to improve git's handling of csv files, by using it as a
-diff driver (for showing what has changed) and as a merge driver (for merging
-changes between multiple versions).  Here is how.
-
-Create and add a file called .gitattributes in the root directory of your
-repository, containing:
-
-  *.csv diff=daff-diff
-  *.csv merge=daff-merge
-
-Create a file called .gitconfig in your home directory (or alternatively
-open .git/config for a particular repository) and add:
-
-  [merge "daff-merge"]
-  name = daff tabular merge
-  driver = daff merge --output %A %O %A %B
-
-  [diff "daff-diff"]
-  command = daff diff --git
-
-Make sure you can run daff from the command-line as just "daff" - if not,
-replace "daff" in the driver and command lines above with the correct way
-to call it.
-````
+Run `daff git csv` to install daff as a diff and merge handler
+for `*.csv` files in your repository.  Run `daff git` for instructions
+on doing this manually.
 
 The library
 -----------
