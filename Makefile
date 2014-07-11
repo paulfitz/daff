@@ -48,6 +48,13 @@ version:
 	@grep "\"version\"" package.json
 	@grep "var VERSION" coopy/Coopy.hx
 
+tag:
+	# yes I know about npm-version
+	grep "\"version\"" package.json | grep -E -o "[.0-9]+" | tee version.txt
+	echo "git tag -a \"v`cat version.txt`\" -m \"`cat version.txt`\""
+	read x
+	git tag -a "v`cat version.txt`" -m "`cat version.txt`"
+
 doc:
 	haxe -xml doc.xml language/js.hxml
 	haxedoc doc.xml -f coopy
