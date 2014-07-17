@@ -277,7 +277,7 @@ class Coopy {
             key = "add_diff_driver_" + format;
             if (!status.exists(key)) {
                 if (!have_diff_driver) {
-                    r = command(io,"git",["config","--global","diff.daff-" + format + ".command",daff_cmd + " diff --git"]);
+                    r = command(io,"git",["config","--global","diff.daff-" + format + ".command",daff_cmd + " diff --color --git"]);
                     if (r==999) return r;
                     io.writeStdout("- Added diff driver for " + format + "\n");
                 } else {
@@ -372,6 +372,7 @@ class Coopy {
         var pretty : Bool = true;
         var inplace : Bool = false;
         var git : Bool = false;
+        var color : Bool = false;
 
         var flags : CompareFlags = new CompareFlags();
         flags.always_show_header = true;
@@ -430,6 +431,11 @@ class Coopy {
                     git = true;
                     args.splice(i,1);
                     break;
+                } else if (tag=="--color") {
+                    more = true;
+                    color = true;
+                    args.splice(i,1);
+                    break;
                 }
             }
         }
@@ -456,19 +462,19 @@ class Coopy {
                 io.writeStdout("  *.csv merge=daff-csv\n");
                 io.writeStdout("\nCreate a file called .gitconfig in your home directory (or alternatively\nopen .git/config for a particular repository) and add:\n\n");
                 io.writeStdout("  [diff \"daff-csv\"]\n");
-                io.writeStdout("  command = daff diff --git\n");
+                io.writeStdout("  command = daff diff --color --git\n");
                 io.writeStderr("\n");
                 io.writeStdout("  [merge \"daff-csv\"]\n");
                 io.writeStdout("  name = daff tabular merge\n");
                 io.writeStdout("  driver = daff merge --output %A %O %A %B\n\n");
                 
-                io.writeStderr("Make sure you can run daff from the command-line as just \"daff\" - if not,\nreplace \"daff\" in the driver and command lines above with the correct way\nto call it.");
+                io.writeStderr("Make sure you can run daff from the command-line as just \"daff\" - if not,\nreplace \"daff\" in the driver and command lines above with the correct way\nto call it. Omit --color if your terminal does not support ANSI colors.");
                 io.writeStderr("\n");
                 return 0;
             }
             io.writeStderr("daff can produce and apply tabular diffs.\n");
             io.writeStderr("Call as:\n");
-            io.writeStderr("  daff [--output OUTPUT.csv] a.csv b.csv\n");
+            io.writeStderr("  daff [--color] [--output OUTPUT.csv] a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
             io.writeStderr("  daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv\n");
@@ -482,6 +488,7 @@ class Coopy {
             io.writeStderr("\n");
             io.writeStderr("If you need more control, here is the full list of flags:\n");
             io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
+            io.writeStderr("     --color:       highlight changes with terminal colors\n");
             io.writeStderr("     --context NUM: show NUM rows of context\n");
             io.writeStderr("     --all:         do not prune unchanged rows\n");
             io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
@@ -559,7 +566,12 @@ class Coopy {
             var td : TableDiff = new TableDiff(align,flags);
             var o = new SimpleTable(0,0);
             td.hilite(o);
-            tool.saveTable(output,o);
+            if (color) {
+                var render = new TerminalDiffRender();
+                tool.saveText(output,render.render(o));
+            } else {
+                tool.saveTable(output,o);
+            }
         } else if (cmd=="patch") {
             var patcher : HighlightPatch = new HighlightPatch(a,b);
             patcher.apply();
