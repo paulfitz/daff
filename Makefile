@@ -50,10 +50,11 @@ version:
 
 tag:
 	# yes I know about npm-version
-	grep "\"version\"" package.json | grep -E -o "[.0-9]+" | tee version.txt
-	echo "git tag -a \"v`cat version.txt`\" -m \"`cat version.txt`\""
+	@grep "\"version\"" package.json | grep -E -o "[.0-9]+" | tee version.txt
+	@echo "git commit -m \"`cat version.txt`\" -a"
+	@echo "git tag -a \"v`cat version.txt`\" -m \"`cat version.txt`\""
 	read x
-	git tag -a "v`cat version.txt`" -m "`cat version.txt`"
+	git commit -m "`cat version.txt`" -a && git tag -a "v`cat version.txt`" -m "`cat version.txt`"
 
 doc:
 	haxe -xml doc.xml language/js.hxml

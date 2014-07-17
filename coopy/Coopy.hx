@@ -6,7 +6,7 @@ package coopy;
 
 @:expose
 class Coopy {
-    static public var VERSION = "1.1.6";
+    static public var VERSION = "1.1.7";
 
     private var format_preference : String;
     private var io : TableIO;
