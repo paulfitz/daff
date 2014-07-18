@@ -13,6 +13,7 @@ class CellInfo {
     
     // relevant to updates, conflicts
     public var separator : String;
+    public var pretty_separator : String;
     public var updated : Bool;
     public var conflicted : Bool;
     public var pvalue : String;

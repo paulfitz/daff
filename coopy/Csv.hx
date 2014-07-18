@@ -37,9 +37,9 @@ class Csv {
         if (d==null) {
             return "NULL";
         }
-        if (v.equals(d,null)) {
-            return "NULL";
-        }
+        //if (v.equals(d,null)) {
+        //return "NULL";
+        //}
         var str: String = v.toString(d);
         var delim: String = ",";
         var need_quote : Bool = false;

@@ -84,6 +84,7 @@ class DiffRender {
         cell.category = "";
         cell.category_given_tr = "";
         cell.separator = "";
+        cell.pretty_separator = "";
         cell.conflicted = false;
         cell.updated = false;
         cell.pvalue = cell.lvalue = cell.rvalue = null;
@@ -131,6 +132,7 @@ class DiffRender {
                     }
                     cell.updated = true;
                     cell.separator = div;
+                    cell.pretty_separator = div;
                     if (cell.pretty_value==div) {
                         tokens = ["",""];
                     } else {
@@ -146,7 +148,8 @@ class DiffRender {
                         pretty_tokens[0] = markSpaces(ref,tokens[2]);
                         pretty_tokens[2] = markSpaces(tokens[2],ref);
                     }
-                    cell.pretty_value = pretty_tokens.join(String.fromCharCode(8594));
+                    cell.pretty_separator = String.fromCharCode(8594);
+                    cell.pretty_value = pretty_tokens.join(cell.pretty_separator);
                     cell.category_given_tr = cell.category = cat;
                     var offset : Int = cell.conflicted?1:0;
                     cell.lvalue = tokens[offset];
