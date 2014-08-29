@@ -9,12 +9,19 @@ class Coopy {
     static public var VERSION = "1.1.8";
 
     private var format_preference : String;
+    private var delim_preference : String;
+    private var extern_preference : Bool;
+    private var output_format : String;
     private var io : TableIO;
 
     // just to get code included
     private var mv : Mover;
 
     public function new() : Void {
+        extern_preference = false;
+        format_preference = null;
+        delim_preference = null;
+        output_format = "copy";
     }
 
     static public function compareTables(local: Table, remote: Table) : CompareTable {
@@ -101,10 +108,47 @@ class Coopy {
 
 #if !coopyhx_library
 
+    private function checkFormat(name: String) : String {
+        if (extern_preference) {
+            return format_preference;
+        }
+        var ext = "";
+        var pt = name.lastIndexOf(".");
+        if (pt>=0) {
+            ext = name.substr(pt+1).toLowerCase();
+            switch(ext) {
+            case "json":
+                format_preference = "json";
+            case "csv":
+                format_preference = "csv";
+                delim_preference = ",";
+            case "tsv":
+                format_preference = "csv";
+                delim_preference = "\t";
+            case "ssv":
+                format_preference = "csv";
+                delim_preference = ";";
+            default:
+                ext = "";
+            }
+        }
+        return ext;
+    }
+
+    private function setFormat(name: String) : Void {
+        extern_preference = false;
+        checkFormat("." + name);
+        extern_preference = true;
+    }
+
     private function saveTable(name: String, t: Table) : Bool {
+        if (output_format!="copy") {
+            setFormat(output_format);
+        }
         var txt : String = "";
+        checkFormat(name);
         if (format_preference!="json") {
-            var csv : Csv = new Csv();
+            var csv : Csv = new Csv(delim_preference);
             txt = csv.renderTable(t);
         } else {
             txt = haxe.Json.stringify(jsonify(t));
@@ -165,29 +209,33 @@ class Coopy {
 
     private function loadTable(name: String) : Table {
         var txt : String = io.getContent(name);
-        try {
-            var json = haxe.Json.parse(txt);
-            format_preference = "json";
-            var t : Table = jsonToTable(json);
-            if (t==null) throw "JSON failed";
-            return t;
-        } catch (e: Dynamic) {
-            var csv : Csv = new Csv();
-            format_preference = "csv";
-            var data : Array<Array<String>> = csv.parseTable(txt);
-            var h : Int = data.length;
-            var w : Int = 0;
-            if (h>0) w = data[0].length;
-            var output = new SimpleTable(w,h);
-            for (i in 0...h) {
-                for (j in 0...w) {
-                    var val : String = data[i][j];
-                    output.setCell(j,i,cellFor(val));
-                }
+        var ext = checkFormat(name);
+        if (ext == "json" || ext == "") {
+            try {
+                var json = haxe.Json.parse(txt);
+                format_preference = "json";
+                var t : Table = jsonToTable(json);
+                if (t==null) throw "JSON failed";
+                return t;
+            } catch (e: Dynamic) {
+                if (ext == "json") throw e;
             }
-            if (output!=null) output.trimBlank();
-            return output;
         }
+        format_preference = "csv";
+        var csv : Csv = new Csv(delim_preference);
+        var data : Array<Array<String>> = csv.parseTable(txt);
+        var h : Int = data.length;
+        var w : Int = 0;
+        if (h>0) w = data[0].length;
+        var output = new SimpleTable(w,h);
+        for (i in 0...h) {
+            for (j in 0...w) {
+                var val : String = data[i][j];
+                output.setCell(j,i,cellFor(val));
+            }
+        }
+        if (output!=null) output.trimBlank();
+        return output;
     }
 
     private var status : Map<String,Int>;
@@ -436,6 +484,16 @@ class Coopy {
                     color = true;
                     args.splice(i,1);
                     break;
+                } else if (tag=="--input-format") {
+                    more = true;
+                    setFormat(args[i+1]);
+                    args.splice(i,2);
+                    break;
+                } else if (tag=="--output-format") {
+                    more = true;
+                    output_format = args[i+1];
+                    args.splice(i,2);
+                    break;
                 }
             }
         }
@@ -481,6 +539,7 @@ class Coopy {
             io.writeStderr("  daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff trim [--output OUTPUT.csv] source.csv\n");
             io.writeStderr("  daff render [--output OUTPUT.html] diff.csv\n");
+            io.writeStderr("  daff copy in.csv out.tsv\n");
             io.writeStderr("  daff git\n");
             io.writeStderr("  daff version\n");
             io.writeStderr("\n");
@@ -492,6 +551,8 @@ class Coopy {
             io.writeStderr("     --context NUM: show NUM rows of context\n");
             io.writeStderr("     --all:         do not prune unchanged rows\n");
             io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
+            io.writeStderr("     --input-format [csv|tsv|ssv|json]: set format to expect for input\n");
+            io.writeStderr("     --output-format [csv|tsv|ssv|json|copy]: set format for output\n");
             io.writeStderr("\n");
             io.writeStderr("  daff diff --git path old-file old-hex old-mode new-file new-hex new-mode\n");
             io.writeStderr("     --git:         process arguments provided by git to diff drivers\n");
@@ -506,7 +567,7 @@ class Coopy {
         var offset : Int = 1;
         // "diff" is optional when followed by a filename with a dot in it,
         // or by an --option.
-        if (!Lambda.has(["diff","patch","merge","trim","render","git","version"],cmd)) {
+        if (!Lambda.has(["diff","patch","merge","trim","render","git","version","copy"],cmd)) {
             if (cmd.indexOf(".")!=-1 || cmd.indexOf("--")==0) {
                 cmd = "diff";
                 offset = 0;
@@ -533,7 +594,7 @@ class Coopy {
             args.push(old_file);
             args.push(new_file);
         }
-        var tool : Coopy = new Coopy();
+        var tool : Coopy = this;
         tool.io = io;
         var parent = null;
         if (args.length-offset>=3) {
@@ -544,7 +605,11 @@ class Coopy {
         var a = tool.loadTable(aname);
         var b = null;
         if (args.length-offset>=2) {
-            b = tool.loadTable(args[1+offset]);
+            if (cmd!="copy") {
+                b = tool.loadTable(args[1+offset]);
+            } else {
+                output = args[1+offset];
+            }
         }
 
         if (inplace) {
@@ -597,6 +662,8 @@ class Coopy {
             if (css_output!=null) {
                 tool.saveText(css_output,renderer.sampleCss());
             }
+        } else if (cmd=="copy") {
+            tool.saveTable(output,a);
         }
         return ok?0:1;
     }

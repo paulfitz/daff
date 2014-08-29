@@ -9,10 +9,12 @@ class Csv {
     private var cursor: Int;
     private var row_ended: Bool;
     private var has_structure : Bool;
+    private var delim : String;
 
-    public function new() : Void {
+    public function new(?delim : String = ",") : Void {
         cursor = 0;
         row_ended = false;
+        this.delim = (delim==null)?",":delim;
     }
 
     public function renderTable(t: Table) : String {
@@ -24,7 +26,7 @@ class Csv {
         for (y in 0...h) {
             for (x in 0...w) {
                 if (x>0) {
-                    txt += ",";
+                    txt += delim;
                 }
                 txt += renderCell(v,t.getCell(x,y));
             }
@@ -35,13 +37,9 @@ class Csv {
 
     public function renderCell(v: View, d: Dynamic) : String {
         if (d==null) {
-            return "NULL";
+            return "NULL"; // I don't like this, why is it here?
         }
-        //if (v.equals(d,null)) {
-        //return "NULL";
-        //}
         var str: String = v.toString(d);
-        var delim: String = ",";
         var need_quote : Bool = false;
         for (i in 0...str.length) {
             var ch : String = str.charAt(i);
@@ -108,7 +106,7 @@ class Csv {
             }
             if (has_structure) {
                 if (!quoting) {
-                    if (ch==",".code) {
+                    if (ch==delim.charCodeAt(0)) {
                         break;
                     }
                     if (ch=="\r".code || ch=="\n".code) {

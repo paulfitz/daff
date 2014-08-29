@@ -3,6 +3,9 @@
   "version": "1.1.8",
   "description": "Diff and patch tables",
   "url": "https://github.com/paulfitz/daff",
+  "devDependencies": {
+    "tmp": "0.x.x"
+  },
   "keywords": [
     "table",
     "diff",
