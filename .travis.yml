@@ -14,6 +14,7 @@ before_install:
   - sudo apt-get update                                # pull info from ppa
 
 install:
+  - npm install
   - sudo apt-get install haxe -y                       # install haxe
   - sudo apt-get install gcc-multilib g++-multilib -y  # VM is 64bit but hxcpp builds 32bit
   - mkdir -p ~/haxelib

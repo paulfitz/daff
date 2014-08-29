@@ -21,4 +21,7 @@ daff_php
 daff_py
 daff_rb
 release
-
+*.gem
+*_bin
+dist
+lib/lib
