@@ -32,10 +32,12 @@ class SpeedTest extends haxe.unit.TestCase {
         var table1 = Native.table(data1);
         var table2 = Native.table(data2);
         var flags = new coopy.CompareFlags();
+        flags.unchanged_column_context = 3;
         var align = coopy.Coopy.compareTables(table1,table2).align();
         var diff = Native.table([]);
         var highlighter = new coopy.TableDiff(align,flags);
+        flags.ordered = false;
         highlighter.hilite(diff);
-        assertEquals(1,1);
+        assertEquals(1,1); // goal is just to complete in reasonable time
     }
 }

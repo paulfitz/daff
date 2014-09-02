@@ -232,7 +232,8 @@ class TableDiff {
         var active_column : Array<Int> = null;
         if (!flags.show_unchanged) {
             for (i in 0...units.length) {
-                active[i] = 0;
+                // flip assignment order for php efficiency :-)
+                active[units.length-1-i] = 0;
             }
         }
 
