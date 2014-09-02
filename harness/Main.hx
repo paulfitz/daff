@@ -8,6 +8,7 @@ class Main {
         var r = new haxe.unit.TestRunner();
         r.add(new BasicTest());
         r.add(new MergeTest());
+        r.add(new SpeedTest());
         r.run();
     }
 }

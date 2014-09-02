@@ -69,3 +69,10 @@ var align = ct.align();
 console.log("done alignment...");
 console.log(align.toOrder().getList().length);
 console.log("done ordering...");
+
+var options = new coopy.CompareFlags();
+options.unchanged_column_context = 3;
+var td = new coopy.TableDiff(align,options);
+var output = new coopy.TableView([]);
+td.hilite(output);
+console.log("done hiliting...");

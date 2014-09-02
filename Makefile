@@ -166,7 +166,7 @@ clean:
 ## This is a stub where I'll be adding cross-target tests
 ##
 
-ntest: ntest_js ntest_py
+ntest: ntest_js ntest_py ntest_php
 
 ntest_js:
 	haxe -js ntest.js -main harness.Main
@@ -175,6 +175,11 @@ ntest_js:
 ntest_py:
 	haxe -python ntest.py -main harness.Main
 	PYTHONPATH=$$PWD/lib python3 ntest.py 
+
+ntest_php:
+	haxe -php ntest_php_dir -main harness.Main
+	cp scripts/PhpTableView.class.php ntest_php_dir/lib/coopy/
+	php5 ntest_php_dir/index.php
 
 # Not ready for this yet
 #ntest_rb:
