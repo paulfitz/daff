@@ -66,99 +66,136 @@ class CompareTable {
 
         var av : View = a.getCellView();
 
-        // If we have more columns than we have time to process their
-        // combinations, we need to haul out some heuristics.
-
-        var N : Int = 5;
-        var columns : Array<Int> = new Array<Int>();
-        if (common_units.length>N) {
-            var columns_eval : Array<Array<Int>> = new Array<Array<Int>>();
-            for (i in 0...common_units.length) {
-                var ct: Int = 0;
-                var mem: Map<String,Int> = new Map<String,Int>();
-                var mem2: Map<String,Int> = new Map<String,Int>();
-                var ca: Int = common_units[i].l;
-                var cb: Int = common_units[i].r;
-                for (j in 0...ha) {
-                    var key: String = av.toString(a.getCell(ca,j));
-                    if (!mem.exists(key)) {
-                        mem.set(key,1);
-                        ct++;
-                    }
-                }
-                for (j in 0...hb) {
-                    var key: String = av.toString(b.getCell(cb,j));
-                    if (!mem2.exists(key)) {
-                        mem2.set(key,1);
-                        ct++;
-                    }
-                }
-                columns_eval.push([i,ct]);
-            }
-            var sorter = function(a,b) { if (a[1]<b[1]) return 1; if (a[1]>b[1]) return -1; return 0; }
-            columns_eval.sort(sorter);
-            columns = Lambda.array(Lambda.map(columns_eval, function(v) { return v[0]; }));
-            columns = columns.slice(0,N);
-        } else {
-            for (i in 0...common_units.length) {
-                columns.push(i);
-            }
+        var ids : Array<String> = null;
+        if (comp.compare_flags!=null) {
+            ids = comp.compare_flags.ids;
         }
 
-        var top : Int = Math.round(Math.pow(2,columns.length));
-
-        var pending : Map<Int,Int> = new Map<Int,Int>();
-        for (j in 0...ha) {
-            pending.set(j,j);
-        }
-        var pending_ct : Int = ha;
-        
-        for (k in 0...top) {
-            if (k==0) continue;
-            if (pending_ct == 0) break;
-            var active_columns : Array<Int> = new Array<Int>();
-            var kk : Int = k;
-            var at : Int = 0;
-            while (kk>0) {
-                if (kk%2==1) {
-                    active_columns.push(columns[at]);
-                }
-                kk >>= 1;
-                at++;
-            }
+        if (ids!=null) {
+            // no need for heuristics, we've been told what columns
+            // to use as a primary key
 
             var index : IndexPair = new IndexPair();
-            for (k in 0...active_columns.length) {
-                var unit : Unit = common_units[active_columns[k]];
-                index.addColumns(unit.l,unit.r);
-                align.addIndexColumns(unit);
+            var ids_as_map = new Map<String,Bool>();
+            for (id in ids) {
+                ids_as_map[id] = true;
+            }
+            for (unit in common_units) {
+                var na = av.toString(a.getCell(unit.l,0));
+                var nb = av.toString(b.getCell(unit.r,0));
+                if (ids_as_map.exists(na)||ids_as_map.exists(nb)) {
+                    index.addColumns(unit.l,unit.r);
+                    align.addIndexColumns(unit);
+                }
             }
             index.indexTables(a,b);
-
-            var h : Int = a.height;
-            if (b.height>h) h = b.height;
-            if (h<1) h = 1;
-            var wide_top_freq : Int = index.getTopFreq();
-            var ratio : Float = wide_top_freq;
-            ratio /= (h+20); // "20" allows for low-data 
-            if (ratio>=0.1) continue; // lousy no-good index, move on
-
             if (indexes!=null) {
                 indexes.push(index);
             }
-
-            var fixed : Array<Int> = new Array<Int>();
-            for (j in pending.keys()) {
+            for (j in 0...ha) {
                 var cross: CrossMatch = index.queryLocal(j);
                 var spot_a : Int = cross.spot_a;
                 var spot_b : Int = cross.spot_b;
                 if (spot_a!=1 || spot_b!=1) continue;
-                fixed.push(j);
                 align.link(j,cross.item_b.lst[0]);
             }
-            for (j in 0...fixed.length) {
-                pending.remove(fixed[j]);
-                pending_ct--;
+        } else {
+            // heuristics needed
+
+            // If we have more columns than we have time to process their
+            // combinations, we need to haul out some heuristics.
+            
+            var N : Int = 5;
+            var columns : Array<Int> = new Array<Int>();
+            if (common_units.length>N) {
+                var columns_eval : Array<Array<Int>> = new Array<Array<Int>>();
+                for (i in 0...common_units.length) {
+                    var ct: Int = 0;
+                    var mem: Map<String,Int> = new Map<String,Int>();
+                    var mem2: Map<String,Int> = new Map<String,Int>();
+                    var ca: Int = common_units[i].l;
+                    var cb: Int = common_units[i].r;
+                    for (j in 0...ha) {
+                        var key: String = av.toString(a.getCell(ca,j));
+                        if (!mem.exists(key)) {
+                            mem.set(key,1);
+                            ct++;
+                        }
+                    }
+                    for (j in 0...hb) {
+                        var key: String = av.toString(b.getCell(cb,j));
+                        if (!mem2.exists(key)) {
+                            mem2.set(key,1);
+                            ct++;
+                        }
+                    }
+                    columns_eval.push([i,ct]);
+                }
+                var sorter = function(a,b) { if (a[1]<b[1]) return 1; if (a[1]>b[1]) return -1; return 0; }
+                columns_eval.sort(sorter);
+                columns = Lambda.array(Lambda.map(columns_eval, function(v) { return v[0]; }));
+                columns = columns.slice(0,N);
+            } else {
+                for (i in 0...common_units.length) {
+                    columns.push(i);
+                }
+            }
+
+            var top : Int = Math.round(Math.pow(2,columns.length));
+
+            var pending : Map<Int,Int> = new Map<Int,Int>();
+            for (j in 0...ha) {
+                pending.set(j,j);
+            }
+            var pending_ct : Int = ha;
+        
+            for (k in 0...top) {
+                if (k==0) continue;
+                if (pending_ct == 0) break;
+                var active_columns : Array<Int> = new Array<Int>();
+                var kk : Int = k;
+                var at : Int = 0;
+                while (kk>0) {
+                    if (kk%2==1) {
+                        active_columns.push(columns[at]);
+                    }
+                    kk >>= 1;
+                    at++;
+                }
+
+                var index : IndexPair = new IndexPair();
+                for (k in 0...active_columns.length) {
+                    var unit : Unit = common_units[active_columns[k]];
+                    index.addColumns(unit.l,unit.r);
+                    align.addIndexColumns(unit);
+                }
+                index.indexTables(a,b);
+
+                var h : Int = a.height;
+                if (b.height>h) h = b.height;
+                if (h<1) h = 1;
+                var wide_top_freq : Int = index.getTopFreq();
+                var ratio : Float = wide_top_freq;
+                ratio /= (h+20); // "20" allows for low-data 
+                if (ratio>=0.1) continue; // lousy no-good index, move on
+
+                if (indexes!=null) {
+                    indexes.push(index);
+                }
+
+                var fixed : Array<Int> = new Array<Int>();
+                for (j in pending.keys()) {
+                    var cross: CrossMatch = index.queryLocal(j);
+                    var spot_a : Int = cross.spot_a;
+                    var spot_b : Int = cross.spot_b;
+                    if (spot_a!=1 || spot_b!=1) continue;
+                    fixed.push(j);
+                    align.link(j,cross.item_b.lst[0]);
+                }
+                for (j in 0...fixed.length) {
+                    pending.remove(fixed[j]);
+                    pending_ct--;
+                }
             }
         }
         // we expect headers on row 0 - link them even if quite different.

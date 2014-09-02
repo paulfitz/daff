@@ -21,6 +21,8 @@ class TableComparisonState {
     public var has_same_columns : Bool;
     public var has_same_columns_known : Bool;
 
+    public var compare_flags : CompareFlags;
+
     public function new() : Void {
         reset();
     }
@@ -32,5 +34,6 @@ class TableComparisonState {
         is_equal = false;
         has_same_columns = false;
         has_same_columns_known = false;
+        compare_flags = null;
     }
 }

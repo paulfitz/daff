@@ -38,6 +38,10 @@ class CompareFlags {
     // to true to accept just those actions.
     public var acts : Map<String, Bool>;
 
+    // List of columns that make up a primary key, if known - otherwise
+    // heuristics are used to find a decent key (or a set of decent keys).
+    public var ids : Array<String>;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -48,6 +52,7 @@ class CompareFlags {
         unchanged_column_context = 1;
         always_show_header = true;
         acts = null;
+        ids = null;
     }
 
     public function allowUpdate() : Bool {

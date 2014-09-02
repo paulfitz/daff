@@ -24,21 +24,23 @@ class Coopy {
         output_format = "copy";
     }
 
-    static public function compareTables(local: Table, remote: Table) : CompareTable {
+    static public function compareTables(local: Table, remote: Table, flags: CompareFlags = null) : CompareTable {
         var ct: CompareTable = new CompareTable();
         var comp : TableComparisonState = new TableComparisonState();
         comp.a = local;
         comp.b = remote;
+        comp.compare_flags = flags;
         ct.attach(comp);
         return ct;
     }
 
-    static public function compareTables3(parent: Table, local: Table, remote: Table) : CompareTable {
+    static public function compareTables3(parent: Table, local: Table, remote: Table, flags: CompareFlags = null) : CompareTable {
         var ct: CompareTable = new CompareTable();
         var comp : TableComparisonState = new TableComparisonState();
         comp.p = parent;
         comp.a = local;
         comp.b = remote;
+        comp.compare_flags = flags;
         ct.attach(comp);
         return ct;
     }
@@ -494,6 +496,14 @@ class Coopy {
                     output_format = args[i+1];
                     args.splice(i,2);
                     break;
+                } else if (tag=="--id") {
+                    more = true;
+                    if (flags.ids == null) {
+                        flags.ids = new Array<String>();
+                    }
+                    flags.ids.push(args[i+1]);
+                    args.splice(i,2);
+                    break;
                 }
             }
         }
@@ -547,6 +557,7 @@ class Coopy {
             io.writeStderr("\n");
             io.writeStderr("If you need more control, here is the full list of flags:\n");
             io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
+            io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
             io.writeStderr("     --color:       highlight changes with terminal colors\n");
             io.writeStderr("     --context NUM: show NUM rows of context\n");
             io.writeStderr("     --all:         do not prune unchanged rows\n");
@@ -626,7 +637,7 @@ class Coopy {
 
         var ok : Bool = true;
         if (cmd=="diff") {
-            var ct : CompareTable = compareTables3(parent,a,b);
+            var ct : CompareTable = compareTables3(parent,a,b,flags);
             var align : Alignment = ct.align();
             var td : TableDiff = new TableDiff(align,flags);
             var o = new SimpleTable(0,0);
