@@ -20,7 +20,7 @@ class Example {
 
 	JavaTableView table1 = new JavaTableView(data1);
 	JavaTableView table2 = new JavaTableView(data2);
-	coopy.Alignment alignment = coopy.Coopy.compareTables(table1,table2).align();
+	coopy.Alignment alignment = coopy.Coopy.compareTables(table1,table2,null).align();
 	JavaTableView table_diff = new JavaTableView();
 	coopy.CompareFlags flags = new coopy.CompareFlags();
 	coopy.TableDiff highlighter = new coopy.TableDiff(alignment,flags);

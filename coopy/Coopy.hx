@@ -24,7 +24,7 @@ class Coopy {
         output_format = "copy";
     }
 
-    static public function compareTables(local: Table, remote: Table, flags: CompareFlags = null) : CompareTable {
+    static public function compareTables(local: Table, remote: Table, ?flags: CompareFlags) : CompareTable {
         var ct: CompareTable = new CompareTable();
         var comp : TableComparisonState = new TableComparisonState();
         comp.a = local;
@@ -34,7 +34,7 @@ class Coopy {
         return ct;
     }
 
-    static public function compareTables3(parent: Table, local: Table, remote: Table, flags: CompareFlags = null) : CompareTable {
+    static public function compareTables3(parent: Table, local: Table, remote: Table, ?flags: CompareFlags) : CompareTable {
         var ct: CompareTable = new CompareTable();
         var comp : TableComparisonState = new TableComparisonState();
         comp.p = parent;
