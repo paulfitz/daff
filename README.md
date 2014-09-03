@@ -2,6 +2,7 @@
 [![NPM version](https://badge.fury.io/js/daff.svg)](http://badge.fury.io/js/daff)
 [![Gem Version](https://badge.fury.io/rb/daff.svg)](http://badge.fury.io/rb/daff)
 [![PyPI version](https://badge.fury.io/py/daff.svg)](http://badge.fury.io/py/daff)
+[![PHP version](https://badge.fury.io/ph/paulfitz%2Fdaff-php.svg)](http://badge.fury.io/ph/paulfitz%2Fdaff-php)
 
 daff: data diff
 ===============
