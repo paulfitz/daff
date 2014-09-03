@@ -6,7 +6,7 @@ package coopy;
 
 @:expose
 class Coopy {
-    static public var VERSION = "1.1.10";
+    static public var VERSION = "1.1.11";
 
     private var format_preference : String;
     private var delim_preference : String;
