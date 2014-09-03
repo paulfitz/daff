@@ -28,13 +28,14 @@ class Index {
 
     public function indexTable(t: Table) : Void {
         indexed_table = t;
+        if (keys.length!=t.height && t.height>0) {
+            // preallocate array, helpful for php
+            keys[t.height-1] = null;
+        }
         for (i in 0...t.height) {
-            var key : String;
-            if (keys.length>i) {
-                key = keys[i];
-            } else {
-                key = toKey(t,i);
-                keys.push(key);
+            var key : String = keys[i];
+            if (key==null) {
+                keys[i] = key = toKey(t,i);
             }
             var item : IndexItem = items.get(key);
             if (item==null) {

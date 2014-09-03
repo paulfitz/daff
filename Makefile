@@ -181,7 +181,8 @@ ntest_py:
 ntest_php:
 	haxe -php ntest_php_dir -main harness.Main
 	cp scripts/PhpTableView.class.php ntest_php_dir/lib/coopy/
-	php5 ntest_php_dir/index.php
+	time php5 ntest_php_dir/index.php
+	#php5 -d xdebug.profiler_enable=1 -d xdebug.profiler_output_dir=/tmp ntest_php_dir/index.php
 
 # Not ready for this yet
 #ntest_rb:
