@@ -50,6 +50,8 @@ version:
 
 tag:
 	# yes I know about npm-version
+	@make version
+	@make test
 	@grep "\"version\"" package.json | grep -E -o "[.0-9]+" | tee version.txt
 	@echo "git commit -m \"`cat version.txt`\" -a"
 	@echo "git tag -a \"v`cat version.txt`\" -m \"`cat version.txt`\""
