@@ -232,3 +232,17 @@ rdist:
 	echo "Daff::Coopy.main" >> bin/daff.rb
 	rm -f daff-*.gem
 	gem build daff.gemspec
+
+##############################################################################
+##############################################################################
+## 
+## RELEASES
+##
+
+releases:
+	@echo "Hey so you want to make a release?"
+	@echo "And you've forgotten how?"
+	@echo "Steps:"
+	@echo "* 'make test && make ntest'"
+	@echo "* Update version number in package.json"
+	@echo "* 'make tag'"
