@@ -23,6 +23,7 @@ For certain languages you can use the command-line:
 npm install daff -g  # node/javascript
 pip3 install daff    # python3
 gem install daff     # ruby
+composer require paulfitz/daff-php  # php
 ````
 
 Or use the library to view csv diffs on github via a chrome extension:
