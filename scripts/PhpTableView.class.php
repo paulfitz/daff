@@ -21,7 +21,7 @@ class Coopy_PhpTableView implements coopy_Table{
   public function getCell($x,$y) {
     return $this->data[$y][$x];
   }
-  
+
   public function setCell($x,$y,$c) {
     if (is_object($c)) {
       $this->data[$y][$x] = "" . $c->toString();
@@ -81,8 +81,8 @@ class Coopy_PhpTableView implements coopy_Table{
     return false;
   }
 
-  public function &getData() {
-    return $data;
+  public function getData() {
+    return $this->data;
   }
 
   public function insertOrDeleteRows($xfate,$hfate) {
@@ -141,7 +141,7 @@ class Coopy_PhpTableView implements coopy_Table{
     for ($c=0; $c<$this->width; $c++) {
       for ($r=0; $r<$this->height; $r++) {
 	$v1 = "" . $this->getCell($c,$r);
-	$v2 = "" . $alt->getCell($c,$r); 
+	$v2 = "" . $alt->getCell($c,$r);
 	if ($v1!=$v2) {
 	  return false;
 	}
