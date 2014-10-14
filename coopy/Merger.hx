@@ -95,9 +95,9 @@ class Merger {
         // insert any rows/cols inserted in parent->b
         // row/col movement -- ignore for now
 
-        order = align.toOrderPruned(true);
+        order = align.toOrder();
         units = order.getList();
-        column_order = align.meta.toOrderPruned(false);
+        column_order = align.meta.toOrder();
         column_units = column_order.getList();
 
         var allow_insert : Bool = flags.allowInsert();

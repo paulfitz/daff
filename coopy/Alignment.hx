@@ -84,12 +84,17 @@ class Alignment {
         return "" + map_a2b;
     }
 
-    public function toOrderPruned(rowlike: Bool) : Ordering {
-        return toOrderCached(true,rowlike);
-    }
-
     public function toOrder() : Ordering {
-        return toOrderCached(false,false);
+        if (order_cache!=null) {
+            if (reference!=null) {
+                if (!order_cache_has_reference) {
+                    order_cache = null;
+                }
+            }
+        }
+        if (order_cache==null) order_cache = toOrder3();
+        if (reference!=null) order_cache_has_reference = true;
+        return order_cache;
     }
 
     public function getSource() : Table {
@@ -108,100 +113,7 @@ class Alignment {
         return ib;
     }
 
-    private function toOrderCached(prune: Bool, rowlike: Bool) : Ordering {
-        if (order_cache!=null) {
-            if (reference!=null) {
-                if (!order_cache_has_reference) {
-                    order_cache = null;
-                }
-            }
-        }
-        if (order_cache==null) order_cache = toOrder3(prune,rowlike);
-        if (reference!=null) order_cache_has_reference = true;
-        return order_cache;
-    }
-
-    // Prune additions/removal pairs that match exactly.
-    // This ideally would occur earlier, in the original
-    // alignment, like in the original C++ coopy.
-    private function pruneOrder(o: Ordering, ref: Alignment,
-                                rowlike: Bool) : Void {
-        var tl : Table = ref.tb;
-        var tr : Table = tb;
-        if (rowlike) {
-            if (tl.width!=tr.width) return;
-        } else {
-            if (tl.height!=tr.height) return;
-        }
-        var units : Array<Unit> = o.getList();
-        var left_units : Array<Unit> = new Array<Unit>();
-        var left_locs : Array<Int> = new Array<Int>();
-        var right_units : Array<Unit> = new Array<Unit>();
-        var right_locs : Array<Int> = new Array<Int>();
-        var eliminate : Array<Int> = new Array<Int>();
-        var ct : Int = 0;
-        for (i in 0...units.length) {
-            var unit : Unit = units[i];
-            if (unit.l<0 && unit.r>=0) {
-                right_units.push(unit);
-                right_locs.push(i);
-                ct++;
-            } else if (unit.r<0 && unit.l>=0) {
-                left_units.push(unit);
-                left_locs.push(i);
-                ct++;
-            } else if (ct>0) {
-                // wish haxe had Array.clear!
-                left_units.splice(0,left_units.length);
-                right_units.splice(0,right_units.length);
-                left_locs.splice(0,left_locs.length);
-                right_locs.splice(0,right_locs.length);
-                ct = 0;
-            }
-            while (left_locs.length>0 && right_locs.length>0) {
-                var l : Int = left_units[0].l;
-                var r : Int = right_units[0].r;
-                var view : View = tl.getCellView();
-                var match : Bool = true;
-                if (rowlike) {
-                    var w : Int = tl.width;
-                    for (j in 0...w) {
-                        if (!view.equals(tl.getCell(j,l),tr.getCell(j,r))) {
-                            match = false;
-                            break;
-                        }
-                    }
-                } else {
-                    var h : Int = tl.height;
-                    for (j in 0...h) {
-                        if (!view.equals(tl.getCell(l,j),tr.getCell(r,j))) {
-                            match = false;
-                            break;
-                        }
-                    }
-                }
-                if (match) {
-                    eliminate.push(left_locs[0]);
-                    eliminate.push(right_locs[0]);
-                }
-                left_units.shift();
-                right_units.shift();
-                left_locs.shift();
-                right_locs.shift();
-                ct-=2;
-            }
-        }
-        if (eliminate.length>0) {
-            eliminate.sort(function(a,b) return a-b);
-            var del : Int = 0;
-            for (e in eliminate) {
-                o.getList().splice(e-del,1);
-                del++;
-            }
-        }
-    }
-
-    private function toOrder3(prune: Bool, rowlike: Bool) : Ordering {
+    private function toOrder3() : Ordering {
         var ref : Alignment = reference;
         if (ref == null) {
             ref = new Alignment();
@@ -355,9 +267,6 @@ class Alignment {
             xp++;
             xl++;
             xr++;
-        }
-        if (prune) {
-            pruneOrder(order,ref,rowlike);
         }
         return order;
     }

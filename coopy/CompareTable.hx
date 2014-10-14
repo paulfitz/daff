@@ -48,7 +48,7 @@ class CompareTable {
             align.meta = new Alignment();
         }
         alignColumns(align.meta,a,b);
-        var column_order : Ordering = align.meta.toOrderPruned(false);
+        var column_order : Ordering = align.meta.toOrder();
         var common_units : Array<Unit> = new Array<Unit>();
         for (unit in column_order.getList()) {
             if (unit.l>=0 && unit.r>=0 && unit.p!=-1) {
@@ -148,7 +148,11 @@ class CompareTable {
                 pending.set(j,j);
             }
             var pending_ct : Int = ha;
+
+            var added_columns: Map<Int,Bool> = new Map<Int,Bool>();
+            var index_ct : Int = 0;
         
+            var index_top : IndexPair = null;
             for (k in 0...top) {
                 if (k==0) continue;
                 if (pending_ct == 0) break;
@@ -165,11 +169,16 @@ class CompareTable {
 
                 var index : IndexPair = new IndexPair();
                 for (k in 0...active_columns.length) {
-                    var unit : Unit = common_units[active_columns[k]];
+                    var col : Int = active_columns[k];
+                    var unit : Unit = common_units[col];
                     index.addColumns(unit.l,unit.r);
-                    align.addIndexColumns(unit);
+                    if (!added_columns.exists(col)) {
+                        align.addIndexColumns(unit);
+                        added_columns.set(col,true);
+                    }
                 }
                 index.indexTables(a,b);
+                if (k==top-1) index_top = index;
 
                 var h : Int = a.height;
                 if (b.height>h) h = b.height;
@@ -177,8 +186,13 @@ class CompareTable {
                 var wide_top_freq : Int = index.getTopFreq();
                 var ratio : Float = wide_top_freq;
                 ratio /= (h+20); // "20" allows for low-data 
-                if (ratio>=0.1) continue; // lousy no-good index, move on
+                if (ratio>=0.1) {
+                    // lousy no-good index, we should move on
+                    if (index_ct>0 || k<top-1) continue;
+                    // but unfortunately we have nothing better
+                }
 
+                index_ct++;
                 if (indexes!=null) {
                     indexes.push(index);
                 }
@@ -195,6 +209,37 @@ class CompareTable {
                 for (j in 0...fixed.length) {
                     pending.remove(fixed[j]);
                     pending_ct--;
+                }
+            }
+
+            if (index_top!=null) {
+                var offset : Int = 0;
+                var scale : Int = 1;
+                for (sgn in 0...2) {
+                    if (pending_ct>0) {
+                        var xb : Null<Int> = null;
+                        if (scale==-1 && hb>0) xb = hb-1;
+                        for (xa0 in 0...ha) {
+                            var xa : Int = xa0*scale + offset;
+                            var xb2 : Null<Int> = align.a2b(xa);
+                            if (xb2!=null) {
+                                xb = xb2+scale;
+                                if (xb>=hb||xb<0) break;
+                                continue;
+                            }
+                            if (xb==null) continue;
+                            var ka = index_top.localKey(xa);
+                            var kb = index_top.remoteKey(xb);
+                            if (ka!=kb) continue;
+                            align.link(xa,xb);
+                            pending_ct--;
+                            xb+=scale;
+                            if (xb>=hb||xb<0) break;
+                            if (pending_ct==0) break;
+                        }
+                    }
+                    offset = ha-1;
+                    scale = -1;
                 }
             }
         }

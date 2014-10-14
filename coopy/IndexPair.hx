@@ -68,6 +68,14 @@ class IndexPair {
         return queryByKey(ka);
     }
 
+    public function localKey(row: Int) : String {
+        return ia.toKey(ia.getTable(),row);
+    }
+
+    public function remoteKey(row: Int) : String {
+        return ib.toKey(ib.getTable(),row);
+    }
+
     public function getTopFreq() : Int {
         if (ib.top_freq>ia.top_freq) return ib.top_freq;
         return ia.top_freq;
