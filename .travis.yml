@@ -20,7 +20,7 @@ install:
   - haxelib setup ~/haxelib
   - haxelib install hxcpp
   - haxelib install hxjava
-  - sudo apt-get install mono-mcs
+  - sudo apt-get install mono-mcs time
   - haxelib install hxcs
   - npm install
 
@@ -30,3 +30,4 @@ script:
   - make java
   - make cpp
   - make cs
+  - make ntest
