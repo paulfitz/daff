@@ -206,12 +206,11 @@ setup_py: py
 
 sdist: setup_py
 	rm -rf dist
-	mv page /tmp/sdist_does_not_like_page
+	cp README.md README
 	python3 setup.py sdist
 	cd dist && mkdir tmp && cd tmp && tar xzvf ../daff*.tar.gz && cd daff-*[0-9] && ./setup.py build
 	python3 setup.py sdist upload
 	rm -rf dist/tmp
-	mv /tmp/sdist_does_not_like_page page
 
 
 ##############################################################################
