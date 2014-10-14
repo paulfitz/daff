@@ -48,7 +48,7 @@ class coopy_PhpTableView implements coopy_Table{
     for ($i=0; $i<count($this->data); $i++) {
       $row = &$this->data[$i];
       if ($row==null) {
-	$this->data[$i] = [];
+	$this->data[$i] = array();
 	$row = &$this->data[$i];
       }
       while (count($row)<$this->width) {
@@ -58,7 +58,7 @@ class coopy_PhpTableView implements coopy_Table{
     }
     if (count($this->data)<$this->height) {
       while (count($this->data)<$this->height) {
-	$row = [];
+	$row = array();
 	for ($i=0; $i<$this->width; $i++) {
 	  array_push($row,null);
 	}
@@ -87,7 +87,7 @@ class coopy_PhpTableView implements coopy_Table{
 
   public function insertOrDeleteRows($xfate,$hfate) {
     $fate = php_Lib::toPhpArray($xfate);
-    $ndata = [];
+    $ndata = array();
     $top = 0;
     for ($i=0; $i<count($fate); $i++) {
         $j = $fate[$i];
@@ -119,7 +119,7 @@ class coopy_PhpTableView implements coopy_Table{
     }
     for ($i=0; $i<$this->height; $i++) {
       $row = &$this->data[$i];
-      $nrow = [];
+      $nrow = array();
       $top = 0;
       for ($j=0; $j<$this->width; $j++) {
 	if ($fate[$j]==-1) continue;
