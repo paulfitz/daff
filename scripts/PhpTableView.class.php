@@ -1,6 +1,6 @@
 <?php
 
-class Coopy_PhpTableView implements coopy_Table{
+class coopy_PhpTableView implements coopy_Table{
   public function __construct(&$data) {
     $this->data = &$data;
     $this->height = count($data);
