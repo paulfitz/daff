@@ -20,7 +20,7 @@ install:
   - haxelib setup ~/haxelib
   - haxelib install hxcpp
   - haxelib install hxjava
-  - sudo apt-get install mono-mcs time
+  - sudo apt-get install mono-mcs time php5-cli
   - haxelib install hxcs
   - npm install
 
