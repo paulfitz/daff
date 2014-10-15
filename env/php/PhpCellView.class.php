@@ -2,7 +2,7 @@
 
 class coopy_PhpCellView implements coopy_View {
   public function toString($d) {
-    return "".$d;
+    return strval($d);
   }
   public function getBag($d) { return null; }
   public function getTable($d) { return null; }
