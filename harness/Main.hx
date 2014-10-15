@@ -9,6 +9,7 @@ class Main {
         r.add(new BasicTest());
         r.add(new MergeTest());
         r.add(new SpeedTest());
+        r.add(new TypeTest());
         r.run();
     }
 }
