@@ -26,3 +26,6 @@ release
 dist
 lib/lib
 publish
+daff.py
+daff/__init__.py
+lib/daff.rb
