@@ -67,7 +67,7 @@ cpp_package:
 
 php:
 	haxe language/php.hxml
-	cp scripts/PhpTableView.class.php php_bin/lib/coopy/
+	cp env/php/*.class.php php_bin/lib/coopy/
 	cp scripts/example.php php_bin/
 	@echo 'Output in php_bin, run "php php_bin/index.php" for an example utility'
 	@echo 'or try "php php_bin/example.php" for an example of using daff as a library'
@@ -180,7 +180,8 @@ ntest_py:
 
 ntest_php:
 	haxe -php ntest_php_dir -main harness.Main
-	cp scripts/PhpTableView.class.php ntest_php_dir/lib/coopy/
+	cp env/php/*.class.php ntest_php_dir/lib/coopy/
+	#time hhvm ntest_php_dir/index.php
 	time php5 ntest_php_dir/index.php
 	#php5 -d xdebug.profiler_enable=1 -d xdebug.profiler_output_dir=/tmp ntest_php_dir/index.php
 

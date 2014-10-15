@@ -1,7 +1,4 @@
-packaging
 node_modules
-page
-web
 *.log
 *.map
 *.txt
@@ -10,6 +7,9 @@ web
 csv_test_cache
 cpp*
 test.js
+ntest.js
+ntest.py
+ntest_php_dir
 pack.sh
 update-web.sh
 go.sh
@@ -25,3 +25,4 @@ release
 *_bin
 dist
 lib/lib
+publish

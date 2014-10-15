@@ -35,7 +35,7 @@ class coopy_PhpTableView implements coopy_Table{
   }
 
   public function getCellView() {
-    return new coopy_SimpleView();
+    return new coopy_PhpCellView();
   }
 
   public function isResizable() {
