@@ -174,7 +174,7 @@ ntest_js:
 	haxe -js ntest.js -main harness.Main
 	NODE_PATH=$$PWD/lib node ntest.js
 
-ntest_py:
+ntest_py: py
 	haxe -python ntest.py -main harness.Main
 	PYTHONPATH=$$PWD/lib python3 ntest.py 
 

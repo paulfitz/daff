@@ -64,7 +64,7 @@ class PythonTableView(Table):
             j = fate[i];
             if j!=-1:
                 if j>=len(ndata):
-                    for k in range(len(ndata)-j+1):
+                    for k in range(j-len(ndata)+1):
                         ndata.append(None)
                 ndata[j] = self.data[i]
 
@@ -81,9 +81,8 @@ class PythonTableView(Table):
                 if fate[i]!=i:
                     eq = False
                     break
-
-        if eq:
-            return True
+            if eq:
+                return True
 
         for i in range(self.height):
             row = self.data[i]
@@ -91,7 +90,11 @@ class PythonTableView(Table):
             for j in range(self.width):
                 if fate[j]==-1:
                     continue
-                nrow[fate[j]] = row[j]
+                at = fate[j]
+                if at>=len(nrow):
+                    for k in range(at-len(nrow)+1):
+                        nrow.append(None)
+                nrow[at] = row[j]
             while len(nrow)<wfate:
                 nrow.append(None)
             self.data[i] = nrow

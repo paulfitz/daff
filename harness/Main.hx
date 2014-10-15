@@ -8,8 +8,9 @@ class Main {
         var r = new haxe.unit.TestRunner();
         r.add(new BasicTest());
         r.add(new MergeTest());
-        r.add(new SpeedTest());
+        //r.add(new SpeedTest());
         r.add(new TypeTest());
+        r.add(new RowOrderTest());
         r.run();
     }
 }

@@ -117,14 +117,19 @@ class coopy_PhpTableView implements coopy_Table{
       }
       if ($eq) return true;
     }
+    $touched = array();
+    $top = 0;
+    for ($j=0; $j<$this->width; $j++) {
+      if ($fate[$j]==-1) continue;
+      $touched[$fate[$j]] = 1;
+      if ($fate[$j]>$top) $top = $fate[$j];
+    }
     for ($i=0; $i<$this->height; $i++) {
       $row = &$this->data[$i];
       $nrow = array();
-      $top = 0;
       for ($j=0; $j<$this->width; $j++) {
 	if ($fate[$j]==-1) continue;
 	$nrow[$fate[$j]] = $row[$j];
-	if ($fate[$j]>$top) $top = $fate[$j];
       }
       for ($j=$top; $j<$wfate-1; $j++) {
 	array_push($nrow,null);
@@ -132,6 +137,13 @@ class coopy_PhpTableView implements coopy_Table{
       $this->data[$i] = $nrow;
     }
     $this->width = $wfate;
+    for ($j=0; $j<$this->width; $j++) {
+      if (!isset($touched[$j])) {
+	for ($i=0; $i<$this->height; $i++) {
+	  $this->data[$i][$j] = null;
+	}
+      }
+    }
     return true;
   }
 
