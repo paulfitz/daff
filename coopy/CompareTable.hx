@@ -97,7 +97,7 @@ class CompareTable {
                 var spot_a : Int = cross.spot_a;
                 var spot_b : Int = cross.spot_b;
                 if (spot_a!=1 || spot_b!=1) continue;
-                align.link(j,cross.item_b.lst[0]);
+                align.link(j,cross.item_b.value());
             }
         } else {
             // heuristics needed
@@ -204,7 +204,7 @@ class CompareTable {
                     var spot_b : Int = cross.spot_b;
                     if (spot_a!=1 || spot_b!=1) continue;
                     fixed.push(j);
-                    align.link(j,cross.item_b.lst[0]);
+                    align.link(j,cross.item_b.value());
                 }
                 for (j in 0...fixed.length) {
                     pending.remove(fixed[j]);

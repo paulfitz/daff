@@ -215,7 +215,7 @@ class HighlightPatch implements Row {
             for (idx in indexes) {
                 var match : CrossMatch = idx.queryByContent(this);
                 if (match.spot_a != 1) continue;
-                result = match.item_a.lst[0];
+                result = match.item_a.value();
                 break;
             }
         }

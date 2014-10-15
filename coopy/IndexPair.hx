@@ -34,10 +34,10 @@ class IndexPair {
         var good : Int = 0;
         for (key in ia.items.keys()) {
             var item_a : IndexItem = ia.items.get(key);
-            var spot_a : Int = item_a.lst.length;
+            var spot_a : Int = item_a.length();
             var item_b : IndexItem = ib.items.get(key);
             var spot_b : Int = 0;
-            if (item_b!=null) spot_b = item_b.lst.length;
+            if (item_b!=null) spot_b = item_b.length();
             if (spot_a == 1 && spot_b == 1) {
                 good++;
             }
@@ -51,8 +51,8 @@ class IndexPair {
         result.item_b = ib.items.get(ka);
         result.spot_a = result.spot_b = 0;
         if (ka!="") {
-            if (result.item_a!=null) result.spot_a = result.item_a.lst.length;
-            if (result.item_b!=null) result.spot_b = result.item_b.lst.length;
+            if (result.item_a!=null) result.spot_a = result.item_a.length();
+            if (result.item_b!=null) result.spot_b = result.item_b.length();
         }
         return result;
     }

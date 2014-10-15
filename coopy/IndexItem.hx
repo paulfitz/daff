@@ -10,9 +10,17 @@ class IndexItem {
     public function new() : Void {
     }
 
-    public function add(i: Int) : Int {
+    public inline function add(i: Int) : Int {
         if (lst==null) lst = new Array<Int>();
         lst.push(i);
         return lst.length;
+    }
+
+    public inline function length() : Int {
+        return lst.length;
+    }
+
+    public inline function value() : Int {
+        return lst[0];
     }
 }
