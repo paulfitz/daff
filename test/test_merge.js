@@ -66,3 +66,59 @@ for (var xa=0;xa<w;xa++) {
     assert(t1.isSimilar(t3));
 }
 
+
+{
+    var t0 = new daff.TableView([["Name","Number"],["John",14],["Jane",99]]);
+    var t1 = new daff.TableView([["Name","Color","Number"],["John","Red",14],["Jane","Green",99]]);
+    var t2 = new daff.TableView([["Name","Number"],["Johnny",14],["Jane",99]]);
+    var t3 = new daff.TableView([["Name","Color","Number"],["Johnny","Red",14],["Jane","Green",99]]);
+    var merger = new daff.Merger(t0,t1,t2,flags);
+    var conflicts = merger.apply();
+    assert(conflicts==0);
+    assert(t1.isSimilar(t3));
+}
+
+{
+    var t0 = new daff.TableView([["Zig","Zag","Name","Number"],["aa","AA","John",14],["bb","BB","Jane",99]]);
+    var t1 = new daff.TableView([["Name","Number"],["John",14],["Jane",99]]);
+    var t2 = new daff.TableView([["Zig","Zag","Name","Number"],["aa","AA","John",14],["bb","BB","June",99]]);
+    var t3 = new daff.TableView([["Name","Number"],["John",14],["June",99]]);
+    var merger = new daff.Merger(t0,t1,t2,flags);
+    var conflicts = merger.apply();
+    assert(conflicts==0);
+    assert(t1.isSimilar(t3));
+}
+
+{   
+    var t0 = new daff.TableView([["Zig","Zag","Name","Number"],["aa","AA","John",14],["bb","BB","Jane",99]]);
+    var t1 = new daff.TableView([["Name","Number"],["John",14],["Jane",99]]);
+    var t2 = new daff.TableView([["Zig","Zag","Name","Number"],["aa","AA","John",14],["bb","BB","June",99]]);
+    var t3 = new daff.TableView([["Name","Number"],["John",14],["June",99]]);
+
+    {
+	var alignment = daff.compareTables3(t0,t1,t2).align();
+	var flags = new daff.CompareFlags();
+	var highlighter = new daff.TableDiff(alignment,flags);
+	var table_diff = new daff.TableView([])
+	highlighter.hilite(table_diff);
+
+	var tx = t1.clone();
+	var patcher = new daff.HighlightPatch(tx,table_diff);
+	patcher.apply();
+	assert(tx.isSimilar(t3));
+    }
+
+    {
+	var alignment = daff.compareTables3(t0,t2,t1).align();
+	var flags = new daff.CompareFlags();
+	var highlighter = new daff.TableDiff(alignment,flags);
+	var table_diff = new daff.TableView([])
+	highlighter.hilite(table_diff);
+	
+	var tx = t2.clone();
+	var patcher = new daff.HighlightPatch(tx,table_diff);
+	patcher.apply();
+	assert(tx.isSimilar(t3));
+    }
+}
+

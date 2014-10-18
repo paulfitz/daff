@@ -172,6 +172,7 @@ class TableDiff {
         var a : Table;
         var b : Table;
         var p : Table;
+        var rp_header : Int = 0;
         var ra_header : Int = 0;
         var rb_header : Int = 0;
         var is_index_p : Map<Int,Bool> = new Map<Int,Bool>();
@@ -181,6 +182,7 @@ class TableDiff {
             p = align.getSource();
             a = align.reference.getTarget();
             b = align.getTarget();
+            rp_header = align.reference.meta.getSourceHeader();
             ra_header = align.reference.meta.getTargetHeader();
             rb_header = align.meta.getTargetHeader();
             if (align.getIndexColumns()!=null) {
@@ -199,7 +201,7 @@ class TableDiff {
             a = align.getSource();
             b = align.getTarget();
             p = a;
-            ra_header = align.meta.getSourceHeader();
+            rp_header = ra_header = align.meta.getSourceHeader();
             rb_header = align.meta.getTargetHeader();
             if (align.getIndexColumns()!=null) {
                 for (a2b in align.getIndexColumns()) {
@@ -289,13 +291,13 @@ class TableDiff {
                 }
             }
             if (cunit.r>=0 && cunit.lp()>=0) {
-                if (a.height>=ra_header && b.height>=rb_header) {
-                    var aa : Dynamic = a.getCell(cunit.lp(),ra_header);
+                if (p.height>=rp_header && b.height>=rb_header) {
+                    var pp : Dynamic = p.getCell(cunit.lp(),rp_header);
                     var bb : Dynamic = b.getCell(cunit.r,rb_header);
-                    if (!v.equals(aa,bb)) {
+                    if (!v.equals(pp,bb)) {
                         have_schema = true;
                         act = "(";
-                        act += v.toString(aa);
+                        act += v.toString(pp);
                         act += ")";
                         if (active_column!=null) active_column[j] = 1;
                     }
@@ -331,9 +333,9 @@ class TableDiff {
                                        b.getCell(cunit.r,rb_header));
                     }
                 } else if (cunit.lp()>=0) {
-                    if (a.height>0) {
+                    if (p.height>0) {
                         output.setCell(j+1,at,
-                                       a.getCell(cunit.lp(),ra_header));
+                                       p.getCell(cunit.lp(),rp_header));
                     }
                 }
                 col_map.set(j+1,cunit);
