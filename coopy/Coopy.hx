@@ -512,6 +512,12 @@ class Coopy {
                     flags.columns_to_ignore.push(args[i+1]);
                     args.splice(i,2);
                     break;
+                } else if (tag=="--index") {
+                    more = true;
+                    flags.always_show_order = true;
+                    flags.never_show_order = false;
+                    args.splice(i,1);
+                    break;
                 }
             }
         }
@@ -576,6 +582,7 @@ class Coopy {
             io.writeStderr("\n");
             io.writeStderr("  daff diff --git path old-file old-hex old-mode new-file new-hex new-mode\n");
             io.writeStderr("     --git:         process arguments provided by git to diff drivers\n");
+            io.writeStderr("     --index:       include row/columns numbers from orginal tables\n");
             io.writeStderr("\n");
             io.writeStderr("  daff render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
             io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
