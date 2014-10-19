@@ -42,6 +42,10 @@ class CompareFlags {
     // heuristics are used to find a decent key (or a set of decent keys).
     public var ids : Array<String>;
 
+    // List of columns to ignore, changes related to these columns
+    // should not count in diffs.
+    public var columns_to_ignore : Array<String>;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -53,6 +57,7 @@ class CompareFlags {
         always_show_header = true;
         acts = null;
         ids = null;
+        columns_to_ignore = null;
     }
 
     public function allowUpdate() : Bool {
@@ -68,6 +73,15 @@ class CompareFlags {
     public function allowDelete() : Bool {
         if (acts==null) return true;
         return acts.exists("delete");
+    }
+
+    public function getIgnoredColumns() : Map<String,Bool> {
+        if (columns_to_ignore==null) return null;
+        var ignore = new Map<String,Bool>();
+        for (i in 0...columns_to_ignore.length) {
+            ignore.set(columns_to_ignore[i],true);
+        }
+        return ignore;
     }
 }
 

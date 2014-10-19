@@ -3,13 +3,19 @@
 package harness;
 
 class SmallTableTest extends haxe.unit.TestCase {
+    var data1 : Dynamic;
+    var data2 : Dynamic;
+
+    override public function setup() {
+        data1 = [['NAME','AGE'],
+                 ['Paul','15'],
+                 ['Sam','89']];
+        data2 = [['key','version','NAME','AGE'],
+                 ['ci1f5egka00009xmh16ya9ok5','1','Paul','15'],
+                 ['ci1f5egkj00019xmhoiqjd5ui','1','Sam','89']];
+    }
+
     public function testSmall(){
-        var data1 = [['NAME','AGE'],
-                     ['Paul','15'],
-                     ['Sam','89']];
-        var data2 = [['key','version','NAME','AGE'],
-                     ['ci1f5egka00009xmh16ya9ok5','1','Paul','15'],
-                     ['ci1f5egkj00019xmhoiqjd5ui','1','Sam','89']];
         var table1 = Native.table(data1);
         var table2 = Native.table(data2);
         var alignment = coopy.Coopy.compareTables3(table2,table1,table2).align();
@@ -20,5 +26,22 @@ class SmallTableTest extends haxe.unit.TestCase {
         highlighter.hilite(table_diff);
         assertEquals(table_diff.get_height(),1);
     }
-    
+
+    public function testIgnore(){
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data2);
+        var flags = new coopy.CompareFlags();
+        flags.columns_to_ignore = ["key","version"];
+        var alignment = coopy.Coopy.compareTables3(table2,table1,table2,flags).align();
+        var data_diff = [];
+        var table_diff = Native.table(data_diff);
+        var highlighter = new coopy.TableDiff(alignment,flags);
+        highlighter.hilite(table_diff);
+        assertEquals(table_diff.get_height(),1);
+        assertEquals(table_diff.get_width(),3);
+        var v = table1.getCellView();
+        assertEquals(v.toString(table_diff.getCell(0,0)),"@@");
+        assertEquals(v.toString(table_diff.getCell(1,0)),"NAME");
+        assertEquals(v.toString(table_diff.getCell(2,0)),"AGE");
+    }
 }

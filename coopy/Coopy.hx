@@ -504,6 +504,14 @@ class Coopy {
                     flags.ids.push(args[i+1]);
                     args.splice(i,2);
                     break;
+                } else if (tag=="--ignore") {
+                    more = true;
+                    if (flags.columns_to_ignore == null) {
+                        flags.columns_to_ignore = new Array<String>();
+                    }
+                    flags.columns_to_ignore.push(args[i+1]);
+                    args.splice(i,2);
+                    break;
                 }
             }
         }
@@ -558,6 +566,7 @@ class Coopy {
             io.writeStderr("If you need more control, here is the full list of flags:\n");
             io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
             io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
+            io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
             io.writeStderr("     --color:       highlight changes with terminal colors\n");
             io.writeStderr("     --context NUM: show NUM rows of context\n");
             io.writeStderr("     --all:         do not prune unchanged rows\n");

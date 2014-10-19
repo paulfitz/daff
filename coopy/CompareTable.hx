@@ -49,12 +49,6 @@ class CompareTable {
         }
         alignColumns(align.meta,a,b);
         var column_order : Ordering = align.meta.toOrder();
-        var common_units : Array<Unit> = new Array<Unit>();
-        for (unit in column_order.getList()) {
-            if (unit.l>=0 && unit.r>=0 && unit.p!=-1) {
-                common_units.push(unit);
-            }
-        }
 
         align.range(a.height,b.height);
         align.tables(a,b);
@@ -67,8 +61,29 @@ class CompareTable {
         var av : View = a.getCellView();
 
         var ids : Array<String> = null;
+        var ignore : Map<String,Bool> = null;
         if (comp.compare_flags!=null) {
             ids = comp.compare_flags.ids;
+            ignore = comp.compare_flags.getIgnoredColumns();
+        }
+ 
+        var common_units : Array<Unit> = new Array<Unit>();
+        var ra_header : Int = align.getSourceHeader();
+        var rb_header : Int = align.getSourceHeader();
+        for (unit in column_order.getList()) {
+            if (unit.l>=0 && unit.r>=0 && unit.p!=-1) {
+                if (ignore!=null) {
+                    if (unit.l>=0 && ra_header>=0 && ra_header<a.height) {
+                        var name = av.toString(a.getCell(unit.l,ra_header));
+                        if (ignore.exists(name)) continue;
+                    }
+                    if (unit.r>=0 && rb_header>=0 && rb_header<b.height) {
+                        var name = av.toString(b.getCell(unit.r,rb_header));
+                        if (ignore.exists(name)) continue;
+                    }
+                }
+                common_units.push(unit);
+            }
         }
 
         if (ids!=null) {

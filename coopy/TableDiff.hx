@@ -158,6 +158,20 @@ class TableDiff {
         return txt;
     }
 
+    private function setIgnore(ignore: Map<String,Bool>,
+                               idx_ignore: Map<Int,Bool>,
+                               tab: Table,
+                               r_header: Int) : Void {
+        var v = tab.getCellView();
+        if (tab.height>=r_header) {
+            for (i in 0...tab.width) {
+                var name = v.toString(tab.getCell(i,r_header));
+                if (!ignore.exists(name)) continue;
+                idx_ignore.set(i,true);
+            }
+        }
+    }
+
     public function hilite(output: Table) : Bool { 
         if (!output.isResizable()) return false;
         output.resize(0,0);
@@ -214,6 +228,26 @@ class TableDiff {
         var column_order : Ordering = align.meta.toOrder();
         var column_units : Array<Unit> = column_order.getList();
 
+        var p_ignore = new Map<Int,Bool>();
+        var a_ignore = new Map<Int,Bool>();
+        var b_ignore = new Map<Int,Bool>();
+        var ignore = flags.getIgnoredColumns();
+        if (ignore!=null) {
+            setIgnore(ignore,p_ignore,p,rp_header);
+            setIgnore(ignore,a_ignore,a,ra_header);
+            setIgnore(ignore,b_ignore,b,rb_header);
+
+            var ncolumn_units = new Array<Unit>();
+            for (j in 0...column_units.length) {
+                var cunit : Unit = column_units[j];
+                if (p_ignore.exists(cunit.p)||
+                    a_ignore.exists(cunit.l)||
+                    b_ignore.exists(cunit.r)) continue;
+                ncolumn_units.push(cunit);
+            }
+            column_units = ncolumn_units;
+        }
+
         var show_rc_numbers : Bool = false;
         var row_moves : Map<Int,Int> = null;
         var col_moves : Map<Int,Int> = null;
@@ -255,10 +289,11 @@ class TableDiff {
             }
         }
 
+        var v : View = a.getCellView();
+
         var outer_reps_needed : Int = 
             (flags.show_unchanged&&flags.show_unchanged_columns) ? 1 : 2;
 
-        var v : View = a.getCellView();
         var sep : String = "";
         var conflict_sep : String = "";
 
