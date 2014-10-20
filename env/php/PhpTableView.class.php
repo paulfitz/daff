@@ -92,6 +92,9 @@ class coopy_PhpTableView implements coopy_Table{
     for ($i=0; $i<count($fate); $i++) {
         $j = $fate[$i];
         if ($j!=-1) {
+	    for ($k=count($ndata); $k<$j; $k++) {
+	      $ndata[$k] = null;
+	    }
 	    $ndata[$j] = &$this->data[$i];
 	    if ($j>$top) $top = $j;
         }
@@ -128,8 +131,12 @@ class coopy_PhpTableView implements coopy_Table{
       $row = &$this->data[$i];
       $nrow = array();
       for ($j=0; $j<$this->width; $j++) {
-	if ($fate[$j]==-1) continue;
-	$nrow[$fate[$j]] = $row[$j];
+        $fj = $fate[$j];
+	if ($fj==-1) continue;
+	for ($k=count($nrow); $k<$fj; $k++) {
+	  $nrow[$k] = null;
+	}
+	$nrow[$fj] = $row[$j];
       }
       for ($j=$top; $j<$wfate-1; $j++) {
 	array_push($nrow,null);
