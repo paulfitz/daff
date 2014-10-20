@@ -158,4 +158,8 @@ class SimpleTable implements Table {
         data = data2;
         return true;
     }
+
+    public function getData() {
+        return null;
+    }
 }

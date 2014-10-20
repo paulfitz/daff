@@ -44,4 +44,13 @@ class Native {
         return null;
 #end
     }
+
+    static public function isList(v: Dynamic) : Bool {
+#if php
+        untyped __php__("$keys = array_keys($v)");
+        return untyped __php__("array_keys($keys) !== $keys");
+#else
+        return true;
+#end
+    }
 }

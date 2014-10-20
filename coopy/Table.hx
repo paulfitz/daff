@@ -24,4 +24,6 @@ interface Table {
     // sorry for the inconsistent naming, this isn't needed anymore
     function get_width() : Int;
     function get_height() : Int;
+
+    function getData() : Dynamic;
 }
