@@ -8,12 +8,16 @@ package coopy;
 class TableDiff {
     private var align : Alignment;
     private var flags : CompareFlags;
-    private var l_prev : Int;
-    private var r_prev : Int;
+    private var builder : CellBuilder;
 
     public function new(align: Alignment, flags: CompareFlags) {
         this.align = align;
         this.flags = flags;
+        builder = null;
+    }
+
+    public function setCellBuilder(builder: CellBuilder) {
+        this.builder = builder;
     }
 
     public function getSeparator(t: Table,
@@ -139,25 +143,6 @@ class TableDiff {
         }
     }
 
-    private function reportUnit(unit: Unit) : String {
-        var txt : String = unit.toString();
-        var reordered : Bool = false;
-        if (unit.l>=0) {
-            if (unit.l<l_prev) {
-                reordered = true;
-            }
-            l_prev = unit.l;
-        }
-        if (unit.r>=0) {
-            if (unit.r<r_prev) {
-                reordered = true;
-            }
-            r_prev = unit.r;
-        }
-        if (reordered) txt = "[" + txt + "]";
-        return txt;
-    }
-
     private function setIgnore(ignore: Map<String,Bool>,
                                idx_ignore: Map<Int,Bool>,
                                tab: Table,
@@ -174,6 +159,7 @@ class TableDiff {
 
     public function hilite(output: Table) : Bool { 
         if (!output.isResizable()) return false;
+        if (builder==null) builder = new FlatCellBuilder();
         output.resize(0,0);
         output.clear();
 
@@ -290,6 +276,7 @@ class TableDiff {
         }
 
         var v : View = a.getCellView();
+        builder.setView(v);
 
         var outer_reps_needed : Int = 
             (flags.show_unchanged&&flags.show_unchanged_columns) ? 1 : 2;
@@ -349,7 +336,7 @@ class TableDiff {
         if (have_schema) {
             var at : Int = output.height;
             output.resize(column_units.length+1,at+1);
-            output.setCell(0,at,v.toDatum("!"));
+            output.setCell(0,at,builder.marker("!"));
             for (j in 0...column_units.length) {
                 output.setCell(j+1,at,v.toDatum(schema[j]));
             }
@@ -359,7 +346,7 @@ class TableDiff {
         if (flags.always_show_header) {
             var at : Int = output.height;
             output.resize(column_units.length+1,at+1);
-            output.setCell(0,at,v.toDatum("@@"));
+            output.setCell(0,at,builder.marker("@@"));
             for (j in 0...column_units.length) {
                 var cunit : Unit = column_units[j];
                 if (cunit.r>=0) {
@@ -534,17 +521,21 @@ class TableDiff {
                         dd = rr;
                     }
 
-                    var txt : String = null;
+                    var cell : Dynamic = dd;
                     if (have_dd_to&&allow_update) {
                         if (active_column!=null) {
                             active_column[j] = 1;
                         }
-                        txt = quoteForDiff(v,dd);
                         // modification: x -> y
                         if (sep=="") {
-                            // strictly speaking getSeparator(a,null,..)
-                            // would be ok - but very confusing
-                            sep = getSeparator(a,b,"->");
+                            if (builder.needSeparator()) {
+                                // strictly speaking getSeparator(a,null,..)
+                                // would be ok - but very confusing
+                                sep = getSeparator(a,b,"->");
+                                builder.setSeparator(sep);
+                            } else {
+                                sep = "->";
+                            }
                         }
                         var is_conflict : Bool = false;
                         if (have_dd_to_alt) {
@@ -553,17 +544,21 @@ class TableDiff {
                             }
                         }
                         if (!is_conflict) {
-                            txt = txt + sep + quoteForDiff(v,dd_to);
+                            cell = builder.update(dd,dd_to);
                             if (sep.length>act.length) {
                                 act = sep;
                             }
                         } else {
                             if (conflict_sep=="") {
-                                conflict_sep = getSeparator(p,a,"!") + sep;
+                                if (builder.needSeparator()) {
+
+                                    conflict_sep = getSeparator(p,a,"!") + sep;
+                                    builder.setConflictSeparator(conflict_sep);
+                                } else {
+                                    conflict_sep = "!->";
+                                }
                             }
-                            txt = txt + 
-                                conflict_sep + quoteForDiff(v,dd_to_alt) +
-                                conflict_sep + quoteForDiff(v,dd_to);
+                            cell = builder.conflict(dd,dd_to_alt,dd_to);
                             act = conflict_sep;
                         }
                     }
@@ -579,17 +574,13 @@ class TableDiff {
                     }
                     if (publish) {
                         if (active_column==null || active_column[j]>0) {
-                            if (txt != null) {
-                                output.setCell(j+1,at,v.toDatum(txt));
-                            } else {
-                                output.setCell(j+1,at,dd);
-                            }
+                            output.setCell(j+1,at,cell);
                         }
                     }
                 }
 
                 if (publish) {
-                    output.setCell(0,at,v.toDatum(act));
+                    output.setCell(0,at,builder.marker(act));
                     row_map.set(at,unit);
                 }
                 if (act!="") {
@@ -622,26 +613,23 @@ class TableDiff {
                 target.push(i+1);
             }
             output.insertOrDeleteColumns(target,output.width+1);
-            l_prev = -1;
-            r_prev = -1;
+
             for (i in 0...output.height) {
                 var unit : Unit = row_map.get(i);
                 if (unit==null) continue;
-                output.setCell(0,i,reportUnit(unit));
+                output.setCell(0,i,builder.links(unit));
             }
             target = new Array<Int>();
             for (i in 0...output.height) {
                 target.push(i+1);
             }
             output.insertOrDeleteRows(target,output.height+1);
-            l_prev = -1;
-            r_prev = -1;
             for (i in 1...output.width) {
                 var unit : Unit = col_map.get(i-1);
                 if (unit==null) continue;
-                output.setCell(i,0,reportUnit(unit));
+                output.setCell(i,0,builder.links(unit));
             }
-            output.setCell(0,0,"@:@");
+            output.setCell(0,0,builder.marker("@:@"));
         }
 
         if (active_column!=null) {
@@ -674,7 +662,7 @@ class TableDiff {
                 output.insertOrDeleteColumns(fate,at);
                 for (d in dots) {
                     for (j in 0...output.height) {
-                        output.setCell(d,j,"...");
+                        output.setCell(d,j,builder.marker("..."));
                     }
                 }
             }

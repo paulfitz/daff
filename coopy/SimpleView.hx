@@ -34,12 +34,11 @@ class SimpleView implements View {
         return ("" + d1) == ("" + d2);
     }
 
-    public function toDatum(str: String) : Dynamic {
-        if (str==null) return null;
-#if js
-    return cast str;
+    public function toDatum(x: Dynamic) : Dynamic {
+#if cpp
+        return new SimpleCell(x);
 #else
-        return new SimpleCell(str);
+        return x;
 #end
     }
 }
