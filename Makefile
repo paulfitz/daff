@@ -168,7 +168,7 @@ clean:
 ## This is a stub where I'll be adding cross-target tests
 ##
 
-ntest: ntest_js ntest_py ntest_php
+ntest: ntest_js ntest_py ntest_php ntest_java
 
 ntest_js:
 	haxe -js ntest.js -main harness.Main
@@ -184,6 +184,15 @@ ntest_php:
 	#time hhvm ntest_php_dir/index.php
 	time php5 ntest_php_dir/index.php
 	#php5 -d xdebug.profiler_enable=1 -d xdebug.profiler_output_dir=/tmp ntest_php_dir/index.php
+
+ntest_java:
+	haxe -java ntest_java_dir -main harness.Main -D no-compilation
+	cp scripts/JavaTableView.java ntest_java_dir/src/coopy
+	#	echo "src/coopy/JavaTableView.java" >> ntest_java_dir/cmd
+	cd ntest_java_dir && find src -iname "*.java" > cmd
+	cd ntest_java_dir && mkdir -p obj
+	cd ntest_java_dir && javac -sourcepath src -d obj -g:none "@cmd"
+	java -cp ntest_java_dir/obj harness.Main
 
 # Not ready for this yet
 #ntest_rb:

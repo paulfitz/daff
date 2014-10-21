@@ -22,6 +22,23 @@ class Native {
         }
     }
     return untyped __php__("$ndata");
+#elseif java
+    // java makes a fuss
+    var h = data.length;
+    untyped __java__("Object[][] ndata = new Object[h][];");
+    if (h>0) {
+        var w = data[0].length;
+        for (i in 0...h) {
+            var row = data[i];
+            untyped __java__("Object[] nrow = new Object[w];");
+            for (j in 0...w) {
+                var x = row[j];
+                untyped __java__("nrow[j] = x");
+            }
+            untyped __java__("ndata[i] = nrow");
+        }
+    }
+    return untyped __java__("ndata");
 #else
     return data;
 #end
@@ -40,6 +57,8 @@ class Native {
         return untyped __js__("RubyTableView.new(data)");
 #elseif php
         return untyped __php__("new coopy_PhpTableView($data)");
+#elseif java
+        return untyped __java__("new coopy.JavaTableView((Object[][])data)");
 #else
         return null;
 #end
@@ -51,6 +70,14 @@ class Native {
         return untyped __php__("array_keys($keys) === $keys");
 #else
         return true;
+#end
+    }
+
+    static public function row(v: Dynamic, r: Int) : Dynamic {
+#if java
+        return untyped __java__("((Object[][])v)[r]");
+#else
+        return v[r];
 #end
     }
 }

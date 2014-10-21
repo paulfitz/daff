@@ -149,6 +149,12 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
     @Override public java.lang.Object __hx_getField(java.lang.String field, boolean throwErrors, boolean isCheck, boolean handleProperties) {
 	boolean onwards = true;
 	switch (field.hashCode()) {
+	case -75605984:
+	    if (field.equals("getData"))  {
+		onwards = false;
+		return ((haxe.lang.Function) (new haxe.lang.Closure(((java.lang.Object) (this) ),  haxe.lang.Runtime.toString("getData"))) );
+	    }
+	    break;
 	case -510954926:
 	    if (field.equals("trimBlank")) {
 		onwards = false;
@@ -280,6 +286,12 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
     @Override public java.lang.Object __hx_invokeField(java.lang.String field, haxe.root.Array dynargs) {
 	boolean onwards = true;
 	switch (field.hashCode()) {
+	case -75605984:
+	    if (field.equals("getData")) {
+		onwards = false;
+		return this.getData();
+	    }
+	    break;
 	case -510954926:
 	    if (field.equals("trimBlank")) {
 		onwards = false;

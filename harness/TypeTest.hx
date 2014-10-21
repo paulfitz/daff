@@ -33,8 +33,8 @@ class TypeTest extends haxe.unit.TestCase {
     highlighter.hilite(diff);
     if (diff.getData()!=null) {
         assertTrue(Native.isList(diff.getData()));
-        assertTrue(Native.isList(diff.getData()[0]));
-        assertTrue(Native.isList(diff.getData()[1]));
+        assertTrue(Native.isList(Native.row(diff.getData(),0)));
+        assertTrue(Native.isList(Native.row(diff.getData(),1)));
     }
   }
 }
