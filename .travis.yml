@@ -32,3 +32,4 @@ script:
   - make cs
   - make ntest_js
   - make ntest_php
+  - make ntest_java
