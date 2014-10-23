@@ -200,6 +200,14 @@ ntest_rb:
 	cp scripts/ruby_table_view.rb ntestdotrb/lib/coopy
 	RUBYLIB=$$PWD/ntestdotrb ruby ntestdotrb/index.rb
 
+perf:
+	#haxe -D enbiggen -js ntest.js -main harness.Main
+	#NODE_PATH=$$PWD/lib node ntest.js
+	haxe -D enbiggen -php ntest_php_dir -main harness.Main
+	cp env/php/*.class.php ntest_php_dir/lib/coopy/
+	#time hhvm ntest_php_dir/index.php
+	time php5 ntest_php_dir/index.php
+
 ##############################################################################
 ##############################################################################
 ## 

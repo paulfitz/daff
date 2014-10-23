@@ -11,14 +11,12 @@ class Native {
     var h = data.length;
     if (h>0) {
         var w = data[0].length;
+        untyped __php__("$ndata = array_pad(array(),$h,array_pad(array(),$w,null))");
         for (i in 0...h) {
-            var row = data[i];
-            untyped __php__("$nrow = array()");
             for (j in 0...w) {
-                var x = row[j];
-                untyped __php__("array_push($nrow,$x)");
+                var x = data[i][j];
+                untyped __php__("$ndata[$i][$j] = $x");
             }
-            untyped __php__("array_push($ndata,$nrow)");
         }
     }
     return untyped __php__("$ndata");

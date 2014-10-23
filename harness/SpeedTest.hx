@@ -10,6 +10,9 @@ class SpeedTest extends haxe.unit.TestCase {
         data1 = [];
         data2 = [];
         var scale = 10000;
+#if enbiggen
+        scale = 50000;
+#end
         for (k in 0...2) {
             for (i in 0...scale) {
                 var row = [];
@@ -23,14 +26,23 @@ class SpeedTest extends haxe.unit.TestCase {
                 } else {
                     data2.push(row);
                 }
+#if enbiggen
+                var ct = ((i+k*7)%10001);
+                for (j in 0...40) {
+                    row.push("" + ct);
+                    ct = ((i+ct+k*7)%10001);
+                }
+#end
             }
         }
-        data2 = data1;
     }
 
     public function testMedium() {
         var table1 = Native.table(data1);
         var table2 = Native.table(data2);
+#if enbiggen
+        trace("table size is " + table1.get_height() + " x " + table1.get_width());
+#end
         var flags = new coopy.CompareFlags();
         flags.unchanged_column_context = 3;
         var align = coopy.Coopy.compareTables(table1,table2).align();
