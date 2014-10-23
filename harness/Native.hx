@@ -53,7 +53,7 @@ class Native {
         python.Syntax.pythonCode("daff = __import__('daff')");
         return python.Syntax.pythonCode("daff.PythonTableView(data)");
 #elseif rb
-        untyped __js__("require 'ruby_table_view' unless RubyTableView");
+        untyped __js__("require 'lib/coopy/ruby_table_view' unless defined?(RubyTableView)");
         return untyped __js__("RubyTableView.new(data)");
 #elseif php
         return untyped __php__("new coopy_PhpTableView($data)");
@@ -78,6 +78,14 @@ class Native {
         return untyped __java__("((Object[][])v)[r]");
 #else
         return v[r];
+#end
+    }
+
+    static public function exit(v: Int) {
+#if js
+       untyped __js__("process.exit(v)");
+#else
+       Sys.exit(v);
 #end
     }
 }

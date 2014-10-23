@@ -168,7 +168,7 @@ clean:
 ## This is a stub where I'll be adding cross-target tests
 ##
 
-ntest: ntest_js ntest_py ntest_php ntest_java
+ntest: ntest_js ntest_rb ntest_py ntest_php ntest_java
 
 ntest_js:
 	haxe -js ntest.js -main harness.Main
@@ -195,9 +195,10 @@ ntest_java:
 	java -cp ntest_java_dir/obj harness.Main
 
 # Not ready for this yet
-#ntest_rb:
-#	haxe -rb ntestdotrb -main harness.Main
-#	RUBYLIB=$$PWD/ruby_bin ruby ntestdotrb/index.rb 
+ntest_rb:
+	haxe -rb ntestdotrb -main harness.Main
+	cp scripts/ruby_table_view.rb ntestdotrb/lib/coopy
+	RUBYLIB=$$PWD/ntestdotrb ruby ntestdotrb/index.rb
 
 ##############################################################################
 ##############################################################################

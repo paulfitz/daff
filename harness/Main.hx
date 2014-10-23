@@ -4,7 +4,7 @@ package harness;
 
 class Main {
 
-    static public function main(){
+    static public function main() {
         var r = new haxe.unit.TestRunner();
         r.add(new BasicTest());
         r.add(new MergeTest());
@@ -12,6 +12,9 @@ class Main {
         r.add(new RowOrderTest());
         r.add(new SmallTableTest());
         r.add(new SpeedTest());
-        r.run();
+        var ok = r.run();
+        if (!ok) {
+            Native.exit(1);
+        }
     }
 }

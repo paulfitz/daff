@@ -19,7 +19,7 @@ class RubyTableView < Coopy::Table
   end
 
   def to_s
-    Coopy::SimpleTable::tableToString(self)
+    Coopy::SimpleTable::table_to_string(self)
   end
 
   def get_cell_view

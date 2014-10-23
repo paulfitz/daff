@@ -3,8 +3,8 @@
 package harness;
 
 class SpeedTest extends haxe.unit.TestCase {
-    var data1 : Dynamic;
-    var data2 : Dynamic;
+    var data1 : Array<Array<Dynamic>>;
+    var data2 : Array<Array<Dynamic>>;
 
     override public function setup() {
         data1 = [];
