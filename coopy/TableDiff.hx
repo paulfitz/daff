@@ -157,6 +157,20 @@ class TableDiff {
         }
     }
 
+    private function countActive(active: Array<Int>) : Int {
+        var ct = 0;
+        var showed_dummy = false;
+        for (i in 0...active.length) {
+            var publish = active[i]>0;
+            var dummy = active[i]==3;
+            if (dummy&&showed_dummy) continue;
+            if (!publish) continue;
+            showed_dummy = dummy;
+            ct++;
+        }
+        return ct;
+    }
+
     public function hilite(output: Table) : Bool { 
         if (!output.isResizable()) return false;
         if (builder==null) builder = new FlatCellBuilder();
@@ -365,6 +379,15 @@ class TableDiff {
             top_line_done = true;
         }
 
+#if php
+        // Under PHP, it is going to be better to repeat the loop,
+        // so we don't end up resizing our table bit by bit - this is 
+        // super slow under PHP for large tables
+        outer_reps_needed = 2;
+#end
+
+        var output_height : Int = output.height;
+        var output_height_init : Int = output.height;
         // If we are dropping unchanged rows/cols, we repeat this loop twice.
         for (out in 0...outer_reps_needed) {
             if (out==1) {
@@ -377,6 +400,12 @@ class TableDiff {
                             active_column[i] = 0;
                         }
                     }
+                }
+                var rows : Int = countActive(active)+output_height_init;
+                if (top_line_done) rows--;
+                output_height = output_height_init;
+                if (rows>output.height) {
+                    output.resize(column_units.length+1,rows);
                 }
             }
 
@@ -413,16 +442,18 @@ class TableDiff {
 
                 if (!dummy) showed_dummy = false;
 
-                var at : Int = output.height;
+                var at : Int = output_height;
                 if (publish) {
-                    output.resize(column_units.length+1,at+1);
+                    output_height++;
+                    if (output.height<output_height) {
+                        output.resize(column_units.length+1,output_height);
+                    }
                 }
-
                 if (dummy) {
                     for (j in 0...(column_units.length+1)) {
                         output.setCell(j,at,v.toDatum("..."));
-                        showed_dummy = true;
                     }
+                    showed_dummy = true;
                     continue;
                 }
                 
