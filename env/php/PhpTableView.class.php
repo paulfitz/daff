@@ -57,12 +57,12 @@ class coopy_PhpTableView implements coopy_Table{
       unset($row);
     }
     if (count($this->data)<$this->height) {
-      while (count($this->data)<$this->height) {
+      $start = count($this->data);
+      for ($i=$start; $i<$this->height; $i++) {
 	$row = array();
-	for ($i=0; $i<$this->width; $i++) {
-	  array_push($row,null);
-	}
+	$row = array_pad(array(),$this->width,null);
 	array_push($this->data,$row);
+	unset($row);
       }
     }
     return true;
