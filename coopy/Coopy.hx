@@ -168,8 +168,12 @@ class Coopy {
     }
 
     private static function cellFor(x: Dynamic) : Dynamic {
+#if cpp
         if (x==null) return null;
         return new SimpleCell(x);
+#else
+        return x;
+#end
     }
 
     private static function jsonToTable(json: Dynamic) : Table {

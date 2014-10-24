@@ -23,7 +23,6 @@ class RowOrderTest extends haxe.unit.TestCase {
         flags.never_show_order = false;
         var highlighter = new coopy.TableDiff(alignment,flags);
         highlighter.hilite(table_diff);
-        var txt = ""+table_diff;
         assertEquals("-:4",table_diff.getCell(0,6));
     }
 }
