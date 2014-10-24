@@ -4,6 +4,35 @@ package harness;
 
 class Native {
 
+    static public function list(data: Dynamic) : Dynamic {
+#if php
+    // php makes a fuss
+    untyped __php__("$ndata = array()");
+    var w = data.length;
+    if (w>0) {
+        untyped __php__("$ndata = array_pad(array(),$w,null)");
+        for (j in 0...w) {
+            var x = data[j];
+            untyped __php__("$ndata[$j] = $x");
+        }
+    }
+    return untyped __php__("$ndata");
+#elseif java
+    // java makes a fuss
+    var w = data.length;
+    untyped __java__("Object[] ndata = new Object[w];");
+    if (w>0) {
+        for (j in 0...w) {
+            var x = data[j];
+            untyped __java__("ndata[j] = x");
+        }
+    }
+    return untyped __java__("ndata");
+#else
+    return data;
+#end
+    }
+
     static public function nativeArray(data: Dynamic) : Dynamic {
 #if php
     // php makes a fuss

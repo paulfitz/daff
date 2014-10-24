@@ -83,5 +83,20 @@ class CompareFlags {
         }
         return ignore;
     }
+
+    // Add a column to the primary key.  If this is never called,
+    // then we will muddle along without it.  Fine to call multiple
+    // times to set up a multi-column primary key.
+    public function addPrimaryKey(column: String) : Void {
+        if (ids == null) ids = new Array<String>();
+        ids.push(column);
+    }
+
+    // Add a column to ignore in all calculations.  Fine to call
+    // multiple times.
+    public function ignoreColumn(column: String) : Void {
+        if (columns_to_ignore==null) columns_to_ignore = new Array<String>();
+        columns_to_ignore.push(column);
+    }
 }
 
