@@ -29,3 +29,5 @@ publish
 daff.py
 daff/__init__.py
 lib/daff.rb
+ntest_java_dir
+ntestdotrb
