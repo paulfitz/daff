@@ -10,29 +10,35 @@ class SpeedTest extends haxe.unit.TestCase {
         data1 = [];
         data2 = [];
         var scale = 10000;
+        var cols = 5;
 #if enbiggen
         scale = 50000;
+        cols = 45;
 #end
+        data1[scale-1] = null;  // makes things faster on php
+        data2[scale-1] = null;
+
         for (k in 0...2) {
             for (i in 0...scale) {
                 var row = [];
-                row.push("<supplier>");
-                row.push("<product_code>");
-                row.push("" + (i+k*7));
-                row.push("" + ((i+k*7) % 10));
-                row.push("GBP");
-                if (k==1) {
-                    data1.push(row);
-                } else {
-                    data2.push(row);
-                }
+                row[cols-1] = null; // make things faster on php
+                row[0] = "<supplier>";
+                row[1] = "<product_code>";
+                row[2] = "" + (i+k*7);
+                row[3] = "" + ((i+k*7) % 10);
+                row[4] = "GBP";
 #if enbiggen
                 var ct = ((i+k*7)%10001);
                 for (j in 0...40) {
-                    row.push("" + ct);
+                    row[5+j] = "" + ct;
                     ct = ((i+ct+k*7)%10001);
                 }
 #end
+                if (k==1) {
+                    data1[i] = row;
+                } else {
+                    data2[i] = row;
+                }
             }
         }
     }
