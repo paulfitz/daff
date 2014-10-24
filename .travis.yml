@@ -1,35 +1,44 @@
 language: node_js
 
-node_js:
-  - "0.11"
-  - "0.10"
-  - "0.8"
-  - "0.6"
- 
+node_js: "0.11"
+
+env: 
+  - USE_PAULFITZ=true PATH=$PWD/haxerb/bin:$PATH HAXE_STD_PATH=$PWD/haxerb/lib/haxe/std:$PWD/haxerb/lib/haxe/extra/haxelib_src/src
+  - USE_PAULFITZ=false
+
 # Install Haxe before running the test.
 before_install:
-  - sudo apt-get update                                # run update before installing anything
-  - sudo apt-get install python-software-properties -y # for the next command
-  - sudo add-apt-repository ppa:eyecreate/haxe -y      # add the ubuntu ppa that contains haxe
-  - sudo apt-get update                                # pull info from ppa
+  - sudo apt-get update
+  - if ! $USE_PAULFITZ; then sudo apt-get install python-software-properties -y; fi
+  - if ! $USE_PAULFITZ; then sudo add-apt-repository ppa:eyecreate/haxe -y; fi
+  - if ! $USE_PAULFITZ; then sudo apt-get update; fi
 
 install:
-  - sudo apt-get install haxe -y                       # install haxe
+  - sudo apt-get install time php5 -y
+  - if ! $USE_PAULFITZ; then sudo apt-get install haxe -y; fi
+  - if $USE_PAULFITZ; then wget https://github.com/paulfitz/haxe/releases/download/rb_v3.1.1_4/haxerb.zip; fi
+  - if $USE_PAULFITZ; then sudo apt-get install python3; fi
+  - if $USE_PAULFITZ; then unzip -q haxerb.zip; fi
   - sudo apt-get install gcc-multilib g++-multilib -y  # VM is 64bit but hxcpp builds 32bit
   - mkdir -p ~/haxelib
   - haxelib setup ~/haxelib
-  - haxelib install hxcpp
-  - haxelib install hxjava
-  - sudo apt-get install mono-mcs time php5-cli
-  - haxelib install hxcs
+  - if ! $USE_PAULFITZ; then sudo apt-get install mono-mcs time php5-cli; fi
+  - if ! $USE_PAULFITZ; then haxelib install hxcpp; fi
+  - if ! $USE_PAULFITZ; then haxelib install hxjava; fi
+  - if ! $USE_PAULFITZ; then haxelib install hxcs; fi
   - npm install
 
 script:
   - make test
-  - make php   # make sure other languages at least generate
-  - make java
-  - make cpp
-  - make cs
+  - make js
+  - if $USE_PAULFITZ; then make py; fi
+  - if $USE_PAULFITZ; then make rb; fi
+  - make php
+  - if ! $USE_PAULFITZ; then make java; fi
+  - if ! $USE_PAULFITZ; then make cpp; fi
+  - if ! $USE_PAULFITZ; then make cs; fi
   - make ntest_js
   - make ntest_php
-  - make ntest_java
+  - if ! $USE_PAULFITZ; then make ntest_java; fi
+  - if $USE_PAULFITZ; then make ntest_py; fi
+  - if $USE_PAULFITZ; then make ntest_rb; fi
