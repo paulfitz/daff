@@ -120,9 +120,9 @@ class HighlightPatch implements Row {
         var state : TableComparisonState = new TableComparisonState();
         state.a = source;
         state.b = source;
-        var comp : CompareTable = new CompareTable();
+        var comp : CompareTable = new CompareTable(state);
         comp.storeIndexes();
-        comp.attach(state);
+        comp.run();
         comp.align();
         indexes = comp.getIndexes();
         needSourceColumns();

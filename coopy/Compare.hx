@@ -46,9 +46,10 @@ class Compare {
         ws.p2l.b = ws.tlocal;
         ws.p2r.a = ws.tparent;
         ws.p2r.b = ws.tremote;
-        var cmp : CompareTable = new CompareTable();
-        cmp.attach(ws.p2l);
-        cmp.attach(ws.p2r);
+        var cmpl : CompareTable = new CompareTable(ws.p2l);
+        cmpl.run();
+        var cmpr : CompareTable = new CompareTable(ws.p2r);
+        cmpl.run();
 
         var c : Change = new Change();
         c.parent = ws.parent;
@@ -63,7 +64,8 @@ class Compare {
             ws.l2r = new TableComparisonState();
             ws.l2r.a = ws.tlocal;
             ws.l2r.b = ws.tremote;
-            cmp.attach(ws.l2r);
+            var cmp : CompareTable = new CompareTable(ws.l2r);
+            cmp.run();
             if (ws.l2r.is_equal) {
                 c.mode = SAME_CHANGE;
             } else {

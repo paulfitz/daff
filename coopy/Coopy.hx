@@ -4,8 +4,19 @@
 package coopy;
 #end
 
+/**
+ *
+ * This is the main entry-point to the library and the associated
+ * command-line tool.
+ *
+ */
 @:expose
 class Coopy {
+    /**
+     *
+     * Library version.
+     *
+     */
     static public var VERSION = "1.1.19";
 
     private var format_preference : String;
@@ -17,31 +28,54 @@ class Coopy {
     // just to get code included
     private var mv : Mover;
 
-    public function new() : Void {
+    private function new() : Void {
         extern_preference = false;
         format_preference = null;
         delim_preference = null;
         output_format = "copy";
     }
 
+    /**
+     *
+     * Prepare to compare two tables.
+     *
+     * @param local the reference version of the table
+     * @param remote another version of the table
+     * @param flags control how the comparison will be made
+     * @return a worker you can use to make the comparison (normally you'll just want to call `.align()` on it)
+     *
+     */
     static public function compareTables(local: Table, remote: Table, ?flags: CompareFlags) : CompareTable {
-        var ct: CompareTable = new CompareTable();
         var comp : TableComparisonState = new TableComparisonState();
         comp.a = local;
         comp.b = remote;
         comp.compare_flags = flags;
-        ct.attach(comp);
+        var ct: CompareTable = new CompareTable(comp);
         return ct;
     }
 
+    /**
+     *
+     * Prepare to compare two tables, given knowledge of a common ancester.
+     * The comparison will answer: what changes should be made to `local`
+     * in order to incorporate the differences between `parent` and `remote`.
+     * This is useful if the `local` table has changes in it that you want
+     * to preserve.
+     *
+     * @param parent the common ancestor of the `local` and `remote` tables
+     * @param local the reference version of the table
+     * @param remote another version of the table
+     * @param flags control how the comparison will be made
+     * @return a worker you can use to make the comparison (normally you'll just want to call `.align()` on it)
+     *
+     */
     static public function compareTables3(parent: Table, local: Table, remote: Table, ?flags: CompareFlags) : CompareTable {
-        var ct: CompareTable = new CompareTable();
         var comp : TableComparisonState = new TableComparisonState();
         comp.p = parent;
         comp.a = local;
         comp.b = remote;
         comp.compare_flags = flags;
-        ct.attach(comp);
+        var ct: CompareTable = new CompareTable(comp);
         return ct;
     }
 
@@ -75,10 +109,10 @@ class Coopy {
         trace("report is " + report);
 
         var comp : TableComparisonState = new TableComparisonState();
-        var ct : CompareTable = new CompareTable();
         comp.a = st;
         comp.b = st;
-        ct.attach(comp);
+        var ct : CompareTable = new CompareTable(comp);
+        ct.run();
 
         trace("comparing tables");
         var t1 : SimpleTable = new SimpleTable(3,2);
@@ -265,7 +299,7 @@ class Coopy {
         return r;
     }
 
-    public function installGitDriver(io: TableIO, formats: Array<String>) : Int {
+    private function installGitDriver(io: TableIO, formats: Array<String>) : Int {
         var r = 0;
 
         if (status==null) {
@@ -412,6 +446,14 @@ class Coopy {
         return 0;
     }
 
+    /**
+     *
+     * This implements the daff command-line utility.
+     *
+     * @param io should be an implementation of all the system services daff needs
+     * @return 0 on success, non-zero on error.
+     *
+     */
     public function coopyhx(io: TableIO) : Int {
         var args : Array<String> = io.args();
 
@@ -700,6 +742,12 @@ class Coopy {
     }
 #end
 
+    /**
+     *
+     * This is the entry point for the daff command-line utility.
+     * It is a thin wrapper around the `coopyhx` method.
+     *
+     */
     public static function main() : Int {
 #if coopyhx_util
     var io = new TableIO();
@@ -711,7 +759,7 @@ class Coopy {
 #end
     }
 
-    public static function show(t: Table) : Void {
+    private static function show(t: Table) : Void {
         var w : Int = t.width;
         var h : Int = t.height;
         var txt : String = "";
@@ -726,7 +774,7 @@ class Coopy {
     }
 
 
-    public static function jsonify(t: Table) : Dynamic {
+    private static function jsonify(t: Table) : Dynamic {
         var workbook : Map<String,Dynamic> = new Map<String,Dynamic>();
         var sheet : Array<Array<Dynamic>> = new Array<Array<Dynamic>>();
         var w : Int = t.width;

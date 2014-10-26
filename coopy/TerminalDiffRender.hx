@@ -4,7 +4,6 @@
 package coopy;
 #end
 
-@:expose
 class TerminalDiffRender {
     public function new() {
     }

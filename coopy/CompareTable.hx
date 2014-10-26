@@ -9,10 +9,11 @@ class CompareTable {
     private var comp: TableComparisonState;
     private var indexes : Array<IndexPair>;
 
-    public function new() {}
-
-    public function attach(comp: TableComparisonState) : Bool {
+    public function new(comp: TableComparisonState) {
         this.comp = comp;
+    }
+
+    public function run() : Bool {
         var more : Bool = compareCore();
         while (more && comp.run_to_completion) {
             more = compareCore();
@@ -21,6 +22,9 @@ class CompareTable {
     }
 
     public function align() : Alignment {
+        while (!comp.completed) {
+            run();
+        }
         var alignment : Alignment = new Alignment();
         alignCore(alignment);
         return alignment;
