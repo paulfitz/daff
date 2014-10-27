@@ -4,6 +4,7 @@
 package coopy;
 #end
 
+@:noDoc
 class SparseSheet<T> {
     private var h : Int;
     private var w : Int;

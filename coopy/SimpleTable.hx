@@ -4,12 +4,26 @@
 package coopy;
 #end
 
+/**
+ *
+ * A basic table implementation. Each supported language should
+ * have an optimized native implementation that you can use instead.
+ * See the `Table` interface for documentation.
+ *
+ */
 @:expose
 class SimpleTable implements Table {
     private var data : Map<Int,Dynamic>;
     private var w : Int;
     private var h : Int;
 
+    /**
+     *
+     * Constructor.
+     * @param w the desired width of the table
+     * @param h the desired height of the table
+     *
+     */
     public function new(w: Int, h: Int) : Void {
         data = new Map<Int,Dynamic>();
         this.w = w;
@@ -22,17 +36,12 @@ class SimpleTable implements Table {
 
     public var height(get_height,never) : Int;
     public var width(get_width,never) : Int;
-    public var size(get_size,never) : Int;
 
     public function get_width() : Int {
         return w;
     }
 
     public function get_height() : Int {
-        return h;
-    }
-
-    private function get_size() : Int {
         return h;
     }
 
@@ -48,6 +57,14 @@ class SimpleTable implements Table {
         return tableToString(this);
     }
     
+    /**
+     *
+     * Render the table as a string
+     *
+     * @param tab the table
+     * @return a text version of the table
+     *
+     */
     public static function tableToString(tab : Table) : String {
         var x : String = "";
         for (i in 0...tab.height) {
@@ -60,6 +77,15 @@ class SimpleTable implements Table {
         return x;
     }
 
+    /**
+     *
+     * Compare the content of two tables.
+     *
+     * @param tab1 the first table
+     * @param tab2 the second table
+     * @return true if the tables are identical
+     *
+     */
     public static function tableIsSimilar(tab1 : Table, tab2 : Table) : Bool {
         if (tab1.width!=tab2.width) return false;
         if (tab1.height!=tab2.height) return false;
@@ -171,7 +197,7 @@ class SimpleTable implements Table {
         return true;
     }
 
-    public function getData() {
+    public function getData() : Dynamic {
         return null;
     }
 

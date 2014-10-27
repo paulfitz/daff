@@ -4,23 +4,44 @@
 package coopy;
 #end
 
+/**
+ *
+ * Build a highlighter diff of two/three tables.
+ *
+ */
 @:expose
 class TableDiff {
     private var align : Alignment;
     private var flags : CompareFlags;
     private var builder : CellBuilder;
 
+    /**
+     *
+     * Constructor.
+     *
+     * @param align a pre-computed alignment of the tables involved
+     * @param flags options to control the appearance of the diff
+     *
+     */
     public function new(align: Alignment, flags: CompareFlags) {
         this.align = align;
         this.flags = flags;
         builder = null;
     }
 
+    /**
+     *
+     * If you wish to customize how diff cells are generated,
+     * call this prior to calling `hilite()`.
+     *
+     * @param builder hooks to generate custom cells
+     *
+     */
     public function setCellBuilder(builder: CellBuilder) {
         this.builder = builder;
     }
 
-    public function getSeparator(t: Table,
+    private function getSeparator(t: Table,
                                  t2: Table, root: String) : String {
         var sep : String = root;
         var w : Int = t.width;
@@ -51,7 +72,7 @@ class TableDiff {
         return sep;
     }
 
-    public function quoteForDiff(v: View, d: Dynamic) : String {
+    private function quoteForDiff(v: View, d: Dynamic) : String {
         var nil : String = "NULL";
         if (v.equals(d,null)) {
             return nil;
@@ -171,6 +192,14 @@ class TableDiff {
         return ct;
     }
 
+    /**
+     *
+     * Generate a highlighter diff.
+     * @param output the table in which to place the diff - it can then
+     * be converted to html using `DiffRender`
+     * @return true on success
+     *
+     */
     public function hilite(output: Table) : Bool { 
         if (!output.isResizable()) return false;
         if (builder==null) builder = new FlatCellBuilder();

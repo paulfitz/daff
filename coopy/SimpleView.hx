@@ -4,6 +4,13 @@
 package coopy;
 #end
 
+/**
+ *
+ * A basic view implementation, for interpreting the content of cells. 
+ * Each supported language may have an optimized native implementation.
+ * See the `View` interface for documentation.
+ *
+ */
 @:expose
 class SimpleView implements View {
     public function new() : Void {
@@ -14,18 +21,6 @@ class SimpleView implements View {
         return "" + d;
     }
     
-    public function getBag(d: Dynamic) : Bag {
-        return null;
-    }
-
-    public function getTable(d: Dynamic) : Table {
-        return null;
-    }
-
-    public function hasStructure(d: Dynamic) : Bool {
-        return false;
-    }
-
     public function equals(d1: Dynamic, d2: Dynamic) : Bool {
         //trace("Comparing " + d1 + " and " + d2 + " -- " +  (("" + d1) == ("" + d2)));
         if (d1==null && d2==null) return true;

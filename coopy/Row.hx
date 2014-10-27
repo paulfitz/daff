@@ -4,6 +4,19 @@
 package coopy;
 #end
 
+/**
+ *
+ * A trivial interface for indexable sources.
+ *
+ */
 interface Row {
+    /**
+     *
+     * Get the content in a given column.
+     * 
+     * @param c the column to look in
+     * @return the content of column `c`
+     *
+     */
     function getRowString(c: Int) : String;
 }
