@@ -4,6 +4,13 @@
 package coopy;
 #end
 
+/**
+ *
+ * Store the relationship between tables. Answers the question: where
+ * does a particular row/column of table A (the source) appear in table B
+ * (the target)?
+ *
+ */
 class Alignment {
     private var map_a2b : Map<Int,Int>;
     private var map_b2a : Map<Int,Int>;
@@ -29,34 +36,81 @@ class Alignment {
         reference = null;
         meta = null;
         order_cache_has_reference = false;
-        ia = 0;
-        ib = 0;
+        ia = -1;
+        ib = -1;
     }
 
+    /**
+     *
+     * Record the heights of tables A and B.
+     *
+     */
     public function range(ha: Int, hb: Int) : Void {
         this.ha = ha;
         this.hb = hb;
     }
 
+    /**
+     *
+     * Keep references to tables A and B.  The `Alignment` class never
+     * looks at these tables itself, these references are stored only
+     * for the convenience of users of the alignment.
+     *
+     */
     public function tables(ta: Table, tb: Table) : Void {
         this.ta = ta;
         this.tb = tb;
     }
 
+    /**
+     *
+     * Mark the header rows of tables A and B, if present.
+     * Not applicable for column alignments.
+     *
+     * @param ia index of the header row of table A
+     * @param ia index of the header row of table B
+     *
+     */
     public function headers(ia: Int, ib: Int) : Void {
         this.ia = ia;
         this.ib = ib;
     }
 
+    /**
+     *
+     * Set whether we are aligning rows or columns.
+     *
+     * @param flag true when aligning rows, false when aligning columns
+     *
+     */
     public function setRowlike(flag: Bool) : Void {
     }
 
+    /**
+     *
+     * Declare the specified rows/columns to be the "same" row/column
+     * in the two tables.
+     *
+     * @param a row/column in table A
+     * @param b row/column in table B
+     *
+     */
     public function link(a: Int, b: Int) : Void {
         map_a2b.set(a,b);
         map_b2a.set(b,a);
         map_count++;
     }
 
+    /**
+     *
+     * Record a column as being important for identifying rows.
+     * This is important for making sure it gets preserved in
+     * diffs, for example.
+     *
+     * @param unit the column's location in table A (l/left) and
+     * in table B (r/right).
+     *
+     */
     public function addIndexColumns(unit: Unit) : Void {
         if (index_columns==null) {
             index_columns = new Array<Unit>();
@@ -64,26 +118,59 @@ class Alignment {
         index_columns.push(unit);
     }
 
+    /**
+     *
+     * @return a list of columns important for identifying rows
+     *
+     */
     public function getIndexColumns() : Array<Unit> {
         return index_columns;
     }
 
+    /**
+     *
+     * @return given a row/column number in table A, this returns
+     * the row/column number in table B (or null if not in that table)
+     *
+     */
     public function a2b(a: Int) : Null<Int> {
         return map_a2b.get(a);
     }
 
+    /**
+     *
+     * @return given a row/column number in table B, this returns
+     * the row/column number in table A (or null if not in that table)
+     *
+     */
     public function b2a(b: Int) : Null<Int> {
         return map_b2a.get(b);
     }
 
+    /**
+     *
+     * @return a count of how many row/columns have been linked
+     *
+     */
     public function count() : Int {
         return map_count;
     }
 
+    /**
+     *
+     * @return text representation of alignment
+     *
+     */
     public function toString() : String {
         return "" + map_a2b;
     }
 
+    /**
+     *
+     * @return an ordered version of the alignment, as a merged list
+     * of rows/columns
+     *
+     */
     public function toOrder() : Ordering {
         if (order_cache!=null) {
             if (reference!=null) {
@@ -97,18 +184,42 @@ class Alignment {
         return order_cache;
     }
 
+    /**
+     *
+     * @return table A
+     *
+     */
     public function getSource() : Table {
         return ta;
     }
 
+    /**
+     *
+     * @return table B
+     *
+     */
     public function getTarget() : Table {
         return tb;
     }
 
+    /**
+     *
+     * Get the header row for table A, if present.
+     *
+     * @return header row for table A, or -1 if not present or not applicable
+     *
+     */
     public function getSourceHeader() : Int {
         return ia;
     }
 
+    /**
+     *
+     * Get the header row for table B, if present.
+     *
+     * @return header row for table B, or -1 if not present or not applicable
+     *
+     */
     public function getTargetHeader() : Int {
         return ib;
     }
