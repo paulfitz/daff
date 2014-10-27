@@ -5,6 +5,7 @@ package coopy;
 #end
 
 @:expose
+@:nodoc
 class TableText {
     private var rows : Table;
     private var view : View;

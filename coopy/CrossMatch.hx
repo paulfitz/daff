@@ -4,6 +4,7 @@
 package coopy;
 #end
 
+@:noDoc
 class CrossMatch {
     public var spot_a : Int;
     public var spot_b : Int;

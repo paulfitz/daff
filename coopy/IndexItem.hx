@@ -4,6 +4,7 @@
 package coopy;
 #end
 
+@:noDoc
 class IndexItem {
     public var lst : Array<Int>;
 

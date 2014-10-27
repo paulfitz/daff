@@ -5,6 +5,7 @@ package coopy;
 #end
 
 @:expose
+@:nodoc
 class HighlightPatchUnit {
     public var add : Bool;
     public var rem : Bool;

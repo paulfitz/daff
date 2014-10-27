@@ -4,6 +4,7 @@
 package coopy;
 #end
 
+@:noDoc
 interface Bag {
     var size(get_size,never) : Int; // Read-only width property
     function getItem(x: Int) : Dynamic;
