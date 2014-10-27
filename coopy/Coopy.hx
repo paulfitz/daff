@@ -214,17 +214,20 @@ class Coopy {
         }
         format_preference = "csv";
         var csv : Csv = new Csv(delim_preference);
-        var data : Array<Array<String>> = csv.parseTable(txt);
-        var h : Int = data.length;
-        var w : Int = 0;
-        if (h>0) w = data[0].length;
-        var output = new SimpleTable(w,h);
+        //var data : Array<Array<String>> = csv.parseTable(txt);
+        //var h : Int = data.length;
+        //var w : Int = 0;
+        //if (h>0) w = data[0].length;
+        var output = new SimpleTable(0,0);
+        /*
         for (i in 0...h) {
             for (j in 0...w) {
                 var val : String = data[i][j];
                 output.setCell(j,i,cellFor(val));
             }
         }
+        */
+        csv.parseTable(txt,output);
         if (output!=null) output.trimBlank();
         return output;
     }

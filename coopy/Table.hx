@@ -164,4 +164,11 @@ interface Table {
      *
      */
     function getData() : Dynamic;
+
+    /**
+     *
+     * @return a copy of the table.
+     *
+     */
+    function clone() : Table;
 }

@@ -4,6 +4,12 @@
 package coopy;
 #end
 
+/**
+ *
+ * Merge changes made in one table into another, given knowledge
+ * of a common ancestor.
+ *
+ */
 @:expose
 class Merger {
     private var parent : Table;
@@ -20,6 +26,15 @@ class Merger {
     private var column_mix_remote : Map<Int,Int>;
     private var conflicts : Int;
 
+    /**
+     *
+     * Constructor.
+     *
+     * @param parent the common ancestor
+     * @param local the reference table into which changes will be merged
+     * @param remote the table we are pulling changes from
+     *
+     */
     public function new(parent: Table, local: Table, remote: Table,
                         flags: CompareFlags) {
         this.parent = parent;
@@ -28,7 +43,7 @@ class Merger {
         this.flags = flags;
     }
 
-    public function shuffleDimension(dim_units: Array<Unit>, len: Int,
+    private function shuffleDimension(dim_units: Array<Unit>, len: Int,
                                      fate: Array<Int>,
                                      cl: Map<Int,Int>,
                                      cr: Map<Int,Int>) : Int {
@@ -67,7 +82,7 @@ class Merger {
         return at;
     }
 
-    public function shuffleColumns() {
+    private function shuffleColumns() {
         column_mix_local = new Map<Int,Int>();
         column_mix_remote = new Map<Int,Int>();
         var fate = new Array<Int>();
@@ -76,7 +91,7 @@ class Merger {
         local.insertOrDeleteColumns(fate,wfate);
     }
 
-    public function shuffleRows() {
+    private function shuffleRows() {
         row_mix_local = new Map<Int,Int>();
         row_mix_remote = new Map<Int,Int>();
         var fate = new Array<Int>();
@@ -85,6 +100,13 @@ class Merger {
         local.insertOrDeleteRows(fate,hfate);
     }
 
+    /**
+     *
+     * Go ahead and merge.
+     *
+     * @return the number of conflicts found during the merge
+     *
+     */
     public function apply() : Int {
         conflicts = 0;
 
@@ -159,10 +181,10 @@ class Merger {
         return conflicts;
     }
 
-    public static function makeConflictedCell(view: View,
-                                              pcell: Dynamic,
-                                              lcell: Dynamic,
-                                              rcell: Dynamic) : Dynamic {
+    private static function makeConflictedCell(view: View,
+                                               pcell: Dynamic,
+                                               lcell: Dynamic,
+                                               rcell: Dynamic) : Dynamic {
         return view.toDatum("((( " +
                             view.toString(pcell) +
                             " ))) " +

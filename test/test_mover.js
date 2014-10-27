@@ -28,7 +28,7 @@ function shuffle_list(lst) {
 }
 
 function move(x,y) {
-    var result = coopy.Mover.moveWithExtras(x,y);
+    var result = coopy.Mover.move(x,y);
     result.sort(function(a,b){return a-b;});
     //console.log(x + " -> " + y + " via " + result);
     return result;

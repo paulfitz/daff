@@ -188,8 +188,8 @@ TableView.prototype.insertOrDeleteColumns = function(fate, wfate) {
 }
 
 TableView.prototype.isSimilar = function(alt) {
-    if (alt.width!=this.width) return false;
-    if (alt.height!=this.height) return false;
+    if (alt.get_width()!=this.get_width()) return false;
+    if (alt.get_height()!=this.get_height()) return false;
     for (var c=0; c<this.width; c++) {
 	for (var r=0; r<this.height; r++) {
 	    var v1 = "" + this.getCell(c,r);

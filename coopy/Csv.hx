@@ -4,6 +4,12 @@
 package coopy;
 #end
 
+/**
+ *
+ * Read and write CSV format. You don't need to use this to use daff!
+ * Feel free to use your own.
+ *
+ */
 @:expose
 class Csv {
     private var cursor: Int;
@@ -11,12 +17,27 @@ class Csv {
     private var has_structure : Bool;
     private var delim : String;
 
+    /**
+     *
+     * Constructor.
+     *
+     * @param delim cell delimiter to use, defaults to a comma
+     *
+     */
     public function new(?delim : String = ",") : Void {
         cursor = 0;
         row_ended = false;
         this.delim = (delim==null)?",":delim;
     }
 
+    /**
+     *
+     * Convert a table to a string in CSV format.
+     *
+     * @param t the table to render
+     * @return the table as a string in CSV format
+     *
+     */
     public function renderTable(t: Table) : String {
         var result: String = "";
         var w : Int = t.width;
@@ -30,11 +51,20 @@ class Csv {
                 }
                 txt += renderCell(v,t.getCell(x,y));
             }
-            txt += "\r\n";
+            txt += "\r\n";  // The "standard" says line endings should be this
         }
         return txt;
     }
 
+    /**
+     *
+     * Render a single cell in CSV format.
+     *
+     * @param v a helper for interpreting the cell content
+     * @param d the cell content
+     * @return the cell in text format, quoted in a CSV-y way
+     *
+     */
     public function renderCell(v: View, d: Dynamic) : String {
         if (d==null) {
             return "NULL"; // I don't like this, why is it here?
@@ -71,25 +101,63 @@ class Csv {
         return result;
     }
 
-    public function parseTable(txt: String) : Array<Array<String>> {
+    /**
+     *
+     * Parse a string in CSV format representing a table.
+     *
+     * @param txt the table encoded as a CSV-format string
+     * @param tab the table to store cells in
+     * @return true on success
+     *
+     */
+    public function parseTable(txt: String, tab: Table) : Bool {
+        if (!tab.isResizable()) return false;
         cursor = 0;
         row_ended = false;
         has_structure = true;
-        var result: Array<Array<String>> = new Array<Array<String>>();
-        var row: Array<String> = new Array<String>();
+        tab.resize(0,0);
+        var w: Int = 0;
+        var h: Int = 0;
+        var at: Int = 0;
+        var yat: Int = 0;
         while (cursor<txt.length) {
-            var cell : String = parseCell(txt);
-            row.push(cell);
+            var cell : String = parseCellPart(txt);
+            if (yat>=h) {
+                h = yat+1;
+                tab.resize(w,h);
+            }
+            if (at>=w) {
+                w = at+1;
+                tab.resize(w,h);
+            }
+            tab.setCell(at,h-1,cell);
+            at++;
             if (row_ended) {
-                result.push(row);
-                row = new Array<String>();
+                at = 0;
+                yat++;
             }
             cursor++;
         }
-        return result;
+        return true;
     }
 
-    public function parseCell(txt: String) : String {
+
+    /**
+     *
+     * Create a table from a string in CSV format.
+     *
+     * @param txt the table encoded as a CSV-format string
+     * @return the decoded table
+     *
+     */
+    public function makeTable(txt: String) : Table {
+        var tab = new SimpleTable(0,0);
+        parseTable(txt,tab);
+        return tab;
+    }
+
+
+    private function parseCellPart(txt: String) : String {
         if (txt==null) return null;
         row_ended = false;
         var first_non_underscore : Int = txt.length;
@@ -158,11 +226,19 @@ class Csv {
         return result;
     }
 
-    public function parseSingleCell(txt: String) : String {
+    /**
+     *
+     * Parse a string in CSV format representing a cell.
+     *
+     * @param txt the cell encoded as a CSV-format string
+     * @return the decoded content of the cell
+     *
+     */
+    public function parseCell(txt: String) : String {
         cursor = 0;
         row_ended = false;
         has_structure = false;
-        return parseCell(txt);
+        return parseCellPart(txt);
     }
 
 }

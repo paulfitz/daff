@@ -4,12 +4,24 @@
 package coopy;
 #end
 
+/**
+ *
+ * Choose the simplest order in which to move rows/columns.
+ *
+ */
 @:expose
 class Mover {
 
-    public function new() {
-    }
-
+    /**
+     *
+     * Given a list of matched rows/columns in a desired order, return
+     * a list of which units should be moved first.
+     *
+     * @param units the units to plan a move for
+     * @return a list of unit numbers, with units that should move first
+     * before units that should move later
+     *
+     */
     static public function moveUnits(units: Array<Unit>) : Array<Int> {
         var isrc : Array<Int> = new Array<Int>();
         var idest : Array<Int> = new Array<Int>();
@@ -39,8 +51,18 @@ class Mover {
         return moveWithoutExtras(isrc,idest);
     }
 
-    static public function moveWithExtras(isrc: Array<Int>, idest: Array<Int>) : Array<Int> {
-        // First pass: eliminate non-overlapping elements (inserts+deletes)
+    /**
+     *
+     * Given a list and a shuffled version of that list, plan a good
+     * order in which to move elements of the list
+     *
+     * @param isrc the reference list
+     * @param idest a shuffled version of the reference list
+     * @return a list of elements, with elements that should move first
+     * before elements that should move later
+     *
+     */
+    static public function move(isrc: Array<Int>, idest: Array<Int>) : Array<Int> {
         var len : Int = isrc.length;
         var len2 : Int = idest.length;
         var in_src : Map<Int,Int> = new Map<Int,Int>();
@@ -66,7 +88,7 @@ class Mover {
         return moveWithoutExtras(src,dest);
     }
 
-    static public function moveWithoutExtras(src: Array<Int>, dest: Array<Int>) : Array<Int> {
+    static private function moveWithoutExtras(src: Array<Int>, dest: Array<Int>) : Array<Int> {
         if (src.length!=dest.length) return null;
         if (src.length<=1) return [];
         

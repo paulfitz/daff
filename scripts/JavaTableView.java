@@ -123,6 +123,17 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
 	return coopy.SimpleTable.tableToString(this);
     }
 
+    @Override public JavaTableView clone() {
+	JavaTableView result = new JavaTableView();
+	result.resize(w,h);
+	for (int c=0; c<w; c++) {
+	    for (int r=0; r<h; r++) {
+		result.setCell(c,r,getCell(c,r));
+	    }
+	}
+	return result;
+    }
+
 
     /*
      *

@@ -42,4 +42,15 @@ class BasicTest extends haxe.unit.TestCase {
         highlighter.hilite(table_diff);
         assertEquals(""+table_diff.getCell(3,6),"Barcelona");
     }
+
+    public function testCSV() {
+        var txt = "name,age\nPaul,\"7,9\"\n\"Sam\nSpace\",\"\"\"\"\n";
+        var tab = Native.table([]);
+        var csv = new coopy.Csv();
+        csv.parseTable(txt,tab);
+        assertEquals(3,tab.height);
+        assertEquals(2,tab.width);
+        assertEquals("Paul",tab.getCell(0,1));
+        assertEquals("\"",tab.getCell(1,2));
+    }
 }

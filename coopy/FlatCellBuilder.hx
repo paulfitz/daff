@@ -4,6 +4,7 @@
 package coopy;
 #end
 
+@:noDoc
 class FlatCellBuilder implements CellBuilder {
     private var view : View;
     private var separator : String;

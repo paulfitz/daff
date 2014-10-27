@@ -4,6 +4,7 @@
 package coopy;
 #end
 
+@:noDoc
 class Index {
     public var items : Map<String,IndexItem>;
     public var keys : Array<String>;

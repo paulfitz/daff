@@ -4,23 +4,45 @@
 package coopy;
 #end
 
-@:noDoc
+/**
+ *
+ * A list of instances of a given row in a table.
+ *
+ */
 class IndexItem {
-    public var lst : Array<Int>;
+    private var lst : Array<Int>;
 
     public function new() : Void {
     }
 
+    /**
+     *
+     * Add an extra instance to the list.
+     *
+     * @param i the row number
+     * @return the number of instances seen
+     *
+     */
     public inline function add(i: Int) : Int {
         if (lst==null) lst = new Array<Int>();
         lst.push(i);
         return lst.length;
     }
 
+    /**
+     *
+     * @return the number of instances seen
+     *
+     */
     public inline function length() : Int {
         return lst.length;
     }
 
+    /**
+     *
+     * @return the row number of the first instance seen
+     *
+     */
     public inline function value() : Int {
         return lst[0];
     }

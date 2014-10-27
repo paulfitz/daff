@@ -4,6 +4,14 @@
 package coopy;
 #end
 
+/**
+ *
+ * An index of rows in two tables. We add a list of columns to use
+ * as a key. Rows in the two tables that have the same key are
+ * treated as matches. Good indexes have distinct keys within a
+ * table, and keys that match (ideally just once) across tables.
+ *
+ */
 class IndexPair {
     private var ia : Index;
     private var ib : Index;
@@ -15,16 +23,29 @@ class IndexPair {
         quality = 0;
     }
 
-    public function addColumn(i: Int) : Void {
-        ia.addColumn(i);
-        ib.addColumn(i);
-    }
-
+    /**
+     *
+     * Add a column in each table to treat as part of a key.
+     * Fine to call repeatedly.
+     *
+     * @param ca column in first table
+     * @param cb column in second table
+     *
+     */
     public function addColumns(ca: Int, cb: Int) : Void {
         ia.addColumn(ca);
         ib.addColumn(cb);
     }
 
+    /**
+     *
+     * Go ahead and index all the rows in the given tables.
+     * Make sure to call `addColumns` first.
+     *
+     * @param a the first reference table
+     * @param a the second table
+     *
+     */
     public function indexTables(a: Table, b: Table) : Void {
         ia.indexTable(a);
         ib.indexTable(b);
@@ -57,30 +78,77 @@ class IndexPair {
         return result;
     }
 
+    /**
+     *
+     * Find matches for a given row.
+     *
+     * @return match information
+     *
+     */
     public function queryByContent(row: Row) : CrossMatch {
         var result : CrossMatch = new CrossMatch();
         var ka : String = ia.toKeyByContent(row);
         return queryByKey(ka);
     }
 
+    /**
+     *
+     * Find matches for a given row in the first (local) table.
+     *
+     * @return match information
+     *
+     */
     public function queryLocal(row: Int) : CrossMatch {
         var ka : String = ia.toKey(ia.getTable(),row);
         return queryByKey(ka);
     }
 
+    /**
+     *
+     * Get the key of a row in the first (local) table.
+     *
+     * @param row the row to get a key for
+     * @return the key
+     *
+     */
     public function localKey(row: Int) : String {
         return ia.toKey(ia.getTable(),row);
     }
 
+    /**
+     *
+     * Get the key of a row in the second (remote) table.
+     *
+     * @param row the row to get a key for
+     * @return the key
+     *
+     */
     public function remoteKey(row: Int) : String {
         return ib.toKey(ib.getTable(),row);
     }
 
+    /**
+     *
+     * Get the highest number of key collisions for any given key
+     * within an individual table.  High numbers of collisions are
+     * a bad sign.
+     *
+     * @return frequency of key collisions
+     *
+     */
     public function getTopFreq() : Int {
         if (ib.top_freq>ia.top_freq) return ib.top_freq;
         return ia.top_freq;
     }
 
+    /**
+     *
+     * Get a measure of the quality of this index pair.  Higher values
+     * are better.
+     *
+     * @return index quality
+     *
+     */
     public function getQuality() : Float {
         return quality;
     }

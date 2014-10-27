@@ -26,13 +26,13 @@ for (var k=1; k<2; k++) {
     var t15 = new coopy.TableView([["Planet","Name"],["Jupiter","Frank"],["Pluto but it is not\na planet anymore","John"],["Mercury","Jane"]]);
 
     var txt = fs.readFileSync("data/quote_me.csv","utf8");
-    var quote_me = new coopy.TableView((new coopy.Csv()).parseTable(txt));
+    var quote_me = new coopy.Csv().makeTable(txt);
     txt = fs.readFileSync("data/quote_me2.csv","utf8");
-    var quote_me2 = new coopy.TableView((new coopy.Csv()).parseTable(txt));
+    var quote_me2 = new coopy.Csv().makeTable(txt);
     txt = fs.readFileSync("data/bridges.csv","utf8");
-    var bridges = new coopy.TableView((new coopy.Csv()).parseTable(txt));
+    var bridges = new coopy.Csv().makeTable(txt);
     txt = fs.readFileSync("data/broken_bridges.csv","utf8");
-    var broken_bridges = new coopy.TableView((new coopy.Csv()).parseTable(txt));
+    var broken_bridges = new coopy.Csv().makeTable(txt);
 
     {
 	var ct = coopy.Coopy.compareTables3(t1,t2,t3);

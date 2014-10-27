@@ -4,6 +4,11 @@
 package coopy;
 #end
 
+/**
+ *
+ * Apply a tabular diff as a patch.
+ *
+ */
 @:expose
 class HighlightPatch implements Row {
 
@@ -46,13 +51,21 @@ class HighlightPatch implements Row {
     private var colPermutationRev : Array<Int>;
     private var haveDroppedColumns : Bool;
 
+    /**
+     *
+     * Constructor.
+     *
+     * @param source the table to patch
+     * @param patch the tabular diff to use as a patch
+     *
+     */
     public function new(source: Table, patch: Table) {
         this.source = source;
         this.patch = patch;
         view = patch.getCellView();
     }
      
-    public function reset() : Void {
+    private function reset() : Void {
         header = new Map<Int,String>();
         headerPre = new Map<String,Int>();
         headerPost = new Map<String,Int>();
@@ -79,6 +92,13 @@ class HighlightPatch implements Row {
         haveDroppedColumns = false;
     }
 
+    /**
+     *
+     * Apply the patch.
+     *
+     * @return true on success
+     *
+     */
     public function apply() : Bool {
         reset();
         if (patch.width<2) return true;
@@ -275,6 +295,15 @@ class HighlightPatch implements Row {
         return cellInfo.lvalue;
     }
 
+    /**
+     *
+     * Get the content in a given column of the patch on the active row.
+     * This is present for generating keys internally, you don't need it.
+     * 
+     * @param c the column to look in
+     * @return the content of column `c` on the active row
+     *
+     */
     public function getRowString(c: Int) : String {
         var at : Null<Int> = sourceInPatchCol.get(c);
         if (at == null) return "NOT_FOUND"; // should be avoided
@@ -469,7 +498,7 @@ class HighlightPatch implements Row {
                         DiffRender.examineCell(0,0,txt,"",rowInfo.value,"",cellInfo);
                         if (!cellInfo.updated) continue;
                         if (cellInfo.conflicted) continue; // skip conflicted
-                        var d : Dynamic = view.toDatum(csv.parseSingleCell(cellInfo.rvalue));
+                        var d : Dynamic = view.toDatum(csv.parseCell(cellInfo.rvalue));
                         source.setCell(patchInSourceCol.get(c),
                                        mod.destRow,
                                        d);

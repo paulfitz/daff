@@ -7,8 +7,7 @@ package coopy;
 /**
  *
  * Store the relationship between tables. Answers the question: where
- * does a particular row/column of table A (the source) appear in table B
- * (the target)?
+ * does a row/column of table A appear in table B?
  *
  */
 class Alignment {

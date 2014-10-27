@@ -59,6 +59,18 @@ class SimpleTable implements Table {
         }
         return x;
     }
+
+    public static function tableIsSimilar(tab1 : Table, tab2 : Table) : Bool {
+        if (tab1.width!=tab2.width) return false;
+        if (tab1.height!=tab2.height) return false;
+        var v = tab1.getCellView();
+        for (i in 0...tab1.height) {
+            for (j in 0...tab1.width) {
+                if (!v.equals(tab1.getCell(j,i),tab2.getCell(j,i))) return false;
+            }
+        }
+        return true;
+    }
     
     public function getCellView() : View {
         return new SimpleView();
@@ -161,5 +173,15 @@ class SimpleTable implements Table {
 
     public function getData() {
         return null;
+    }
+
+    public function clone() : Table {
+        var result = new SimpleTable(width,height);
+        for (i in 0...height) {
+            for (j in 0...width) {
+                result.setCell(j,i,getCell(j,i));
+            }
+        }
+        return result;
     }
 }

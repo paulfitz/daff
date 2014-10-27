@@ -4,6 +4,11 @@
 package coopy;
 #end
 
+/**
+ *
+ * Convert a tabular diff into html form.  Typically called as `render(table).html()`.
+ *
+ */
 @:expose
 class DiffRender {
     private var text_to_insert : Array<String>;
@@ -18,6 +23,12 @@ class DiffRender {
         pretty_arrows = true;
     }
 
+    /**
+     *
+     * Call this if you want arrow separators `->` to be converted to prettier
+     * glyphs.
+     *
+     */
     public function usePrettyArrows(flag: Bool) : Void {
         pretty_arrows = flag;
     }
@@ -65,15 +76,33 @@ class DiffRender {
         insert('</table>\n');
     }
 
+    /**
+     *
+     * @return the generated html, make sure to call `render(table)` first
+     * or it will be empty
+     *
+     */
     public function html() : String {
         return text_to_insert.join('');
     }
 
+    /**
+     *
+     * @return the generated html
+     *
+     */
     public function toString() : String {
         return html();
     }
 
 
+    /**
+     *
+     * Combine information about a single cell given row and column
+     * header information.  Usually `renderCell` will be much easier
+     * to use, this method is deprecated.
+     *
+     */
     public static function examineCell(x: Int,
                                        y: Int,
                                        value : String,
@@ -160,7 +189,7 @@ class DiffRender {
         }
     }
 
-    public static function markSpaces(sl: String, sr: String) : String {
+    private static function markSpaces(sl: String, sr: String) : String {
         if (sl==sr) return sl;
         if (sl==null || sr==null) return sl;
         var slc : String = StringTools.replace(sl," ","");
@@ -189,6 +218,17 @@ class DiffRender {
         return slo;
     }
 
+    /**
+     *
+     * Extract information about a single cell.
+     * Useful if you are doing custom rendering.
+     *
+     * @param the table, wrapped in a text view
+     * @param x cell column
+     * @param x cell row
+     * @return details of what is in the cell
+     *
+     */
     public static function renderCell(tt: TableText,
                                       x: Int,
                                       y: Int) : CellInfo {
@@ -206,19 +246,27 @@ class DiffRender {
         return cell;
     }
 
-    public function render(rows: Table) {
-        if (rows.width==0||rows.height==0) return;
+    /**
+     *
+     * Render a table as html - call `html()` or similar to get the result.
+     *
+     * @param tab the table to render
+     * @return self, so you can call render(table).html()
+     *
+     */
+    public function render(tab: Table) : DiffRender {
+        if (tab.width==0||tab.height==0) return this;
         var render : DiffRender = this;
         render.beginTable();
         var change_row : Int = -1;
-        var tt : TableText = new TableText(rows);
+        var tt : TableText = new TableText(tab);
         var cell : CellInfo = new CellInfo();
         var corner : String = tt.getCellText(0,0);
         var off : Int = (corner=="@:@") ? 1 : 0;
         if (off>0) {
-            if (rows.width<=1||rows.height<=1) return;
+            if (tab.width<=1||tab.height<=1) return this;
         }
-        for (row in 0...rows.height) {
+        for (row in 0...tab.height) {
 
             var open : Bool = false;
 
@@ -232,7 +280,7 @@ class DiffRender {
 
             render.beginRow(row_mode);
 
-            for (c in 0...rows.width) {
+            for (c in 0...tab.width) {
                 examineCell(c,
                             row,
                             tt.getCellText(c,row),
@@ -246,8 +294,14 @@ class DiffRender {
             render.endRow();
         }
         render.endTable();
+        return this;
     }
 
+    /**
+     *
+     * @return sample css for the generated html
+     *
+     */
     public function sampleCss() : String {
         return ".highlighter .add { 
   background-color: #7fff7f;
@@ -308,6 +362,12 @@ class DiffRender {
 ";
     }
 
+    /**
+     *
+     * Call this after rendering the table to add a header/footer
+     * and style sheet for a complete test page.
+     *
+     */
     public function completeHtml() : Void {
         text_to_insert.insert(0,"<html>
 <meta charset='utf-8'>
