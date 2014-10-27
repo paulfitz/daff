@@ -4,29 +4,93 @@
 package coopy;
 #end
 
+/**
+ *
+ * State of a comparison between tables.
+ *
+ */
 @:expose
 class TableComparisonState {
+    /**
+     *
+     * The common ancestor ("parent") table - null if none.
+     *
+     */
     public var p: Table;
+
+    /**
+     *
+     * The reference "local" table.
+     *
+     */
     public var a: Table;
+
+    /**
+     *
+     * The modified "remote" table.
+     *
+     */
     public var b: Table;
 
+    /**
+     *
+     * Has the comparison run to completion?
+     *
+     */
     public var completed : Bool;
+
+    /**
+     *
+     * Should the comparison run to completion?
+     *
+     */
     public var run_to_completion : Bool;
 
-    // Are tables trivially equal?
+    /**
+     *
+     * Are the tables identical?
+     *
+     */
     public var is_equal : Bool;
+
+    /**
+     *
+     * Has `is_equal` been determined yet?
+     *
+     */
     public var is_equal_known : Bool;
 
-    // Do tables have blatantly same set of columns?
+    /**
+     *
+     * Do tables have blatantly the same set of columns?
+     *
+     */
     public var has_same_columns : Bool;
+
+    /**
+     *
+     * Has `has_same_columns` been determined yet?
+     *
+     */
     public var has_same_columns_known : Bool;
 
+    /**
+     *
+     * The flags that should be used during comparison.
+     *
+     */
     public var compare_flags : CompareFlags;
 
     public function new() : Void {
         reset();
     }
 
+    /**
+     *
+     * Set the comparison back to a default state, as if no computation
+     * has been done.
+     *
+     */
     public function reset() : Void {
         completed = false;
         run_to_completion = true;

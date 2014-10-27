@@ -4,15 +4,34 @@
 package coopy;
 #end
 
+/**
+ *
+ * Run a comparison between tables.  Normally you'll
+ * call `coopy.Coopy.compareTables` to start off such a comparison.
+ *
+ */
 @:expose
 class CompareTable {
     private var comp: TableComparisonState;
     private var indexes : Array<IndexPair>;
 
+    /**
+     *
+     * @param comp the state of the comparison, including the tables to
+     * be compared, and whether the comparison has run to completion.
+     *
+     */
     public function new(comp: TableComparisonState) {
         this.comp = comp;
     }
 
+    /**
+     *
+     * Run or continue the comparison.
+     *
+     * @return true if `run()` needs to be called again to do more work
+     *
+     */
     public function run() : Bool {
         var more : Bool = compareCore();
         while (more && comp.run_to_completion) {
@@ -21,6 +40,15 @@ class CompareTable {
         return !more;
     }
 
+    /**
+     *
+     * Access a summary of how the tables align with each other.
+     * Runs the comparison to completion if it hasn't already been
+     * finished.
+     *
+     * @return the alignment between tables
+     *
+     */
     public function align() : Alignment {
         while (!comp.completed) {
             run();
@@ -30,6 +58,12 @@ class CompareTable {
         return alignment;
     }
 
+    /**
+     *
+     * @return the state of the comparison (the tables involved, if the
+     * comparison has completed, etc)
+     *
+     */
     public function getComparisonState() : TableComparisonState {
         return comp;
     }
@@ -431,10 +465,29 @@ class CompareTable {
         return false;
     }
 
+    /**
+     *
+     * During a comparison, we generate a set of indexes that help
+     * relate the tables to each other.  Normally these will be
+     * discarded as soon as possible in order to save memory.
+     * If you'd like the indexes kept, call this method.
+     *
+     */
     public function storeIndexes() : Void {
         indexes = new Array<IndexPair>();
     }
 
+    /**
+     *
+     * Access the indexes generated during the comparison.
+     * The `storeIndexes()` method must be called before the
+     * comparison.
+     *
+     * @return the indexes generated during the comparison after
+     * the `storeIndexes()` method was called, or null if it
+     * was never called.
+     *
+     */
     public function getIndexes() : Array<IndexPair> {
         return indexes;
     }

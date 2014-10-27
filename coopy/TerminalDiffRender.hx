@@ -2,6 +2,7 @@
 
 #if !TOPLEVEL
 package coopy;
+@:noDoc
 #end
 
 class TerminalDiffRender {
