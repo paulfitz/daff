@@ -95,6 +95,7 @@ py:
 	haxe language/py_util.hxml
 	cp scripts/python_table_view.py python_bin/
 	cat python_bin/coopyhx.py scripts/python_table_view.py > lib/daff.py
+	cp scripts/python_table_view.py lib
 	cp scripts/example.py python_bin/
 	@echo 'Output in python_bin, run "python3 python_bin/daff.py" for an example utility'
 	@echo 'or try "python3 python_bin/example.py" for an example of using daff as a library'
@@ -175,6 +176,7 @@ ntest_js:
 	NODE_PATH=$$PWD/lib node ntest.js
 
 ntest_py: py
+	rm -f daff/__init__.py daff.py
 	haxe -python ntest.py -main harness.Main
 	PYTHONPATH=$$PWD/lib python3 ntest.py 
 
@@ -194,7 +196,6 @@ ntest_java:
 	cd ntest_java_dir && javac -sourcepath src -d obj -g:none "@cmd"
 	java -cp ntest_java_dir/obj harness.Main
 
-# Not ready for this yet
 ntest_rb:
 	haxe -rb ntestdotrb -main harness.Main
 	cp scripts/ruby_table_view.rb ntestdotrb/lib/coopy
