@@ -15,16 +15,16 @@ words multiple versions of the "same" table.
 For a live demo, see:
 > http://paulfitz.github.com/daff/
 
-Download the code for your preferred language here:
-> https://github.com/paulfitz/daff/releases
-
-For certain languages you can use the command-line:
+Install the library for your favorite language:
 ````sh
 npm install daff -g  # node/javascript
 pip3 install daff    # python3
 gem install daff     # ruby
 composer require paulfitz/daff-php  # php
 ````
+
+Other translations are available here:
+> https://github.com/paulfitz/daff/releases
 
 Or use the library to view csv diffs on github via a chrome extension:
 > https://github.com/theodi/csvhub
@@ -182,12 +182,12 @@ The `daff` library is written in [Haxe](http://haxe.org/), which
 can be translated reasonably well into at least the following languages:
 
  * Javascript
- * PHP
  * Python
  * Java
  * C#
  * C++
- * (via a hack, just for `daff`) Ruby
+ * Ruby (using an [unofficial haxe target](https://github.com/paulfitz/haxe) developed for `daff`) 
+ * PHP
 
 Some translations are done for you on the
 [Releases](https://github.com/paulfitz/daff/releases) page.
@@ -205,11 +205,14 @@ make cs
 make cpp
 ```
 
-[@Floppy](https://github.com/Floppy) has made a lovingly-hand-written [native Ruby port](https://github.com/theodi/coopy-ruby) that covers core functionality.  I've made a brutally-machine-converted port that is a full translation but less idiomatic.
-
 For each language, the `daff` library expects to be handed an interface to tables you create, rather than creating them
 itself.  This is to avoid inefficient copies from one format to another.  You'll find a `SimpleTable` class you can use if
 you find this awkward.
+
+API documentation
+-----------------
+
+ * You can browse the `daff` classes at http://paulfitz.github.io/daff-doc/
 
 Reading material
 ----------------
