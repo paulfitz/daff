@@ -4,31 +4,79 @@
 package coopy;
 #end
 
+/**
+ *
+ * The row/column number for related content in the local table,
+ * the remote table, and the parent table (if there is one).
+ *
+ */
 class Unit {
+    /**
+     *
+     * The row/column number in the local table.
+     *
+     */
     public var l : Int;
+
+    /**
+     *
+     * The row/column number in the remote table.
+     *
+     */
     public var r : Int;
+
+    /**
+     *
+     * The row/column number in the parent table.
+     *
+     */
     public var p : Int;
 
+    /**
+     *
+     * Constructor.
+     * @param l the row/column number in the local table (-1 means absent)
+     * @param r the row/column number in the remote table (-1 means absent)
+     * @param p the row/column number in the parent table (-1 means absent, -2 means there is no parent)
+     *
+     */
     public function new(l: Int = -2, r: Int = -2, p: Int = -2) : Void {
         this.l = l;
         this.r = r;
         this.p = p;
     }
 
+    /**
+     *
+     * @return the row/column number in the parent table if present, otherwise in the local table
+     *
+     */
     public function lp() : Int {
         return (p==-2) ? l : p;
     } 
     
 
-    public static function describe(i: Int) : String {
+    private static function describe(i: Int) : String {
         return (i>=0) ? ("" + i) : "-";
     }
 
+    /**
+     *
+     * @return a text serialization of the row/column numbers, as `LL:RR` when the parent is absent, and `PP|LL:RR` when the parent is present
+     *
+     */
     public function toString() : String {
         if (p>=-1) return describe(p) + "|" + describe(l) + ":" + describe(r);
         return describe(l) + ":" + describe(r);
     }
 
+    /**
+     *
+     * Read from a serialized version of the row/column numbers
+     * @param txt the string to read
+     * @return true on success
+     *
+     */
     public function fromString(txt: String) : Bool {
         txt += "]";
         var at : Int = 0;

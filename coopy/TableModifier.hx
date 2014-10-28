@@ -5,6 +5,7 @@ package coopy;
 #end
 
 @:expose
+@:noDoc
 class TableModifier {
     private var t : Table;
 

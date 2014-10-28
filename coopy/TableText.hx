@@ -4,18 +4,37 @@
 package coopy;
 #end
 
+/**
+ *
+ * View all cells of a table as text.
+ *
+ */
 @:expose
-@:nodoc
 class TableText {
-    private var rows : Table;
+    private var tab : Table;
     private var view : View;
 
-    public function new(rows: Table) : Void {
-        this.rows = rows;
-        this.view = rows.getCellView();
+    
+    /**
+     *
+     * Constructor.
+     * @param tab the table to wrap
+     *
+     */
+    public function new(tab: Table) : Void {
+        this.tab = tab;
+        this.view = tab.getCellView();
     }
 
+    /**
+     *
+     * Read a cell in the table as text.
+     * @param x the column to read from
+     * @param y the row to read from
+     * @return the specified cell, converted to text
+     *
+     */
     public function getCellText(x: Int, y: Int) : String {
-        return view.toString(rows.getCell(x,y));
+        return view.toString(tab.getCell(x,y));
     }
 }
