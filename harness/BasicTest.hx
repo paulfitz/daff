@@ -53,4 +53,19 @@ class BasicTest extends haxe.unit.TestCase {
         assertEquals("Paul",tab.getCell(0,1));
         assertEquals("\"",tab.getCell(1,2));
     }
+
+    public function testEmpty() {
+        var table1 = Native.table(data1);
+        var table2 = Native.table([]);
+        var alignment = coopy.Coopy.compareTables(table1,table2).align();
+        var data_diff = [];
+        var table_diff = Native.table(data_diff);
+        var flags = new coopy.CompareFlags();
+        var highlighter = new coopy.TableDiff(alignment,flags);
+        highlighter.hilite(table_diff);
+        var table3 = table1.clone();
+        var patcher = new coopy.HighlightPatch(table3,table_diff);
+        patcher.apply();
+        assertEquals(0,table3.height);
+    }
 }

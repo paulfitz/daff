@@ -151,6 +151,7 @@ class coopy_PhpTableView implements coopy_Table{
 	}
       }
     }
+    //if ($this->width==0) $this->height = 0;
     return true;
   }
 
@@ -170,13 +171,14 @@ class coopy_PhpTableView implements coopy_Table{
   }
 
   public function hclone() {
-    $result = new coopy_PhpTableView(object());
-    $result.resize($this->width,$this->height);
+    $blank = array();
+    $result = new coopy_PhpTableView($blank);
+    $result->resize($this->width,$this->height);
     for ($c=0; $c<$this->width; $c++) {
       for ($r=0; $r<$this->height; $r++) {
-	$result.setCell($c,$r,$this->getCell($c,$r));
+	$result->setCell($c,$r,$this->getCell($c,$r));
       }
     }
-    return $alt;
+    return $result;
   }
 }

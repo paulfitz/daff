@@ -297,7 +297,9 @@ class CompareTable {
             }
         }
         // we expect headers on row 0 - link them even if quite different.
-        align.link(0,0);
+        if (ha>0 && hb>0) {
+            align.link(0,0);
+        }
     }
 
     private function alignColumns(align: Alignment, a: Table, b: Table) : Void {
@@ -376,7 +378,14 @@ class CompareTable {
             }
         }
 
-        if (ma_best==null) return;
+        if (ma_best==null) {
+            if (a.height>0 && b.height==0) {
+                align.headers(0,-1);
+            } else if (a.height==0 && b.height>0) {
+                align.headers(-1,0);
+            }
+            return;
+        }
         for (key in ma_best.keys()) {
             var i0 : Null<Int> = ma_best.get(key);
             var i1 : Null<Int> = mb_best.get(key);

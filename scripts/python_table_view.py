@@ -114,3 +114,11 @@ class PythonTableView(Table):
                     print("MISMATCH "+ v1 + " " + v2);
                     return False
         return True
+
+    def clone(self):
+        result = PythonTableView([])
+        result.resize(self.get_width(), self.get_height())
+        for c in range(self.width):
+            for r in range(self.height):
+                result.setCell(c,r,self.getCell(c,r))
+        return result

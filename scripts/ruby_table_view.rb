@@ -102,6 +102,9 @@ class RubyTableView < Coopy::Table
       @data[i] = nrow
     end
     @width = wfate
+    if @width == 0
+      @height = 0
+    end
     true
   end
 
@@ -110,8 +113,8 @@ class RubyTableView < Coopy::Table
     return false if alt.height!=@height
     @width.times do |c|
       @height.times do |r|
-        v1 = "" + self.getCell(c,r)
-        v2 = "" + alt.getCell(c,r) 
+        v1 = "" + self.get_cell(c,r)
+        v2 = "" + alt.get_cell(c,r) 
         if (v1!=v2)
           puts("MISMATCH "+ v1 + " " + v2);
           return false
@@ -119,5 +122,17 @@ class RubyTableView < Coopy::Table
       end
     end
     true
+  end
+
+
+  def clone()
+    result = RubyTableView.new([])
+    result.resize(@width,@height)
+    @width.times do |c|
+      @height.times do |r|
+        result.set_cell(c,r,self.get_cell(c,r))
+      end
+    end
+    result
   end
 end
