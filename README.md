@@ -18,7 +18,7 @@ For a live demo, see:
 Install the library for your favorite language:
 ````sh
 npm install daff -g  # node/javascript
-pip3 install daff    # python3
+pip install daff     # python
 gem install daff     # ruby
 composer require paulfitz/daff-php  # php
 ````
