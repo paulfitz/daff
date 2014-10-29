@@ -1,4 +1,5 @@
 import daff
+import sys
 
 data1 = [
   ['Country','Capital'],
@@ -21,7 +22,7 @@ table2 = daff.PythonTableView(data2)
 alignment = daff.Coopy.compareTables(table1,table2).align()
 
 data_diff = []
-table_diff = PythonTableView(data_diff)
+table_diff = daff.PythonTableView(data_diff)
 
 flags = daff.CompareFlags()
 highlighter = daff.TableDiff(alignment,flags)
@@ -31,4 +32,5 @@ diff2html = daff.DiffRender()
 diff2html.usePrettyArrows(False)
 diff2html.render(table_diff)
 table_diff_html = diff2html.html()
-print(table_diff_html)
+
+sys.stdout.write(table_diff_html)
