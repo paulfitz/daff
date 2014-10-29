@@ -36,7 +36,8 @@ class Index {
         for (i in 0...t.height) {
             var key : String = keys[i];
             if (key==null) {
-                keys[i] = key = toKey(t,i);
+                key = toKey(t,i);
+                keys[i] = key;
             }
             var item : IndexItem = items.get(key);
             if (item==null) {

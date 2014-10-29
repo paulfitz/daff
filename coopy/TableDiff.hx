@@ -244,7 +244,8 @@ class TableDiff {
             a = align.getSource();
             b = align.getTarget();
             p = a;
-            rp_header = ra_header = align.meta.getSourceHeader();
+            ra_header = align.meta.getSourceHeader();
+            rp_header = ra_header;
             rb_header = align.meta.getTargetHeader();
             if (align.getIndexColumns()!=null) {
                 for (a2b in align.getIndexColumns()) {
