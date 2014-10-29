@@ -90,15 +90,40 @@ cs:
 	@echo 'Output in cs_bin, do something like "gmcs -recurse:*.cs -main:coopy.Coopy -out:coopyhx.exe" in that directory'
 
 py:
-	mkdir -p python_bin lib
-	haxe language/py.hxml
+	rm -rf python_bin
+	mkdir -p python_bin
 	haxe language/py_util.hxml
-	cp scripts/python_table_view.py python_bin/
-	cat python_bin/coopyhx.py scripts/python_table_view.py > lib/daff.py
-	cp scripts/python_table_view.py lib
+	sed -i "1i#!/usr/bin/env python" python_bin/daff.py
+	sed -i "s|.*Coopy.main.*||" python_bin/daff.py
+	cat scripts/python_table_view.py >> python_bin/daff.py
+	echo "if __name__ == '__main__':" >> python_bin/daff.py
+	echo "\tCoopy.main()" >> python_bin/daff.py
 	cp scripts/example.py python_bin/
 	@echo 'Output in python_bin, run "python3 python_bin/daff.py" for an example utility'
 	@echo 'or try "python3 python_bin/example.py" for an example of using daff as a library'
+
+py2: py
+	echo "Tweak python translation to work also on python2"
+	echo "We need 3to2, https://bitbucket.org/amentajo/lib3to2"
+	which 3to2
+	3to2 -x except -x printfunction -x print -w python_bin/daff.py
+	sed -i '14iimport codecs' python_bin/daff.py
+	sed -i 's/.*stream.writable.*//' python_bin/daff.py
+	sed -i 's/.*Read only stream.*//' python_bin/daff.py
+	sed -i 's/python_lib_Builtin.open(path.*)/codecs.open(path,u"r",u"utf-8")/' python_bin/daff.py
+	sed -i 's/= \([a-z0-9_.]*\)\.next()/= hxnext(\1)/' python_bin/daff.py
+	sed -i 's/python_lib_Builtin.unicode/hxunicode/g' python_bin/daff.py
+	sed -i 's/python_lib_Builtin.unichr/hxunichr/g' python_bin/daff.py
+	sed -i 's/xrange/hxrange/g' python_bin/daff.py
+	sed -i 's/python_lib_FuncTools.cmp_to_key/hx_cmp_to_key/g' python_bin/daff.py
+	sed -i 's/^\([ \t]*\)def next(/\1def __next__(self): return self.next()\n\n\1def next(/g' python_bin/daff.py
+	cat scripts/python23.py python_bin/daff.py | grep -v "from __future__" | grep -v "from __builtin__ import" | grep -v "import __builtin__ as" | grep -v '#!' > python_bin/daff2.py
+	mv python_bin/daff2.py python_bin/daff.py
+	@echo 'tweaked python code to be python2 compatible'
+	@echo 'try "python2 python_bin/example.py or daff.py"'
+
+best_py:
+	which 3to2 && make py2 || make py
 
 rb:
 	haxe language/rb.hxml || { echo "Ruby failed, do you have paulfitz/haxe?"; exit 1; }
@@ -161,7 +186,7 @@ release: js test php py rb java
 	cp /tmp/coopyhx_cpp/build/coopyhx_cpp.zip release/daff_cpp.zip
 
 clean:
-	rm -rf bin cpp_pack daff_php daff_py daff_rb release py_bin php_bin ruby_bin coopy.js coopy_node.js daff.js daff_java daff_util.js MANIFEST Gemfile
+	rm -rf bin cpp_pack daff_php daff_py daff_rb release py_bin php_bin ruby_bin coopy.js coopy_node.js daff.js daff_java daff_util.js MANIFEST Gemfile python_bin daff.py lib daff *.gem
 
 ##############################################################################
 ##############################################################################
@@ -178,7 +203,12 @@ ntest_js:
 ntest_py: py
 	rm -f daff/__init__.py daff.py
 	haxe -python ntest.py -main harness.Main
-	PYTHONPATH=$$PWD/lib python3 ntest.py 
+	PYTHONPATH=$$PWD/python_bin python3 ntest.py 
+
+ntest_py2: py2
+	rm -f daff/__init__.py daff.py
+	haxe -python ntest.py -main harness.Main
+	PYTHONPATH=$$PWD/python_bin python3 ntest.py 
 
 ntest_php:
 	haxe -php ntest_php_dir -main harness.Main
@@ -217,14 +247,11 @@ perf_php:
 ## PYTHON PACKAGING
 ##
 
-setup_py: py
-	echo "#!/usr/bin/env python" > daff.py
-	cat python_bin/daff.py | sed "s|.*Coopy.main.*||" >> daff.py
-	cat python_bin/python_table_view.py | sed "s|import coopyhx as daff||" | sed "s|daff[.]||g" >> daff.py
-	echo "if __name__ == '__main__':" >> daff.py
-	echo "\tCoopy.main()" >> daff.py
+setup_py: best_py
 	mkdir -p daff
-	cp daff.py daff/__init__.py
+	cp python_bin/daff.py daff/__init__.py
+	echo "#!/usr/bin/env python" > daff.py
+	cat python_bin/daff.py >> daff.py # wasteful but robust
 
 sdist: setup_py
 	rm -rf dist
