@@ -15,8 +15,20 @@ class TerminalDiffRender {
     private var tt: TableText;
     private var csv: Csv;
     private var v: View;
+    private var align_columns : Bool;
 
     public function new() {
+        align_columns = true;
+    }
+
+
+    /**
+     *
+     * @param enable choose whether columns should be aligned by padding
+     *
+     */
+    public function alignColumns(enable: Bool) {
+        align_columns = enable;
     }
 
     /**
@@ -46,7 +58,8 @@ class TerminalDiffRender {
         codes.set("minor","\x1b[2m");
         codes.set("done","\x1b[0m");
 
-        var sizes = pickSizes(t);
+        var sizes = null;
+        if (align_columns) sizes = pickSizes(t);
 
         for (y in 0...h) {
             for (x in 0...w) {
