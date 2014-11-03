@@ -86,7 +86,8 @@ class coopy_PhpTableView implements coopy_Table{
   }
 
   public function insertOrDeleteRows($xfate,$hfate) {
-    $fate = php_Lib::toPhpArray($xfate);
+    if (is_array($xfate)) { $fate = $xfate; } else { $fate = $xfate->a; }
+    $fate = $xfate->a;
     $ndata = array();
     $top = 0;
     for ($i=0; $i<count($fate); $i++) {
@@ -109,7 +110,7 @@ class coopy_PhpTableView implements coopy_Table{
   }
 
   public function insertOrDeleteColumns($xfate,$wfate) {
-    $fate = php_Lib::toPhpArray($xfate);
+    if (is_array($xfate)) { $fate = $xfate; } else { $fate = $xfate->a; }
     if ($wfate==$this->width && $wfate==count($fate)) {
       $eq = true;
       for ($i=0; $i<$wfate; $i++) {

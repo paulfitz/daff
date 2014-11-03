@@ -197,7 +197,7 @@ clean:
 ntest: ntest_js ntest_rb ntest_py ntest_php ntest_java
 
 ntest_js:
-	haxe -js ntest.js -main harness.Main
+	haxe -js ntest.js -D haxeJSON -main harness.Main
 	NODE_PATH=$$PWD/lib node ntest.js
 
 ntest_py: py
@@ -211,7 +211,7 @@ ntest_py2: py2
 	PYTHONPATH=$$PWD/python_bin python3 ntest.py 
 
 ntest_php:
-	haxe -php ntest_php_dir -main harness.Main
+	haxe -D haxeJSON -php ntest_php_dir -main harness.Main
 	cp env/php/*.class.php ntest_php_dir/lib/coopy/
 	#time hhvm ntest_php_dir/index.php
 	time php5 ntest_php_dir/index.php

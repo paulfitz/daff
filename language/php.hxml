@@ -1,4 +1,5 @@
 -cp src
 -php php_bin
 -D coopyhx_util
+-D haxeJSON
 -main coopy.Coopy

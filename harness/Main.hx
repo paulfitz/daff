@@ -12,6 +12,7 @@ class Main {
         r.add(new RowOrderTest());
         r.add(new SmallTableTest());
         r.add(new SpeedTest());
+        r.add(new JsonTest());
         var ok = r.run();
         if (!ok) {
             Native.exit(1);

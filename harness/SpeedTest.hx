@@ -9,7 +9,7 @@ class SpeedTest extends haxe.unit.TestCase {
     override public function setup() {
         data1 = [];
         data2 = [];
-        var scale = 10000;
+        var scale = 1000;
         var cols = 5;
 #if enbiggen
         scale = 50000;

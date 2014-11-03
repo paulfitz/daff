@@ -106,6 +106,8 @@ class Coopy {
             switch(ext) {
             case "json":
                 format_preference = "json";
+            case "ndjson":
+                format_preference = "ndjson";
             case "csv":
                 format_preference = "csv";
                 delim_preference = ",";
@@ -134,9 +136,11 @@ class Coopy {
         }
         var txt : String = "";
         checkFormat(name);
-        if (format_preference!="json") {
+        if (format_preference=="csv") {
             var csv : Csv = new Csv(delim_preference);
             txt = csv.renderTable(t);
+        } else if (format_preference=="ndjson") {
+            txt = new Ndjson(t).render();
         } else {
             txt = haxe.Json.stringify(jsonify(t));
         }
@@ -201,6 +205,12 @@ class Coopy {
     private function loadTable(name: String) : Table {
         var txt : String = io.getContent(name);
         var ext = checkFormat(name);
+        if (ext == "ndjson") {
+            var t : Table = new SimpleTable(0,0);
+            var ndjson = new Ndjson(t);
+            ndjson.parse(txt);
+            return t;
+        }
         if (ext == "json" || ext == "") {
             try {
                 var json = haxe.Json.parse(txt);
