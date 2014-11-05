@@ -590,7 +590,7 @@ class Coopy {
             io.writeStderr("Call as:\n");
             io.writeStderr("  daff [--color] [--output OUTPUT.csv] a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
-            io.writeStderr("  daff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook\n");
+            io.writeStderr("  daff [--output OUTPUT.ndjson] a.ndjson b.ndjson\n");
             io.writeStderr("  daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv\n");
             io.writeStderr("  daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff trim [--output OUTPUT.csv] source.csv\n");

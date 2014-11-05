@@ -47,7 +47,7 @@ daff can produce and apply tabular diffs.
 Call as:
   daff [--output OUTPUT.csv] a.csv b.csv
   daff [--output OUTPUT.csv] parent.csv a.csv b.csv
-  daff [--output OUTPUT.jsonbook] a.jsonbook b.jsonbook
+  daff [--output OUTPUT.ndjson] a.ndjson b.ndjson
   daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv
   daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv
   daff trim [--output OUTPUT.csv] source.csv
@@ -71,6 +71,8 @@ If you need more control, here is the full list of flags:
      --fragment:    generate just a html fragment rather than a page
      --plain:       do not use fancy utf8 characters to make arrows prettier
 ````
+
+Formats supported are CSV, TSV, and [ndjson](http://dataprotocols.org/ndjson/).
 
 Using with git
 --------------
