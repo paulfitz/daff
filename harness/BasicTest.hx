@@ -68,4 +68,24 @@ class BasicTest extends haxe.unit.TestCase {
         patcher.apply();
         assertEquals(0,table3.height);
     }
+
+
+    public function testNestedOutput() {
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data2);
+        var alignment = coopy.Coopy.compareTables(table1,table2).align();
+        var data_diff = [];
+        var table_diff = Native.table(data_diff);
+        var flags = new coopy.CompareFlags();
+        flags.allow_nested_cells = true;
+        var highlighter = new coopy.TableDiff(alignment,flags);
+        highlighter.hilite(table_diff);
+        var update : Dynamic = table_diff.getCell(3,4);
+        var view = table_diff.getCellView();
+        assertTrue(view.isHash(update));
+        assertEquals("Barcelona",view.hashGet(update,"before"));
+        assertEquals("Madrid",view.hashGet(update,"after"));
+        assertEquals("Barcelona",Native.getHashKey(update,"before"));
+        assertEquals("Madrid",Native.getHashKey(update,"after"));
+    }
 }

@@ -36,5 +36,33 @@ class SimpleView implements View {
         return x;
 #end
     }
+
+    public function makeHash() : Dynamic {
+        return new Map<String,Dynamic>();
+    }
+
+    public function hashSet(h: Dynamic, str: String, d: Dynamic) : Void {
+        var hh : Map<String,Dynamic> = cast h;
+        hh.set(str,d);
+    }
+
+    public function hashExists(h: Dynamic, str: String) : Bool {
+        var hh : Map<String,Dynamic> = cast h;
+        return hh.exists(str);
+    }
+
+    public function hashGet(h: Dynamic, str: String) : Dynamic {
+        var hh : Map<String,Dynamic> = cast h;
+        return hh.get(str);
+    }
+
+    public function isHash(h: Dynamic) : Bool {
+#if rb
+        // work around limitation of ruby target
+        return untyped __rb__("h.respond_to? :keys");
+#else
+        return Std.is(h,haxe.ds.StringMap);
+#end
+    }
 }
 

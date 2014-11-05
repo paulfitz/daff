@@ -23,6 +23,9 @@ class Coopy {
     private var delim_preference : String;
     private var extern_preference : Bool;
     private var output_format : String;
+    private var nested_output : Bool;
+    private var order_set : Bool;
+    private var order_preference : Bool;
     private var io : TableIO;
 
     // just to get code included
@@ -33,6 +36,9 @@ class Coopy {
         format_preference = null;
         delim_preference = null;
         output_format = "copy";
+        nested_output = false;
+        order_set = false;
+        order_preference = false;
     }
 
     /**
@@ -121,6 +127,8 @@ class Coopy {
                 ext = "";
             }
         }
+        nested_output = (format_preference!="csv");
+        order_preference = !nested_output;
         return ext;
     }
 
@@ -492,6 +500,19 @@ class Coopy {
                     git = true;
                     args.splice(i,1);
                     break;
+                } else if (tag=="--unordered") {
+                    more = true;
+                    flags.ordered = false;
+                    flags.unchanged_context = 0;
+                    order_set = true;
+                    args.splice(i,1);
+                    break;
+                } else if (tag=="--ordered") {
+                    more = true;
+                    flags.ordered = true;
+                    order_set = true;
+                    args.splice(i,1);
+                    break;
                 } else if (tag=="--color") {
                     more = true;
                     color = true;
@@ -664,6 +685,11 @@ class Coopy {
 
         var ok : Bool = true;
         if (cmd=="diff") {
+            if (!order_set) {
+                flags.ordered = order_preference;
+                if (!flags.ordered) flags.unchanged_context = 0;
+            }
+            flags.allow_nested_cells = nested_output;
             var ct : CompareTable = compareTables3(parent,a,b,flags);
             var align : Alignment = ct.align();
             var td : TableDiff = new TableDiff(align,flags);

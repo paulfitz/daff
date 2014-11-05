@@ -10,6 +10,41 @@ if (coopy == null) {
     coopy = window.daff;
 }
 
+var CellView = function() {
+}
+
+CellView.prototype.toString = function(d) {
+    return ""+d;
+}
+
+CellView.prototype.equals = function(d1,d2) {
+    return d1==d2;
+}
+
+CellView.prototype.toDatum = function(d) {
+    return d;
+}
+
+CellView.prototype.makeHash = function() {
+    return {};
+}
+
+CellView.prototype.hashSet = function(d,k,v) {
+    d[k] = v;
+}
+
+CellView.prototype.hashGet = function(d,k) {
+    return d[k];
+}
+
+CellView.prototype.hashExists = function(d,k) {
+    return k in d;
+}
+
+CellView.prototype.isHash = function(d) {
+    return d && (typeof d  === "object");
+}
+
 var TableView = function(data) {
     // variant constructor (cols, rows)
     if (arguments.length==2) {
@@ -52,7 +87,8 @@ TableView.prototype.toString = function() {
 }
 
 TableView.prototype.getCellView = function() {
-    return new coopy.SimpleView();
+    return new CellView();
+    //return new coopy.SimpleView();
 }
 
 TableView.prototype.isResizable = function() {

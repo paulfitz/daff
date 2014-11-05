@@ -113,6 +113,16 @@ class CompareFlags {
      */
     public var columns_to_ignore : Array<String>;
 
+    /**
+     *
+     * Should cells in diff output contain nested content?
+     * This is the difference between getting eg the string 
+     * "version1->version2" and a hash {before: "version1", after: "version2"}.
+     * Defaults to false.
+     *
+     */
+    public var allow_nested_cells : Bool;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -125,6 +135,7 @@ class CompareFlags {
         acts = null;
         ids = null;
         columns_to_ignore = null;
+        allow_nested_cells = false;
     }
 
     /**

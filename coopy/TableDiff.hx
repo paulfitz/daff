@@ -202,7 +202,13 @@ class TableDiff {
      */
     public function hilite(output: Table) : Bool { 
         if (!output.isResizable()) return false;
-        if (builder==null) builder = new FlatCellBuilder();
+        if (builder==null) {
+            if (flags.allow_nested_cells) {
+                builder = new NestedCellBuilder();
+            } else {
+                builder = new FlatCellBuilder();
+            }
+        }
         output.resize(0,0);
         output.clear();
 

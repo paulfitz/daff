@@ -80,7 +80,7 @@ class Native {
         python.Syntax.pythonCode("daff = __import__('daff')");
         return python.Syntax.pythonCode("daff.PythonTableView(data)");
 #elseif rb
-        untyped __js__("require 'lib/coopy/ruby_table_view' unless defined?(RubyTableView)");
+        untyped __rb__("require 'lib/coopy/ruby_table_view' unless defined?(RubyTableView)");
         return untyped __js__("RubyTableView.new(data)");
 #elseif php
         return untyped __php__("new coopy_PhpTableView($data)");
@@ -113,6 +113,22 @@ class Native {
        untyped __js__("process.exit(v)");
 #else
        Sys.exit(v);
+#end
+    }
+
+    static public function getHashKey(h: Dynamic, k: String) : Dynamic {
+#if php
+    return untyped __php__("$h[$k]");
+#elseif js
+    return untyped __js__("h[k]");
+#elseif rb
+    return untyped __rb__("h[k]");
+#elseif python
+    return untyped python.Syntax.pythonCode("h[k]");
+#elseif java
+    return h.get(k);
+#else
+    return Reflect.field(h,k);
 #end
     }
 }

@@ -67,6 +67,7 @@ cpp_package:
 
 php:
 	haxe language/php.hxml
+	find php_bin/lib/coopy -iname "*View.*.php" -exec sed -i 's/function hashSet(/function hashSet(\&/' {} \;
 	cp env/php/*.class.php php_bin/lib/coopy/
 	cp scripts/example.php php_bin/
 	@echo 'Output in php_bin, run "php php_bin/index.php" for an example utility'
@@ -212,6 +213,7 @@ ntest_py2: py2
 
 ntest_php:
 	haxe -D haxeJSON -php ntest_php_dir -main harness.Main
+	find ntest_php_dir/lib/coopy -iname "*View.*.php" -exec sed -i 's/function hashSet(/function hashSet(\&/' {} \;
 	cp env/php/*.class.php ntest_php_dir/lib/coopy/
 	#time hhvm ntest_php_dir/index.php
 	time php5 ntest_php_dir/index.php

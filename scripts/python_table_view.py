@@ -1,4 +1,33 @@
 
+class PythonCellView(View):
+    def __init(self):
+        pass
+
+    def toString(self,d):
+        return str(d)
+
+    def equals(self,d1,d2):
+        return d1 == d2
+
+    def toDatum(self,d):
+        return d
+
+    def makeHash(self):
+        return {}
+
+    def isHash(self,d):
+        return type(d) is dict
+
+    def hashSet(self,d,k,v):
+        d[k] = v
+        
+    def hashGet(self,d,k):
+        return d[k]
+
+    def hashExists(self,d,k):
+        return k in d
+
+
 class PythonTableView(Table):
     def __init__(self,data):
         self.data = data
@@ -23,7 +52,8 @@ class PythonTableView(Table):
         return SimpleTable.tableToString(self)
 
     def getCellView(self):
-        return SimpleView()
+        return PythonCellView()
+        # return SimpleView()
 
     def isResizable(self):
         return True
