@@ -15,10 +15,12 @@ class Ndjson {
     private var tab : Table;
     private var view : View;
     private var columns : Map<String,Int>;
+    private var header_row : Int;
 
     public function new(tab: Table) {
         this.tab = tab;
         view = tab.getCellView();
+        header_row = 0;
     }
 
     /**
@@ -33,14 +35,23 @@ class Ndjson {
     public function renderRow(r: Int) : String {
         var row = new Map<String,Dynamic>();
         for (c in 0...tab.width) {
-            row.set(view.toString(tab.getCell(c,0)),tab.getCell(c,r));
+            var key = view.toString(tab.getCell(c,header_row));
+            if (c==0&&header_row==1) key = "@:@";
+            row.set(key,tab.getCell(c,r));
         }
         return haxe.Json.stringify(row);
     }
 
     public function render() : String {
         var txt = "";
-        for (r in 1...tab.height) {
+        var offset = 0;
+        if (tab.height==0) return txt;
+        if (tab.width==0) return txt;
+        if (tab.getCell(0,0) == "@:@") {
+            offset = 1;
+        }
+        header_row = offset;
+        for (r in (header_row+1)...tab.height) {
             txt += renderRow(r);
             txt += "\n";
         }

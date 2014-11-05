@@ -150,7 +150,7 @@ class Coopy {
         } else if (format_preference=="ndjson") {
             txt = new Ndjson(t).render();
         } else {
-            txt = haxe.Json.stringify(jsonify(t));
+            txt = haxe.Json.stringify(jsonify(t),null,"  ");
         }
         return saveText(name,txt);
     }
@@ -603,14 +603,16 @@ class Coopy {
             io.writeStderr("\n");
             io.writeStderr("If you need more control, here is the full list of flags:\n");
             io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
-            io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
-            io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
+            io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
+            io.writeStderr("     --all:         do not prune unchanged rows\n");
             io.writeStderr("     --color:       highlight changes with terminal colors\n");
             io.writeStderr("     --context NUM: show NUM rows of context\n");
-            io.writeStderr("     --all:         do not prune unchanged rows\n");
-            io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
+            io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
+            io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
             io.writeStderr("     --input-format [csv|tsv|ssv|json]: set format to expect for input\n");
+            io.writeStderr("     --ordered:     assume row order is meaningful (default for CSV)\n");
             io.writeStderr("     --output-format [csv|tsv|ssv|json|copy]: set format for output\n");
+            io.writeStderr("     --unordered:   assume row order is meaningless (default for json formats)\n");
             io.writeStderr("\n");
             io.writeStderr("  daff diff --git path old-file old-hex old-mode new-file new-hex new-mode\n");
             io.writeStderr("     --git:         process arguments provided by git to diff drivers\n");
@@ -775,11 +777,7 @@ class Coopy {
             var row : Array<Dynamic> = new Array<Dynamic>();
             for (x in 0...w) {
                 var v = t.getCell(x,y);
-                if (v!=null) {
-                    row.push(v.toString());
-                } else {
-                    row.push(null);
-                }
+                row.push(v);
             }
             sheet.push(row);
         }

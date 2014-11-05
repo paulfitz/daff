@@ -45,7 +45,21 @@ class NestedCellBuilder implements CellBuilder {
         return view.toDatum(label);
     }
 
+    private function negToNull(x: Int) : Null<Int> {
+        if (x<0) return null;
+        return x;
+    }
+
     public function links(unit: Unit) : Dynamic {
-        return view.toDatum(unit.toString());
+        var h = view.makeHash();
+        if (unit.p>=-1) {
+            view.hashSet(h,"before",negToNull(unit.p));
+            view.hashSet(h,"ours",negToNull(unit.l));
+            view.hashSet(h,"theirs",negToNull(unit.r));
+            return h;
+        }
+        view.hashSet(h,"before",negToNull(unit.l));
+        view.hashSet(h,"after",negToNull(unit.r));
+        return h;
     }
 }
