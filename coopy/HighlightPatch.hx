@@ -16,6 +16,7 @@ class HighlightPatch implements Row {
     private var patch : Table;  // table containing patch
 
     private var view : View;    // cached view for patch
+    private var sourceView : View; // cached view for source
     private var csv : Csv;      // cached cell parser
 
     private var header : Map<Int,String>;            // (col -> name) in patch
@@ -63,6 +64,7 @@ class HighlightPatch implements Row {
         this.source = source;
         this.patch = patch;
         view = patch.getCellView();
+        sourceView = source.getCellView();
     }
      
     private function reset() : Void {
@@ -282,7 +284,7 @@ class HighlightPatch implements Row {
         var act : String = getString(rcOffset);
 
         if (rowInfo.value != act) {
-            DiffRender.examineCell(0,0,act,"",act,"",rowInfo);
+            DiffRender.examineCell(0,0,view,act,"",act,"",rowInfo);
         }
     }
 
@@ -290,7 +292,7 @@ class HighlightPatch implements Row {
         checkAct();
 
         if (!rowInfo.updated) return txt;
-        DiffRender.examineCell(0,0,txt,"",rowInfo.value,"",cellInfo);
+        DiffRender.examineCell(0,0,view,txt,"",rowInfo.value,"",cellInfo);
         if (!cellInfo.updated) return txt;
         return cellInfo.lvalue;
     }
@@ -495,7 +497,7 @@ class HighlightPatch implements Row {
                     for (c in headerPre) {
                         
                         var txt : String = view.toString(patch.getCell(c,mod.patchRow));
-                        DiffRender.examineCell(0,0,txt,"",rowInfo.value,"",cellInfo);
+                        DiffRender.examineCell(0,0,view,txt,"",rowInfo.value,"",cellInfo);
                         if (!cellInfo.updated) continue;
                         if (cellInfo.conflicted) continue; // skip conflicted
                         var d : Dynamic = view.toDatum(csv.parseCell(cellInfo.rvalue));

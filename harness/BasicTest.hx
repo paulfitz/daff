@@ -88,4 +88,21 @@ class BasicTest extends haxe.unit.TestCase {
         assertEquals("Barcelona",Native.getHashKey(update,"before"));
         assertEquals("Madrid",Native.getHashKey(update,"after"));
     }
+
+    public function testNestedOutputHtml() {
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data2);
+        var alignment = coopy.Coopy.compareTables(table1,table2).align();
+        var table_diff1 = Native.table([]);
+        var table_diff2 = Native.table([]);
+        var flags = new coopy.CompareFlags();
+        var highlighter1 = new coopy.TableDiff(alignment,flags);
+        highlighter1.hilite(table_diff1);
+        flags.allow_nested_cells = true;
+        var highlighter2 = new coopy.TableDiff(alignment,flags);
+        highlighter2.hilite(table_diff2);
+        var render1 = new coopy.DiffRender().render(table_diff1).html();
+        var render2 = new coopy.DiffRender().render(table_diff2).html();
+        assertEquals(render1,render2);
+    }
 }

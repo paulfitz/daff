@@ -12,7 +12,7 @@ package coopy;
  */
 class TerminalDiffRender {
     private var codes: Map<String,String>;
-    private var tt: TableText;
+    private var t: Table;
     private var csv: Csv;
     private var v: View;
     private var align_columns : Bool;
@@ -45,8 +45,8 @@ class TerminalDiffRender {
         var w : Int = t.width;
         var h : Int = t.height;
         var txt : String = "";
+        this.t = t;
         v = t.getCellView();
-        tt = new TableText(t);
 
         codes = new Map<String,String>();
         codes.set("header","\x1b[0;1m");
@@ -76,16 +76,16 @@ class TerminalDiffRender {
             }
             txt += "\r\n";
         }
-        tt = null;
+        this.t = null;
+        v = null;
         csv = null;
         codes = null;
         return txt;
     }
 
     private function getText(x: Int, y: Int, color: Bool) : String {
-        var val : String = tt.getCellText(x,y);
-        if (val==null) val = "";
-        var cell = DiffRender.renderCell(tt,x,y);
+        var val : Dynamic = t.getCell(x,y);
+        var cell = DiffRender.renderCell(t,v,x,y);
         if (color) {
             var code = null;
             if (cell.category!=null) {
@@ -116,7 +116,6 @@ class TerminalDiffRender {
         var w : Int = t.width;
         var h : Int = t.height;
         var v : View = t.getCellView();
-        var tt : TableText = new TableText(t);
         var csv  = new Csv();
         var sizes = new Array<Int>();
         var row = -1;

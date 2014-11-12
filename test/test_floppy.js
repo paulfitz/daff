@@ -34,16 +34,17 @@ var space = String.fromCharCode(9251);
 assert(diff_html.indexOf("<td class=\"modify\">" + space + "0.61" + arrow + "0.61</td>")>=0);
 
 var cell = new coopy.CellInfo();
-coopy.DiffRender.examineCell(0,0,"0.61-> 0.61","","->","",cell);
+var view = new coopy.SimpleView();
+coopy.DiffRender.examineCell(0,0,view,"0.61-> 0.61","","->","",cell);
 assert(cell.pretty_value == ("0.61" + arrow + space + "0.61"));
-coopy.DiffRender.examineCell(0,0," 0.61->0.61","","->","",cell);
+coopy.DiffRender.examineCell(0,0,view," 0.61->0.61","","->","",cell);
 assert(cell.pretty_value == (space + "0.61" + arrow + "0.61"));
-coopy.DiffRender.examineCell(0,0," 0.61 ->0.61","","->","",cell);
+coopy.DiffRender.examineCell(0,0,view," 0.61 ->0.61","","->","",cell);
 assert(cell.pretty_value == (space + "0.61" + space + arrow + "0.61"));
-coopy.DiffRender.examineCell(0,0," 0.61 -> 0.61","","->","",cell);
+coopy.DiffRender.examineCell(0,0,view," 0.61 -> 0.61","","->","",cell);
 assert(cell.pretty_value == (" 0.61" + space + arrow + " 0.61"));
-coopy.DiffRender.examineCell(0,0," 0.61  exactly  -> 0.61 exactly","","->","",cell);
+coopy.DiffRender.examineCell(0,0,view," 0.61  exactly  -> 0.61 exactly","","->","",cell);
 assert(cell.pretty_value == (" 0.61 " + space + "exactly" + space + space + arrow + " 0.61 exactly"));
 
-coopy.DiffRender.examineCell(0,0,"0.61!-> 0.61!->0.61 ","","!->","",cell);
+coopy.DiffRender.examineCell(0,0,view,"0.61!-> 0.61!->0.61 ","","!->","",cell);
 assert(cell.pretty_value == ("0.61" + arrow + space + "0.61" + arrow + "0.61" + space));

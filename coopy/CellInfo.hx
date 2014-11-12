@@ -14,6 +14,13 @@ package coopy;
 class CellInfo {
     /**
      *
+     * The cell value "as is".
+     *
+     */
+    public var raw : Dynamic;
+
+    /**
+     *
      * The cell value in text form.
      *
      */

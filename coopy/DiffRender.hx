@@ -105,11 +105,15 @@ class DiffRender {
      */
     public static function examineCell(x: Int,
                                        y: Int,
-                                       value : String,
+                                       view : View,
+                                       raw : Dynamic,
                                        vcol : String,
                                        vrow : String,
                                        vcorner : String,
                                        cell : CellInfo) : Void {
+        var nested = view.isHash(raw);
+        var value : String = null;
+        if (!nested) value = view.toString(raw);
         cell.category = "";
         cell.category_given_tr = "";
         cell.separator = "";
@@ -148,24 +152,39 @@ class DiffRender {
                 var full : String = vrow;
                 var part : String = tokens[1];
                 if (part==null) part = full;
-                if (cell.value.indexOf(part)>=0) {
+                if (nested || cell.value.indexOf(part)>=0) {
                     var cat : String = "modify";
                     var div = part;
                     // render with utf8 -> symbol
                     if (part!=full) {
-                        if (cell.value.indexOf(full)>=0) {
+                        if (nested) {
+                            cell.conflicted = view.hashExists(raw,"theirs");
+                        } else {
+                            cell.conflicted = cell.value.indexOf(full)>=0;
+                        }
+                        if (cell.conflicted) {
                             div = full;
                             cat = "conflict";
-                            cell.conflicted = true;
                         }
                     }
                     cell.updated = true;
                     cell.separator = div;
                     cell.pretty_separator = div;
-                    if (cell.pretty_value==div) {
-                        tokens = ["",""];
+                    if (nested) {
+                        if (cell.conflicted) {
+                            tokens = [view.hashGet(raw,"before"),
+                                      view.hashGet(raw,"ours"),
+                                      view.hashGet(raw,"theirs")];
+                        } else {
+                            tokens = [view.hashGet(raw,"before"),
+                                      view.hashGet(raw,"after")];
+                        }
                     } else {
-                        tokens = cell.pretty_value.split(div);
+                        if (cell.pretty_value==div) {
+                            tokens = ["",""];
+                        } else {
+                            tokens = cell.pretty_value.split(div);
+                        }
                     }
                     var pretty_tokens : Array<String> = tokens;
                     if (tokens.length>=2) {
@@ -223,24 +242,27 @@ class DiffRender {
      * Extract information about a single cell.
      * Useful if you are doing custom rendering.
      *
-     * @param the table, wrapped in a text view
+     * @param tab the table
+     * @param view a viewer for cells of the table
      * @param x cell column
-     * @param x cell row
+     * @param y cell row
      * @return details of what is in the cell
      *
      */
-    public static function renderCell(tt: TableText,
+    public static function renderCell(tab: Table,
+                                      view: View,
                                       x: Int,
                                       y: Int) : CellInfo {
         var cell : CellInfo = new CellInfo();
-        var corner : String = tt.getCellText(0,0);
+        var corner : String = view.toString(tab.getCell(0,0));
         var off : Int = (corner=="@:@") ? 1 : 0;
 
         examineCell(x,
                     y,
-                    tt.getCellText(x,y),
-                    tt.getCellText(x,off),
-                    tt.getCellText(off,y),
+                    view,
+                    tab.getCell(x,y),
+                    view.toString(tab.getCell(x,off)),
+                    view.toString(tab.getCell(off,y)),
                     corner,
                     cell);
         return cell;
@@ -259,9 +281,9 @@ class DiffRender {
         var render : DiffRender = this;
         render.beginTable();
         var change_row : Int = -1;
-        var tt : TableText = new TableText(tab);
         var cell : CellInfo = new CellInfo();
-        var corner : String = tt.getCellText(0,0);
+        var view = tab.getCellView();
+        var corner : String = view.toString(tab.getCell(0,0));
         var off : Int = (corner=="@:@") ? 1 : 0;
         if (off>0) {
             if (tab.width<=1||tab.height<=1) return this;
@@ -270,9 +292,9 @@ class DiffRender {
 
             var open : Bool = false;
 
-            var txt : String = tt.getCellText(off,row);
+            var txt : String = view.toString(tab.getCell(off,row));
             if (txt==null) txt = "";
-            examineCell(0,row,txt,"",txt,corner,cell);
+            examineCell(0,row,view,txt,"",txt,corner,cell);
             var row_mode : String = cell.category;
             if (row_mode == "spec") {
                 change_row = row;
@@ -283,8 +305,9 @@ class DiffRender {
             for (c in 0...tab.width) {
                 examineCell(c,
                             row,
-                            tt.getCellText(c,row),
-                            (change_row>=0)?tt.getCellText(c,change_row):"",
+                            view,
+                            tab.getCell(c,row),
+                            (change_row>=0)?view.toString(tab.getCell(c,change_row)):"",
                             txt,
                             corner,
                             cell);
