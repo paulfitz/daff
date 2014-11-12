@@ -193,7 +193,7 @@ clean:
 ##############################################################################
 ##############################################################################
 ## 
-## This is a stub where I'll be adding cross-target tests
+## cross-target tests, with tests written in haxe
 ##
 
 ntest: ntest_js ntest_rb ntest_py ntest_php ntest_java
@@ -203,9 +203,10 @@ ntest_js:
 	NODE_PATH=$$PWD/lib node ntest.js
 
 ntest_py: py
+	./scripts/run_tests.sh "" py
 	rm -f daff/__init__.py daff.py
 	haxe -python ntest.py -main harness.Main
-	PYTHONPATH=$$PWD/python_bin python3 ntest.py 
+	PYTHONPATH=$$PWD/python_bin python3 ntest.py
 
 ntest_py2: py2
 	rm -f daff/__init__.py daff.py
