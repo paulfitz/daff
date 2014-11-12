@@ -185,6 +185,20 @@ class Alignment {
 
     /**
      *
+     * Manually set an ordered version of the alignment.
+     * @param l row/column number in local table
+     * @param r row/column number in remote table
+     * @param p row/column number in parent table (if there is one)
+     *
+     */
+    public function addToOrder(l: Int, r: Int, ?p: Int = -2) {
+        if (order_cache==null) order_cache = new Ordering();
+        order_cache.add(l,r,p);
+        order_cache_has_reference = (p!=-2);
+    }
+
+    /**
+     *
      * @return table A
      *
      */

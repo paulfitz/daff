@@ -400,12 +400,12 @@ class TableDiff {
             for (j in 0...column_units.length) {
                 var cunit : Unit = column_units[j];
                 if (cunit.r>=0) {
-                    if (b.height>0) {
+                    if (b.height!=0) {
                         output.setCell(j+1,at,
                                        b.getCell(cunit.r,rb_header));
                     }
                 } else if (cunit.lp()>=0) {
-                    if (p.height>0) {
+                    if (p.height!=0) {
                         output.setCell(j+1,at,
                                        p.getCell(cunit.lp(),rp_header));
                     }

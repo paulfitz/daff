@@ -17,6 +17,7 @@ js:
 	@echo "## Make library version"
 	cat env/js/fix_exports.js >> lib/daff.js
 	cat env/js/table_view.js >> lib/daff.js
+	cat env/js/sqlite_database.js >> lib/daff.js
 	cat env/js/util.js >> lib/daff.js
 	@echo "#######################################################"
 	@echo "## Make executable version (just add shebang)"

@@ -1,0 +1,151 @@
+// -*- mode:java; tab-width:4; c-basic-offset:4; indent-tabs-mode:nil -*-
+
+#if !TOPLEVEL
+package coopy;
+#end
+
+@:expose
+class SqlTable implements Table {
+    private var db: SqlDatabase;
+    private var columns: Array<SqlColumn>;
+    private var name: SqlTableName;
+    private var quotedTableName: String;
+    private var cache: Map<Int,Map<Int,Dynamic>>;
+    private var columnNames: Array<String>;
+
+    private function getColumns() : Void {
+        if (columns!=null) return;
+        if (db==null) return;
+        columns = db.getColumns(name);
+        columnNames = new Array<String>();
+        for (col in columns) {
+            columnNames.push(col.getName());
+        }
+    }
+
+    public function new(db: SqlDatabase, name: SqlTableName) {
+        this.db = db;
+        this.name = name;
+        this.cache = new Map<Int,Map<Int,Dynamic>>();
+    }
+
+    public function getPrimaryKey() : Array<String> {
+        getColumns();
+        var result = new Array<String>();
+        for (col in columns) {
+            if (!col.isPrimaryKey()) continue;
+            result.push(col.getName());
+        }
+        return result;
+    }
+
+    public function getAllButPrimaryKey() : Array<String> {
+        getColumns();
+        var result = new Array<String>();
+        for (col in columns) {
+            if (col.isPrimaryKey()) continue;
+            result.push(col.getName());
+        }
+        return result;
+    }
+
+    public function getColumnNames() : Array<String> {
+        getColumns();
+        return columnNames;
+    }
+
+    public function getQuotedTableName() : String {
+        if (quotedTableName!=null) return quotedTableName;
+        quotedTableName = db.getQuotedTableName(name);
+        return quotedTableName;
+    }
+
+    public function getQuotedColumnName(name : String) : String {
+        return db.getQuotedColumnName(name);
+    }
+
+    public function getCell(x: Int, y: Int) : Dynamic {
+        if (y<0) {
+            getColumns();
+            return columns[x].name;
+        }
+        var row = cache[y];
+        if (row==null) {
+            trace("YIKES");
+            row = new Map<Int,Dynamic>();
+            getColumns();
+            db.beginRow(name,y,columnNames);
+            while (db.read()) {
+                for (i in 0...width) {
+                    row[i] = db.get(i);
+                }
+            }
+            db.end();
+            cache[y] = row;
+        }
+        return cache[y][x];
+    }
+
+    public function setCellCache(x: Int, y: Int, c: Dynamic) : Void {
+        var row = cache[y];
+        if (row==null) {
+            row = new Map<Int,Dynamic>();
+            getColumns();
+            cache[y] = row;
+        }
+        row[x] = c;
+    }
+
+    public function setCell(x: Int, y: Int, c : Dynamic) : Void {
+        trace("SqlTable cannot set cells yet");
+    }
+    
+    public function getCellView() : View {
+        return new SimpleView();
+    }
+
+    public function isResizable() : Bool {
+        return false;
+    }
+
+    public function resize(w: Int, h: Int) : Bool {
+        return false;
+    }
+
+    public function clear() : Void {
+    }
+
+    public function insertOrDeleteRows(fate: Array<Int>, hfate: Int) : Bool {
+        return false;
+    }
+
+    public function insertOrDeleteColumns(fate: Array<Int>, wfate: Int) : Bool {
+        return false;
+    }
+    
+    public function trimBlank() : Bool {
+        return false;
+    }
+
+    public var height(get_height,never) : Int;
+    public var width(get_width,never) : Int;
+
+    public function get_width() : Int {
+        getColumns();
+        return columns.length;
+    }
+
+    public function get_height() : Int {
+        return -1;
+    }
+
+    public function getData() : Dynamic {
+        return null;
+    }
+
+    public function clone() : Table {
+        return null;
+    }
+}
+
+

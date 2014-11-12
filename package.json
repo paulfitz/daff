@@ -24,6 +24,10 @@
     "email": "paul@robotrebuilt.com",
     "url": "http://paulfitz.github.io/"
   },
+  "optionalDependencies": {
+    "sqlite3",
+    "fiber"
+  },
   "scripts": {
     "prepublish": "make js",
     "test": "make test"
