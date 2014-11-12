@@ -138,8 +138,8 @@ class PythonTableView(Table):
             return False
         for c in range(self.width):
             for r in range(self.height):
-                v1 = "" + self.getCell(c,r)
-                v2 = "" + alt.getCell(c,r) 
+                v1 = "" + str(self.getCell(c,r))
+                v2 = "" + str(alt.getCell(c,r))
                 if (v1!=v2):
                     print("MISMATCH "+ v1 + " " + v2);
                     return False
