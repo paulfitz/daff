@@ -156,6 +156,18 @@ specification here:
   [ '+++', 'Germany', 'de', 'Berlin' ] ]
 ```
 
+If you don't need the diff to be strictly CSV-compatible, you might prefer
+to set this option before generating it:
+
+```
+flags.allow_nested_cells = true;
+```
+
+With that option, complex cells will be nested rather than flattened into text:
+```js
+  [ '->', 'Spain', 'es', { before: 'Barcelona', after: 'Madrid' } ]
+```
+
 For visualization, you may want to convert this to a HTML table
 with appropriate classes on cells so you can color-code inserts,
 deletes, updates, etc.  You can do this with:
