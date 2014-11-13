@@ -42,6 +42,14 @@ class FlatCellBuilder implements CellBuilder {
             view.toString(remote);
     }
 
+    public function insert(remote: Dynamic) : Dynamic {
+        return remote;
+    }
+
+    public function delete(local: Dynamic) : Dynamic {
+        return local;
+    }
+
     public function marker(label: String) : Dynamic {
         return view.toDatum(label);
     }

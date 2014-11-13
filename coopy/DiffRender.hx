@@ -111,7 +111,21 @@ class DiffRender {
                                        vrow : String,
                                        vcorner : String,
                                        cell : CellInfo) : Void {
+        cell.raw = raw;
         var nested = view.isHash(raw);
+        if (nested) {
+            var ct = 0;
+            if (view.hashExists(raw,"before")) { ct++; }
+            if (view.hashExists(raw,"after"))  { ct++; }
+            if (ct==1) {
+                if (view.hashExists(raw,"before")) { 
+                    raw = view.hashGet(raw,"before");
+                } else {
+                    raw = view.hashGet(raw,"after");
+                }
+                nested = false;
+            }
+        }
         var value : String = null;
         if (!nested) value = view.toString(raw);
         cell.category = "";

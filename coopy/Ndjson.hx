@@ -16,11 +16,34 @@ class Ndjson {
     private var view : View;
     private var columns : Map<String,Int>;
     private var header_row : Int;
+    private var have_rc : Bool;
 
     public function new(tab: Table) {
         this.tab = tab;
         view = tab.getCellView();
         header_row = 0;
+        have_rc = false;
+    }
+
+    private function hashifyRow(oview: View, r: Int) : Dynamic {
+        var row = oview.makeHash();
+        for (c in 0...tab.width) {
+            var key0 : Dynamic = tab.getCell(c,header_row);
+            if (view.isHash(key0)) {
+                if (view.hashExists(key0,"after")) {
+                    key0 = view.hashGet(key0,"after");
+                } else {
+                    key0 = view.hashGet(key0,"before");
+                }
+            }
+            var key = view.toString(key0);
+            //var key = view.toString(tab.getCell(c,header_row));
+            //if (c==0&&have_rc) key = "@:@";
+            //var cell = DiffRender.renderCell(tab,view,c,r);
+            var raw = tab.getCell(c,r);
+            oview.hashSet(row,key,raw);
+        }
+        return row;
     }
 
     /**
@@ -35,9 +58,17 @@ class Ndjson {
     public function renderRow(r: Int) : String {
         var row = new Map<String,Dynamic>();
         for (c in 0...tab.width) {
-            var key = view.toString(tab.getCell(c,header_row));
-            if (c==0&&header_row==1) key = "@:@";
-            row.set(key,tab.getCell(c,r));
+            var key0 : Dynamic = tab.getCell(c,header_row);
+            if (view.isHash(key0)) {
+                if (view.hashExists(key0,"after")) {
+                    key0 = view.hashGet(key0,"after");
+                } else {
+                    key0 = view.hashGet(key0,"before");
+                }
+            }
+            var key = view.toString(key0);
+            var raw = tab.getCell(c,r);
+            row.set(key,raw);
         }
         return haxe.Json.stringify(row);
     }
@@ -49,16 +80,45 @@ class Ndjson {
         if (tab.width==0) return txt;
         if (tab.getCell(0,0) == "@:@") {
             offset = 1;
+            have_rc = true;
+            if (tab.height==1) return txt;
+        }
+        if (tab.getCell(0,offset) == "!") {
+            offset++;
         }
         header_row = offset;
-        for (r in (header_row+1)...tab.height) {
+        for (r in (header_row)...tab.height) {
             txt += renderRow(r);
             txt += "\n";
         }
         return txt;
     }
 
-    public function addRow(r: Int, txt: String) {
+    public function renderToTable(output: Table) : Bool {
+        if (!output.isResizable()) return false;
+        output.resize(0,0);
+        output.clear();
+        var offset = 0;
+        if (tab.height==0) return true;
+        if (tab.width==0) return true;
+        if (tab.getCell(0,0) == "@:@") {
+            offset = 1;
+            have_rc = true;
+            if (tab.height==1) return true;
+        }
+        if (tab.getCell(0,offset) == "!") {
+            offset++;
+        }
+        output.resize(tab.height-header_row-1,1);
+        header_row = offset;
+        var oview = output.getCellView();
+        for (r in (header_row)...tab.height) {
+            output.setCell(r-header_row,0,hashifyRow(oview,r));
+        }
+        return true;
+    }
+
+    private function addRow(r: Int, txt: String) {
         var json = haxe.Json.parse(txt);
         if (columns==null) columns = new Map<String,Int>();
         var w : Int = tab.width;
@@ -85,7 +145,7 @@ class Ndjson {
         }
     }
 
-    public function addHeaderRow(r: Int) {
+    private function addHeaderRow(r: Int) {
         var names = columns.keys();
         for (n in names) {
             tab.setCell(columns.get(n),r,view.toDatum(n));

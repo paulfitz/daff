@@ -40,6 +40,18 @@ class NestedCellBuilder implements CellBuilder {
         view.hashSet(h,"theirs",remote);
         return h;
     }
+    
+    public function insert(remote: Dynamic) : Dynamic {
+        var h = view.makeHash();
+        view.hashSet(h,"after",remote);
+        return h;
+    }
+
+    public function delete(local: Dynamic) : Dynamic {
+        var h = view.makeHash();
+        view.hashSet(h,"before",local);
+        return h;
+    }
 
     public function marker(label: String) : Dynamic {
         return view.toDatum(label);

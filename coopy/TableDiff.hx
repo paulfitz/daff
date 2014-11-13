@@ -399,15 +399,22 @@ class TableDiff {
             output.setCell(0,at,builder.marker("@@"));
             for (j in 0...column_units.length) {
                 var cunit : Unit = column_units[j];
-                if (cunit.r>=0) {
+                if (cunit.r>=0 && cunit.lp()>=0) {
                     if (b.height!=0) {
                         output.setCell(j+1,at,
                                        b.getCell(cunit.r,rb_header));
                     }
+                } else if (cunit.r>=0) {
+                    if (b.height!=0) {
+                        output.setCell(j+1,at,
+                                       builder.insert(b.getCell(cunit.r,
+                                                                rb_header)));
+                    }
                 } else if (cunit.lp()>=0) {
                     if (p.height!=0) {
                         output.setCell(j+1,at,
-                                       p.getCell(cunit.lp(),rp_header));
+                                       builder.delete(p.getCell(cunit.lp(),
+                                                                rp_header)));
                     }
                 }
                 col_map.set(j+1,cunit);
@@ -641,6 +648,11 @@ class TableDiff {
                     }
                     if (publish) {
                         if (active_column==null || active_column[j]>0) {
+                            if (have_rr && !have_ll) {
+                                cell = builder.insert(cell);
+                            } else if (have_ll && !have_rr) {
+                                cell = builder.delete(cell);
+                            }
                             output.setCell(j+1,at,cell);
                         }
                     }

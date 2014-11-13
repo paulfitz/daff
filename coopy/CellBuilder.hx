@@ -93,6 +93,28 @@ interface CellBuilder {
 
     /**
      *
+     * Build a cell that represents insertion of a value.
+     *
+     * @param remote the value to insert
+     *
+     * @return a cell representing insertion of a value.
+     *
+     */
+    function insert(remote: Dynamic) : Dynamic;
+
+    /**
+     *
+     * Build a cell that represents deletion of a value.
+     *
+     * @param local the value to delete
+     *
+     * @return a cell representing deletion of a value.
+     *
+     */
+    function delete(remote: Dynamic) : Dynamic;
+
+    /**
+     *
      * Create a cell representing one of the many tags used in 
      * data diffs.
      *
