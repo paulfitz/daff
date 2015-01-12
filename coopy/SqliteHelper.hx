@@ -21,7 +21,7 @@ class SqliteHelper implements SqlHelper {
     
     public function countRows(db: SqlDatabase, name: SqlTableName) : Int {
         var q = "SELECT COUNT(*) AS ct FROM " + db.getQuotedTableName(name);
-        if (!db.begin(q,null,["ct"])) return null;
+        if (!db.begin(q,null,["ct"])) return -1;
         var ct : Int = -1;
         while (db.read()) {
             ct = db.get(0);
