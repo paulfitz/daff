@@ -124,11 +124,15 @@ class Coopy {
             case "ssv":
                 format_preference = "csv";
                 delim_preference = ";";
+            case "sqlite3":
+                format_preference = "sqlite";
+            case "sqlite":
+                format_preference = "sqlite";
             default:
                 ext = "";
             }
         }
-        nested_output = (format_preference!="csv");
+        nested_output = (format_preference=="json"||format_preference=="ndjson");
         order_preference = !nested_output;
         return ext;
     }
@@ -214,6 +218,26 @@ class Coopy {
     private function loadTable(name: String) : Table {
         var txt : String = io.getContent(name);
         var ext = checkFormat(name);
+        if (ext == "sqlite") {
+            var sql = io.openSqliteDatabase(name);
+            if (sql==null) {
+                io.writeStderr("! Cannot open database, aborting\n");
+                return null;
+            }
+            var helper = new SqliteHelper();
+            var names = helper.getTableNames(sql);
+            if (names==null) {
+                io.writeStderr("! Cannot find database tables, aborting\n");
+                return null;
+            }
+            if (names.length==0) {
+                io.writeStderr("! No tables in database, aborting\n");
+                return null;
+            }
+            var tab = new SqlTable(sql,new SqlTableName(names[0]),
+                                   helper);
+            return tab;
+        }
         if (ext == "ndjson") {
             var t : Table = new SimpleTable(0,0);
             var ndjson = new Ndjson(t);

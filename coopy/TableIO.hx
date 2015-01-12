@@ -115,7 +115,7 @@ class TableIO {
      *
      * Check if a file exists.
      * @param path the name of the (putative) file
-     * @true if the file exists
+     * @return true if the file exists
      *
      */
     public function exists(path:String) : Bool {
@@ -124,6 +124,17 @@ class TableIO {
 #else
         return false;
 #end
+    }
+
+    /**
+     *
+     * Try to open an sqlite database.
+     * @param path to the database
+     * @return opened database, or null on failure
+     *
+     */
+    public function openSqliteDatabase(path: String) : SqlDatabase {
+        return null;
     }
 }
 

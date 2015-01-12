@@ -12,6 +12,9 @@ class SqlTable implements Table {
     private var quotedTableName: String;
     private var cache: Map<Int,Map<Int,Dynamic>>;
     private var columnNames: Array<String>;
+    private var h: Int;
+    private var helper: SqlHelper;
+    private var id2rid: Array<Int>;
 
     private function getColumns() : Void {
         if (columns!=null) return;
@@ -23,10 +26,14 @@ class SqlTable implements Table {
         }
     }
 
-    public function new(db: SqlDatabase, name: SqlTableName) {
+    public function new(db: SqlDatabase, name: SqlTableName, helper: SqlHelper = null) {
         this.db = db;
         this.name = name;
-        this.cache = new Map<Int,Map<Int,Dynamic>>();
+        this.helper = helper;
+        cache = new Map<Int,Map<Int,Dynamic>>();
+        h = -1;
+        id2rid = null;
+        getColumns();
     }
 
     public function getPrimaryKey() : Array<String> {
@@ -65,13 +72,18 @@ class SqlTable implements Table {
     }
 
     public function getCell(x: Int, y: Int) : Dynamic {
+        if (h>=0) {
+            y = y-1;
+            if (y>=0) {
+                y = id2rid[y];
+            }
+        }
         if (y<0) {
             getColumns();
             return columns[x].name;
         }
         var row = cache[y];
         if (row==null) {
-            trace("YIKES");
             row = new Map<Int,Dynamic>();
             getColumns();
             db.beginRow(name,y,columnNames);
@@ -136,7 +148,11 @@ class SqlTable implements Table {
     }
 
     public function get_height() : Int {
-        return -1;
+        if (h>=0) return h;
+        if (helper==null) return -1;
+        id2rid = helper.getRowIDs(db,name);
+        h = id2rid.length+1;
+        return h;
     }
 
     public function getData() : Dynamic {

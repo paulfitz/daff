@@ -7,6 +7,8 @@ if (typeof exports != "undefined") {
     var fs = require('fs');
     var exec = require('child_process').exec;
     var readline = null;
+    var Fiber = null;
+    var sqlite3 = null;
     
     tio.getContent = function(name) {
 	if (name=="-") {
@@ -38,6 +40,14 @@ if (typeof exports != "undefined") {
 
     tio.exists = function(path) {
 	return fs.existsSync(path);
+    }
+
+    tio.openSqliteDatabase = function(path) {
+	if (Fiber) {
+	    return new SqliteDatabase(new sqlite3.Database(path),Fiber);
+	}
+	throw("run inside Fiber plz");
+	return null;
     }
 
     var cmd_result = 1;
@@ -96,6 +106,22 @@ if (typeof exports != "undefined") {
 
 if (typeof require != "undefined") {
     if (require.main === module) {
-	exports.run_daff_main();
+	try {
+	    exports.run_daff_main();
+	} catch (e) {
+	    if (e == "run inside Fiber plz") {
+		try {
+		    Fiber = require('fibers');
+		    sqlite3 = require('sqlite3');
+		} catch (err) {
+		    // We don't have what we need for accessing the sqlite database.
+		    console.log("No sqlite3/fibers");
+		}
+		Fiber(function() {
+		    exports.run_daff_main();
+		    console.log("ok");
+		}).run();
+	    }
+	}
     }
 }
