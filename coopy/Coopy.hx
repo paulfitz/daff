@@ -154,6 +154,9 @@ class Coopy {
             txt = csv.renderTable(t);
         } else if (format_preference=="ndjson") {
             txt = new Ndjson(t).render();
+        } else if (format_preference=="sqlite") {
+            io.writeStderr("! Cannot yet output to sqlite, aborting\n");
+            return false;
         } else {
             txt = haxe.Json.stringify(jsonify(t),null,"  ");
         }
