@@ -683,7 +683,10 @@ class TableDiff {
 
             for (i in 0...output.height) {
                 var unit : Unit = row_map.get(i);
-                if (unit==null) continue;
+                if (unit==null) {
+                    output.setCell(0,i,"");
+                    continue;
+                }
                 output.setCell(0,i,builder.links(unit));
             }
             target = new Array<Int>();
@@ -693,7 +696,10 @@ class TableDiff {
             output.insertOrDeleteRows(target,output.height+1);
             for (i in 1...output.width) {
                 var unit : Unit = col_map.get(i-1);
-                if (unit==null) continue;
+                if (unit==null) {
+                    output.setCell(i,0,"");
+                    continue;
+                }
                 output.setCell(i,0,builder.links(unit));
             }
             output.setCell(0,0,builder.marker("@:@"));
