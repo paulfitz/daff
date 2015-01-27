@@ -392,7 +392,8 @@ class DiffRender {
      *
      */
     public function completeHtml() : Void {
-        text_to_insert.insert(0,"<html>
+        text_to_insert.insert(0,"<!DOCTYPE html>
+<html>
 <meta charset='utf-8'>
 <head>
 <style TYPE='text/css'>
