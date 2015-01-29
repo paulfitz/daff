@@ -39,6 +39,7 @@ class DiffRender {
 
     private function beginTable() : Void {
         insert("<table>\n");
+        insert("<thead>\n");
     }
 
     private function beginRow(mode: String) : Void {
@@ -68,11 +69,18 @@ class DiffRender {
         insert(td_close);
     }
 
+    private function switchToBody() : Void {
+        insert("</thead>\n");
+        insert("<tbody>\n");
+    }
+
     private function endRow() {
         insert('</tr>\n');
     }
 
+
     private function endTable() : Void {
+        insert("</tbody>\n");
         insert('</table>\n');
     }
 
@@ -279,6 +287,7 @@ class DiffRender {
     public function render(tab: Table) : DiffRender {
         if (tab.width==0||tab.height==0) return this;
         var render : DiffRender = this;
+        var switch_to_body : Bool = false;
         render.beginTable();
         var change_row : Int = -1;
         var cell : CellInfo = new CellInfo();
@@ -298,6 +307,7 @@ class DiffRender {
             var row_mode : String = cell.category;
             if (row_mode == "spec") {
                 change_row = row;
+                switch_to_body = true;
             }
 
             render.beginRow(row_mode);
@@ -315,6 +325,12 @@ class DiffRender {
                                   cell.category_given_tr);
             }
             render.endRow();
+
+            // We just rendered the header, now move on to the table body.
+            if (switch_to_body) {
+                render.switchToBody();
+                switch_to_body = false;
+            }
         }
         render.endTable();
         return this;
