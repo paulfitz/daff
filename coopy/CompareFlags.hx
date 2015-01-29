@@ -42,7 +42,7 @@ class CompareFlags {
      * Diffs for tables where row/column order has been permuted may include
      * an extra row/column specifying the changes in row numbers.
      * If you'd like that extra row/column to always be included,
-     * turn on this flag.
+     * turn on this flag, and turn off never_show_order.
      *
      */
     public var always_show_order : Bool;
@@ -52,7 +52,7 @@ class CompareFlags {
      * Diffs for tables where row/column order has been permuted may include
      * an extra row/column specifying the changes in row numbers.
      * If you'd like to be sure that that row/column is *never*
-     * included, turn on this flag.
+     * included, turn on this flag, and turn off always_show_order.
      *
      */
     public var never_show_order : Bool;

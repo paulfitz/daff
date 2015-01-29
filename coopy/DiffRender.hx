@@ -16,6 +16,7 @@ class DiffRender {
     private var td_close : String;
     private var open : Bool;
     private var pretty_arrows: Bool;
+    private var section : String;
 
     public function new() : Void {
         text_to_insert = new Array<String>();
@@ -39,7 +40,22 @@ class DiffRender {
 
     private function beginTable() : Void {
         insert("<table>\n");
-        insert("<thead>\n");
+        section = null;
+    }
+
+    private function setSection(str: String) : Void {
+        if (str==section) return;
+        if (section!=null) {
+            insert("</t");
+            insert(section);
+            insert(">\n");
+        }
+        section = str;
+        if (section!=null) {
+            insert("<t");
+            insert(section);
+            insert(">\n");
+        }
     }
 
     private function beginRow(mode: String) : Void {
@@ -49,9 +65,8 @@ class DiffRender {
         if (mode=="header") {
             td_open = "<th";
             td_close = "</th>";
-        } else {
-            row_class = mode;
         }
+        row_class = mode;
         var tr : String = "<tr>";
         if (row_class!="") {
             tr = "<tr class=\"" + row_class + "\">";
@@ -69,18 +84,13 @@ class DiffRender {
         insert(td_close);
     }
 
-    private function switchToBody() : Void {
-        insert("</thead>\n");
-        insert("<tbody>\n");
-    }
-
     private function endRow() {
         insert('</tr>\n');
     }
 
 
     private function endTable() : Void {
-        insert("</tbody>\n");
+        setSection(null);
         insert('</table>\n');
     }
 
@@ -118,7 +128,8 @@ class DiffRender {
                                        vcol : String,
                                        vrow : String,
                                        vcorner : String,
-                                       cell : CellInfo) : Void {
+                                       cell : CellInfo,
+                                       offset : Int = 0) : Void {
         var nested = view.isHash(raw);
         var value : String = null;
         if (!nested) value = view.toString(raw);
@@ -137,7 +148,10 @@ class DiffRender {
         var removed_column : Bool = false;
         if (vrow == ":") {
             cell.category = 'move';
-        } 
+        }
+        if (vrow == "" && offset == 1 && y == 0) {
+            cell.category = 'index';
+        }
         if (vcol.indexOf("+++")>=0) {
             cell.category_given_tr = cell.category = 'add';
         } else if (vcol.indexOf("---")>=0) {
@@ -148,6 +162,8 @@ class DiffRender {
             cell.category = 'spec';
         } else if (vrow == "@@") {
             cell.category = 'header';
+        } else if (vrow == "...") {
+            cell.category = 'gap';
         } else if (vrow == "+++") {
             if (!removed_column) {
                 cell.category = 'add';
@@ -214,6 +230,9 @@ class DiffRender {
                 }
             }
         }
+        if (x==0 && offset>0) {
+            cell.category_given_tr = cell.category = 'index';
+        }
     }
 
     private static function markSpaces(sl: String, sr: String) : String {
@@ -272,7 +291,8 @@ class DiffRender {
                     view.toString(tab.getCell(x,off)),
                     view.toString(tab.getCell(off,y)),
                     corner,
-                    cell);
+                    cell,
+                    off);
         return cell;
     }
 
@@ -287,7 +307,6 @@ class DiffRender {
     public function render(tab: Table) : DiffRender {
         if (tab.width==0||tab.height==0) return this;
         var render : DiffRender = this;
-        var switch_to_body : Bool = false;
         render.beginTable();
         var change_row : Int = -1;
         var cell : CellInfo = new CellInfo();
@@ -303,11 +322,15 @@ class DiffRender {
 
             var txt : String = view.toString(tab.getCell(off,row));
             if (txt==null) txt = "";
-            examineCell(0,row,view,txt,"",txt,corner,cell);
+            examineCell(off,row,view,txt,"",txt,corner,cell,off);
             var row_mode : String = cell.category;
             if (row_mode == "spec") {
                 change_row = row;
-                switch_to_body = true;
+            }
+            if (row_mode == "header" || row_mode == "spec" || row_mode=="index") {
+                setSection("head");
+            } else {
+                setSection("body");
             }
 
             render.beginRow(row_mode);
@@ -320,17 +343,12 @@ class DiffRender {
                             (change_row>=0)?view.toString(tab.getCell(c,change_row)):"",
                             txt,
                             corner,
-                            cell);
+                            cell,
+                            off);
                 render.insertCell(pretty_arrows?cell.pretty_value:cell.value,
                                   cell.category_given_tr);
             }
             render.endRow();
-
-            // We just rendered the header, now move on to the table body.
-            if (switch_to_body) {
-                render.switchToBody();
-                switch_to_body = false;
-            }
         }
         render.endTable();
         return this;
@@ -387,12 +405,17 @@ class DiffRender {
   text-align:left;
 }
 
-.highlighter tr:first-child td {
-  border-top: 1px solid #2D4068;
+.highlighter tr.header th {
+  border-bottom: 2px solid black;
 }
 
-.highlighter td:first-child { 
-  border-left: 1px solid #2D4068;
+.highlighter tr.index td, .highlighter .index, .highlighter tr.header th.index {
+  background-color: white;
+  border: none;
+}
+
+.highlighter .gap {
+  color: #888;
 }
 
 .highlighter td {
