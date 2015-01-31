@@ -27,12 +27,11 @@
 
 
 <div id="controls">
-  <a href="#" id="control-item-config" class="control-item control-menu" data-item="item-config"><b>&equiv;</b></a><div class="inter-control">
-  </div><a href="#" id="control-item-parent" class="control-item" data-item="item-parent" style="display: none;">Ancestor</a><div id="after-item-parent" class="inter-control" style="display: none;">
-  </div><a href="#" id="control-item-before" class="control-item" data-item="item-before">Original table</a><div class="inter-control">
-  </div><a href="#" id="control-item-after" class="control-item" data-item="item-after">Modified table</a><div class="inter-control">
-  </div><a href="#" id="control-item-diff" class="control-item" data-item="item-diff">Difference</a><div class="inter-control">
-  </div>
+  <a href="#" id="control-item-config" class="control-item control-menu" data-item="item-config"><b>&equiv;</b></a>
+  <a href="#" id="control-item-parent" class="control-item" data-item="item-parent" style="display: none;">Ancestor</a>
+  <a href="#" id="control-item-before" class="control-item" data-item="item-before">Original table</a>
+  <a href="#" id="control-item-after" class="control-item" data-item="item-after">Modified table</a>
+  <a href="#" id="control-item-diff" class="control-item" data-item="item-diff">Difference</a>
 </div>
 
 </div>
@@ -276,10 +275,8 @@ $(function() {
      use_parent = $("#parent_checkbox")[0].checked;
      if (use_parent) {
        $("#control-item-parent").show();
-       $("#after-item-parent").show();
      } else {
        $("#control-item-parent").hide();
-       $("#after-item-parent").hide();
        $("#item-parent").hide();
      }
      processChange(null,null,null);

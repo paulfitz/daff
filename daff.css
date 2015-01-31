@@ -66,17 +66,6 @@ a.control-item:hover {
   vertical-align:bottom; 
 }
 
-.inter-control {
-  display: inline-block;
-  width: 1px;
-  height: 10px;
-  /* border-bottom: 1px solid black; */
-  border-bottom: 1px solid #ccc;
-  padding: 0;
-  margin: 0;
-  vertical-align:bottom; 
-}
-
 .plus {
   background: #8f8;
 }
