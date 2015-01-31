@@ -43,7 +43,8 @@
 
   <div id="item-config" class="item">
     <form class="demo-options">
-      <span class="unit"><input id="parent_checkbox" type="checkbox" />Use 3-way comparison</span>
+      <span class="unit"><input id="parent_checkbox" type="checkbox" /><label for="parent_checkbox">Use 3-way comparison</label></span>
+    <span class="unit"><input id="order_checkbox" type="checkbox" /><label for="order_checkbox">Show row/column numbers</label></span>
       <span class="unit"><input type=button id="button-clear" value="clear all cells" /></span>
     </form>
   </div>
@@ -78,14 +79,6 @@
       &ldquo;<span class="minus">---</span>&rdquo; means those changes won't get applied.
       </p>
       
-    </div>
-    <div class="alignment">
-      <h3>Row alignment</h3>
-      <div id="ordering"></div>
-    </div>
-    <div class="alignment">
-      <h3>Column alignment</h3>
-      <div id="column_ordering"></div>
     </div>
   </div>
 </div>
@@ -149,6 +142,7 @@ $(function() {
    }
 
    var use_parent = false;
+   var show_order = false;
    function processChange(changes,source,table) {
      if (source=="loadData") return;
      var t1 = new daff.TableView(data1);
@@ -164,15 +158,14 @@ $(function() {
        ct = daff.compareTables3(t0,t1,t2);
      }
      var align = ct.align();
-     var order = align.toOrder();
-     var report = order.toString().replace(/, */g,"<br />\n");
-     $("#ordering").html(report);
-     var report2 = align.meta.toOrder().toString().replace(/, */g,"<br />\n");
-     $("#column_ordering").html(report2);
      var output = new daff.TableView([]);
      var flags = new daff.CompareFlags();
      flags.show_unchanged = false;
      flags.always_show_header = true;
+     if (show_order) {
+       flags.never_show_order = false;
+       flags.always_show_order = true;
+     }
      (new daff.TableDiff(align,flags)).hilite(output);
      data_diff = output.data;
      $("#diff").handsontable('loadData',output.data);
@@ -289,6 +282,12 @@ $(function() {
        $("#after-item-parent").hide();
        $("#item-parent").hide();
      }
+     processChange(null,null,null);
+     return true;
+   });
+
+   $("#order_checkbox").click(function() {
+     show_order = $("#order_checkbox")[0].checked;
      processChange(null,null,null);
      return true;
    });
