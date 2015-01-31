@@ -26,23 +26,27 @@
   </p>
 
 
-</div>
-<form class="demo-options">
-	  <span class="unit"><input id="parent_checkbox" type="checkbox" />Use 3-way comparison</span>
-	  <span class="unit"><input type=button id="button-clear" value="clear all cells" /></span>
-</form>
-
-
-<div id="main">
 <div id="controls">
-  <a href="#" id="control-item-parent" class="control-item" data-item="item-parent" style="display: none;">Ancestor</a><div class="inter-control">
+  <a href="#" id="control-item-config" class="control-item control-menu" data-item="item-config"><b>&equiv;</b></a><div class="inter-control">
+  </div><a href="#" id="control-item-parent" class="control-item" data-item="item-parent" style="display: none;">Ancestor</a><div id="after-item-parent" class="inter-control" style="display: none;">
   </div><a href="#" id="control-item-before" class="control-item" data-item="item-before">Original table</a><div class="inter-control">
   </div><a href="#" id="control-item-after" class="control-item" data-item="item-after">Modified table</a><div class="inter-control">
   </div><a href="#" id="control-item-diff" class="control-item" data-item="item-diff">Difference</a><div class="inter-control">
   </div>
 </div>
 
+</div>
+
+<div id="main">
+
 <div id="items">
+
+  <div id="item-config" class="item">
+    <form class="demo-options">
+      <span class="unit"><input id="parent_checkbox" type="checkbox" />Use 3-way comparison</span>
+      <span class="unit"><input type=button id="button-clear" value="clear all cells" /></span>
+    </form>
+  </div>
 
   <div id="item-parent" class="item">
     <div id="table0" class="tabular"></div>
@@ -87,36 +91,6 @@
 </div>
 </div>
 
-<script>
-function showItem(name) {
-   $(".item").each(function() {
-     $(this).hide();
-   });
-   $("#" + name).show();
-   $(".control-item").each(function() {
-     $(this).removeClass('control-item-active');
-   });
-   $("#control-" + name).addClass('control-item-active');
- }
-$(function() {
-   $(".control-item").each(function() {
-     var self = $(this);
-     self.click(function() {
-       showItem(self.data("item"));
-       return false;
-     });
-   });
-   $(".show-item").each(function() {
-     var self = $(this);
-     self.click(function() {
-       showItem(self.data("item"));
-       return false;
-     });
-   });
-   showItem("item-diff");
-});
-</script>
-
 <table id="pane-collection">
 
   <tr>
@@ -138,210 +112,244 @@ $(function() {
 
 
 <script>
-function load_table(t,data) {
-    t.length = 0;
-    for (var i=0; i < data.length; i++) {
-        t[i] = data[i].slice();
-    }
-}
+$(function() {
 
-var use_parent = false;
-function processChange(changes,source,table) {
-  if (source=="loadData") return;
-  var t1 = new daff.TableView(data1);
-  var t2 = new daff.TableView(data2);
-  t1.trim();
-  t2.trim();
-  var ct = null;
-  if (!use_parent) { 
-    ct = daff.compareTables(t1,t2);
-  } else {
-    var t0 = new daff.TableView(data0);
-    t0.trim();
-    ct = daff.compareTables3(t0,t1,t2);
-  }
-  var align = ct.align();
-  var order = align.toOrder();
-  var report = order.toString().replace(/, */g,"<br />\n");
-  $("#ordering").html(report);
-  var report2 = align.meta.toOrder().toString().replace(/, */g,"<br />\n");
-  $("#column_ordering").html(report2);
-  var output = new daff.TableView([]);
-  var flags = new daff.CompareFlags();
-  flags.show_unchanged = false;
-  flags.always_show_header = true;
-  (new daff.TableDiff(align,flags)).hilite(output);
-  data_diff = output.data;
-  $("#diff").handsontable('loadData',output.data);
-}
+   function showItem(name) {
+     $(".item").each(function() {
+       $(this).hide();
+     });
+     $("#" + name).show();
+     $(".control-item").each(function() {
+       $(this).removeClass('control-item-active');
+     });
+     $("#control-" + name).addClass('control-item-active');
+   }
 
-      var data_diff =  [
-	  [ "" ]
-      ];
+   $(".control-item").each(function() {
+     var self = $(this);
+     self.click(function() {
+       showItem(self.data("item"));
+       return false;
+     });
+   });
+   $(".show-item").each(function() {
+     var self = $(this);
+     self.click(function() {
+       showItem(self.data("item"));
+       return false;
+     });
+   });
+   showItem("item-diff");
 
-      var example = all_examples[0];
+   function load_table(t,data) {
+     t.length = 0;
+     for (var i=0; i < data.length; i++) {
+       t[i] = data[i].slice();
+     }
+   }
 
-      var data0 = [];
-      var data1 = [];
-      var data2 = [];
-      load_table(data0,example["parent"]);
-      load_table(data1,example["local"]);
-      load_table(data2,example["remote"]);
+   var use_parent = false;
+   function processChange(changes,source,table) {
+     if (source=="loadData") return;
+     var t1 = new daff.TableView(data1);
+     var t2 = new daff.TableView(data2);
+     t1.trim();
+     t2.trim();
+     var ct = null;
+     if (!use_parent) { 
+       ct = daff.compareTables(t1,t2);
+     } else {
+       var t0 = new daff.TableView(data0);
+       t0.trim();
+       ct = daff.compareTables3(t0,t1,t2);
+     }
+     var align = ct.align();
+     var order = align.toOrder();
+     var report = order.toString().replace(/, */g,"<br />\n");
+     $("#ordering").html(report);
+     var report2 = align.meta.toOrder().toString().replace(/, */g,"<br />\n");
+     $("#column_ordering").html(report2);
+     var output = new daff.TableView([]);
+     var flags = new daff.CompareFlags();
+     flags.show_unchanged = false;
+     flags.always_show_header = true;
+     (new daff.TableDiff(align,flags)).hilite(output);
+     data_diff = output.data;
+     $("#diff").handsontable('loadData',output.data);
+   }
 
-      function headerPromptRenderer(instance, td, row, col, prop, value, cellProperties) {
-	 Handsontable.TextCell.renderer.apply(this, arguments);
-	  if (row==0) {
-	      td.className = 'header';
-	  }
-      }
+   var data_diff =  [
+     [ "" ]
+   ];
 
-      $('#table0').handsontable({
-        data: data0,
-        minRows: 5,
-        minCols: 6,
-        minSpareRows: 1,
-        autoWrapRow: true,
-        colHeaders: false,
-        contextMenu: true,
-        height: 200,
-        asyncRendering: false,
-        onChange: function(changes,source) { processChange(changes,source,'table1'); },
-        cells: function (row, col, prop) {
-	    var cellProperties = {};
-            cellProperties.type = {
-		renderer: headerPromptRenderer
-	    }
-	    return cellProperties;
-	}
-      });
+   var example = all_examples[0];
 
-      $('#table1').handsontable({
-        data: data1,
-        minRows: 5,
-        minCols: 6,
-        minSpareRows: 1,
-        autoWrapRow: true,
-        colHeaders: false,
-        contextMenu: true,
-        height: 200,
-        asyncRendering: false,
-        onChange: function(changes,source) { processChange(changes,source,'table1'); },
-        cells: function (row, col, prop) {
-	    var cellProperties = {};
-            cellProperties.type = {
-		renderer: headerPromptRenderer
-	    }
-	    return cellProperties;
-	}
-      });
+   var data0 = [];
+   var data1 = [];
+   var data2 = [];
+   load_table(data0,example["parent"]);
+   load_table(data1,example["local"]);
+   load_table(data2,example["remote"]);
 
-      $('#table2').handsontable({
-        data: data2,
-        minRows: 5,
-        minCols: 6,
-        minSpareRows: 1,
-        autoWrapRow: true,
-        colHeaders: false,
-        contextMenu: true,
-        height: 200,
-        asyncRendering: false,
-        onChange: function(changes,source) { processChange(changes,source,'table2'); },
-        cells: function (row, col, prop) {
-	    var cellProperties = {};
-            cellProperties.type = {
-		renderer: headerPromptRenderer
-	    }
-	    return cellProperties;
-	}
-      });
+   function headerPromptRenderer(instance, td, row, col, prop, value, cellProperties) {
+     Handsontable.TextCell.renderer.apply(this, arguments);
+     if (row==0) {
+       td.className = 'header';
+     }
+   }
 
-      $('#diff').handsontable({
-        data: data_diff,
-        minRows: 1,
-        minCols: 1,
-        minSpareCols: 0,
-        minSpareRows: 0,
-        autoWrapRow: true,
-        colHeaders: false,
-          //contextMenu: true,
-   //height: 300,
-        asyncRendering: false,
-        cells: function (row, col, prop) {
-	    var cellProperties = {};
-            cellProperties.type = {
-		renderer: daff.diffRenderer
-	    }
-	    return cellProperties;
-	}
-      });
-      processChange(null,null,null);
+   $('#table0').handsontable({
+     data: data0,
+     minRows: 5,
+     minCols: 6,
+     minSpareRows: 1,
+     autoWrapRow: true,
+     colHeaders: false,
+     contextMenu: true,
+     height: 200,
+     asyncRendering: false,
+     onChange: function(changes,source) { processChange(changes,source,'table1'); },
+     cells: function (row, col, prop) {
+       var cellProperties = {};
+       cellProperties.type = {
+	 renderer: headerPromptRenderer
+       }
+       return cellProperties;
+     }
+   });
 
-$("#parent_checkbox").click(function() {
-  use_parent = $("#parent_checkbox")[0].checked;
-  if (use_parent) {
-    $("#control-item-parent").show();
-  } else {
-    $("#control-item-parent").hide();
-    $("#item-parent").hide();
-  }
-  processChange(null,null,null);
-  return true;
+   $('#table1').handsontable({
+     data: data1,
+     minRows: 5,
+     minCols: 6,
+     minSpareRows: 1,
+     autoWrapRow: true,
+     colHeaders: false,
+     contextMenu: true,
+     height: 200,
+     asyncRendering: false,
+     onChange: function(changes,source) { processChange(changes,source,'table1'); },
+     cells: function (row, col, prop) {
+       var cellProperties = {};
+       cellProperties.type = {
+	 renderer: headerPromptRenderer
+       }
+       return cellProperties;
+     }
+   });
+
+   $('#table2').handsontable({
+     data: data2,
+     minRows: 5,
+     minCols: 6,
+     minSpareRows: 1,
+     autoWrapRow: true,
+     colHeaders: false,
+     contextMenu: true,
+     height: 200,
+     asyncRendering: false,
+     onChange: function(changes,source) { processChange(changes,source,'table2'); },
+     cells: function (row, col, prop) {
+       var cellProperties = {};
+       cellProperties.type = {
+	 renderer: headerPromptRenderer
+       }
+       return cellProperties;
+     }
+   });
+
+   $('#diff').handsontable({
+     data: data_diff,
+     minRows: 1,
+     minCols: 1,
+     minSpareCols: 0,
+     minSpareRows: 0,
+     autoWrapRow: true,
+     colHeaders: false,
+     //contextMenu: true,
+     //height: 300,
+     asyncRendering: false,
+     cells: function (row, col, prop) {
+       var cellProperties = {};
+       cellProperties.type = {
+	 renderer: daff.diffRenderer
+       }
+       return cellProperties;
+     }
+   });
+   processChange(null,null,null);
+
+   $("#parent_checkbox").click(function() {
+     use_parent = $("#parent_checkbox")[0].checked;
+     if (use_parent) {
+       $("#control-item-parent").show();
+       $("#after-item-parent").show();
+     } else {
+       $("#control-item-parent").hide();
+       $("#after-item-parent").hide();
+       $("#item-parent").hide();
+     }
+     processChange(null,null,null);
+     return true;
+   });
+
+   function clear_table(t) {
+     t.length = 0;
+     t[0] = ["A","B","C"];
+     t[1] = ["","",""];
+     t[2] = ["","",""];
+   }
+
+   $("#button-clear").click(function() {
+     clear_table(data0);
+     clear_table(data1);
+     clear_table(data2);
+     $('#table0').handsontable('render');
+     $('#table1').handsontable('render');
+     $('#table2').handsontable('render');
+     processChange(null,null,null);
+     showItem("item-before");
+     return false;
+   });
+
+   $("#apply-diff").click(function() {
+     var t1 = new daff.TableView(data1);
+     t1.trim();
+     var patch = new daff.TableView(data_diff);
+     patch.trim();
+     var patcher = new daff.HighlightPatch(t1,patch);
+     patcher.apply();
+     if (use_parent) {
+       var t1 = new daff.TableView(data0);
+       t1.trim();
+       var patch = new daff.TableView(data_diff);
+       patch.trim();
+       var patcher = new daff.HighlightPatch(t1,patch);
+       patcher.apply();
+       $('#table0').handsontable('render');
+     }
+     $('#table1').handsontable('render');
+     processChange(null,null,null);
+     return false;
+   });
+
+   for (var i=0; i < all_examples.length; i++) {
+     var example = all_examples[i];
+     var id = "set_example_" + example["key"];
+     $(".demo-options").append("<span class='unit example'><input type=button id='" + id + "' value='" + example["key"] + " example' /></span>");
+     $("#" + id).click((function(example,id) { return function() {
+       load_table(data0,example["parent"]);
+       load_table(data1,example["local"]);
+       load_table(data2,example["remote"]);
+       $('#table0').handsontable('render');
+       $('#table1').handsontable('render');
+       $('#table2').handsontable('render');
+       processChange(null,null,null);
+       showItem("item-diff");
+       return false; 
+     }})(example,id));
+   }
 });
-
-function clear_table(t) {
-    t.length = 0;
-    t[0] = ["A","B","C"];
-    t[1] = ["","",""];
-    t[2] = ["","",""];
-}
-
-$("#button-clear").click(function() {
-    clear_table(data0);
-    clear_table(data1);
-    clear_table(data2);
-    $('#table0').handsontable('render');
-    $('#table1').handsontable('render');
-    $('#table2').handsontable('render');
-    processChange(null,null,null);
-    return false;
-});
-
-$("#apply-diff").click(function() {
-    var t1 = new daff.TableView(data1);
-    t1.trim();
-    var patch = new daff.TableView(data_diff);
-    patch.trim();
-    var patcher = new daff.HighlightPatch(t1,patch);
-    patcher.apply();
-    if (use_parent) {
-	var t1 = new daff.TableView(data0);
-	t1.trim();
-	var patch = new daff.TableView(data_diff);
-	patch.trim();
-	var patcher = new daff.HighlightPatch(t1,patch);
-	patcher.apply();
-	$('#table0').handsontable('render');
-    }
-    $('#table1').handsontable('render');
-    processChange(null,null,null);
-    return false;
-});
-
-for (var i=0; i < all_examples.length; i++) {
-    var example = all_examples[i];
-    var id = "set_example_" + example["key"];
-    $(".demo-options").append("<span class='unit'><input type=button id='" + id + "' value='" + example["key"] + " example' /></span>");
-    $("#" + id).click((function(example,id) { return function() {
-      load_table(data0,example["parent"]);
-      load_table(data1,example["local"]);
-      load_table(data2,example["remote"]);
-      $('#table0').handsontable('render');
-      $('#table1').handsontable('render');
-      $('#table2').handsontable('render');
-      processChange(null,null,null);
-      return false; 
-    }})(example,id));
-}
 
 </script>
 

@@ -36,6 +36,14 @@ html, body {
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   background: #eee;
+  margin-right: 10px;
+  border-bottom: none;
+}
+
+.control-menu { 
+  border: 1px solid #cfc;
+  border-bottom: none;
+  background: none;
 }
 
 a.control-item:hover {
@@ -43,11 +51,15 @@ a.control-item:hover {
   color: white;
 }
 
+#item-config {
+  padding-top: 1em;
+}
 
 .control-item-active { 
   color: white;
   background: #444;
   border: 1px solid black;
+  border-bottom: none;
 }
 
 .controls {
@@ -56,7 +68,7 @@ a.control-item:hover {
 
 .inter-control {
   display: inline-block;
-  width: 10px;
+  width: 1px;
   height: 10px;
   /* border-bottom: 1px solid black; */
   border-bottom: 1px solid #ccc;
@@ -76,12 +88,12 @@ a.control-item:hover {
 .top-info { 
   padding: 20px;
   margin: 0;
-  padding-bottom: 10px;
+  padding-bottom: 0px;
   background: #cfc;
 }
 
 .top-info h1 { 
-  font-family: Courier, mono;
+  font-family: Courier, mono, monospace;
   display: block;
   color: #8f8;
   font-size: 300%;
@@ -90,18 +102,15 @@ a.control-item:hover {
   text-shadow: 10px 10px 50px #f00, 0px 0px 2px #000, 1px 1px 1px #000;
 }
 
-.demo-options { 
-  padding: 20px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  margin: 0;              
-  margin-bottom: 20px;
-  background: #efe;
-  border-bottom: 3px solid #4f4;
+.demo-options .unit { 
+  display: block;
+  margin-bottom: 10px;
 }
 
-.demo-options .unit { 
-  padding-right: 20px;
+.demo-options .example { 
+  display: inline;
+  padding-right: 10px;
+  margin-bottom: 10px;
 }
 
 h2, h3 { 
