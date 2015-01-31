@@ -19,18 +19,12 @@
 
   <h1>daff</h1>
 
-  <p>
-  This is a library for comparing and &ldquo;patching&rdquo; tables.
-  Edit the tables below
-  to see it in action.
+  <p class="explain">
+  This is a library for comparing tables and incorporating changes.
+  Edit the examples below to see it live. It is available for
+  python, php, and other languages on <a href="https://github.com/paulfitz/daff">github</a>.
   </p>
 
-  <p>
-    The <a href="https://github.com/paulfitz/daff">daff</a>
-    library is based on the
-    <a href="https://github.com/paulfitz/coopy">coopy toolbox</a>,
-    and has been optimized for in-browser use.
-  </p>
 
 </div>
 <form class="demo-options">
@@ -39,45 +33,104 @@
 </form>
 
 
+<div id="main">
+<div id="controls">
+  <a href="#" id="control-item-parent" class="control-item" data-item="item-parent" style="display: none;">Ancestor</a><div class="inter-control">
+  </div><a href="#" id="control-item-before" class="control-item" data-item="item-before">Original table</a><div class="inter-control">
+  </div><a href="#" id="control-item-after" class="control-item" data-item="item-after">Modified table</a><div class="inter-control">
+  </div><a href="#" id="control-item-diff" class="control-item" data-item="item-diff">Difference</a><div class="inter-control">
+  </div>
+</div>
+
+<div id="items">
+
+  <div id="item-parent" class="item">
+    <div id="table0" class="tabular"></div>
+    <div class="explain">
+      You can edit this table. The <a class="show-item" data-item="item-diff" href="#">difference</a> will be recalculated immediately.  This table should be a common ancestor for the <a class="show-item" data-item="item-before" href="#">&ldquo;original&rdquo; table</a> and the <a class="show-item" data-item="item-after" href="#">modified table</a>.
+    </div>
+  </div>
+  
+  <div id="item-before" class="item">
+    <div id="table1" class="tabular"></div>
+    <div class="explain">
+      You can edit this table. The <a class="show-item" data-item="item-diff" href="#">difference</a> will be recalculated immediately.  We are using this as the original version of the table.  The difference will show the changes that were made in the <a class="show-item" data-item="item-after" href="#">modified table</a>.
+    </div>
+  </div>
+  <div id="item-after" class="item">
+    <div id="table2" class="tabular"></div>
+    <div class="explain">
+      You can edit this table. The <a class="show-item" data-item="item-diff" href="#">difference</a> will be recalculated immediately.  The difference will show the changes that were made in this table with respect to the <a class="show-item" data-item="item-before" href="#">original table</a>.
+    </div>
+  </div>
+  <div id="item-diff" class="item">
+    <div id="diff" class="highlighter tabular"></div>
+    <div class="explain">
+      <p>This shows the changes made in the <a class="show-item" data-item="item-before" href="#">modified table</a> with respect to the <a class="show-item" data-item="item-before" href="#">original table</a>.  The format used is the <a href="http://dataprotocols.org/tabular-diff-format/">highlighter tabular diff</a>.</p>
+      <p>You can collapse the diff down to nothing by
+      <a href="#" id="apply-diff">applying it to the original table</a>.
+      More usefully, you can edit the diff first before applying it.  Erasing
+      cells like &ldquo;<span class="plus">+++</span>&rdquo; or 
+      &ldquo;<span class="minus">---</span>&rdquo; means those changes won't get applied.
+      </p>
+      
+    </div>
+    <div class="alignment">
+      <h3>Row alignment</h3>
+      <div id="ordering"></div>
+    </div>
+    <div class="alignment">
+      <h3>Column alignment</h3>
+      <div id="column_ordering"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function showItem(name) {
+   $(".item").each(function() {
+     $(this).hide();
+   });
+   $("#" + name).show();
+   $(".control-item").each(function() {
+     $(this).removeClass('control-item-active');
+   });
+   $("#control-" + name).addClass('control-item-active');
+ }
+$(function() {
+   $(".control-item").each(function() {
+     var self = $(this);
+     self.click(function() {
+       showItem(self.data("item"));
+       return false;
+     });
+   });
+   $(".show-item").each(function() {
+     var self = $(this);
+     self.click(function() {
+       showItem(self.data("item"));
+       return false;
+     });
+   });
+   showItem("item-diff");
+});
+</script>
+
 <table id="pane-collection">
 
   <tr>
     <td id="table-pane">
       <div class="pane-show">
-	<div id="block0" style="display: none;">
-	  <h3>Common ancestor of revised and original</h3>
-	  <div id="table0" class="tabular"></div>
-	</div>
 	<div id="block1">
-	  <h3>Original version of table</h3>
-	  <div id="table1" class="tabular"></div>
 	</div>
 	<div id="block2">
-	  <h3>Revised version of table</h3>
-	  <div id="table2" class="tabular"></div>
 	</div>
       </div>
     </td>
     
     <td id="result-pane">
       <div class="pane-show">
-	<h3>Highlighter difference</h3>
-	<p>
-	The difference between the tables is computed
-	using <tt>daff</tt> and shown in
-	<a href="http://share.find.coop/doc/spec_hilite.html">highlighter diff format</a>.
-	</p>
-	<form><input type=button id="apply-diff" value="Apply diff to original" /></form>
-	<div id="diff" class="highlighter tabular"></div>
-	<div class="alignment">
-	  <h3>Row alignment</h3>
-	  <div id="ordering"></div>
-	</div>
-	<div class="alignment">
-  	  <h3>Column alignment</h3>
-	  <div id="column_ordering"></div>
-	</div>
-      </div>
     </td>
   </tr>
 
@@ -211,7 +264,7 @@ function processChange(changes,source,table) {
         autoWrapRow: true,
         colHeaders: false,
           //contextMenu: true,
-        height: 300,
+   //height: 300,
         asyncRendering: false,
         cells: function (row, col, prop) {
 	    var cellProperties = {};
@@ -226,9 +279,10 @@ function processChange(changes,source,table) {
 $("#parent_checkbox").click(function() {
   use_parent = $("#parent_checkbox")[0].checked;
   if (use_parent) {
-    $("#block0").show();
+    $("#control-item-parent").show();
   } else {
-    $("#block0").hide();
+    $("#control-item-parent").hide();
+    $("#item-parent").hide();
   }
   processChange(null,null,null);
   return true;
@@ -276,7 +330,7 @@ $("#apply-diff").click(function() {
 for (var i=0; i < all_examples.length; i++) {
     var example = all_examples[i];
     var id = "set_example_" + example["key"];
-    $(".demo-options").append("<span class='unit'><input type=button id='" + id + "' value='load example: " + example["key"] + "' /></span>");
+    $(".demo-options").append("<span class='unit'><input type=button id='" + id + "' value='" + example["key"] + " example' /></span>");
     $("#" + id).click((function(example,id) { return function() {
       load_table(data0,example["parent"]);
       load_table(data1,example["local"]);
