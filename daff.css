@@ -35,13 +35,16 @@ html, body {
   color: #000;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
-  background: #eee;
+  background-color: #eee;
+  background-image: -webkit-linear-gradient(#fcfcfc, #eee);
+  background-image: linear-gradient(#fcfcfc, #eee);
+  background-repeat: repeat-x;
   margin-right: 10px;
   border-bottom: none;
 }
 
 .control-menu { 
-  border: 1px solid #cfc;
+  border: none;
   border-bottom: none;
   background: none;
 }
@@ -57,9 +60,10 @@ a.control-item:hover {
 
 .control-item-active { 
   color: white;
-  background: #444;
-  border: 1px solid black;
-  border-bottom: none;
+  background-color: #444;
+  background-image: -webkit-linear-gradient(#444, #222);
+  background-image: linear-gradient(#444, #222);
+  background-repeat: repeat-x;
 }
 
 .control-item-mod { 
@@ -82,17 +86,20 @@ a.control-item:hover {
   padding: 20px;
   margin: 0;
   padding-bottom: 0px;
-  background: #cfc;
+  background-color: #eee;
+  background-image: -webkit-linear-gradient(#fcfcfc, #eee);
+  background-image: linear-gradient(#fcfcfc, #eee);
+  background-repeat: repeat-x;
 }
 
 .top-info h1 { 
-  font-family: Courier, mono, monospace;
+  font-family: Courier, "Courier New", mono, monospace;
   display: block;
   color: #8f8;
   font-size: 300%;
   padding: 0;
   margin: 0;
-  text-shadow: 10px 10px 50px #f00, 0px 0px 2px #000, 1px 1px 1px #000;
+  text-shadow: 10px 10px 30px #88f, 0px 0px 2px #000, 1px 1px 1px #f00;
 }
 
 .demo-options .unit { 
