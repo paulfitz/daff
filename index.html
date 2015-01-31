@@ -1,5 +1,8 @@
+<!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <title>daff - data diffs in javascript, ruby, python, php, ...</title>
 <script src="lib/jquery.min.js"></script>
 <script src="dist/jquery.handsontable.full.js"></script>
@@ -29,9 +32,9 @@
 <div id="controls">
   <a href="#" id="control-item-config" class="control-item control-menu" data-item="item-config"><b>&equiv;</b></a>
   <a href="#" id="control-item-parent" class="control-item" data-item="item-parent" style="display: none;">Ancestor</a>
-  <a href="#" id="control-item-before" class="control-item" data-item="item-before">Original table</a>
-  <a href="#" id="control-item-after" class="control-item" data-item="item-after">Modified table</a>
-  <a href="#" id="control-item-diff" class="control-item" data-item="item-diff">Difference</a>
+  <a href="#" id="control-item-before" class="control-item" data-item="item-before">Original<span class="verbosity"> table</span></a>
+  <a href="#" id="control-item-after" class="control-item" data-item="item-after">Modified<span class="verbosity">  table</span></a>
+  <a href="#" id="control-item-diff" class="control-item" data-item="item-diff">Diff<span class="verbosity">erence</span></a>
 </div>
 
 </div>
