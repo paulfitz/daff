@@ -115,6 +115,13 @@ $(function() {
        $(this).removeClass('control-item-active');
      });
      $("#control-" + name).addClass('control-item-active');
+     $("#control-" + name).removeClass('control-item-mod');
+   }
+
+   function flagItem(name) {
+     if (!$("#control-" + name).hasClass('control-item-active')) {
+       $("#control-" + name).addClass('control-item-mod');
+     }
    }
 
    $(".control-item").each(function() {
@@ -168,6 +175,7 @@ $(function() {
      (new daff.TableDiff(align,flags)).hilite(output);
      data_diff = output.data;
      $("#diff").handsontable('loadData',output.data);
+     flagItem("item-diff");
    }
 
    var data_diff =  [
@@ -280,6 +288,7 @@ $(function() {
        $("#item-parent").hide();
      }
      processChange(null,null,null);
+     flagItem("item-parent");
      return true;
    });
 
@@ -304,7 +313,9 @@ $(function() {
      $('#table1').handsontable('render');
      $('#table2').handsontable('render');
      processChange(null,null,null);
-     showItem("item-before");
+     flagItem("item-before");
+     flagItem("item-after");
+     flagItem("item-parent");
      return false;
    });
 
@@ -326,6 +337,7 @@ $(function() {
      }
      $('#table1').handsontable('render');
      processChange(null,null,null);
+     flagItem("item-before");
      return false;
    });
 
@@ -342,6 +354,9 @@ $(function() {
        $('#table2').handsontable('render');
        processChange(null,null,null);
        showItem("item-diff");
+       flagItem("item-before");
+       flagItem("item-after");
+       flagItem("item-parent");
        return false; 
      }})(example,id));
    }

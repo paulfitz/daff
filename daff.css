@@ -62,6 +62,10 @@ a.control-item:hover {
   border-bottom: none;
 }
 
+.control-item-mod { 
+  font-weight: bold;
+}
+
 .controls {
   vertical-align:bottom; 
 }
