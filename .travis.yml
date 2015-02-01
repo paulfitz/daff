@@ -42,3 +42,4 @@ script:
   - if ! $USE_PAULFITZ; then make ntest_java; fi
   - if $USE_PAULFITZ; then make ntest_py; fi
   - if $USE_PAULFITZ; then make ntest_rb; fi
+  - ./test/integration_git.sh
