@@ -86,15 +86,16 @@ if (typeof exports != "undefined") {
 		    return run_daff_base(main,args);
 		});
 	    }
-	} else {
-	    return code;
-	}
+	} 
+	return code;
     }
     
     exports.run_daff_main = function() {
 	var main = new exports.Coopy();
 	var code = run_daff_base(main,process.argv.slice(2));
-	process.exit(code);
+	if (code!=999) {
+	    process.exit(code);
+	}
     }
 
     exports.cmd = function(args) {
