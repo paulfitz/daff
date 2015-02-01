@@ -17,16 +17,19 @@
 
 <body>
 
-<a href="https://github.com/paulfitz/daff"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub"></a>
-
 <div class="top-info">
 
+<div class="source-link">
+<a class="github-button" href="https://github.com/paulfitz/daff" data-count-href="/paulfitz/daff/stargazers" data-count-api="/repos/paulfitz/daff#stargazers_count">Github</a>
+</div>
+  
   <h1>daff</h1>
 
   <p class="explain">
     Ever wanted to compare tables as easily as you compare code?
     <tt class="daff">daff</tt> (think &ldquo;data diff&rdquo;) is for you.
-  </p>
+    Here's a live example.
+  <p>
   
 <div id="controls">
   <a href="#" id="control-item-config" class="control-item control-menu" data-item="item-config"><b>&equiv;</b></a>
@@ -84,6 +87,7 @@
   </div>
 </div>
 
+<div class="section">
 <h2>Installation</h2>
 
 <div class='terminal'>
@@ -96,19 +100,41 @@
 <p class="explain">
   For more options and languages, see <a href="https://github.com/paulfitz/daff">github repository</a>.
 </p>
+</div>
 
-
+<div class="section">
 <h2>Using with git</h2>
 
 <p class="explain">
 
   Do you have a git repository with <tt>.csv</tt> files in it?  You
-  can make git diffs and merges table-aware using <tt class="daff">daff</tt>.
+  can make git diffs and merges table-aware using <tt>daff</tt>.
+  To see how, run:
 
 </p>
 
 <div class="terminal">
+  <div class="snip">daff git</div>
+</div>
+
+<p class="explain">
+  To set everything up automatically, run:
+</p>
+
+<div class="terminal">
   <div class="snip">daff git csv</div>
+</div>
+
+<p class="explain">
+  <tt>daff</tt> will explain everything it is doing.  Once that is done,
+  <tt>git diff</tt> will become more useful for <tt>.csv</tt> differences:
+</p>
+
+<a href="https://github.com/theodi/test-data/commit/9f391e6e35963b96aa0eed56c20ccd70f326e1f7"><img src="images/diff.png" /></a>
+
+<p class="explain">
+You can get the same results online on github using <a href="http://floppy.org.uk/">Floppy</a>'s <a href="https://github.com/theodi/csvhub">csvhub</a> chrome extension.
+</p>
 </div>
 
 </div>
@@ -373,6 +399,8 @@ $(function() {
 });
 
 </script>
+
+<script async defer id="github-bjs" src="buttons.js"></script>
 
 </body>
 </html>

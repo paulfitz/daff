@@ -7,12 +7,19 @@ html, body {
 #main {
   margin-left: 1em;
   margin-right: 1em;
+  padding-bottom: 3em;
 }
 
 #items { 
   table-layout: fixed;
   padding-top: 0;
   margin-top: 0;
+}
+
+#items, .section {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 2em;
 }
 
 #controls {
@@ -114,7 +121,9 @@ a.control-item:hover {
 }
 
 h2, h3 { 
-  color: #422;
+  font-weight: bold;
+  color: #8f8;
+  text-shadow: 2px 2px 5px #88f, 0px 0px 2px #000, 1px 1px 1px #f00;
 }
 
 .alignment { 
@@ -177,4 +186,9 @@ tt.daff {
   font-weight: bold;
   color: #8f8;
   text-shadow: 2px 2px 5px #88f, 0px 0px 2px #000, 1px 1px 1px #f00;
+}
+
+.source-link { 
+  display: float;
+  float: right;
 }
