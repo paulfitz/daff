@@ -24,12 +24,10 @@
   <h1>daff</h1>
 
   <p class="explain">
-  This is a library for comparing tables and incorporating changes.
-  Edit the examples below to see it live. It is available for
-  javascript, ruby, python, php, and other languages on <a href="https://github.com/paulfitz/daff">github</a>.
+    Ever wanted to compare tables as easily as you compare code?
+    <tt class="daff">daff</tt> (think &ldquo;data diff&rdquo;) is for you.
   </p>
-
-
+  
 <div id="controls">
   <a href="#" id="control-item-config" class="control-item control-menu" data-item="item-config"><b>&equiv;</b></a>
   <a href="#" id="control-item-parent" class="control-item" data-item="item-parent" style="display: none;">Ancestor</a>
@@ -85,27 +83,35 @@
     </div>
   </div>
 </div>
+
+<h2>Installation</h2>
+
+<div class='terminal'>
+  <div class='snip snip-alt'>npm install daff -g</div>
+  <div class='snip snip-alt'>pip install daff</div>
+  <div class='snip snip-alt'>gem install daff</div>
+  <div class='snip'>composer require paulfitz/daff-php</div>
 </div>
 
-<table id="pane-collection">
+<p class="explain">
+  For more options and languages, see <a href="https://github.com/paulfitz/daff">github repository</a>.
+</p>
 
-  <tr>
-    <td id="table-pane">
-      <div class="pane-show">
-	<div id="block1">
-	</div>
-	<div id="block2">
-	</div>
-      </div>
-    </td>
-    
-    <td id="result-pane">
-      <div class="pane-show">
-    </td>
-  </tr>
 
-</table>
+<h2>Using with git</h2>
 
+<p class="explain">
+
+  Do you have a git repository with <tt>.csv</tt> files in it?  You
+  can make git diffs and merges table-aware using <tt class="daff">daff</tt>.
+
+</p>
+
+<div class="terminal">
+  <div class="snip">daff git csv</div>
+</div>
+
+</div>
 
 <script>
 $(function() {

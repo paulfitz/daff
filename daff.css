@@ -1,7 +1,7 @@
 html, body { 
   margin: 0px;
   padding: 0px;
-  font-family: Sans-serif;             
+  font-family: Sans-serif;
 }
 
 #main {
@@ -114,7 +114,7 @@ a.control-item:hover {
 }
 
 h2, h3 { 
-  color: green;
+  color: #422;
 }
 
 .alignment { 
@@ -129,10 +129,52 @@ h2, h3 {
   font-size: 80%;
 }
 
+.top-info .explain {
+  margin-top: 0px;
+  font-size: 100%;
+}
+
 #forkongithub a{background:#000;color:#fff;text-decoration:none;font-family:arial, sans-serif;text-align:center;font-weight:bold;padding:5px 40px;font-size:1rem;line-height:2rem;position:relative;transition:0.5s;}#forkongithub a:hover{background:#060;color:#fff;}#forkongithub a::before,#forkongithub a::after{content:"";width:100%;display:block;position:absolute;top:1px;left:0;height:1px;background:#fff;}#forkongithub a::after{bottom:1px;top:auto;}@media screen and (min-width:800px){#forkongithub{position:absolute;display:block;top:0;right:0;width:200px;overflow:hidden;height:200px;}#forkongithub a{width:200px;position:absolute;top:60px;right:-60px;transform:rotate(45deg);-webkit-transform:rotate(45deg);box-shadow:4px 4px 10px rgba(0,0,0,0.8);}}
 
 @media screen and (max-width: 500px) {
   .verbosity {
     display: none;
   }
+}
+
+.terminal { 
+  font-family: Courier, "Courier New", mono, monospace;
+  font-size: 90%;
+  display: table;
+  background: #311;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.snip:before { 
+  content: "$ ";
+  color: #B44;
+}
+
+.snip-alt:after { 
+  content: " or";
+  font-style: italic;
+  color: #faa;
+  margin-left: 3px;
+}
+
+.install { 
+  display: table-row;
+}
+
+tt {
+  font-family: Courier, "Courier New", mono, monospace;
+}
+
+tt.daff {
+  font-weight: bold;
+  color: #8f8;
+  text-shadow: 2px 2px 5px #88f, 0px 0px 2px #000, 1px 1px 1px #f00;
 }
