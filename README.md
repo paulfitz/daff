@@ -220,6 +220,11 @@ API documentation
 
  * You can browse the `daff` classes at http://paulfitz.github.io/daff-doc/
 
+Sponsors
+--------
+
+The [Data Commons Co-op](http://datacommons.coop),  "perhaps the geekiest of all cooperative organizations on the planet," has given great moral support during the initial development of `daff`. There's currently no financial support for `daff`. You could change that! [![tips](https://img.shields.io/gratipay/paulfitz.svg)](https://gratipay.com/paulfitz/)
+
 Reading material
 ----------------
 
