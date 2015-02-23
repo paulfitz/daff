@@ -22,6 +22,7 @@ npm install daff -g  # node/javascript
 pip install daff     # python
 gem install daff     # ruby
 composer require paulfitz/daff-php  # php
+install.packages('daff') # R wrapper by Edwin de Jonge
 ````
 
 Other translations are available here:
@@ -214,6 +215,11 @@ make cpp
 For each language, the `daff` library expects to be handed an interface to tables you create, rather than creating them
 itself.  This is to avoid inefficient copies from one format to another.  You'll find a `SimpleTable` class you can use if
 you find this awkward.
+
+Other possibilities:
+
+ * There's a daff wrapper for R written by [Edwin de Jonge](https://github.com/edwindj), see https://github.com/edwindj/daff and http://cran.r-project.org/web/packages/daff
+ * There's a hand-written ruby port by [James Smith](https://github.com/Floppy), see https://github.com/theodi/coopy-ruby
 
 API documentation
 -----------------
