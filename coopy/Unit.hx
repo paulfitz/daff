@@ -100,4 +100,27 @@ class Unit {
         }
         return false;
     }
+
+    private function base26(num: Int) : String {
+        // thanks @jordigh
+        var alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        if (num<0) return "-";
+        var out = "";
+        do {
+            out = out + alpha.charAt(num % 26);
+            num = Math.floor(num / 26) - 1;
+        } while (num>=0);
+        return out;
+    }
+
+    /**
+     *
+     * @return as for toString(), but representing row/column numbers
+     * as A,B,C,D,...,AA,AB,AC,AD,....
+     *
+     */
+    public function toBase26String() : String {
+        if (p>=-1) return base26(p) + "|" + base26(l) + ":" + base26(r);
+        return base26(l) + ":" + base26(r);
+    }
 }

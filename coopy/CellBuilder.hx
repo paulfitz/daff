@@ -109,8 +109,10 @@ interface CellBuilder {
      *
      * @param unit the desired relationship, in terms of a local row/column number, a remote row/column number and when present a parent row/column number
      *
+     * @param row_like true if working with rows, false if working with columns
+     *
      * @return a cell representing the numeric relationship between a row/column
      *
      */
-    function links(unit: Unit) : Dynamic;
+    function links(unit: Unit, row_like: Bool) : Dynamic;
 }

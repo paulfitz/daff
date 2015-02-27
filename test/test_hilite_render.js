@@ -31,9 +31,15 @@ options.always_show_order = true;
 options.never_show_order = false;
 checkMatch("data/bridges_diff_show_index.html",align,options);
 
+options.count_like_a_spreadsheet = false;
+checkMatch("data/bridges_diff_show_index_ncol.html",align,options);
+options.count_like_a_spreadsheet = true;
+
 var broken_bridges_without_length = broken_bridges.clone();
 new coopy.TableModifier(broken_bridges_without_length).removeColumn(2);
 ct = new coopy.compareTables(broken_bridges_without_length,bridges);
 align = ct.align();
 checkMatch("data/bridges_diff_add_column.html",align,options);
 
+options.count_like_a_spreadsheet = false;
+checkMatch("data/bridges_diff_add_column_ncol.html",align,options);
