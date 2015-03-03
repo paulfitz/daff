@@ -333,6 +333,11 @@ class HighlightPatch implements Row {
         var offset : Int = 0;
         var last : Int = -1;
         var target : Int = 0;
+        if (rmods.length>0) {
+            if (rmods[0].sourcePrevRow == -1) {
+                last = 0;
+            }
+        }
         for (mod in rmods) {
             if (last!=-1) {
                 for (i in last...(mod.sourceRow+mod.sourceRowOffset)) {

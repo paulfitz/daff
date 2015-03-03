@@ -184,7 +184,13 @@ class CompareTable {
                     }
                     columns_eval.push([i,ct]);
                 }
-                var sorter = function(a,b) { if (a[1]<b[1]) return 1; if (a[1]>b[1]) return -1; return 0; }
+                var sorter = function(a,b) {
+                    if (a[1]<b[1]) return 1;
+                    if (a[1]>b[1]) return -1;
+                    if (a[0]>b[0]) return 1;
+                    if (a[0]<b[0]) return -1;
+                    return 0;
+                }
                 columns_eval.sort(sorter);
                 columns = Lambda.array(Lambda.map(columns_eval, function(v) { return v[0]; }));
                 columns = columns.slice(0,N);

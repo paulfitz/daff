@@ -7,7 +7,7 @@ class PythonCellView(View):
         return str(d)
 
     def equals(self,d1,d2):
-        return d1 == d2
+        return str(d1) == str(d2)
 
     def toDatum(self,d):
         return d
