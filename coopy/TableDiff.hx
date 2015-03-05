@@ -15,6 +15,44 @@ class TableDiff {
     private var flags : CompareFlags;
     private var builder : CellBuilder;
 
+    private var row_map : Map<Int,Unit>;
+    private var col_map : Map<Int,Unit>;
+    private var has_parent : Bool;
+    private var a : Table;
+    private var b : Table;
+    private var p : Table;
+    private var rp_header : Int;
+    private var ra_header : Int;
+    private var rb_header : Int;
+    private var is_index_p : Map<Int,Bool>;
+    private var is_index_a : Map<Int,Bool>;
+    private var is_index_b : Map<Int,Bool>;
+
+    private var order : Ordering;
+    private var row_units : Array<Unit>;
+    private var column_units : Array<Unit>;
+
+    private var show_rc_numbers : Bool;
+    private var row_moves : Map<Int,Int>;
+    private var col_moves : Map<Int,Int>;
+
+    private var active_row : Array<Int>;
+    private var active_column : Array<Int>;
+
+    private var allow_insert : Bool;
+    private var allow_delete : Bool;
+    private var allow_update : Bool;
+
+    private var v : View;
+
+    private var sep : String;
+    private var conflict_sep : String;
+
+    private var schema : Array<String>;
+    private var have_schema : Bool;
+
+    private var top_line_done : Bool;
+
     /**
      *
      * Constructor.
@@ -192,41 +230,27 @@ class TableDiff {
         return ct;
     }
 
-    /**
-     *
-     * Generate a highlighter diff.
-     * @param output the table in which to place the diff - it can then
-     * be converted to html using `DiffRender`
-     * @return true on success
-     *
-     */
-    public function hilite(output: Table) : Bool { 
-        if (!output.isResizable()) return false;
-        if (builder==null) {
-            if (flags.allow_nested_cells) {
-                builder = new NestedCellBuilder();
-            } else {
-                builder = new FlatCellBuilder();
-            }
-        }
-        output.resize(0,0);
-        output.clear();
+    private function reset() {
+        has_parent = false;
+        rp_header = ra_header = rb_header = 0;
+        is_index_p = new Map<Int,Bool>();
+        is_index_a = new Map<Int,Bool>();
+        is_index_b = new Map<Int,Bool>();
+        row_map = new Map<Int,Unit>();
+        col_map = new Map<Int,Unit>();
+        show_rc_numbers = false;
+        row_moves = null;
+        col_moves = null;
+        allow_insert = allow_delete = allow_update = true;
+        sep = "";
+        conflict_sep = "";
+        top_line_done = false;
+    }
 
-        var row_map : Map<Int,Unit> = new Map<Int,Unit>();
-        var col_map : Map<Int,Unit> = new Map<Int,Unit>();
-
-        var order : Ordering = align.toOrder();
-        var units : Array<Unit> = order.getList();
-        var has_parent : Bool = (align.reference != null);
-        var a : Table;
-        var b : Table;
-        var p : Table;
-        var rp_header : Int = 0;
-        var ra_header : Int = 0;
-        var rb_header : Int = 0;
-        var is_index_p : Map<Int,Bool> = new Map<Int,Bool>();
-        var is_index_a : Map<Int,Bool> = new Map<Int,Bool>();
-        var is_index_b : Map<Int,Bool> = new Map<Int,Bool>();
+    private function setupTables() : Void {
+        order = align.toOrder();
+        row_units = order.getList();
+        has_parent = (align.reference != null);
         if (has_parent) {
             p = align.getSource();
             a = align.reference.getTarget();
@@ -261,14 +285,47 @@ class TableDiff {
             }
         }
 
-        var column_order : Ordering = align.meta.toOrder();
-        var column_units : Array<Unit> = column_order.getList();
+        allow_insert = flags.allowInsert();
+        allow_delete = flags.allowDelete();
+        allow_update = flags.allowUpdate();
 
-        var p_ignore = new Map<Int,Bool>();
-        var a_ignore = new Map<Int,Bool>();
-        var b_ignore = new Map<Int,Bool>();
+        v = a.getCellView();
+        builder.setView(v);
+    }
+
+    private function scanActivity() {
+        active_row = new Array<Int>();
+        active_column = null;
+        if (!flags.show_unchanged) {
+            for (i in 0...row_units.length) {
+                // flip assignment order for php efficiency :-)
+                active_row[row_units.length-1-i] = 0;
+            }
+        }
+
+        if (!flags.show_unchanged_columns) {
+            active_column = new Array<Int>();
+            for (i in 0...column_units.length) {
+                var v : Int = 0;
+                var unit : Unit = column_units[i];
+                if (unit.l>=0 && is_index_a.get(unit.l)) v = 1;
+                if (unit.r>=0 && is_index_b.get(unit.r)) v = 1;
+                if (unit.p>=0 && is_index_p.get(unit.p)) v = 1;
+                active_column[i] = v;
+            }
+        }
+    }
+
+
+    private function setupColumns() {
+        var column_order : Ordering = align.meta.toOrder();
+        column_units = column_order.getList();
+
         var ignore = flags.getIgnoredColumns();
         if (ignore!=null) {
+            var p_ignore = new Map<Int,Bool>();
+            var a_ignore = new Map<Int,Bool>();
+            var b_ignore = new Map<Int,Bool>();
             setIgnore(ignore,p_ignore,p,rp_header);
             setIgnore(ignore,a_ignore,a,ra_header);
             setIgnore(ignore,b_ignore,b,rb_header);
@@ -283,13 +340,12 @@ class TableDiff {
             }
             column_units = ncolumn_units;
         }
+    }
 
-        var show_rc_numbers : Bool = false;
-        var row_moves : Map<Int,Int> = null;
-        var col_moves : Map<Int,Int> = null;
+    private function setupMoves() {
         if (flags.ordered) {
             row_moves = new Map<Int,Int>();
-            var moves : Array<Int> = Mover.moveUnits(units);
+            var moves : Array<Int> = Mover.moveUnits(row_units);
             for (i in 0...moves.length) {
                 row_moves[moves[i]] = i;
             }
@@ -299,43 +355,11 @@ class TableDiff {
                 col_moves[moves[i]] = i;
             }
         }
+    }
 
-        var active : Array<Int> = new Array<Int>();
-        var active_column : Array<Int> = null;
-        if (!flags.show_unchanged) {
-            for (i in 0...units.length) {
-                // flip assignment order for php efficiency :-)
-                active[units.length-1-i] = 0;
-            }
-        }
-
-        var allow_insert : Bool = flags.allowInsert();
-        var allow_delete : Bool = flags.allowDelete();
-        var allow_update : Bool = flags.allowUpdate();
-
-        if (!flags.show_unchanged_columns) {
-            active_column = new Array<Int>();
-            for (i in 0...column_units.length) {
-                var v : Int = 0;
-                var unit : Unit = column_units[i];
-                if (unit.l>=0 && is_index_a.get(unit.l)) v = 1;
-                if (unit.r>=0 && is_index_b.get(unit.r)) v = 1;
-                if (unit.p>=0 && is_index_p.get(unit.p)) v = 1;
-                active_column[i] = v;
-            }
-        }
-
-        var v : View = a.getCellView();
-        builder.setView(v);
-
-        var outer_reps_needed : Int = 
-            (flags.show_unchanged&&flags.show_unchanged_columns) ? 1 : 2;
-
-        var sep : String = "";
-        var conflict_sep : String = "";
-
-        var schema : Array<String> = new Array<String>();
-        var have_schema : Bool = false;
+    private function scanSchema() {
+        schema = new Array<String>();
+        have_schema = false;
         for (j in 0...column_units.length) {
             var cunit : Unit = column_units[j];
             var reordered : Bool = false;
@@ -383,6 +407,97 @@ class TableDiff {
 
             schema.push(act);
         }
+    }
+
+    private function checkRcNumbers(w: Int, h: Int) {
+        // add row/col numbers?
+        if (!show_rc_numbers) {
+            if (flags.always_show_order) {
+                show_rc_numbers = true;
+            } else if (flags.ordered) {
+                show_rc_numbers = isReordered(row_map,h);
+                if (!show_rc_numbers) {
+                    show_rc_numbers = isReordered(col_map,w);
+                }
+            }
+        }
+    }
+
+    private function addRcNumbers(output: Table) : Int {
+        var admin_w : Int = 1;
+        if (show_rc_numbers&&!flags.never_show_order) {
+            admin_w++;
+            var target : Array<Int> = new Array<Int>();
+            for (i in 0...output.width) {
+                target.push(i+1);
+            }
+            output.insertOrDeleteColumns(target,output.width+1);
+
+            for (i in 0...output.height) {
+                var unit : Unit = row_map.get(i);
+                if (unit==null) {
+                    output.setCell(0,i,"");
+                    continue;
+                }
+                output.setCell(0,i,builder.links(unit));
+            }
+            target = new Array<Int>();
+            for (i in 0...output.height) {
+                target.push(i+1);
+            }
+            output.insertOrDeleteRows(target,output.height+1);
+            for (i in 1...output.width) {
+                var unit : Unit = col_map.get(i-1);
+                if (unit==null) {
+                    output.setCell(i,0,"");
+                    continue;
+                }
+                output.setCell(i,0,builder.links(unit));
+            }
+            output.setCell(0,0,builder.marker("@:@"));
+        }
+        return admin_w;
+    }
+
+    private function elideColumns(output: Table, admin_w: Int) {
+        if (active_column!=null) {
+            var all_active : Bool = true;
+            for (i in 0...active_column.length) {
+                if (active_column[i]==0) {
+                    all_active = false;
+                    break;
+                }
+            }
+            if (!all_active) {
+                var fate : Array<Int> = new Array<Int>();
+                for (i in 0...admin_w) {
+                    fate.push(i);
+                }
+                var at : Int = admin_w;
+                var ct : Int = 0;
+                var dots : Array<Int> = new Array<Int>();
+                for (i in 0...active_column.length) {
+                    var off : Bool = (active_column[i]==0);
+                    ct = off ? (ct+1) : 0;
+                    if (off && ct>1) {
+                        fate.push(-1);
+                    } else {
+                        if (off) dots.push(at);
+                        fate.push(at);
+                        at++;
+                    }
+                }
+                output.insertOrDeleteColumns(fate,at);
+                for (d in dots) {
+                    for (j in 0...output.height) {
+                        output.setCell(d,j,builder.marker("..."));
+                    }
+                }
+            }
+        }
+    }
+
+    private function addSchema(output: Table) {
         if (have_schema) {
             var at : Int = output.height;
             output.resize(column_units.length+1,at+1);
@@ -391,8 +506,9 @@ class TableDiff {
                 output.setCell(j+1,at,v.toDatum(schema[j]));
             }
         }
+    }
 
-        var top_line_done : Bool = false;
+    private function addHeader(output: Table) {
         if (flags.always_show_header) {
             var at : Int = output.height;
             output.resize(column_units.length+1,at+1);
@@ -415,6 +531,53 @@ class TableDiff {
             top_line_done = true;
         }
 
+    }
+
+    private function refineActivity() {
+        spreadContext(row_units,flags.unchanged_context,active_row);
+        spreadContext(column_units,flags.unchanged_column_context,
+                      active_column);
+        if (active_column!=null) {
+            for (i in 0...column_units.length) {
+                if (active_column[i]==3) {
+                    active_column[i] = 0;
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * Generate a highlighter diff.
+     * @param output the table in which to place the diff - it can then
+     * be converted to html using `DiffRender`
+     * @return true on success
+     *
+     */
+    public function hilite(output: Table) : Bool { 
+        if (!output.isResizable()) return false;
+        if (builder==null) {
+            if (flags.allow_nested_cells) {
+                builder = new NestedCellBuilder();
+            } else {
+                builder = new FlatCellBuilder();
+            }
+        }
+        output.resize(0,0);
+        output.clear();
+
+        reset();
+        setupTables();
+        setupColumns();
+        setupMoves();
+        scanActivity();
+        scanSchema();
+        addSchema(output);
+        addHeader(output);
+
+        var outer_reps_needed : Int = 
+            (flags.show_unchanged&&flags.show_unchanged_columns) ? 1 : 2;
+
 #if php
         // Under PHP, it is going to be better to repeat the loop,
         // so we don't end up resizing our table bit by bit - this is 
@@ -427,17 +590,8 @@ class TableDiff {
         // If we are dropping unchanged rows/cols, we repeat this loop twice.
         for (out in 0...outer_reps_needed) {
             if (out==1) {
-                spreadContext(units,flags.unchanged_context,active);
-                spreadContext(column_units,flags.unchanged_column_context,
-                              active_column);
-                if (active_column!=null) {
-                    for (i in 0...column_units.length) {
-                        if (active_column[i]==3) {
-                            active_column[i] = 0;
-                        }
-                    }
-                }
-                var rows : Int = countActive(active)+output_height_init;
+                refineActivity();
+                var rows : Int = countActive(active_row)+output_height_init;
                 if (top_line_done) rows--;
                 output_height = output_height_init;
                 if (rows>output.height) {
@@ -448,8 +602,8 @@ class TableDiff {
             var showed_dummy : Bool = false;
             var l : Int = -1;
             var r : Int = -1;
-            for (i in 0...units.length) {
-                var unit : Unit = units[i];
+            for (i in 0...row_units.length) {
+                var unit : Unit = row_units[i];
                 var reordered : Bool = false;
 
                 if (flags.ordered) {
@@ -470,8 +624,8 @@ class TableDiff {
                 var publish : Bool = flags.show_unchanged;
                 var dummy : Bool = false;
                 if (out==1) {
-                    publish = active[i]>0;
-                    dummy = active[i]==3;
+                    publish = active_row[i]>0;
+                    dummy = active_row[i]==3;
                     if (dummy&&showed_dummy) continue;
                     if (!publish) continue;
                 }
@@ -507,8 +661,8 @@ class TableDiff {
 
                 if (skip) {
                     if (!publish) {
-                        if (active!=null) {
-                            active[i] = -3;
+                        if (active_row!=null) {
+                            active_row[i] = -3;
                         }
                     }
                     continue;
@@ -652,94 +806,19 @@ class TableDiff {
                 }
                 if (act!="") {
                     if (!publish) {
-                        if (active!=null) {
-                            active[i] = 1;
+                        if (active_row!=null) {
+                            active_row[i] = 1;
                         }
                     }
                 }
             }
         }
 
-        // add row/col numbers?
-        if (!show_rc_numbers) {
-            if (flags.always_show_order) {
-                show_rc_numbers = true;
-            } else if (flags.ordered) {
-                show_rc_numbers = isReordered(row_map,output.height);
-                if (!show_rc_numbers) {
-                    show_rc_numbers = isReordered(col_map,output.width);
-                }
-            }
-        }
+        checkRcNumbers(output.width,output.height);
 
-        var admin_w : Int = 1;
-        if (show_rc_numbers&&!flags.never_show_order) {
-            admin_w++;
-            var target : Array<Int> = new Array<Int>();
-            for (i in 0...output.width) {
-                target.push(i+1);
-            }
-            output.insertOrDeleteColumns(target,output.width+1);
+        var admin_w : Int = addRcNumbers(output);
+        elideColumns(output,admin_w);
 
-            for (i in 0...output.height) {
-                var unit : Unit = row_map.get(i);
-                if (unit==null) {
-                    output.setCell(0,i,"");
-                    continue;
-                }
-                output.setCell(0,i,builder.links(unit));
-            }
-            target = new Array<Int>();
-            for (i in 0...output.height) {
-                target.push(i+1);
-            }
-            output.insertOrDeleteRows(target,output.height+1);
-            for (i in 1...output.width) {
-                var unit : Unit = col_map.get(i-1);
-                if (unit==null) {
-                    output.setCell(i,0,"");
-                    continue;
-                }
-                output.setCell(i,0,builder.links(unit));
-            }
-            output.setCell(0,0,builder.marker("@:@"));
-        }
-
-        if (active_column!=null) {
-            var all_active : Bool = true;
-            for (i in 0...active_column.length) {
-                if (active_column[i]==0) {
-                    all_active = false;
-                    break;
-                }
-            }
-            if (!all_active) {
-                var fate : Array<Int> = new Array<Int>();
-                for (i in 0...admin_w) {
-                    fate.push(i);
-                }
-                var at : Int = admin_w;
-                var ct : Int = 0;
-                var dots : Array<Int> = new Array<Int>();
-                for (i in 0...active_column.length) {
-                    var off : Bool = (active_column[i]==0);
-                    ct = off ? (ct+1) : 0;
-                    if (off && ct>1) {
-                        fate.push(-1);
-                    } else {
-                        if (off) dots.push(at);
-                        fate.push(at);
-                        at++;
-                    }
-                }
-                output.insertOrDeleteColumns(fate,at);
-                for (d in dots) {
-                    for (j in 0...output.height) {
-                        output.setCell(d,j,builder.marker("..."));
-                    }
-                }
-            }
-        }
         return true;
     }
 }
