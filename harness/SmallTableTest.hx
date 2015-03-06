@@ -66,4 +66,27 @@ class SmallTableTest extends haxe.unit.TestCase {
         patcher.apply();
         assertTrue(coopy.SimpleTable.tableIsSimilar(table3,table2));
     }
+
+    public function testIssueDaffPhp16() {
+        var objs : Array<Dynamic> = ['xxx', 1];
+        for (o in objs) {
+            var e1 : Array<Dynamic> =
+                [['col1', 'col2', 'col3', 'col4', 'col5'],
+                 [0, 0, 0, 0, 0]];
+            var e2 : Array<Dynamic> =
+                [['col1', 'col2', 'col3', 'col4', 'col5'],
+                 [o, 0, 0, 0, 0]];
+            var table1 = Native.table(e1);
+            var table2 = Native.table(e2);
+            var data_diff = [];
+            var table_diff = Native.table(data_diff);
+            var flags = new coopy.CompareFlags();
+            var alignment = coopy.Coopy.compareTables(table1,table2,flags).align();
+            var highlighter = new coopy.TableDiff(alignment,flags);
+            highlighter.hilite(table_diff);
+            assertEquals(table_diff.get_height(),2);
+            assertEquals(table_diff.getCell(0,1),"->");
+            assertEquals(table_diff.getCell(1,1),"0->" + o);
+        }
+    }
 }
