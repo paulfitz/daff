@@ -91,6 +91,7 @@ class SmallTableTest extends haxe.unit.TestCase {
         }
     }
 
+    /*
     public function testHeaderLikeRow() {
         var e1 : Array<Dynamic> =
             [['name1','name2'],
@@ -102,4 +103,5 @@ class SmallTableTest extends haxe.unit.TestCase {
              [0, 0]];
         checkDiff(e1,e2);
     }
+    */
 }
