@@ -141,7 +141,7 @@ class CompareTable {
                     align.addIndexColumns(unit);
                 }
             }
-            index.indexTables(a,b);
+            index.indexTables(a,b,1);
             if (indexes!=null) {
                 indexes.push(index);
             }
@@ -236,7 +236,7 @@ class CompareTable {
                         added_columns.set(col,true);
                     }
                 }
-                index.indexTables(a,b);
+                index.indexTables(a,b,1);
                 if (k==top-1) index_top = index;
 
                 var h : Int = a.height;

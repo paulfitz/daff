@@ -6,6 +6,25 @@ class SmallTableTest extends haxe.unit.TestCase {
     var data1 : Dynamic;
     var data2 : Dynamic;
 
+    public function checkDiff(e1: Array<Dynamic>,
+                              e2: Array<Dynamic>,
+                              verbose: Bool = false) : coopy.Table {
+        var table1 = Native.table(e1);
+        var table2 = Native.table(e2);
+        var data_diff = [];
+        var table_diff : coopy.Table = Native.table(data_diff);
+        var flags = new coopy.CompareFlags();
+        var alignment = coopy.Coopy.compareTables(table1,table2,flags).align();
+        if (verbose) trace(alignment);
+        var highlighter = new coopy.TableDiff(alignment,flags);
+        highlighter.hilite(table_diff);
+        var table3 = table1.clone();
+        var patcher = new coopy.HighlightPatch(table3,table_diff);
+        patcher.apply();
+        assertTrue(coopy.SimpleTable.tableIsSimilar(table3,table2));
+        return table_diff;
+    }
+
     override public function setup() {
         data1 = [['NAME','AGE'],
                  ['Paul','15'],
@@ -52,19 +71,8 @@ class SmallTableTest extends haxe.unit.TestCase {
         var e2 : Array<Dynamic> =
             [['col1', 'col2', 'col3', 'col4', 'col5', 'col6'],
              [0, 0, 0, 0, 1, 0]];
-        var table1 = Native.table(e1);
-        var table2 = Native.table(e2);
-        var data_diff = [];
-        var table_diff = Native.table(data_diff);
-        var flags = new coopy.CompareFlags();
-        var alignment = coopy.Coopy.compareTables(table1,table2,flags).align();
-        var highlighter = new coopy.TableDiff(alignment,flags);
-        highlighter.hilite(table_diff);
+        var table_diff = checkDiff(e1,e2);
         assertEquals(table_diff.get_height(),2);
-        var table3 = table1.clone();
-        var patcher = new coopy.HighlightPatch(table3,table_diff);
-        patcher.apply();
-        assertTrue(coopy.SimpleTable.tableIsSimilar(table3,table2));
     }
 
     public function testIssueDaffPhp16() {
@@ -76,17 +84,22 @@ class SmallTableTest extends haxe.unit.TestCase {
             var e2 : Array<Dynamic> =
                 [['col1', 'col2', 'col3', 'col4', 'col5'],
                  [o, 0, 0, 0, 0]];
-            var table1 = Native.table(e1);
-            var table2 = Native.table(e2);
-            var data_diff = [];
-            var table_diff = Native.table(data_diff);
-            var flags = new coopy.CompareFlags();
-            var alignment = coopy.Coopy.compareTables(table1,table2,flags).align();
-            var highlighter = new coopy.TableDiff(alignment,flags);
-            highlighter.hilite(table_diff);
+            var table_diff = checkDiff(e1,e2);
             assertEquals(table_diff.get_height(),2);
             assertEquals(table_diff.getCell(0,1),"->");
             assertEquals(table_diff.getCell(1,1),"0->" + o);
         }
+    }
+
+    public function testHeaderLikeRow() {
+        var e1 : Array<Dynamic> =
+            [['name1','name2'],
+             [0, 0],
+             ['name1','name2']];
+        var e2 : Array<Dynamic> =
+            [['name1','name2'],
+             ['name1','name2'],
+             [0, 0]];
+        checkDiff(e1,e2);
     }
 }

@@ -15,12 +15,14 @@ package coopy;
 class IndexPair {
     private var ia : Index;
     private var ib : Index;
+    private var hdr : Int;
     private var quality : Float;
 
     public function new() : Void {
         ia = new Index();
         ib = new Index();
         quality = 0;
+        hdr = 0;
     }
 
     /**
@@ -46,9 +48,10 @@ class IndexPair {
      * @param a the second table
      *
      */
-    public function indexTables(a: Table, b: Table) : Void {
-        ia.indexTable(a);
-        ib.indexTable(b);
+    public function indexTables(a: Table, b: Table, hdr: Int) : Void {
+        ia.indexTable(a,hdr);
+        ib.indexTable(b,hdr);
+        this.hdr = hdr;
         // calculate
         //   P(present and unique within a AND present and unique with b)
         //     for rows in a

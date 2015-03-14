@@ -19,4 +19,11 @@ interface Row {
      *
      */
     function getRowString(c: Int) : String;
+
+    /**
+     *
+     * @return true if row is header row (or before)
+     *
+     */
+    function isPreamble() : Bool;
 }

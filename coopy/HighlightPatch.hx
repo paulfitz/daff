@@ -51,6 +51,7 @@ class HighlightPatch implements Row {
     private var colPermutation : Array<Int>;
     private var colPermutationRev : Array<Int>;
     private var haveDroppedColumns : Bool;
+    private var headerRow : Int;
 
     /**
      *
@@ -92,6 +93,7 @@ class HighlightPatch implements Row {
         colPermutation = null;
         colPermutationRev = null;
         haveDroppedColumns = false;
+        headerRow = 0;
     }
 
     /**
@@ -113,6 +115,7 @@ class HighlightPatch implements Row {
             var str : String = view.toString(patch.getCell(rcOffset,r));
             actions.push((str!=null)?str:"");
         }
+        headerRow = rcOffset;
         for (r in 0...patch.height) {
             applyRow(r);
         }
@@ -156,9 +159,11 @@ class HighlightPatch implements Row {
         if (r==0 && rcOffset>0) {
             // skip rc row if present
         } else if (code=="@@") {
+            headerRow = r;
             applyHeader();
             applyAction("@@");
         } else if (code=="!") {
+            headerRow = r;
             applyMeta();
         } else if (code=="+++") {
             applyAction(code);
@@ -310,6 +315,10 @@ class HighlightPatch implements Row {
         var at : Null<Int> = sourceInPatchCol.get(c);
         if (at == null) return "NOT_FOUND"; // should be avoided
         return getPreString(getString(at));
+    }
+
+    public function isPreamble() : Bool {
+        return (currentRow<=headerRow);
     }
 
     private function sortMods(a: HighlightPatchUnit,b: HighlightPatchUnit) {

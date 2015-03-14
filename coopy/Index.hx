@@ -14,6 +14,7 @@ class Index {
     private var cols : Array<Int>;
     private var v : View;
     private var indexed_table : Table;
+    private var hdr : Int;
 
     public function new() : Void {
         items = new Map<String,IndexItem>();
@@ -21,14 +22,16 @@ class Index {
         keys = new Array<String>();
         top_freq = 0;
         height = 0;
+        hdr = 0;
     }
  
     public function addColumn(i: Int) : Void {
         cols.push(i);
     }
 
-    public function indexTable(t: Table) : Void {
+    public function indexTable(t: Table, hdr: Int) : Void {
         indexed_table = t;
+        this.hdr = hdr;
         if (keys.length!=t.height && t.height>0) {
             // preallocate array, helpful for php
             keys[t.height-1] = null;
@@ -52,7 +55,7 @@ class Index {
 
     public function toKey(t: Table, 
                           i: Int) : String {
-        var wide : String = "";
+        var wide : String = (i<hdr)?"_":"";
         if (v==null) v = t.getCellView();
         for (k in 0...cols.length) {
             var d : Dynamic = t.getCell(cols[k],i);
@@ -65,7 +68,7 @@ class Index {
     }
 
     public function toKeyByContent(row: Row) : String {
-        var wide : String = "";
+        var wide : String = row.isPreamble()?"_":"";
         for (k in 0...cols.length) {
             var txt : String = row.getRowString(cols[k]);
             if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;
