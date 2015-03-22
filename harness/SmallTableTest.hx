@@ -18,6 +18,7 @@ class SmallTableTest extends haxe.unit.TestCase {
         if (verbose) trace(alignment);
         var highlighter = new coopy.TableDiff(alignment,flags);
         highlighter.hilite(table_diff);
+        if (verbose) trace(table_diff);
         var table3 = table1.clone();
         var patcher = new coopy.HighlightPatch(table3,table_diff);
         patcher.apply();
@@ -91,7 +92,6 @@ class SmallTableTest extends haxe.unit.TestCase {
         }
     }
 
-    /*
     public function testHeaderLikeRow() {
         var e1 : Array<Dynamic> =
             [['name1','name2'],
@@ -103,5 +103,4 @@ class SmallTableTest extends haxe.unit.TestCase {
              [0, 0]];
         checkDiff(e1,e2);
     }
-    */
 }

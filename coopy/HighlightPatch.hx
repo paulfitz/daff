@@ -413,16 +413,6 @@ class HighlightPatch implements Row {
             }
         }
         
-        /*
-        if (ct>0) {
-            var txt = "";
-            for (i in 0...dim) {
-                txt = txt + from_unit[i] + ":" + i + ":" + to_unit[i] + " ";
-            }
-            trace(txt);
-        }
-        */
-
         if (ct>0) {
             var cursor : Null<Int> = null;
             var logical : Null<Int> = null;
@@ -438,7 +428,7 @@ class HighlightPatch implements Row {
             var used : Map<Int,Int> = new Map<Int,Int>();
             var len : Int = 0;
             for (i in 0...dim) {
-                if (meta_from_unit.exists(logical)) {
+                if (logical!=null && meta_from_unit.exists(logical)) {
                     cursor = meta_from_unit[logical];
                 } else {
                     cursor = null;
@@ -492,7 +482,6 @@ class HighlightPatch implements Row {
         source.insertOrDeleteRows(fate,len);
 
         for (mod in mods) {
-            //trace("Revisiting " + mod);
             if (!mod.rem) {
                 if (mod.add) {
                     for (c in headerPost) {
@@ -533,8 +522,6 @@ class HighlightPatch implements Row {
     }
 
     private function finishColumns() : Void {
-        //if (haveDroppedColumns) return; // Can't deal with column re-ordering
-                                        // plus dropped columns just yet.
         needSourceColumns();
         for (i in payloadCol...payloadTop) {
             var act : String = modifier.get(i);
@@ -604,10 +591,6 @@ class HighlightPatch implements Row {
         for (cmod in cmods) {
             if (!cmod.rem) {
                 if (cmod.add) {
-                    //trace("Should fill in " + cmod.destRow + " from " +
-                    //    cmod.patchRow);
-                    // we're not ready yet, but at least pop in
-                    // column name
                     for (mod in mods) {
                         if (mod.patchRow!=-1 && mod.destRow!=-1) {
                             var d : Dynamic = patch.getCell(cmod.patchRow,

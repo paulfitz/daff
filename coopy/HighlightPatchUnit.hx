@@ -33,7 +33,7 @@ class HighlightPatchUnit {
     }
 
     public function toString() : String {
-        return code + " patchRow " + patchRow + " sourceRows " + sourcePrevRow + "," + sourceRow + "," + sourceNextRow + " destRow " + destRow;
+        return "(" + code + " patch " + patchRow + " source " + sourcePrevRow + ":" + sourceRow + ":" + sourceNextRow + "+" + sourceRowOffset + " dest " + destRow + ")";
     }
 }
 

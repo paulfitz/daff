@@ -124,7 +124,11 @@ class Mover {
 
         var blks : Array<Int> = new Array<Int>();
         for (k in blk_len.keys()) { blks.push(k); }
-        blks.sort(function(a,b) { return blk_len.get(b)-blk_len.get(a); });
+        blks.sort(function(a,b) { 
+                var diff = blk_len.get(b)-blk_len.get(a); 
+                if (diff!=0) return diff;
+                return a-b;
+            });
 
         var moved : Array<Int> = new Array<Int>();
 
