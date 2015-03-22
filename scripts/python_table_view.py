@@ -4,7 +4,7 @@ class PythonCellView(View):
         pass
 
     def toString(self,d):
-        return str(d)
+        return str(d) if (d!=None) else ""
 
     def equals(self,d1,d2):
         return str(d1) == str(d2)

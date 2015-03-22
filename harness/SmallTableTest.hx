@@ -15,13 +15,16 @@ class SmallTableTest extends haxe.unit.TestCase {
         var table_diff : coopy.Table = Native.table(data_diff);
         var flags = new coopy.CompareFlags();
         var alignment = coopy.Coopy.compareTables(table1,table2,flags).align();
-        if (verbose) trace(alignment);
+        if (verbose) trace("Alignment: " + alignment);
         var highlighter = new coopy.TableDiff(alignment,flags);
         highlighter.hilite(table_diff);
-        if (verbose) trace(table_diff);
+        if (verbose) trace("Diff: " + table_diff);
         var table3 = table1.clone();
         var patcher = new coopy.HighlightPatch(table3,table_diff);
         patcher.apply();
+        if (verbose) trace("Desired " + table2.height + "x" + table2.width + ": " + table2);
+        if (verbose) trace("Got " + table3.height + "x" + table3.width + ": " + table3);
+        if (verbose) trace("Base " + table1.height + "x" + table1.width + ": " + table1);
         assertTrue(coopy.SimpleTable.tableIsSimilar(table3,table2));
         return table_diff;
     }
@@ -101,6 +104,28 @@ class SmallTableTest extends haxe.unit.TestCase {
             [['name1','name2'],
              ['name1','name2'],
              [0, 0]];
+        checkDiff(e1,e2);
+    }
+
+    public function testIssueDaffPhp17() {
+        var e1 : Array<Dynamic> = [["fd", "df"],
+                                   ["fd", "fd"],
+                                   [null, "fd"],
+                                   ["fd", null]];
+        var e2: Array<Dynamic> = [["A", "new_column_2"],
+                                  [null, null],
+                                  ["fd", "df"],
+                                  ["fd", "fd"]];
+        checkDiff(e1,e2);
+    }
+
+    public function testIssueDaffPhp17Edit() {
+        var e1 : Array<Dynamic> = [["fd", "df"],
+                                   ["fd", "fd"],
+                                   [null, "fd"]];
+        var e2: Array<Dynamic> = [["A", "new_column_2"],
+                                  [null, null],
+                                  ["fd", "df"]];
         checkDiff(e1,e2);
     }
 }

@@ -17,7 +17,7 @@ class SimpleView implements View {
     }
 
     public function toString(d: Dynamic) : String {
-        if (d==null) return null;
+        if (d==null) return "";
         return "" + d;
     }
     

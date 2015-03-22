@@ -268,7 +268,12 @@ class HighlightPatch implements Row {
         } 
         if (mod.add) {
             if (actions[currentRow-1]!="+++") {
-                mod.sourcePrevRow = lookUp(-1);
+                if (actions[currentRow-1]=="@@") {
+                    mod.sourcePrevRow = 0;
+                    lastSourceRow = 0;
+                } else {
+                    mod.sourcePrevRow = lookUp(-1);
+                }
             }
             mod.sourceRow = mod.sourcePrevRow;
             if (mod.sourceRow!=-1) mod.sourceRowOffset = 1;
@@ -369,7 +374,11 @@ class HighlightPatch implements Row {
                 last = mod.sourceRow+mod.sourceRowOffset;
                 if (mod.rem) last++;
             } else {
-                last = -1;
+                if (mod.add && mod.sourceNextRow!=-1) {
+                    last = mod.sourceNextRow+mod.sourceRowOffset;
+                } else {
+                    last = -1;
+                }
             }
         }
         if (last!=-1) {
