@@ -17,7 +17,7 @@ class Coopy {
      * Library version.
      *
      */
-    static public var VERSION = "1.2.7";
+    static public var VERSION = "1.2.8";
 
     private var format_preference : String;
     private var delim_preference : String;
