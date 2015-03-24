@@ -53,6 +53,11 @@ class TableDiff {
 
     private var top_line_done : Bool;
 
+    // Per-row state
+    private var have_addition : Bool;
+    private var act : String;
+    private var publish : Bool;
+
     /**
      *
      * Constructor.
@@ -546,6 +551,153 @@ class TableDiff {
         }
     }
 
+    public function scanRow(unit: Unit, output: Table, at: Int, i: Int) {
+        for (j in 0...column_units.length) {
+            var cunit : Unit = column_units[j];
+            var pp : Dynamic = null;
+            var ll : Dynamic = null;
+            var rr : Dynamic = null;
+            var dd : Dynamic = null;
+            var dd_to : Dynamic = null;
+            var have_dd_to : Bool = false;
+            var dd_to_alt : Dynamic = null;
+            var have_dd_to_alt : Bool = false;
+            var have_pp : Bool = false;
+            var have_ll : Bool = false;
+            var have_rr : Bool = false;
+            if (cunit.p>=0 && unit.p>=0) {
+                pp = p.getCell(cunit.p,unit.p);
+                have_pp = true;
+            }
+            if (cunit.l>=0 && unit.l>=0) {
+                ll = a.getCell(cunit.l,unit.l);
+                have_ll = true;
+            }
+            if (cunit.r>=0 && unit.r>=0) {
+                rr = b.getCell(cunit.r,unit.r);
+                have_rr = true;
+                if ((have_pp ? cunit.p : cunit.l)<0) {
+                    if (rr != null) {
+                        if (v.toString(rr) != "") {
+                            if (flags.allowUpdate()) {
+                                have_addition = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // for now, just interested in p->r
+            if (have_pp) {
+                if (!have_rr) {
+                    dd = pp;
+                } else {
+                    // have_pp, have_rr
+                    if (v.equals(pp,rr)) {
+                        dd = pp;
+                    } else {
+                        // rr is different
+                        dd = pp;
+                        dd_to = rr;
+                        have_dd_to = true;
+
+                        if (!v.equals(pp,ll)) {
+                            if (!v.equals(pp,rr)) {
+                                dd_to_alt = ll;
+                                have_dd_to_alt = true;
+                            }
+                        }
+                    }
+                }
+            } else if (have_ll) {
+                if (!have_rr) {
+                    dd = ll;
+                } else {
+                    if (v.equals(ll,rr)) {
+                        dd = ll;
+                    } else {
+                        // rr is different
+                        dd = ll;
+                        dd_to = rr;
+                        have_dd_to = true;
+                    }
+                }
+            } else {
+                dd = rr;
+            }
+
+            var cell : Dynamic = dd;
+            if (have_dd_to&&allow_update) {
+                if (active_column!=null) {
+                    active_column[j] = 1;
+                }
+                // modification: x -> y
+                if (sep=="") {
+                    if (builder.needSeparator()) {
+                        // strictly speaking getSeparator(a,null,..)
+                        // would be ok - but very confusing
+                        sep = getSeparator(a,b,"->");
+                        builder.setSeparator(sep);
+                    } else {
+                        sep = "->";
+                    }
+                }
+                var is_conflict : Bool = false;
+                if (have_dd_to_alt) {
+                    if (!v.equals(dd_to,dd_to_alt)) {
+                        is_conflict = true;
+                    }
+                }
+                if (!is_conflict) {
+                    cell = builder.update(dd,dd_to);
+                    if (sep.length>act.length) {
+                        act = sep;
+                    }
+                } else {
+                    if (conflict_sep=="") {
+                        if (builder.needSeparator()) {
+
+                            conflict_sep = getSeparator(p,a,"!") + sep;
+                            builder.setConflictSeparator(conflict_sep);
+                        } else {
+                            conflict_sep = "!->";
+                        }
+                    }
+                    cell = builder.conflict(dd,dd_to_alt,dd_to);
+                    act = conflict_sep;
+                }
+            }
+            if (act == "" && have_addition) {
+                act = "+";
+            }
+            if (act == "+++") {
+                if (have_rr) {
+                    if (active_column!=null) {
+                        active_column[j] = 1;
+                    }
+                }
+            }
+            if (publish) {
+                if (active_column==null || active_column[j]>0) {
+                    output.setCell(j+1,at,cell);
+                }
+            }
+        }
+
+        if (publish) {
+            output.setCell(0,at,builder.marker(act));
+            row_map.set(at,unit);
+        }
+
+        if (act!="") {
+            if (!publish) {
+                if (active_row!=null) {
+                    active_row[i] = 1;
+                }
+            }
+        }
+    }
+
     /**
      *
      * Generate a highlighter diff.
@@ -575,6 +727,9 @@ class TableDiff {
         addSchema(output);
         addHeader(output);
 
+        // If we are omitting unchanged rows/columns, we need two passes,
+        // the first to compute what has changed, and the second to
+        // set the resize the output appropriately and fill it.
         var outer_reps_needed : Int = 
             (flags.show_unchanged&&flags.show_unchanged_columns) ? 1 : 2;
 
@@ -617,11 +772,7 @@ class TableDiff {
                 
                 if (unit.r==0 && unit.lp()==0 && top_line_done) continue;
 
-                var act : String = "";
-
-                if (reordered) act = ":";
-
-                var publish : Bool = flags.show_unchanged;
+                publish = flags.show_unchanged;
                 var dummy : Bool = false;
                 if (out==1) {
                     publish = active_row[i]>0;
@@ -647,9 +798,12 @@ class TableDiff {
                     continue;
                 }
                 
-                var have_addition : Bool = false;
+                have_addition = false;
                 var skip : Bool = false;
                 
+                act = "";
+                if (reordered) act = ":";
+
                 if (unit.p<0 && unit.l<0 && unit.r>=0) {
                     if (!allow_insert) skip = true;
                     act = "+++";
@@ -668,149 +822,7 @@ class TableDiff {
                     continue;
                 }
 
-                for (j in 0...column_units.length) {
-                    var cunit : Unit = column_units[j];
-                    var pp : Dynamic = null;
-                    var ll : Dynamic = null;
-                    var rr : Dynamic = null;
-                    var dd : Dynamic = null;
-                    var dd_to : Dynamic = null;
-                    var have_dd_to : Bool = false;
-                    var dd_to_alt : Dynamic = null;
-                    var have_dd_to_alt : Bool = false;
-                    var have_pp : Bool = false;
-                    var have_ll : Bool = false;
-                    var have_rr : Bool = false;
-                    if (cunit.p>=0 && unit.p>=0) {
-                        pp = p.getCell(cunit.p,unit.p);
-                        have_pp = true;
-                    }
-                    if (cunit.l>=0 && unit.l>=0) {
-                        ll = a.getCell(cunit.l,unit.l);
-                        have_ll = true;
-                    }
-                    if (cunit.r>=0 && unit.r>=0) {
-                        rr = b.getCell(cunit.r,unit.r);
-                        have_rr = true;
-                        if ((have_pp ? cunit.p : cunit.l)<0) {
-                            if (rr != null) {
-                                if (v.toString(rr) != "") {
-                                    if (flags.allowUpdate()) {
-                                        have_addition = true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // for now, just interested in p->r
-                    if (have_pp) {
-                        if (!have_rr) {
-                            dd = pp;
-                        } else {
-                            // have_pp, have_rr
-                            if (v.equals(pp,rr)) {
-                                dd = pp;
-                            } else {
-                                // rr is different
-                                dd = pp;
-                                dd_to = rr;
-                                have_dd_to = true;
-
-                                if (!v.equals(pp,ll)) {
-                                    if (!v.equals(pp,rr)) {
-                                        dd_to_alt = ll;
-                                        have_dd_to_alt = true;
-                                    }
-                                }
-                            }
-                        }
-                    } else if (have_ll) {
-                        if (!have_rr) {
-                            dd = ll;
-                        } else {
-                            if (v.equals(ll,rr)) {
-                                dd = ll;
-                            } else {
-                                // rr is different
-                                dd = ll;
-                                dd_to = rr;
-                                have_dd_to = true;
-                            }
-                        }
-                    } else {
-                        dd = rr;
-                    }
-
-                    var cell : Dynamic = dd;
-                    if (have_dd_to&&allow_update) {
-                        if (active_column!=null) {
-                            active_column[j] = 1;
-                        }
-                        // modification: x -> y
-                        if (sep=="") {
-                            if (builder.needSeparator()) {
-                                // strictly speaking getSeparator(a,null,..)
-                                // would be ok - but very confusing
-                                sep = getSeparator(a,b,"->");
-                                builder.setSeparator(sep);
-                            } else {
-                                sep = "->";
-                            }
-                        }
-                        var is_conflict : Bool = false;
-                        if (have_dd_to_alt) {
-                            if (!v.equals(dd_to,dd_to_alt)) {
-                                is_conflict = true;
-                            }
-                        }
-                        if (!is_conflict) {
-                            cell = builder.update(dd,dd_to);
-                            if (sep.length>act.length) {
-                                act = sep;
-                            }
-                        } else {
-                            if (conflict_sep=="") {
-                                if (builder.needSeparator()) {
-
-                                    conflict_sep = getSeparator(p,a,"!") + sep;
-                                    builder.setConflictSeparator(conflict_sep);
-                                } else {
-                                    conflict_sep = "!->";
-                                }
-                            }
-                            cell = builder.conflict(dd,dd_to_alt,dd_to);
-                            act = conflict_sep;
-                        }
-                    }
-                    if (act == "" && have_addition) {
-                        act = "+";
-                    }
-                    if (act == "+++") {
-                        if (have_rr) {
-                            if (active_column!=null) {
-                                active_column[j] = 1;
-                            }
-                        }
-                    }
-                    if (publish) {
-                        if (active_column==null || active_column[j]>0) {
-                            output.setCell(j+1,at,cell);
-                        }
-                    }
-                }
-
-                if (publish) {
-                    output.setCell(0,at,builder.marker(act));
-                    row_map.set(at,unit);
-                }
-                if (act!="") {
-                    if (!publish) {
-                        if (active_row!=null) {
-                            active_row[i] = 1;
-                        }
-                    }
-                }
+                scanRow(unit,output,at,i);
             }
         }
 
