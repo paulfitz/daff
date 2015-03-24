@@ -46,4 +46,13 @@ class IndexItem {
     public inline function value() : Int {
         return lst[0];
     }
+
+    /**
+     *
+     * @return the full list of rows seen
+     *
+     */
+    public inline function asList() : Array<Int> {
+        return lst;
+    }
 }

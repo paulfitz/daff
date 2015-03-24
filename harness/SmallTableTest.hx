@@ -112,10 +112,10 @@ class SmallTableTest extends haxe.unit.TestCase {
                                    ["fd", "fd"],
                                    [null, "fd"],
                                    ["fd", null]];
-        var e2: Array<Dynamic> = [["A", "new_column_2"],
-                                  [null, null],
-                                  ["fd", "df"],
-                                  ["fd", "fd"]];
+        var e2 : Array<Dynamic> = [["A", "new_column_2"],
+                                   [null, null],
+                                   ["fd", "df"],
+                                   ["fd", "fd"]];
         checkDiff(e1,e2);
     }
 
@@ -123,9 +123,76 @@ class SmallTableTest extends haxe.unit.TestCase {
         var e1 : Array<Dynamic> = [["fd", "df"],
                                    ["fd", "fd"],
                                    [null, "fd"]];
-        var e2: Array<Dynamic> = [["A", "new_column_2"],
-                                  [null, null],
-                                  ["fd", "df"]];
+        var e2 : Array<Dynamic> = [["A", "new_column_2"],
+                                   [null, null],
+                                   ["fd", "df"]];
+        checkDiff(e1,e2);
+    }
+
+    public function testIssueDaffPhp14() {
+        var e1 : Array<Dynamic> = [[ "A", "new_column_2" ],
+                                   [ "dfdf", null ],
+                                   [ null, null ],
+                                   [ "xxx", null ],
+                                   [ "yyy", null ],
+                                   [ null, null ],
+                                   [ "fd", null ],
+                                   [ "f", null ],
+                                   [ "d", null ],
+                                   [ "fdf", null ],
+                                   [ null, null ],
+                                   [ 4, null ],
+                                   [ 545, null ],
+                                   [ 4, null ],
+                                   [ 5, null ],
+                                   [ 4, null ],
+                                   [ 5, null ],
+                                   [ 45, null ],
+                                   [ 4, null ],
+                                   [ 54, null ],
+                                   [ 5, null ],
+                                   [ null, null ],
+                                   [ null, null ],
+                                   [ null, null ],
+                                   [ null, null ],
+                                   [ null, null ],
+                                   [ 454, null ],
+                                   [ null, null ],
+                                   [ null, null ],
+                                   [ 4, null ],
+                                   [ 5, null ]];
+
+        var e2 : Array<Dynamic> = [[ "A", "new_column_2" ],
+                                   [ "dfdf", null ],
+                                   [ null, null ],
+                                   [ "fd", null ],
+                                   [ "fd", null ],
+                                   [ null, null ],
+                                   [ "fd", null ],
+                                   [ "f", null ],
+                                   [ "d", null ],
+                                   [ "fdf", null ],
+                                   [ null, null ],
+                                   [ 4, null ],
+                                   [ 545, null ],
+                                   [ 4, null ],
+                                   [ 5, null ],
+                                   [ 4, null ],
+                                   [ 5, null ],
+                                   [ 45, null ],
+                                   [ 4, null ],
+                                   [ 54, null ],
+                                   [ 5, null ],
+                                   [ null, null ],
+                                   [ null, null ],
+                                   [ null, null ],
+                                   [ null, null ],
+                                   [ null, null ],
+                                   [ 454, null ],
+                                   [ null, null ],
+                                   [ null, null ],
+                                   [ 4, null ],
+                                   [ 5, null ]];
         checkDiff(e1,e2);
     }
 }

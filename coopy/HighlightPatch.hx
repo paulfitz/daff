@@ -241,9 +241,23 @@ class HighlightPatch implements Row {
         if (currentRow>=0 && currentRow<patch.height) {
             for (idx in indexes) {
                 var match : CrossMatch = idx.queryByContent(this);
-                if (match.spot_a != 1) continue;
-                result = match.item_a.value();
-                break;
+                if (match.spot_a == 0) continue;
+                if (match.spot_a == 1) {
+                    result = match.item_a.value();
+                    break;
+                }
+                if (currentRow>0) {
+                    var prev : Null<Int> = patchInSourceRow.get(currentRow-1);
+                    if (prev!=null) {
+                        var lst : Array<Int> = match.item_a.asList();
+                        for (row in lst) {
+                            if (row == prev+1) {
+                                result = row;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
         patchInSourceRow[currentRow] = result;

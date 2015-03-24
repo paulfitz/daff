@@ -274,7 +274,7 @@ class Alignment {
                ct_vr>0) {
             ct++;
             if (ct>max_ct) {
-                trace("Ordering took too long, something went wrong");
+                // Ordering did not complete, better to return than continue.
                 break;
             }
             if (xp>=hp) xp = 0;

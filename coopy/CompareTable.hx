@@ -203,6 +203,7 @@ class CompareTable {
             var top : Int = Math.round(Math.pow(2,columns.length));
 
             var pending : Map<Int,Int> = new Map<Int,Int>();
+            var used : Map<Int,Int> = new Map<Int,Int>();
             for (j in 0...ha) {
                 pending.set(j,j);
             }
@@ -262,8 +263,12 @@ class CompareTable {
                     var spot_a : Int = cross.spot_a;
                     var spot_b : Int = cross.spot_b;
                     if (spot_a!=1 || spot_b!=1) continue;
-                    fixed.push(j);
-                    align.link(j,cross.item_b.value());
+                    var val = cross.item_b.value();
+                    if (!used.exists(val)) {
+                        fixed.push(j);
+                        align.link(j,val);
+                        used.set(val,1);
+                    }
                 }
                 for (j in 0...fixed.length) {
                     pending.remove(fixed[j]);
@@ -290,7 +295,9 @@ class CompareTable {
                             var ka = index_top.localKey(xa);
                             var kb = index_top.remoteKey(xb);
                             if (ka!=kb) continue;
+                            if (used.exists(xb)) continue;
                             align.link(xa,xb);
+                            used.set(xb,1);
                             pending_ct--;
                             xb+=scale;
                             if (xb>=hb||xb<0) break;

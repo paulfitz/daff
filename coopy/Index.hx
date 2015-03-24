@@ -60,8 +60,8 @@ class Index {
         for (k in 0...cols.length) {
             var d : Dynamic = t.getCell(cols[k],i);
             var txt : String = v.toString(d);
-            if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;
             if (k>0) wide += " // ";
+            if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;
             wide += txt;
         }
         return wide;
@@ -71,8 +71,8 @@ class Index {
         var wide : String = row.isPreamble()?"_":"";
         for (k in 0...cols.length) {
             var txt : String = row.getRowString(cols[k]);
-            if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;
             if (k>0) wide += " // ";
+            if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;
             wide += txt;
         }
         return wide;
