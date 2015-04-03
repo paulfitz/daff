@@ -240,9 +240,11 @@ TableView.prototype.isSimilar = function(alt) {
 }
 
 if (typeof exports != "undefined") {
+    exports.CellView = CellView;
     exports.TableView = TableView;
 } else {
     if (typeof window["daff"] == "undefined") window["daff"] = {};
+    window.daff.CellView = CellView;
     window.daff.TableView = TableView;
 }
 
