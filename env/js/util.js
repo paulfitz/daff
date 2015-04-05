@@ -9,6 +9,7 @@ if (typeof exports != "undefined") {
     var readline = null;
     var Fiber = null;
     var sqlite3 = null;
+    var tty = null;
     
     tio.getContent = function(name) {
 	if (name=="-") {
@@ -40,6 +41,25 @@ if (typeof exports != "undefined") {
 
     tio.exists = function(path) {
 	return fs.existsSync(path);
+    }
+
+    tio.isTtyKnown = function() {
+        return true;
+    }
+
+    tio.isTty = function() {
+        if (typeof process.stdout.isTTY !== 'undefined') {
+            if (process.stdout.isTTY) return true;
+        } else {
+            // fall back on tty api
+            if (tty==null) tty = require('tty');
+            if (tty.isatty(process.stdout.fd)) return true;
+        }
+        // There's a wrinkle when called from git.  Git may have started a pager that
+        // respects color but which will not be detected as a terminal.  In this case,
+        // it appears that git defines GIT_PAGER_IN_USE, so we watch out for that.
+        if (process.env.GIT_PAGER_IN_USE == 'true') return true;
+        return false;
     }
 
     tio.openSqliteDatabase = function(path) {
@@ -122,7 +142,9 @@ if (typeof require != "undefined") {
 		    exports.run_daff_main();
 		    console.log("ok");
 		}).run();
-	    }
+            } else {
+                throw(e);
+            }
 	}
     }
 }

@@ -128,6 +128,25 @@ class TableIO {
 
     /**
      *
+     * @return true if we can determine whether the output is a TTY. This needs to be
+     * implemented natively, I haven't found a call for this in Haxe.
+     *
+     */
+    public function isTtyKnown() : Bool {
+        return false;
+    }
+
+    /**
+     *
+     * @return true if output is a TTY. Only trustworthy if isTtyKnown() is true.
+     *
+     */
+    public function isTty() : Bool {
+        return true;
+    }
+
+    /**
+     *
      * Try to open an sqlite database.
      * @param path to the database
      * @return opened database, or null on failure

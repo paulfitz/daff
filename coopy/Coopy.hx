@@ -365,7 +365,7 @@ class Coopy {
             key = "add_diff_driver_" + format;
             if (!status.exists(key)) {
                 if (!have_diff_driver) {
-                    r = command(io,"git",["config","--global","diff.daff-" + format + ".command",daff_cmd + " diff --color --git"]);
+                    r = command(io,"git",["config","--global","diff.daff-" + format + ".command",daff_cmd + " diff --git"]);
                     if (r==999) return r;
                     io.writeStdout("- Added diff driver for " + format + "\n");
                 } else {
@@ -470,6 +470,7 @@ class Coopy {
         var inplace : Bool = false;
         var git : Bool = false;
         var color : Bool = false;
+        var no_color : Bool = false;
 
         var flags : CompareFlags = new CompareFlags();
         flags.always_show_header = true;
@@ -546,6 +547,11 @@ class Coopy {
                     color = true;
                     args.splice(i,1);
                     break;
+                } else if (tag=="--no-color") {
+                    more = true;
+                    no_color = true;
+                    args.splice(i,1);
+                    break;
                 } else if (tag=="--input-format") {
                     more = true;
                     setFormat(args[i+1]);
@@ -604,19 +610,19 @@ class Coopy {
                 io.writeStdout("  *.csv merge=daff-csv\n");
                 io.writeStdout("\nCreate a file called .gitconfig in your home directory (or alternatively\nopen .git/config for a particular repository) and add:\n\n");
                 io.writeStdout("  [diff \"daff-csv\"]\n");
-                io.writeStdout("  command = daff diff --color --git\n");
+                io.writeStdout("  command = daff diff --git\n");
                 io.writeStderr("\n");
                 io.writeStdout("  [merge \"daff-csv\"]\n");
                 io.writeStdout("  name = daff tabular merge\n");
                 io.writeStdout("  driver = daff merge --output %A %O %A %B\n\n");
                 
-                io.writeStderr("Make sure you can run daff from the command-line as just \"daff\" - if not,\nreplace \"daff\" in the driver and command lines above with the correct way\nto call it. Omit --color if your terminal does not support ANSI colors.");
+                io.writeStderr("Make sure you can run daff from the command-line as just \"daff\" - if not,\nreplace \"daff\" in the driver and command lines above with the correct way\nto call it. Add --no-color if your terminal does not support ANSI colors.");
                 io.writeStderr("\n");
                 return 0;
             }
             io.writeStderr("daff can produce and apply tabular diffs.\n");
             io.writeStderr("Call as:\n");
-            io.writeStderr("  daff [--color] [--output OUTPUT.csv] a.csv b.csv\n");
+            io.writeStderr("  daff [--color] [--no-color] [--output OUTPUT.csv] a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.ndjson] a.ndjson b.ndjson\n");
             io.writeStderr("  daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv\n");
@@ -633,7 +639,8 @@ class Coopy {
             io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
             io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
             io.writeStderr("     --all:         do not prune unchanged rows\n");
-            io.writeStderr("     --color:       highlight changes with terminal colors\n");
+            io.writeStderr("     --color:       highlight changes with terminal colors (default in terminals)\n");
+            io.writeStderr("     --no-color:    make sure terminal colors are not used\n");
             io.writeStderr("     --context NUM: show NUM rows of context\n");
             io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
             io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
@@ -725,7 +732,13 @@ class Coopy {
             var td : TableDiff = new TableDiff(align,flags);
             var o = new SimpleTable(0,0);
             td.hilite(o);
-            if (color) {
+            var use_color = color;
+            if (!(color||no_color)) {
+                if (output=="-") {
+                    if (io.isTtyKnown()) use_color = io.isTty();
+                }
+            }
+            if (use_color) {
                 var render = new TerminalDiffRender();
                 tool.saveText(output,render.render(o));
             } else {
