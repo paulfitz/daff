@@ -17,6 +17,13 @@ class Ndjson {
     private var columns : Map<String,Int>;
     private var header_row : Int;
 
+    /**
+     *
+     * Constructor.
+     *
+     * @param tab a table to read or write.
+     *
+     */
     public function new(tab: Table) {
         this.tab = tab;
         view = tab.getCellView();
@@ -42,6 +49,11 @@ class Ndjson {
         return haxe.Json.stringify(row);
     }
 
+    /**
+     *
+     * @return an entire table converted into a single string in NDJSON format.
+     *
+     */
     public function render() : String {
         var txt = "";
         var offset = 0;
@@ -58,6 +70,17 @@ class Ndjson {
         return txt;
     }
 
+    /**
+     *
+     * Parse a string expressing a single row of the table in NDJSON format,
+     * and insert it at the specified location.  The table is resized if 
+     * necessary.  Row number zero should be reserved for a header, with actual
+     * data starting at row 1.
+     *
+     * @param r the target row number - the table will be resized if necessary.
+     * @param txt the row expressed as a string in NDJSON format.
+     *
+     */
     public function addRow(r: Int, txt: String) {
         var json = haxe.Json.parse(txt);
         if (columns==null) columns = new Map<String,Int>();
@@ -85,6 +108,13 @@ class Ndjson {
         }
     }
 
+    /**
+     *
+     * Insert column names in the specified row.
+     *
+     * @param r the header row number.  This would usually be zero.
+     *
+     */
     public function addHeaderRow(r: Int) {
         var names = columns.keys();
         for (n in names) {
@@ -92,6 +122,13 @@ class Ndjson {
         }
     }
 
+    /**
+     *
+     * Convert a string containing rows in NDJSON format into a table.
+     *
+     * @param txt the table expressed as a string in NDJSON format
+     *
+     */
     public function parse(txt: String) {
         columns = null;
         var rows = txt.split("\n");
