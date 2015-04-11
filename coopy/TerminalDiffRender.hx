@@ -10,6 +10,7 @@ package coopy;
  * other eye-candy we like.
  *
  */
+@:expose
 class TerminalDiffRender {
     private var codes: Map<String,String>;
     private var t: Table;
