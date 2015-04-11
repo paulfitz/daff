@@ -23,22 +23,34 @@ class Coopy {
     private var delim_preference : String;
     private var extern_preference : Bool;
     private var output_format : String;
+    private var output_format_set : Bool;
     private var nested_output : Bool;
     private var order_set : Bool;
     private var order_preference : Bool;
     private var io : TableIO;
+    private var pretty : Bool;
+    var css_output : String;
+    var fragment : Bool;
 
     // just to get code included
     private var mv : Mover;
 
     private function new() : Void {
+        init();
+    }
+
+    private function init() : Void {
         extern_preference = false;
         format_preference = null;
         delim_preference = null;
         output_format = "copy";
+        output_format_set = false;
         nested_output = false;
         order_set = false;
         order_preference = false;
+        pretty = true;
+        css_output = null;
+        fragment = false;
     }
 
     /**
@@ -128,6 +140,8 @@ class Coopy {
                 format_preference = "sqlite";
             case "sqlite":
                 format_preference = "sqlite";
+            case "html", "htm":
+                format_preference = "html";
             default:
                 ext = "";
             }
@@ -143,6 +157,20 @@ class Coopy {
         extern_preference = true;
     }
 
+    private function renderTable(name: String, t: Table) : Bool {
+        var renderer : DiffRender = new DiffRender();
+        renderer.usePrettyArrows(pretty);
+        renderer.render(t);
+        if (!fragment) {
+            renderer.completeHtml();
+        }
+        saveText(name,renderer.html());
+        if (css_output!=null) {
+            saveText(css_output,renderer.sampleCss());
+        }
+        return true;
+    }
+
     private function saveTable(name: String, t: Table) : Bool {
         if (output_format!="copy") {
             setFormat(output_format);
@@ -154,6 +182,8 @@ class Coopy {
             txt = csv.renderTable(t);
         } else if (format_preference=="ndjson") {
             txt = new Ndjson(t).render();
+        } else if (format_preference=="html") {
+            return renderTable(name,t);
         } else if (format_preference=="sqlite") {
             io.writeStderr("! Cannot yet output to sqlite, aborting\n");
             return false;
@@ -455,6 +485,8 @@ class Coopy {
      *
      */
     public function coopyhx(io: TableIO) : Int {
+        init();
+
         var args : Array<String> = io.args();
 
         // Quick code path to keep certain classes from being optimized out.
@@ -464,9 +496,6 @@ class Coopy {
 
         var more : Bool = true;
         var output : String = null;
-        var css_output : String = null;
-        var fragment : Bool = false;
-        var pretty : Bool = true;
         var inplace : Bool = false;
         var git : Bool = false;
         var color : Bool = false;
@@ -560,6 +589,7 @@ class Coopy {
                 } else if (tag=="--output-format") {
                     more = true;
                     output_format = args[i+1];
+                    output_format_set = true;
                     args.splice(i,2);
                     break;
                 } else if (tag=="--id") {
@@ -623,6 +653,7 @@ class Coopy {
             io.writeStderr("daff can produce and apply tabular diffs.\n");
             io.writeStderr("Call as:\n");
             io.writeStderr("  daff [--color] [--no-color] [--output OUTPUT.csv] a.csv b.csv\n");
+            io.writeStderr("  daff [--output OUTPUT.html] a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.ndjson] a.ndjson b.ndjson\n");
             io.writeStderr("  daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv\n");
@@ -646,7 +677,7 @@ class Coopy {
             io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
             io.writeStderr("     --input-format [csv|tsv|ssv|json]: set format to expect for input\n");
             io.writeStderr("     --ordered:     assume row order is meaningful (default for CSV)\n");
-            io.writeStderr("     --output-format [csv|tsv|ssv|json|copy]: set format for output\n");
+            io.writeStderr("     --output-format [csv|tsv|ssv|json|copy|html]: set format for output\n");
             io.writeStderr("     --unordered:   assume row order is meaningless (default for json formats)\n");
             io.writeStderr("\n");
             io.writeStderr("  daff diff --git path old-file old-hex old-mode new-file new-hex new-mode\n");
@@ -734,7 +765,7 @@ class Coopy {
             td.hilite(o);
             var use_color = color;
             if (!(color||no_color)) {
-                if (output=="-") {
+                if (output=="-"&&output_format=="") {
                     if (io.isTtyKnown()) use_color = io.isTty();
                 }
             }
@@ -759,16 +790,7 @@ class Coopy {
         } else if (cmd=="trim") {
             tool.saveTable(output,a);
         } else if (cmd=="render") {
-            var renderer : DiffRender = new DiffRender();
-            renderer.usePrettyArrows(pretty);
-            renderer.render(a);
-            if (!fragment) {
-                renderer.completeHtml();
-            }
-            tool.saveText(output,renderer.html());
-            if (css_output!=null) {
-                tool.saveText(css_output,renderer.sampleCss());
-            }
+            renderTable(output,a);
         } else if (cmd=="copy") {
             tool.saveTable(output,a);
         }
