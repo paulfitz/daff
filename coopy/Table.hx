@@ -171,4 +171,18 @@ interface Table {
      *
      */
     function clone() : Table;
+
+    /**
+     *
+     * @return a table describing the columns of this table, or null
+     * if no information is available.  If a table is returned, it
+     * should have the same number of columns as the original, plus
+     * one extra initial column. Its header row should be the same
+     * as the original, with "@" in the extra column.
+     * Subsequent rows may have an arbitrary tag in the first
+     * column, followed by values to be associated with that tag
+     * for each column.
+     *
+     */
+    function getMetaTable() : Table;
 }

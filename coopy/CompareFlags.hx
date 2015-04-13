@@ -123,6 +123,8 @@ class CompareFlags {
      */
     public var allow_nested_cells : Bool;
 
+    public var warnings : Array<String>;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -136,6 +138,7 @@ class CompareFlags {
         ids = null;
         columns_to_ignore = null;
         allow_nested_cells = false;
+        warnings = null;
     }
 
     /**
@@ -228,6 +231,15 @@ class CompareFlags {
     public function ignoreColumn(column: String) : Void {
         if (columns_to_ignore==null) columns_to_ignore = new Array<String>();
         columns_to_ignore.push(column);
+    }
+
+    public function addWarning(warn: String) : Void {
+        if (warnings==null) warnings = new Array<String>();
+        warnings.push(warn);
+    }
+
+    public function getWarning() : String {
+        return warnings.join("\n");
     }
 }
 

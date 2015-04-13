@@ -106,6 +106,12 @@ class Coopy {
         return o;
     }
 
+
+    static public function patch(local: Table, patch: Table, ?flags: CompareFlags) : Bool {
+        var patcher = new HighlightPatch(local,patch);
+        return patcher.apply();
+    }
+
     /**
      *
      * Prepare to compare two tables.

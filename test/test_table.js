@@ -16,12 +16,11 @@ for (var t=0; t<table_classes.length; t++) {
     assert.equal(table.getCell(2,2),14);
     
     var small_table = new TableClass(3,2);
-    //small_table.setCell(0,0,10);
     small_table.setCell(1,0,20);
     small_table.setCell(2,0,30);
     small_table.setCell(0,1,40);
     small_table.setCell(1,1,50);
     small_table.setCell(2,1,60);
     var txt = small_table.toString();
-    assert.equal(txt,"null 20 30\n40 50 60\n");
+    assert.equal(txt,"null,20,30\n40,50,60\n");
 }

@@ -52,6 +52,8 @@ class HighlightPatch implements Row {
     private var colPermutationRev : Array<Int>;
     private var haveDroppedColumns : Bool;
     private var headerRow : Int;
+    private var preambleRow : Int;
+    private var flags : CompareFlags;
 
     /**
      *
@@ -61,9 +63,11 @@ class HighlightPatch implements Row {
      * @param patch the tabular diff to use as a patch
      *
      */
-    public function new(source: Table, patch: Table) {
+    public function new(source: Table, patch: Table, ?flags : CompareFlags) {
         this.source = source;
         this.patch = patch;
+        this.flags = flags;
+        if (flags==null) this.flags = new CompareFlags();
         view = patch.getCellView();
         sourceView = source.getCellView();
     }
@@ -94,6 +98,7 @@ class HighlightPatch implements Row {
         colPermutationRev = null;
         haveDroppedColumns = false;
         headerRow = 0;
+        preambleRow = 0;
     }
 
     /**
@@ -115,7 +120,7 @@ class HighlightPatch implements Row {
             var str : String = view.toString(patch.getCell(rcOffset,r));
             actions.push((str!=null)?str:"");
         }
-        headerRow = rcOffset;
+        preambleRow = headerRow = rcOffset;
         for (r in 0...patch.height) {
             applyRow(r);
         }
@@ -159,12 +164,15 @@ class HighlightPatch implements Row {
         if (r==0 && rcOffset>0) {
             // skip rc row if present
         } else if (code=="@@") {
-            headerRow = r;
+            preambleRow = headerRow = r;
             applyHeader();
             applyAction("@@");
         } else if (code=="!") {
-            headerRow = r;
+            preambleRow = headerRow = r;
             applyMeta();
+        } else if (code.indexOf("@")==0) {
+            flags.addWarning("cannot usefully apply diffs with metadata yet: '" + code + "'");
+            preambleRow = r;
         } else if (code=="+++") {
             applyAction(code);
         } else if (code=="---") {
@@ -337,7 +345,7 @@ class HighlightPatch implements Row {
     }
 
     public function isPreamble() : Bool {
-        return (currentRow<=headerRow);
+        return (currentRow<=preambleRow);
     }
 
     private function sortMods(a: HighlightPatchUnit,b: HighlightPatchUnit) {

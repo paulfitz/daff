@@ -16,6 +16,8 @@ class SimpleTable implements Table {
     private var data : Map<Int,Dynamic>;
     private var w : Int;
     private var h : Int;
+    private var metadata : Map<String,Map<String,Dynamic>>;
+    private var keys : Map<String,Bool>;
 
     /**
      *
@@ -28,6 +30,8 @@ class SimpleTable implements Table {
         data = new Map<Int,Dynamic>();
         this.w = w;
         this.h = h;
+        this.metadata = null;
+        this.keys = null;
     }
 
     public function getTable() : Table {
@@ -69,7 +73,7 @@ class SimpleTable implements Table {
         var x : String = "";
         for (i in 0...tab.height) {
             for (j in 0...tab.width) {
-                if (j>0) x += " ";
+                if (j>0) x += ",";
                 x += tab.getCell(j,i);
             }
             x += "\n";
@@ -208,6 +212,57 @@ class SimpleTable implements Table {
                 result.setCell(j,i,getCell(j,i));
             }
         }
+        if (metadata!=null) {
+            result.keys = new Map<String,Bool>();
+            for (k in keys.keys()) { result.keys.set(k,true); }
+            result.metadata = new Map<String,Map<String,Dynamic>>();
+            for (k in metadata.keys()) {
+                if (!metadata.exists(k)) continue;
+                var vals = metadata.get(k);
+                var nvals = new Map<String,Dynamic>();
+                for (p in vals.keys()) {
+                    nvals.set(p,vals.get(p));
+                }
+                result.metadata.set(k,nvals);
+            }
+        }
         return result;
+    }
+
+    public function addMetaData(column: String, property: String, val: Dynamic) {
+        if (metadata == null) {
+            metadata = new Map<String,Map<String,Dynamic>>();
+            keys = new Map<String,Bool>();
+        }
+        if (!metadata.exists(column)) {
+            metadata.set(column,new Map<String,Dynamic>());
+        }
+        var props = metadata.get(column);
+        props.set(property,val);
+        keys.set(property,true);
+    }
+
+    public function getMetaTable() : Table {
+        if (metadata==null) return null;
+        var props = new Array<String>();
+        for (k in keys.keys()) { props.push(k); }
+        props.sort(Reflect.compare);
+        var t = new SimpleTable(w+1,props.length+1);
+        t.setCell(0,0,"@");
+        for (x in 0...w) {
+            var name = getCell(x,0);
+            t.setCell(1+x,0,name);
+            if (!metadata.exists(name)) continue;
+            var vals = metadata.get(name);
+            for (i in 0...(props.length)) {
+                if (vals.exists(props[i])) {
+                    t.setCell(1+x,i+1,vals.get(props[i]));
+                }
+            }
+        }
+        for (y in 0...(props.length)) {
+            t.setCell(0,y+1,props[y]);
+        }
+        return t;
     }
 }

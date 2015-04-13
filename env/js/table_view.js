@@ -239,6 +239,10 @@ TableView.prototype.isSimilar = function(alt) {
     return true;
 }
 
+TableView.prototype.getMetaTable = function() {
+    return null;
+}
+
 if (typeof exports != "undefined") {
     exports.CellView = CellView;
     exports.TableView = TableView;

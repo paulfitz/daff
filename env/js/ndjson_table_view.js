@@ -117,6 +117,10 @@ NdjsonTable.prototype.insertOrDeleteColumns = function(fate, wfate) {
     return false;
 }
 
+NdjsonTable.prototype.getMetaTable = function() {
+    return null;
+}
+
 
 if (typeof exports != "undefined") {
     exports.NdjsonTable = NdjsonTable;
