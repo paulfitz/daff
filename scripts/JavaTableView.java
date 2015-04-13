@@ -134,6 +134,9 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
 	return result;
     }
 
+    @Override public coopy.Meta getMeta() {
+	return null;
+    }
 
     /*
      *
@@ -263,6 +266,8 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
 	    }
 	    break;
 	}
+
+        // pending: add getMetaView here and in __hx_getField_f
 			
 	if (onwards) {
 	    return super.__hx_getField(field, throwErrors, isCheck, handleProperties);

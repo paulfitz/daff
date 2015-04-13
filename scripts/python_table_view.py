@@ -152,3 +152,6 @@ class PythonTableView(Table):
             for r in range(self.height):
                 result.setCell(c,r,self.getCell(c,r))
         return result
+
+    def getMeta(self):
+        return None

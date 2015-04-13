@@ -162,6 +162,10 @@ class SqlTable implements Table {
     public function clone() : Table {
         return null;
     }
+
+    public function getMeta() : Meta {
+        return null;
+    }
 }
 
 

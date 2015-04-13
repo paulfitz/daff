@@ -123,6 +123,13 @@ class CompareFlags {
      */
     public var allow_nested_cells : Bool;
 
+    /**
+     *
+     * List of warnings generated during a comparison.
+     *
+     */
+    public var warnings : Array<String>;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -136,6 +143,7 @@ class CompareFlags {
         ids = null;
         columns_to_ignore = null;
         allow_nested_cells = false;
+        warnings = null;
     }
 
     /**
@@ -228,6 +236,28 @@ class CompareFlags {
     public function ignoreColumn(column: String) : Void {
         if (columns_to_ignore==null) columns_to_ignore = new Array<String>();
         columns_to_ignore.push(column);
+    }
+
+    /**
+     *
+     * Add a warning. Used by daff to pass non-critical information
+     * to the developer without disrupting operations.
+     *
+     * @param warn the warning text to record
+     *
+     */
+    public function addWarning(warn: String) : Void {
+        if (warnings==null) warnings = new Array<String>();
+        warnings.push(warn);
+    }
+
+    /**
+     *
+     * @return any warnings generated during an operation.
+     *
+     */
+    public function getWarning() : String {
+        return warnings.join("\n");
     }
 }
 

@@ -171,4 +171,12 @@ interface Table {
      *
      */
     function clone() : Table;
+
+    /**
+     *
+     * @return a interface to the columns of this table, or null
+     * if no interface is available.
+     *
+     */
+    function getMeta() : Meta;
 }

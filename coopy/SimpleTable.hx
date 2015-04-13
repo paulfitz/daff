@@ -16,6 +16,7 @@ class SimpleTable implements Table {
     private var data : Map<Int,Dynamic>;
     private var w : Int;
     private var h : Int;
+    private var meta : Meta;
 
     /**
      *
@@ -28,6 +29,7 @@ class SimpleTable implements Table {
         data = new Map<Int,Dynamic>();
         this.w = w;
         this.h = h;
+        this.meta = null;
     }
 
     public function getTable() : Table {
@@ -69,7 +71,7 @@ class SimpleTable implements Table {
         var x : String = "";
         for (i in 0...tab.height) {
             for (j in 0...tab.width) {
-                if (j>0) x += " ";
+                if (j>0) x += ",";
                 x += tab.getCell(j,i);
             }
             x += "\n";
@@ -208,6 +210,17 @@ class SimpleTable implements Table {
                 result.setCell(j,i,getCell(j,i));
             }
         }
+        if (meta!=null) {
+            result.meta = meta.clone(result);
+        }
         return result;
+    }
+
+    public function setMeta(meta: Meta) {
+        this.meta = meta;
+    }
+
+    public function getMeta() : Meta {
+        return meta;
     }
 }

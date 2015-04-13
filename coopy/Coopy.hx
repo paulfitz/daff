@@ -106,6 +106,22 @@ class Coopy {
         return o;
     }
 
+
+    /**
+     *
+     * Apply a patch to a table.
+     *
+     * @param local the reference version of the table
+     * @param patch the changes to apply (in daff format)
+     * @param flags control how the patch operations will be made
+     * @return true on success
+     *
+     */
+    static public function patch(local: Table, patch: Table, ?flags: CompareFlags) : Bool {
+        var patcher = new HighlightPatch(local,patch);
+        return patcher.apply();
+    }
+
     /**
      *
      * Prepare to compare two tables.

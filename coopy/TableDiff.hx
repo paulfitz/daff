@@ -58,6 +58,10 @@ class TableDiff {
     private var act : String;
     private var publish : Bool;
 
+    private var diff_found : Bool;
+    private var schema_diff_found : Bool;
+    private var preserve_columns : Bool;
+
     /**
      *
      * Constructor.
@@ -70,6 +74,7 @@ class TableDiff {
         this.align = align;
         this.flags = flags;
         builder = null;
+        preserve_columns = false;
     }
 
     /**
@@ -250,6 +255,8 @@ class TableDiff {
         sep = "";
         conflict_sep = "";
         top_line_done = false;
+        diff_found = false;
+        schema_diff_found = false;
     }
 
     private function setupTables() : Void {
@@ -510,6 +517,7 @@ class TableDiff {
             for (j in 0...column_units.length) {
                 output.setCell(j+1,at,v.toDatum(schema[j]));
             }
+            schema_diff_found = true;
         }
     }
 
@@ -537,6 +545,73 @@ class TableDiff {
         }
     }
 
+    private function checkMeta(t: Table, meta: Table) : Bool {
+        if (meta.width!=t.width+1) return false;
+        if (meta.width==0||meta.height==0) return false;
+        return true;
+    }
+
+    private function getMetaTable(t: Table) : Table {
+        var meta = t.getMeta();
+        if (meta==null) return null;
+        return meta.asTable();
+    }
+
+    private function addMeta(output: Table) : Bool {
+        // do nothing yet
+        var a_meta : Table;
+        var b_meta : Table;
+        var p_meta : Table;
+        a_meta = getMetaTable(a);
+        b_meta = getMetaTable(b);
+        p_meta = getMetaTable(p);
+        if (a_meta==null || b_meta==null || p_meta==null) return false;
+        if (!checkMeta(a,a_meta)) return false;
+        if (!checkMeta(b,b_meta)) return false;
+        if (!checkMeta(p,p_meta)) return false;
+
+        // Crude method: create a temporary table, write meta diff to it, copy as needed.
+
+        var meta_diff = new SimpleTable(0,0);
+        var meta_flags = new CompareFlags();
+        meta_flags.addPrimaryKey("@@");
+        meta_flags.addPrimaryKey("@");
+        meta_flags.unchanged_context = 0;
+        var meta_align = Coopy.compareTables3((a_meta==p_meta)?null:p_meta,a_meta,b_meta,meta_flags).align();
+        var td = new TableDiff(meta_align,meta_flags);
+        td.preserve_columns = true;
+        td.hilite(meta_diff);
+
+        if (td.hasDifference()) {
+            var h = output.height;
+            var dh = meta_diff.height;
+            var offset = td.hasSchemaDifference()?2:1;
+            output.resize(output.width,h+dh-offset);
+            var v = meta_diff.getCellView();
+            for (y in offset...dh) {
+                for (x in 1...meta_diff.width) {
+                    var c = meta_diff.getCell(x,y);
+                    if (x==1) {
+                        c = "@" + v.toString(c) + "@" + v.toString(meta_diff.getCell(0,y));
+                    }
+                    output.setCell(x-1,h+y-offset,c);
+                }
+            }
+            if (active_column!=null) {
+                if (td.active_column.length == meta_diff.width) {
+                    // if not equal, there was no change
+                    for (i in 1...meta_diff.width) {
+                        if (td.active_column[i]>=0) {
+                            active_column[i-1] = 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     private function refineActivity() {
         spreadContext(row_units,flags.unchanged_context,active_row);
         spreadContext(column_units,flags.unchanged_column_context,
@@ -550,7 +625,21 @@ class TableDiff {
         }
     }
 
-    public function scanRow(unit: Unit, output: Table, at: Int, i: Int) {
+    /**
+     *
+     * Generate diff for given l/r/p row unit #i.
+     *
+     * Relies on state of:
+     *   column_units, tables a/b/p, flags, view v,
+     *   allow_update, active_column, sep, conflict_sep, publish, active_row
+     *
+     * @param unit the index of the row to compare in each table
+     * @param output where to store the diff
+     * @param at the current row location in the output table
+     * @param i the index of the row unit
+     *
+     */
+    private function scanRow(unit: Unit, output: Table, at: Int, i: Int) {
         for (j in 0...column_units.length) {
             var cunit : Unit = column_units[j];
             var pp : Dynamic = null;
@@ -689,6 +778,7 @@ class TableDiff {
         }
 
         if (act!="") {
+            diff_found = true;
             if (!publish) {
                 if (active_row!=null) {
                     active_row[i] = 1;
@@ -725,6 +815,7 @@ class TableDiff {
         scanSchema();
         addSchema(output);
         addHeader(output);
+        addMeta(output);
 
         // If we are omitting unchanged rows/columns, we need two passes,
         // the first to compute what has changed, and the second to
@@ -828,9 +919,27 @@ class TableDiff {
         checkRcNumbers(output.width,output.height);
 
         var admin_w : Int = addRcNumbers(output);
-        elideColumns(output,admin_w);
+        if (!preserve_columns) elideColumns(output,admin_w);
 
         return true;
+    }
+
+    /**
+     *
+     * @return true if a difference was found during call to `hilite()`
+     *
+     */
+    public function hasDifference() : Bool {
+        return diff_found;
+    }
+
+    /**
+     *
+     * @return true if a schema difference was found during call to `hilite()`
+     *
+     */
+    public function hasSchemaDifference() : Bool {
+        return schema_diff_found;
     }
 }
 

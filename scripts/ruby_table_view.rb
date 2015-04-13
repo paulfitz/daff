@@ -135,4 +135,8 @@ class RubyTableView < Coopy::Table
     end
     result
   end
+
+  def get_meta
+    nil
+  end
 end
