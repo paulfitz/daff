@@ -532,6 +532,17 @@ class Coopy {
                 } else if (tag=="--all") {
                     more = true;
                     flags.show_unchanged = true;
+                    flags.show_unchanged_columns = true;
+                    args.splice(i,1);
+                    break;
+                } else if (tag=="--all-rows") {
+                    more = true;
+                    flags.show_unchanged = true;
+                    args.splice(i,1);
+                    break;
+                } else if (tag=="--all-columns") {
+                    more = true;
+                    flags.show_unchanged_columns = true;
                     args.splice(i,1);
                     break;
                 } else if (tag=="--act") {
@@ -669,7 +680,9 @@ class Coopy {
             io.writeStderr("If you need more control, here is the full list of flags:\n");
             io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
             io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
-            io.writeStderr("     --all:         do not prune unchanged rows\n");
+            io.writeStderr("     --all:         do not prune unchanged rows or columns\n");
+            io.writeStderr("     --all-rows:    do not prune unchanged rows\n");
+            io.writeStderr("     --all-columns: do not prune unchanged columns\n");
             io.writeStderr("     --color:       highlight changes with terminal colors (default in terminals)\n");
             io.writeStderr("     --no-color:    make sure terminal colors are not used\n");
             io.writeStderr("     --context NUM: show NUM rows of context\n");
