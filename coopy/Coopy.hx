@@ -54,6 +54,29 @@ class Coopy {
     }
 
     /**
+     * Compare and visualize two tables in the typical case.
+     *
+     * @param local the reference version of the table
+     * @param remote another version of the table
+     * @param flags control how the comparison will be made
+     * @return a string you can print to html or terminal
+     *
+     */
+    static public function compareAndRenderTables(local: Table, remote: Table, ?flags: CompareFlags) : CompareTable {
+        var comp : TableComparisonState = new TableComparisonState();
+        comp.a = local;
+        comp.b = remote;
+        comp.compare_flags = flags;
+        var ct: CompareTable = new CompareTable(comp);
+        var align : Alignment = ct.align();
+        var td : TableDiff = new TableDiff(align,flags);
+        var o = new SimpleTable(0,0);
+        td.hilite(o);
+        var render = new TerminalDiffRender();
+        return render.render(o);
+    }
+
+    /**
      *
      * Prepare to compare two tables.
      *
@@ -199,7 +222,7 @@ class Coopy {
         } else {
             io.writeStdout(txt);
         }
-        return true;        
+        return true;
     }
 
     private static function cellFor(x: Dynamic) : Dynamic {
@@ -389,7 +412,7 @@ class Coopy {
                 if (r==999) return r;
                 status.set(key,r);
             }
-            
+
             var have_diff_driver = status.get(key)==0;
 
             key = "add_diff_driver_" + format;
@@ -411,7 +434,7 @@ class Coopy {
                 if (r==999) return r;
                 status.set(key,r);
             }
-            
+
             var have_merge_driver = status.get(key)==0;
 
             key = "name_merge_driver_" + format;
@@ -444,7 +467,7 @@ class Coopy {
             io.writeStderr("! Please run again from the root of a git repository.\n");
             return 1;
         }
-            
+
         var attr = ".gitattributes";
         var txt = "";
         var post = "";
@@ -630,7 +653,7 @@ class Coopy {
         }
 
         var cmd : String = args[0];
-        
+
         if (args.length < 2) {
             if (cmd == "version") {
                 io.writeStdout(VERSION + "\n");
@@ -656,7 +679,7 @@ class Coopy {
                 io.writeStdout("  [merge \"daff-csv\"]\n");
                 io.writeStdout("  name = daff tabular merge\n");
                 io.writeStdout("  driver = daff merge --output %A %O %A %B\n\n");
-                
+
                 io.writeStderr("Make sure you can run daff from the command-line as just \"daff\" - if not,\nreplace \"daff\" in the driver and command lines above with the correct way\nto call it. Add --no-color if your terminal does not support ANSI colors.");
                 io.writeStderr("\n");
                 return 0;
