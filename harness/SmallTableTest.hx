@@ -19,6 +19,11 @@ class SmallTableTest extends haxe.unit.TestCase {
         var highlighter = new coopy.TableDiff(alignment,flags);
         highlighter.hilite(table_diff);
         if (verbose) trace("Diff: " + table_diff);
+
+        // while we are at it, make sure coopy.diff works the same way
+        var o = coopy.Coopy.diff(table1,table2);
+        assertTrue(coopy.SimpleTable.tableIsSimilar(table_diff,o));
+
         var table3 = table1.clone();
         var patcher = new coopy.HighlightPatch(table3,table_diff);
         patcher.apply();
