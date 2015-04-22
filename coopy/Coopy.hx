@@ -54,26 +54,56 @@ class Coopy {
     }
 
     /**
-     * Compare and visualize two tables in the typical case.
+     * Compare two tables and visualize their difference using html
      *
      * @param local the reference version of the table
      * @param remote another version of the table
      * @param flags control how the comparison will be made
-     * @return a string you can print to html or terminal
+     * @return an html string like that produced by `daff --output-format html --fragment a.csv b.csv`
      *
      */
-    static public function compareAndRenderTables(local: Table, remote: Table, ?flags: CompareFlags) : CompareTable {
+    static public function diffAsHtml(local: Table, remote: Table, ?flags: CompareFlags) : String {
+        var o = diff(local,remote,flags);
+        var render = new DiffRender();
+        return render.render(o).html();
+    }
+
+    /**
+     * Compare two tables and visualize their difference in text decorated with ansi console codes
+     *
+     * @param local the reference version of the table
+     * @param remote another version of the table
+     * @param flags control how the comparison will be made
+     * @return a string like that produced by `daff --color a.csv b.csv`
+     *
+     */
+    static public function diffAsAnsi(local: Table, remote: Table, ?flags: CompareFlags) : String {
+        var o = diff(local,remote,flags);
+        var render = new TerminalDiffRender();
+        return render.render(o);
+    }
+
+    /**
+     * Compare two tables and visualize their difference as another table
+     *
+     * @param local the reference version of the table
+     * @param remote another version of the table
+     * @param flags control how the comparison will be made
+     * @return a table like that produced by `daff a.csv b.csv`
+     *
+     */
+    static public function diff(local: Table, remote: Table, ?flags: CompareFlags) : Table {
         var comp : TableComparisonState = new TableComparisonState();
         comp.a = local;
         comp.b = remote;
+        if (flags==null) flags = new CompareFlags();
         comp.compare_flags = flags;
         var ct: CompareTable = new CompareTable(comp);
         var align : Alignment = ct.align();
         var td : TableDiff = new TableDiff(align,flags);
         var o = new SimpleTable(0,0);
         td.hilite(o);
-        var render = new TerminalDiffRender();
-        return render.render(o);
+        return o;
     }
 
     /**
