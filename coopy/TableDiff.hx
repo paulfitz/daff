@@ -535,7 +535,6 @@ class TableDiff {
             }
             top_line_done = true;
         }
-
     }
 
     private function refineActivity() {
@@ -770,7 +769,7 @@ class TableDiff {
 
                 if (unit.r<0 && unit.l<0) continue;
                 
-                if (unit.r==0 && unit.lp()==0 && top_line_done) continue;
+                if (unit.r==0 && unit.lp()<=0 && top_line_done) continue;
 
                 publish = flags.show_unchanged;
                 var dummy : Bool = false;

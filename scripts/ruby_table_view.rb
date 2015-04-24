@@ -73,8 +73,8 @@ class RubyTableView < Coopy::Table
     @data.clear
     ndata.length.times do |i|
       @data[i] = ndata[i]
-      self.resize(@width,hfate)
     end
+    self.resize(@width,hfate)
     true
   end
 
