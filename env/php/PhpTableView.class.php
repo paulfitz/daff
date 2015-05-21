@@ -186,4 +186,8 @@ class coopy_PhpTableView implements coopy_Table{
   public function getMetaTable() {
     return null;
   }
+
+  public function getMeta() {
+    return null;
+  }
 }

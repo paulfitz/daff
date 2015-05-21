@@ -81,7 +81,7 @@ class CombinedTableHead implements Table {
     }
 
     public function insertOrDeleteColumns(fate: Array<Int>, wfate: Int) : Bool {
-        return false;
+        return all.insertOrDeleteColumns(fate,wfate);
     }
 
     public function trimBlank() : Bool {
@@ -97,6 +97,10 @@ class CombinedTableHead implements Table {
     }
 
     public function getMetaTable() : Table {
+        return null;
+    }
+
+    public function getMeta() : Meta {
         return null;
     }
 }

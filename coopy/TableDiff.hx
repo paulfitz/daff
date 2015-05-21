@@ -586,7 +586,7 @@ class TableDiff {
                 for (x in 1...meta_diff.width) {
                     var c = meta_diff.getCell(x,y);
                     if (x==1) {
-                        c = "@" + v.toString(c) + ":" + v.toString(meta_diff.getCell(0,y));
+                        c = "@" + v.toString(c) + "@" + v.toString(meta_diff.getCell(0,y));
                     }
                     output.setCell(x-1,h+y-offset,c);
                 }

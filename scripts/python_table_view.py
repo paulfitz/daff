@@ -155,3 +155,6 @@ class PythonTableView(Table):
 
     def getMetaTable(self):
         return None
+
+    def getMeta(self):
+        return None

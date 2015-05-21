@@ -265,4 +265,10 @@ class SimpleTable implements Table {
         }
         return t;
     }
+
+    public function getMeta() : Meta {
+        var t = getMetaTable();
+        if (t==null) return null;
+        return new SimpleMeta(t);
+    }
 }

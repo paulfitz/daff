@@ -125,4 +125,8 @@ class CombinedTableBody implements Table {
     public function getMetaTable() : Table {
         return parent.getMetaTable();
     }
+
+    public function getMeta() : Meta {
+        return parent.getMeta();
+    }
 }

@@ -117,4 +117,8 @@ class CombinedTable implements Table {
     public function getMetaTable() : Table {
         return head;
     }
+
+    public function getMeta() : Meta {
+        return new SimpleMeta(head);
+    }
 }

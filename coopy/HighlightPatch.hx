@@ -43,6 +43,8 @@ class HighlightPatch implements Row {
     private var indexes : Array<IndexPair>; // cached indexes for querying src
     private var sourceInPatchCol : Map<Int,Int>; // (src col -> patch col)
     private var patchInSourceCol : Map<Int,Int>; // (patch col -> src col)
+    private var destInPatchCol : Map<Int,Int>;   // (dest col -> patch col)
+    private var patchInDestCol : Map<Int,Int>;   // (patch col -> dest col)
     private var patchInSourceRow : Map<Int,Int>; // (patch row -> src row)
     private var lastSourceRow : Int;
     private var actions : Array<String>;
@@ -54,6 +56,11 @@ class HighlightPatch implements Row {
     private var headerRow : Int;
     private var preambleRow : Int;
     private var flags : CompareFlags;
+
+    private var meta_change : Bool;
+    private var process_meta : Bool;
+    private var prev_meta : Map<String,Array<PropertyChange>>;
+    private var next_meta : Map<String,Array<PropertyChange>>;
 
     /**
      *
@@ -71,7 +78,7 @@ class HighlightPatch implements Row {
         view = patch.getCellView();
         sourceView = source.getCellView();
     }
-     
+
     private function reset() : Void {
         header = new Map<Int,String>();
         headerPre = new Map<String,Int>();
@@ -87,7 +94,7 @@ class HighlightPatch implements Row {
         rowInfo = new CellInfo();
         cellInfo = new CellInfo();
 
-        sourceInPatchCol = patchInSourceCol = null;
+        sourceInPatchCol = patchInSourceCol = patchInDestCol = null;
         patchInSourceRow = new Map<Int,Int>();
         indexes = null;
         lastSourceRow = -1;
@@ -99,6 +106,15 @@ class HighlightPatch implements Row {
         haveDroppedColumns = false;
         headerRow = 0;
         preambleRow = 0;
+
+        meta_change = false;
+        process_meta = false;
+        prev_meta = null;
+        next_meta = null;
+    }
+
+    private function processMeta() {
+        process_meta = true;
     }
 
     /**
@@ -124,8 +140,9 @@ class HighlightPatch implements Row {
         for (r in 0...patch.height) {
             applyRow(r);
         }
-        finishRows();
+        // switching order so column meta will be dealt with before touching rows
         finishColumns();
+        finishRows();
         return true;
     }
 
@@ -145,6 +162,21 @@ class HighlightPatch implements Row {
         }
     }
 
+    private function needDestColumns() : Void {
+        if (patchInDestCol!=null) return;
+
+        patchInDestCol = new Map<Int,Int>();
+        destInPatchCol = new Map<Int,Int>();
+
+        // make sure we know where dest columns are
+        for (cmod in cmods) {
+            if (cmod.patchRow!=-1) {
+                patchInDestCol.set(cmod.patchRow,cmod.destRow);
+                destInPatchCol.set(cmod.destRow,cmod.patchRow);
+            }
+        }
+    }
+
     private function needSourceIndex() : Void {
         if (indexes!=null) return;
         var state : TableComparisonState = new TableComparisonState();
@@ -158,31 +190,100 @@ class HighlightPatch implements Row {
         needSourceColumns();
     }
 
+
+    private function setMetaProp(target: Map<String,Array<PropertyChange>>,
+                                 column_name: String, prop_name: String,
+                                 value:Dynamic) {
+        if (column_name==null) return;
+        if (prop_name==null) return;
+        if (!target.exists(column_name)) {
+            target.set(column_name,new Array<PropertyChange>());
+        }
+        var change = new PropertyChange();
+        change.prevName = prop_name;
+        change.name = prop_name;
+        if (value=="") value = null;  // normalize blank as null for meta information
+        change.val = value;
+        target.get(column_name).push(change);
+    }
+
+    private function applyMetaRow(code: String) : Void {
+        needSourceColumns();
+        //needDestColumns();
+        var codes = code.split("@");
+        var prop_name = "";
+        if (codes.length>1) {
+            prop_name = codes[codes.length-2];
+        }
+        if (codes.length>0) {
+            code = codes[codes.length-1];
+        }
+        if (prev_meta==null) prev_meta = new Map<String,Array<PropertyChange>>();
+        if (next_meta==null) next_meta = new Map<String,Array<PropertyChange>>();
+        for (i in payloadCol...payloadTop) {
+            var txt : String = getString(i);
+            var idx_patch = i;
+            var idx_src = patchInSourceCol.exists(idx_patch) ? patchInSourceCol.get(idx_patch) : -1;
+            var prev_name : String = null;
+            var name : String = null;
+            if (idx_src!=-1) prev_name = source.getCell(idx_src,0);
+            if (header.exists(idx_patch)) name = header.get(idx_patch);
+            DiffRender.examineCell(0,0,view,txt,"",code,"",cellInfo);
+            if (cellInfo.updated) {
+                setMetaProp(prev_meta,prev_name,prop_name,cellInfo.lvalue);
+                setMetaProp(next_meta,name,prop_name,cellInfo.rvalue);
+            } else {
+                setMetaProp(prev_meta,prev_name,prop_name,cellInfo.value);
+                setMetaProp(next_meta,name,prop_name,cellInfo.value);
+            }
+        }
+    }
+
     private function applyRow(r: Int) : Void {
         currentRow = r;
         var code : String = actions[r];
+        var done = false;
         if (r==0 && rcOffset>0) {
             // skip rc row if present
+            done = true;
         } else if (code=="@@") {
             preambleRow = headerRow = r;
             applyHeader();
             applyAction("@@");
+            done = true;
         } else if (code=="!") {
             preambleRow = headerRow = r;
             applyMeta();
+            done = true;
         } else if (code.indexOf("@")==0) {
             flags.addWarning("cannot usefully apply diffs with metadata yet: '" + code + "'");
             preambleRow = r;
-        } else if (code=="+++") {
-            applyAction(code);
-        } else if (code=="---") {
-            applyAction(code);
-        } else if (code=="+"||code==":") {
-            applyAction(code);
-        } else if (code.indexOf("->")>=0) {
-            applyAction("->");
-        } else {
-            lastSourceRow = -1;
+            applyMetaRow(code);
+            if (process_meta) {
+                var codes = code.split("@");
+                if (codes.length>0) {
+                    code = codes[codes.length-1];
+                }
+            } else {
+                meta_change = true;
+                done = true;
+            }
+            meta_change = true;
+            done = true;
+        }
+        if (process_meta) return; // don't do anything beyond this point
+        if (!done) {
+            if (code=="+++") {
+                applyAction(code);
+            } else if (code=="---") {
+                applyAction(code);
+            } else if (code=="+"||code==":") {
+                applyAction(code);
+            } else if (code.indexOf("->")>=0) {
+                applyAction("->");
+            } else {
+                lastSourceRow = -1;
+            }
         }
     }
 
@@ -248,7 +349,9 @@ class HighlightPatch implements Row {
         currentRow += del;
         if (currentRow>=0 && currentRow<patch.height) {
             for (idx in indexes) {
+
                 var match : CrossMatch = idx.queryByContent(this);
+                
                 if (match.spot_a == 0) continue;
                 if (match.spot_a == 1) {
                     result = match.item_a.value();
@@ -495,6 +598,16 @@ class HighlightPatch implements Row {
     }
 
     private function finishRows() : Void {
+        if (source.width==0) {
+            // no columns left
+            if (source.height!=0) {
+                // behavior of native tables not defined when a dimension is 0
+                // so we normalize
+                source.resize(0,0);
+            }
+            return;
+        }
+
         var fate : Array<Int> = new Array<Int>();
         permuteRows();
         if (rowPermutation.length>0) {
@@ -512,11 +625,12 @@ class HighlightPatch implements Row {
         var len : Int = processMods(mods,fate,source.height);
         source.insertOrDeleteRows(fate,len);
 
+        needDestColumns();
         for (mod in mods) {
             if (!mod.rem) {
                 if (mod.add) {
                     for (c in headerPost) {
-                        var offset : Null<Int> = patchInSourceCol.get(c);
+                        var offset : Null<Int> = patchInDestCol.get(c);
                         if (offset!=null && offset>=0) {
                             source.setCell(offset,
                                            mod.destRow,
@@ -535,12 +649,41 @@ class HighlightPatch implements Row {
                         if (!cellInfo.updated) continue;
                         if (cellInfo.conflicted) continue; // skip conflicted
                         var d : Dynamic = view.toDatum(csv.parseCell(cellInfo.rvalue));
-                        source.setCell(patchInSourceCol.get(c),
-                                       mod.destRow,
-                                       d);
+                        var offset = patchInDestCol.get(c);
+                        if (offset!=null && offset>=0) {
+                            source.setCell(patchInDestCol.get(c),
+                                           mod.destRow,
+                                           d);
+                        }
                     }
                 }
             }
+        }
+
+        for (cmod in cmods) {
+            if (!cmod.rem) {
+                if (cmod.add) {
+                    for (mod in mods) {
+                        if (mod.patchRow!=-1 && mod.destRow!=-1) {
+                            var d : Dynamic = patch.getCell(cmod.patchRow,
+                                                            mod.patchRow);
+                            source.setCell(cmod.destRow,
+                                           mod.destRow,
+                                           d);
+                        }
+                    }
+                    var hdr : String = header.get(cmod.patchRow);
+                    source.setCell(cmod.destRow,
+                                   0,
+                                   view.toDatum(hdr));
+                }
+            }
+        }
+        for (i in 0...source.width) {
+            var name : String = view.toString(source.getCell(i,0));
+            var next_name : String = headerRename.get(name);
+            if (next_name==null) continue;
+            source.setCell(i,0,view.toDatum(next_name));
         }
     }
 
@@ -606,6 +749,7 @@ class HighlightPatch implements Row {
         }
         var fate : Array<Int> = new Array<Int>();
         permuteColumns();
+        var meta = source.getMeta();
         if (headerMove!=null) {
             if (colPermutation.length>0) {
                 for (mod in cmods) {
@@ -613,36 +757,43 @@ class HighlightPatch implements Row {
                         mod.sourceRow = colPermutation[mod.sourceRow];
                     }
                 }
-                source.insertOrDeleteColumns(colPermutation,colPermutation.length);
+                if (meta==null) source.insertOrDeleteColumns(colPermutation,colPermutation.length);
             }
         }
 
         var len : Int = processMods(cmods,fate,source.width);
-        source.insertOrDeleteColumns(fate,len);
-        for (cmod in cmods) {
-            if (!cmod.rem) {
-                if (cmod.add) {
-                    for (mod in mods) {
-                        if (mod.patchRow!=-1 && mod.destRow!=-1) {
-                            var d : Dynamic = patch.getCell(cmod.patchRow,
-                                                            mod.patchRow);
-                            source.setCell(cmod.destRow,
-                                           mod.destRow,
-                                           d);
-                        }
-                    }
-                    var hdr : String = header.get(cmod.patchRow);
-                    source.setCell(cmod.destRow,
-                                   0,
-                                   view.toDatum(hdr));
+
+        if (meta==null) {
+            source.insertOrDeleteColumns(fate,len);
+            return;
+        }
+
+        var columns = new Array<ColumnChange>();
+        var target = new Map<Int,Int>();
+        var inc = function(x : Int) {
+            return (x<0)?x:(x+1);
+        }
+        for (i in 0...fate.length) {
+            target.set(i,inc(fate[i]));
+        }
+        needSourceColumns();
+        needDestColumns();
+        for (idx_patch in 1...patch.width) {
+            var change = new ColumnChange();
+            var idx_src = patchInSourceCol.exists(idx_patch) ? patchInSourceCol.get(idx_patch) : -1;
+            var prev_name : String = null;
+            var name : String = null;
+            if (idx_src!=-1) prev_name = source.getCell(idx_src,0);
+            if (header.exists(idx_patch)) name = header.get(idx_patch);
+            change.prevName = prev_name;
+            change.name = name;
+            if (next_meta!=null) {
+                if (next_meta.exists(name)) {
+                    change.props = next_meta.get(name);
                 }
             }
+            columns.push(change);
         }
-        for (i in 0...source.width) {
-            var name : String = view.toString(source.getCell(i,0));
-            var next_name : String = headerRename.get(name);
-            if (next_name==null) continue;
-            source.setCell(i,0,view.toDatum(next_name));
-        }
+        meta.alterColumns(columns);
     }
 }

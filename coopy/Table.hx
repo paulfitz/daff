@@ -185,4 +185,6 @@ interface Table {
      *
      */
     function getMetaTable() : Table;
+
+    function getMeta() : Meta;
 }

@@ -166,6 +166,10 @@ class SqlTable implements Table {
     public function getMetaTable() : Table {
         return null;
     }
+
+    public function getMeta() : Meta {
+        return null;
+    }
 }
 
 

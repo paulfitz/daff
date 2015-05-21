@@ -243,6 +243,10 @@ TableView.prototype.getMetaTable = function() {
     return null;
 }
 
+TableView.prototype.getMeta = function() {
+    return null;
+}
+
 if (typeof exports != "undefined") {
     exports.CellView = CellView;
     exports.TableView = TableView;
