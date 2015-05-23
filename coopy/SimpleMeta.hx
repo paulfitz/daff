@@ -13,11 +13,13 @@ class SimpleMeta implements Meta {
     private var t : Table;
     private var name2row : Map<String,Int>;
     private var name2col : Map<String,Int>;
+    private var has_properties : Bool;
 
-    public function new(t: Table) {
+    public function new(t: Table, has_properties: Bool = true) {
         this.t = t;
         rowChange();
         colChange();
+        this.has_properties = has_properties;
     }
 
     private function rowChange() {
@@ -54,19 +56,13 @@ class SimpleMeta implements Meta {
         return name2row.get(key);
     }
 
-    public function asTable() : Table {
-        return t;
-    }
-
-    public function canEditAsTable() : Bool {
-        return true;
-    }
-
     public function alterColumns(columns : Array<ColumnChange>) : Bool {
         var target = new Map<String,Int>();
         var wfate = 0;
-        target.set("@",wfate);
-        wfate++;
+        if (has_properties) {
+            target.set("@",wfate);
+            wfate++;
+        }
         for (i in 0...(columns.length)) {
             var col = columns[i];
             if (col.prevName!=null) {
@@ -84,7 +80,8 @@ class SimpleMeta implements Meta {
             fate.push(targeti);
         }
         t.insertOrDeleteColumns(fate,wfate);
-        var at = 1;
+        var start = has_properties ? 1 : 0;
+        var at = start;
         for (i in 0...(columns.length)) {
             var col = columns[i];
             if (col.name!=null) {
@@ -94,8 +91,9 @@ class SimpleMeta implements Meta {
             }
             if (col.name!=null) at++;
         }
+        if (!has_properties) return true;
         colChange();
-        at = 1;
+        at = start;
         for (i in 0...(columns.length)) {
             var col = columns[i];
             if (col.name!=null) {
@@ -108,133 +106,7 @@ class SimpleMeta implements Meta {
         return true;
     }
 
-    public function addColumn(key: String, vals: Map<String,Dynamic>, idx: Int = -1) : Bool {
-        colChange();
-        var d0 = t.width;
-        var d1 = t.height;
-        var fate = new Array<Int>();
-        if (idx==-1) idx = d0;
-        for (d in 0...d0) {
-            fate.push(d+((d>=idx)?1:0));
-        }
-        if (!t.insertOrDeleteColumns(fate,d0+1)) return false;
-        t.setCell(idx,0,key);
-        for (d in 1...d1) {
-            var k = t.getCell(0,d);
-            if (vals.exists(k)) {
-                t.setCell(idx,d,vals.get(k));
-            }
-        }
-        return true;
-    }
-
-    public function removeColumn(key: String) : Bool {
-        var d0 = t.width;
-        var idx = col(key);
-        if (idx==-1) return false;
-        colChange();
-        var fate = new Array<Int>();
-        for (d in 0...d0) {
-            if (idx==d) {
-                fate.push(-1);
-            } else {
-                fate.push(d-((d>=idx)?1:0));
-            }
-        }
-        return t.insertOrDeleteColumns(fate,d0-1);
-    }
-
-    public function renameColumn(prev: String, next: String) : Bool {
-        var d1 = t.height;
-        var idx = col(prev);
-        if (idx==-1) return false;
-        if (d1<1) return false;
-        colChange();
-        t.setCell(idx,0,next);
-        return true;
-    }
-
-    public function moveColumn(key: String, idx : Int) : Bool {
-        var d0 = t.width;
-        var idx2 = col(key);
-        if (idx2==-1) return false;
-        colChange();
-        if (idx==-1) idx = d0-1;
-        var fate = new Array<Int>();
-        for (d in 0...d0) {
-            var target = d;
-            if (d>=idx2) target--;
-            if (d>=idx) target++;
-            if (d==idx2) target = idx;
-            fate.push(target);
-        }
-        return t.insertOrDeleteColumns(fate,d0);
-    }
-
-    public function addRow(key: String, vals: Map<String,Dynamic>, idx : Int = -1) : Bool {
-        rowChange();
-        var d1 = t.width;
-        var d0 = t.height;
-        var fate = new Array<Int>();
-        if (idx==-1) idx = d0;
-        for (d in 0...d0) {
-            fate.push(d+((d>=idx)?1:0));
-        }
-        if (!t.insertOrDeleteRows(fate,d0+1)) return false;
-        t.setCell(0,idx,key);
-        for (d in 1...d1) {
-            var k = t.getCell(d,0);
-            if (vals.exists(k)) {
-                t.setCell(d,idx,vals.get(k));
-            }
-        }
-        return true;
-    }
-
-    public function removeRow(key: String) : Bool {
-        var d0 = t.height;
-        var idx = row(key);
-        if (idx==-1) return false;
-        rowChange();
-        var fate = new Array<Int>();
-        for (d in 0...d0) {
-            if (idx==d) {
-                fate.push(-1);
-            } else {
-                fate.push(d-((d>=idx)?1:0));
-            }
-        }
-        return t.insertOrDeleteRows(fate,d0-1);
-    }
-
-    public function renameRow(prev: String, next: String) : Bool {
-        var d1 = t.width;
-        var idx = row(prev);
-        if (idx==-1) return false;
-        if (d1<1) return false;
-        rowChange();
-        t.setCell(0,idx,next);
-        return true;
-    }
-
-    public function moveRow(key: String, idx : Int) : Bool {
-        var d0 = t.height;
-        var idx2 = row(key);
-        if (idx2==-1) return false;
-        rowChange();
-        if (idx==-1) idx = d0-1;
-        var fate = new Array<Int>();
-        for (d in 0...d0) {
-            var target = d;
-            if (d>=idx2) target--;
-            if (d>=idx) target++;
-            if (d==idx2) target = idx;
-            fate.push(target);
-        }
-        return t.insertOrDeleteRows(fate,d0);
-    }
-
-    public function setCell(c: String, r: String, val: Dynamic) : Bool {
+    private function setCell(c: String, r: String, val: Dynamic) : Bool {
         var ri = row(r);
         if (ri==-1) return false;
         var ci = col(c);

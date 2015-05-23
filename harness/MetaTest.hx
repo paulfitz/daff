@@ -4,29 +4,6 @@ package harness;
 
 class MetaTest extends haxe.unit.TestCase {
 
-    public function testMeta() {
-        var d1 : Array<Array<Dynamic>> = [["thing", "speed"],
-                                          ["me","slow"],
-                                          ["train", "fast"]];
-        var t1 = Native.table(d1);
-        var s = new coopy.SimpleMeta(t1);
-        var vals = new Map<String,Dynamic>();
-        vals.set("train",1);
-        vals.set("me",1);
-        s.addColumn("realness",vals);
-        vals.set("train","t");
-        vals.set("me","m");
-        s.addColumn("first_letter",vals);
-        s.removeColumn("speed");
-        s.renameColumn("thing","object");
-        s.moveRow("train",1);
-        s.renameRow("train","choo-choo");
-        s.setCell("first_letter","choo-choo","c");
-        s.moveColumn("first_letter",1);
-        assertEquals(t1.width,3);
-        assertEquals(t1.height,3);
-    }
-
     public function testMetaTable() {
         var t1 = new coopy.SimpleTable(3,2);
         t1.setCell(0,0,"name");
