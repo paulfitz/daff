@@ -124,11 +124,16 @@ class CompareTable {
             }
         }
 
+        var index_top : IndexPair = null;
+        var pending_ct : Int = ha;
+        var reverse_pending_ct : Int = hb;
+        var used : Map<Int,Int> = new Map<Int,Int>();
+        var used_reverse : Map<Int,Int> = new Map<Int,Int>();
         if (ids!=null) {
             // no need for heuristics, we've been told what columns
             // to use as a primary key
 
-            var index : IndexPair = new IndexPair();
+            index_top = new IndexPair();
             var ids_as_map = new Map<String,Bool>();
             for (id in ids) {
                 ids_as_map[id] = true;
@@ -137,20 +142,24 @@ class CompareTable {
                 var na = av.toString(a.getCell(unit.l,0));
                 var nb = av.toString(b.getCell(unit.r,0));
                 if (ids_as_map.exists(na)||ids_as_map.exists(nb)) {
-                    index.addColumns(unit.l,unit.r);
+                    index_top.addColumns(unit.l,unit.r);
                     align.addIndexColumns(unit);
                 }
             }
-            index.indexTables(a,b,1);
+            index_top.indexTables(a,b,1);
             if (indexes!=null) {
-                indexes.push(index);
+                indexes.push(index_top);
             }
             for (j in 0...ha) {
-                var cross: CrossMatch = index.queryLocal(j);
+                var cross: CrossMatch = index_top.queryLocal(j);
                 var spot_a : Int = cross.spot_a;
                 var spot_b : Int = cross.spot_b;
                 if (spot_a!=1 || spot_b!=1) continue;
-                align.link(j,cross.item_b.value());
+                var jb = cross.item_b.value();
+                align.link(j,jb);
+                used.set(jb,1);
+                if (!used_reverse.exists(j)) reverse_pending_ct--;
+                used_reverse.set(j,1);
             }
         } else {
             // heuristics needed
@@ -203,16 +212,13 @@ class CompareTable {
             var top : Int = Math.round(Math.pow(2,columns.length));
 
             var pending : Map<Int,Int> = new Map<Int,Int>();
-            var used : Map<Int,Int> = new Map<Int,Int>();
             for (j in 0...ha) {
                 pending.set(j,j);
             }
-            var pending_ct : Int = ha;
 
             var added_columns: Map<Int,Bool> = new Map<Int,Bool>();
             var index_ct : Int = 0;
         
-            var index_top : IndexPair = null;
             for (k in 0...top) {
                 if (k==0) continue;
                 if (pending_ct == 0) break;
@@ -268,6 +274,8 @@ class CompareTable {
                         fixed.push(j);
                         align.link(j,val);
                         used.set(val,1);
+                        if (!used_reverse.exists(j)) reverse_pending_ct--;
+                        used_reverse.set(j,1);
                     }
                 }
                 for (j in 0...fixed.length) {
@@ -275,38 +283,72 @@ class CompareTable {
                     pending_ct--;
                 }
             }
-
-            if (index_top!=null) {
-                var offset : Int = 0;
-                var scale : Int = 1;
-                for (sgn in 0...2) {
-                    if (pending_ct>0) {
-                        var xb : Null<Int> = null;
-                        if (scale==-1 && hb>0) xb = hb-1;
-                        for (xa0 in 0...ha) {
-                            var xa : Int = xa0*scale + offset;
-                            var xb2 : Null<Int> = align.a2b(xa);
-                            if (xb2!=null) {
-                                xb = xb2+scale;
-                                if (xb>=hb||xb<0) break;
-                                continue;
-                            }
-                            if (xb==null) continue;
-                            var ka = index_top.localKey(xa);
-                            var kb = index_top.remoteKey(xb);
-                            if (ka!=kb) continue;
-                            if (used.exists(xb)) continue;
-                            align.link(xa,xb);
-                            used.set(xb,1);
-                            pending_ct--;
-                            xb+=scale;
+        }
+        if (index_top!=null) {
+            // small optimization for duplicated lines,
+            // add them to alignment if it is a clear win
+            // to do so
+            var offset : Int = 0;
+            var scale : Int = 1;
+            for (sgn in 0...2) {
+                if (pending_ct>0) {
+                    var xb : Null<Int> = null;
+                    if (scale==-1 && hb>0) xb = hb-1;
+                    for (xa0 in 0...ha) {
+                        var xa : Int = xa0*scale + offset;
+                        var xb2 : Null<Int> = align.a2b(xa);
+                        if (xb2!=null) {
+                            xb = xb2+scale;
                             if (xb>=hb||xb<0) break;
-                            if (pending_ct==0) break;
+                            continue;
                         }
+                        if (xb==null) continue;
+                        var ka = index_top.localKey(xa);
+                        var kb = index_top.remoteKey(xb);
+                        if (ka!=kb) continue;
+                        if (used.exists(xb)) continue;
+                        align.link(xa,xb);
+                        used.set(xb,1);
+                        used_reverse.set(xa,1);
+                        pending_ct--;
+                        xb+=scale;
+                        if (xb>=hb||xb<0) break;
+                        if (pending_ct==0) break;
                     }
-                    offset = ha-1;
-                    scale = -1;
                 }
+                offset = ha-1;
+                scale = -1;
+            }
+            offset = 0;
+            scale = 1;
+            for (sgn in 0...2) {
+                if (reverse_pending_ct>0) {
+                    var xa : Null<Int> = null;
+                    if (scale==-1 && ha>0) xa = ha-1;
+                    for (xb0 in 0...hb) {
+                        var xb : Int = xb0*scale + offset;
+                        var xa2 : Null<Int> = align.b2a(xb);
+                        if (xa2!=null) {
+                            xa = xa2+scale;
+                            if (xa>=ha||xa<0) break;
+                            continue;
+                        }
+                        if (xa==null) continue;
+                        var ka = index_top.localKey(xa);
+                        var kb = index_top.remoteKey(xb);
+                        if (ka!=kb) continue;
+                        if (used_reverse.exists(xa)) continue;
+                        align.link(xa,xb);
+                        used.set(xb,1);
+                        used_reverse.set(xa,1);
+                        reverse_pending_ct--;
+                        xa+=scale;
+                        if (xa>=ha||xa<0) break;
+                        if (reverse_pending_ct==0) break;
+                    }
+                }
+                offset = hb-1;
+                scale = -1;
             }
         }
         // we expect headers on row 0 - link them even if quite different.
