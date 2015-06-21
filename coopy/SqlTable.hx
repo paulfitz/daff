@@ -5,7 +5,7 @@ package coopy;
 #end
 
 @:expose
-class SqlTable implements Table {
+class SqlTable implements Table implements Meta implements RowStream {
     private var db: SqlDatabase;
     private var columns: Array<SqlColumn>;
     private var name: SqlTableName;
@@ -30,6 +30,7 @@ class SqlTable implements Table {
         this.db = db;
         this.name = name;
         this.helper = helper;
+        if (helper==null) this.helper = db.getHelper();
         cache = new Map<Int,Map<Int,Dynamic>>();
         h = -1;
         id2rid = null;
@@ -149,10 +150,7 @@ class SqlTable implements Table {
 
     public function get_height() : Int {
         if (h>=0) return h;
-        if (helper==null) return -1;
-        id2rid = helper.getRowIDs(db,name);
-        h = id2rid.length+1;
-        return h;
+        return -1;
     }
 
     public function getData() : Dynamic {
@@ -164,7 +162,84 @@ class SqlTable implements Table {
     }
 
     public function getMeta() : Meta {
+        return this;
+    }
+
+    public function alterColumns(columns : Array<ColumnChange>) : Bool {
+        return false;
+    }
+
+    public function changeRow(rc: RowChange) : Bool {
+        if (helper==null) {
+            trace("No sql helper");
+            return false;
+        }
+        if (rc.action == "+++") {
+            return helper.insert(db,name,rc.val);
+        } else if (rc.action == "---") {
+            return helper.delete(db,name,rc.cond);
+        } else if (rc.action == "->") {
+            return helper.update(db,name,rc.cond,rc.val);
+        }
+        return false;
+    }
+
+    public function asTable() : Table {
+        var pct = 3;
+        getColumns();
+        var w = columnNames.length;
+        var mt = new SimpleTable(w+1,pct);
+        mt.setCell(0,0,"@");
+        mt.setCell(0,1,"type");
+        for (x in 0...w) {
+            var i = x+1;
+            mt.setCell(i,0,columnNames[x]);
+            mt.setCell(i,1,columns[x].type_value);
+        }
+        return mt;
+    }
+
+    public function useForColumnChanges() : Bool {
+        return true;
+    }
+
+    public function useForRowChanges() : Bool {
+        return true;
+    }
+
+    public function cloneMeta(table: Table = null) : Meta {
         return null;
+    }
+
+    public function applyFlags(flags: CompareFlags) : Bool {
+        return false;
+    }
+
+    public function getDatabase() : SqlDatabase {
+        return db;
+    }
+
+    public function getRowStream() : RowStream {
+        getColumns();
+        db.begin("SELECT * FROM " + getQuotedTableName() + " ORDER BY ?",[db.rowid()],columnNames);
+        return this;
+    }
+
+    public function fetchRow() : Map<String, Dynamic> {
+        if (db.read()) {
+            var row = new Map<String,Dynamic>();
+            for (i in 0...columnNames.length) {
+                row[columnNames[i]] = db.get(i);
+            }
+            return row;
+        } 
+        db.end();
+        return null;
+    }
+
+    public function fetchColumns() : Array<String> {
+        getColumns();
+        return columnNames;
     }
 }
 

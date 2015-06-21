@@ -22,6 +22,29 @@ interface Meta {
      */
     function alterColumns(columns : Array<ColumnChange>) : Bool;
 
+
+    /**
+     *
+     * Add, remove, or update a row of the table.
+     *
+     * @param rc the change to make.
+     *
+     * @return true on success.
+     *
+     */
+    function changeRow(rc: RowChange) : Bool;
+
+    /**
+     *
+     * Apply flags to control future changes to table.
+     *
+     * @param flags the desired options.
+     *
+     * @return true on success.
+     *
+     */
+    function applyFlags(flags: CompareFlags) : Bool;
+
     /**
      *
      * @return A table describing the columns of a table, if available.
@@ -38,8 +61,31 @@ interface Meta {
 
     /**
      *
-     * @return a copy of this object. Ok not to implement.
+     * Make a copy.  Deprecated.
+     *
+     * @return a copy of this object.
      *
      */
-    function clone(table: Table = null) : Meta;
+    function cloneMeta(table: Table = null) : Meta;
+
+    /**
+     *
+     * @return true if the interface can make column-level changes.
+     *
+     */
+    function useForColumnChanges() : Bool;
+
+    /**
+     *
+     * @return true if the interface can make row-level changes.
+     *
+     */
+    function useForRowChanges() : Bool;
+
+    /**
+     *
+     * @return a streaming interface for rows.
+     *
+     */
+    function getRowStream() : RowStream;
 }

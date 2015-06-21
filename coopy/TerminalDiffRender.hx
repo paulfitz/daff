@@ -51,6 +51,7 @@ class TerminalDiffRender {
 
         codes = new Map<String,String>();
         codes.set("header","\x1b[0;1m");
+        codes.set("meta","\x1b[0;1m");
         codes.set("spec","\x1b[35;1m");
         codes.set("add","\x1b[32;1m");
         codes.set("conflict","\x1b[33;1m");

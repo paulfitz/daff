@@ -211,7 +211,7 @@ class SimpleTable implements Table {
             }
         }
         if (meta!=null) {
-            result.meta = meta.clone(result);
+            result.meta = meta.cloneMeta(result);
         }
         return result;
     }

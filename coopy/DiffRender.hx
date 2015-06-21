@@ -139,12 +139,20 @@ class DiffRender {
         cell.pretty_separator = "";
         cell.conflicted = false;
         cell.updated = false;
-        cell.pvalue = cell.lvalue = cell.rvalue = null;
+        cell.meta = cell.pvalue = cell.lvalue = cell.rvalue = null;
         cell.value = value;
         if (cell.value==null) cell.value = "";
         cell.pretty_value = cell.value;
         if (vrow==null) vrow = "";
         if (vcol==null) vcol = "";
+        if (vrow.length>=3 && vrow.charAt(0) == "@" && vrow.charAt(1) != "@") {
+            var idx = vrow.indexOf("@",1);
+            if (idx>=0) {
+                cell.meta = vrow.substr(1,idx-1);
+                vrow = vrow.substr(idx+1,vrow.length);
+                cell.category = 'meta';
+            }
+        }
         var removed_column : Bool = false;
         if (vrow == ":") {
             cell.category = 'move';
@@ -327,7 +335,7 @@ class DiffRender {
             if (row_mode == "spec") {
                 change_row = row;
             }
-            if (row_mode == "header" || row_mode == "spec" || row_mode=="index") {
+            if (row_mode == "header" || row_mode == "spec" || row_mode=="index" || row_mode=="meta") {
                 setSection("head");
             } else {
                 setSection("body");
@@ -397,7 +405,7 @@ class DiffRender {
   padding: 3px 7px 2px;
 }
 
-.highlighter th, .highlighter .header { 
+.highlighter th, .highlighter .header, .highlighter .meta {
   background-color: #aaf;
   font-weight: bold;
   padding-bottom: 4px;

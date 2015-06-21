@@ -40,16 +40,16 @@ class Csv {
      */
     public function renderTable(t: Table) : String {
         var result: String = "";
-        var w : Int = t.width;
-        var h : Int = t.height;
         var txt : String = "";
         var v : View = t.getCellView();
-        for (y in 0...h) {
+        var stream = new TableStream(t);
+        var w = stream.width();
+        while (stream.fetch()) {
             for (x in 0...w) {
                 if (x>0) {
                     txt += delim;
                 }
-                txt += renderCell(v,t.getCell(x,y));
+                txt += renderCell(v,stream.getCell(x));
             }
             txt += "\r\n";  // The "standard" says line endings should be this
         }

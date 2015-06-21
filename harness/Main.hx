@@ -4,7 +4,10 @@ package harness;
 
 class Main {
 
-    static public function main() {
+    public function new() {
+    }
+
+    public function body() {
         var r = new haxe.unit.TestRunner();
         var cases = [
                      new BasicTest(), 
@@ -17,6 +20,10 @@ class Main {
                      new MetaTest()
                      ];
 
+        if (Native.hasSqlite()) {
+            cases.push(new SqlTest());
+        }
+
         var filter = "";
         for (c in cases) {
             var name = Type.getClassName(Type.getClass(c));
@@ -27,6 +34,13 @@ class Main {
         var ok = r.run();
         if (!ok) {
             Native.exit(1);
+        }
+    }
+
+    static public function main() {
+        var main = new Main();
+        if (!Native.wrap(main)) {
+            main.body();
         }
     }
 }

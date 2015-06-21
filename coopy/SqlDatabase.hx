@@ -20,4 +20,9 @@ interface SqlDatabase {
 
     // name of rowid/oid/... or null if there is none
     function rowid() : String;
+
+    function getHelper() : SqlHelper;
+
+    // if attaching is possible (basically just for sqlite), return non-null
+    function getNameForAttachment() : String;
 }
