@@ -109,18 +109,21 @@ py2: py
 	echo "Tweak python translation to work also on python2"
 	echo "We need 3to2, https://bitbucket.org/amentajo/lib3to2"
 	which 3to2
-	3to2 -x except -x printfunction -x print -w python_bin/daff.py
+	3to2 -x except -x printfunction -x print -w python_bin/daff.py > /dev/null
 	sed -i '14iimport codecs' python_bin/daff.py
 	sed -i 's/.*stream.writable.*//' python_bin/daff.py
 	sed -i 's/.*Read only stream.*//' python_bin/daff.py
-	sed -i 's/python_lib_Builtin.open(path.*)/codecs.open(path,u"r",u"utf-8")/' python_bin/daff.py
+	sed -i 's/python_lib_Builtin.open(path,.r.*)/codecs.open(path,"r","utf-8")/' python_bin/daff.py
+	sed -i 's/python_lib_Builtin.open(path,.w.*)/codecs.open(path,"w","utf-8")/' python_bin/daff.py
 	sed -i 's/= \([a-z0-9_.]*\)\.next()/= hxnext(\1)/' python_bin/daff.py
+	sed -i 's/ unicode(/ hxunicode(/g' python_bin/daff.py
 	sed -i 's/python_lib_Builtin.unicode/hxunicode/g' python_bin/daff.py
 	sed -i 's/python_lib_Builtin.unichr/hxunichr/g' python_bin/daff.py
 	sed -i 's/xrange/hxrange/g' python_bin/daff.py
 	sed -i 's/python_lib_FuncTools.cmp_to_key/hx_cmp_to_key/g' python_bin/daff.py
 	sed -i 's/^\([ \t]*\)def next(/\1def __next__(self): return self.next()\n\n\1def next(/g' python_bin/daff.py
-	cat scripts/python23.py python_bin/daff.py | grep -v "from __future__" | grep -v "from __builtin__ import" | grep -v "import __builtin__ as" | grep -v '#!' > python_bin/daff2.py
+	cp scripts/python23.py python_bin/daff2.py
+	cat python_bin/daff.py | grep -v "from __future__" | grep -v "from __builtin__ import" | grep -v "import __builtin__ as" | grep -v '#!' >> python_bin/daff2.py
 	mv python_bin/daff2.py python_bin/daff.py
 	@echo 'tweaked python code to be python2 compatible'
 	@echo 'try "python2 python_bin/example.py or daff.py"'

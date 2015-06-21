@@ -463,14 +463,12 @@ class Coopy {
 
             key = "add_diff_driver_" + format;
             if (!status.exists(key)) {
-                if (!have_diff_driver) {
-                    r = command(io,"git",["config","--global","diff.daff-" + format + ".command",daff_cmd + " diff --git"]);
-                    if (r==999) return r;
-                    io.writeStdout("- Added diff driver for " + format + "\n");
-                } else {
-                    r = 0;
-                    io.writeStdout("- Already have diff driver for " + format + ", not touching it\n");
+                r = command(io,"git",["config","--global","diff.daff-" + format + ".command",daff_cmd + " diff --git"]);
+                if (r==999) return r;
+                if (have_diff_driver) {
+                    io.writeStdout("- Cleared existing daff diff driver for " + format + "\n");
                 }
+                io.writeStdout("- Added diff driver for " + format + "\n");
                 status.set(key,r);
             }
 
@@ -496,14 +494,12 @@ class Coopy {
 
             key = "add_merge_driver_" + format;
             if (!status.exists(key)) {
-                if (!have_merge_driver) {
-                    r = command(io,"git",["config","--global","merge.daff-" + format + ".driver",daff_cmd + " merge --output %A %O %A %B"]);
-                    if (r==999) return r;
-                    io.writeStdout("- Added merge driver for " + format + "\n");
-                } else {
-                    r = 0;
-                    io.writeStdout("- Already have merge driver for " + format + ", not touching it\n");
+                r = command(io,"git",["config","--global","merge.daff-" + format + ".driver",daff_cmd + " merge --output %A %O %A %B"]);
+                if (r==999) return r;
+                if (have_merge_driver) {
+                    io.writeStdout("- Cleared existing daff merge driver for " + format + "\n");
                 }
+                io.writeStdout("- Added merge driver for " + format + "\n");
                 status.set(key,r);
             }
         }
