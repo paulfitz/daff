@@ -99,6 +99,7 @@ py:
 	sed -i "1i#!/usr/bin/env python" python_bin/daff.py
 	sed -i "s|.*Coopy.main.*||" python_bin/daff.py
 	cat scripts/python_table_view.py >> python_bin/daff.py
+	cat env/py/sqlite_database.py >> python_bin/daff.py
 	echo "if __name__ == '__main__':" >> python_bin/daff.py
 	echo "\tCoopy.main()" >> python_bin/daff.py
 	sed -i 's/Sys.stdout().writeString(txt)/(python_lib_Sys.stdout.buffer if hasattr(python_lib_Sys.stdout,"buffer") else python_lib_Sys.stdout).write(txt.encode("utf-8", "strict"))/' python_bin/daff.py # fix utf-8

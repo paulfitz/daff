@@ -13,11 +13,20 @@ class SqlCompare {
     private var at0 : Int;
     private var at1 : Int;
     private var align : Alignment;
+    private var peered : Bool;
 
     public function new(db: SqlDatabase, local: SqlTable, remote: SqlTable) {
         this.db = db;
         this.local = local;
         this.remote = remote;
+        peered = false;
+        if (this.remote.getDatabase().getNameForAttachment()!=null) {
+            if (this.remote.getDatabase().getNameForAttachment()!=
+                this.local.getDatabase().getNameForAttachment()) {
+                local.getDatabase().getHelper().attach(db,"__peer__",this.remote.getDatabase().getNameForAttachment());
+                peered = true;
+            }
+        }
     }
 
     private function equalArray(a1: Array<String>, a2: Array<String>) : Bool {
@@ -31,15 +40,14 @@ class SqlCompare {
     public function validateSchema() : Bool {
         var all_cols1 = local.getColumnNames();
         var all_cols2 = remote.getColumnNames();
-        if (!equalArray(all_cols1,all_cols2)) { 
-            return false;
-        }
         var key_cols1 = local.getPrimaryKey();
         var key_cols2 = remote.getPrimaryKey();
         if (!equalArray(key_cols1,key_cols2)) {
+            trace("sql diff not possible when primary key changes");
             return false;
         }
         if (key_cols1.length==0) {
+            trace("sql diff not possible when primary key not available");
             return false;
         }
         return true;
@@ -61,16 +69,16 @@ class SqlCompare {
             i1 = at1;
             at1++;
         }
-        var factor = (i0>=0 && i1>=0) ? 2 : 1;
-        var offset = factor - 1;
+        var offset = 2;
         if (i0>=0) {
             for (x in 0...local.width) {
-                local.setCellCache(x,i0,db.get(2+factor*x));
+                local.setCellCache(x,i0,db.get(offset+x));
             }
+            offset += local.width;
         }
         if (i1>=0) {
             for (x in 0...remote.width) {
-                remote.setCellCache(x,i1,db.get(2+factor*x+offset));
+                remote.setCellCache(x,i1,db.get(x+offset));
             }
         }
         align.link(i0,i1);
@@ -84,6 +92,11 @@ class SqlCompare {
             }
             db.end();
         }
+    }
+
+    private function where(txt: String) : String {
+        if (txt=="") return " WHERE 1 = 0";
+        return " WHERE " + txt;
     }
 
     // the sql we generate is a bit uglier than needed due to some
@@ -100,27 +113,90 @@ class SqlCompare {
         var data_cols = local.getAllButPrimaryKey();
         var all_cols = local.getColumnNames();
 
-        // for the moment expect all columns to match
-        align.meta = new Alignment();
-        for (i in 0...(all_cols.length)) {
-            align.meta.link(i,i);
+        var all_cols1 = local.getColumnNames();
+        var all_cols2 = remote.getColumnNames();
+
+        var data_cols1 = local.getAllButPrimaryKey();
+        var data_cols2 = remote.getAllButPrimaryKey();
+
+        var all_common_cols = new Array<String>();
+        var data_common_cols = new Array<String>();
+        var all_merged_cols = new Array<String>();
+        var data_merged_cols = new Array<String>();
+
+        var present1 = new Map<String,Int>();
+        var present2 = new Map<String,Int>();
+        var present_primary = new Map<String,Int>();
+        var has_column_add = false;
+
+        for (i in 0...(key_cols.length)) {
+            present_primary.set(key_cols[i],i);
         }
-        align.meta.range(all_cols.length,all_cols.length);
+        for (i in 0...(all_cols1.length)) {
+            var key = all_cols1[i];
+            if (!present1.exists(key)) {
+                all_merged_cols.push(key);
+                if (!present_primary.exists(key)) {
+                    data_merged_cols.push(key);
+                }
+            }
+            present1.set(key,i);
+        }
+        for (i in 0...(all_cols2.length)) {
+            var key = all_cols2[i];
+            if (!present1.exists(key)) {
+                has_column_add = true;
+            }
+            if (!present2.exists(key)) {
+                all_merged_cols.push(key);
+                if (!present_primary.exists(key)) {
+                    data_merged_cols.push(key);
+                }
+            }
+            present2.set(key,i);
+        }
+
+        align.meta = new Alignment();
+        for (i in 0...(all_cols1.length)) {
+            var key = all_cols1[i];
+            if (present2.exists(key)) {
+                align.meta.link(i,present2.get(key));
+                all_common_cols.push(key);
+                if (!present_primary.exists(key)) {
+                    data_common_cols.push(key);
+                }
+            }
+        }
+        align.meta.range(all_cols1.length,all_cols2.length);
 
         align.tables(local,remote);
-        align.range(999,999);
 
         var sql_table1 = local.getQuotedTableName();
         var sql_table2 = remote.getQuotedTableName();
+        if (peered) {
+            // the naming here is sqlite-specific
+            sql_table1 = "main." + sql_table1;
+            sql_table2 = "__peer__." + sql_table2;
+        }
         var sql_key_cols: String = "";
         for (i in 0...(key_cols.length)) {
             if (i>0) sql_key_cols += ",";
             sql_key_cols += local.getQuotedColumnName(key_cols[i]);
         }
         var sql_all_cols: String = "";
-        for (i in 0...(all_cols.length)) {
+        for (i in 0...(all_common_cols.length)) {
             if (i>0) sql_all_cols += ",";
-            sql_all_cols += local.getQuotedColumnName(all_cols[i]);
+            sql_all_cols += local.getQuotedColumnName(all_common_cols[i]);
+        }
+        var sql_all_cols1: String = "";
+        for (i in 0...(all_cols1.length)) {
+            if (i>0) sql_all_cols1 += ",";
+            sql_all_cols1 += local.getQuotedColumnName(all_cols1[i]);
+        }
+        var sql_all_cols2: String = "";
+        for (i in 0...(all_cols2.length)) {
+            if (i>0) sql_all_cols2 += ",";
+            sql_all_cols2 += local.getQuotedColumnName(all_cols2[i]);
         }
         var sql_key_match : String = "";
         for (i in 0...(key_cols.length)) {
@@ -129,34 +205,40 @@ class SqlCompare {
             sql_key_match += sql_table1 + "." + n + " IS " + sql_table2 + "." + n;
         }
         var sql_data_mismatch : String = "";
-        for (i in 0...(data_cols.length)) {
+        for (i in 0...(data_common_cols.length)) {
             if (i>0) sql_data_mismatch += " OR ";
-            var n : String = local.getQuotedColumnName(data_cols[i]);
+            var n : String = local.getQuotedColumnName(data_common_cols[i]);
             sql_data_mismatch += sql_table1 + "." + n + " IS NOT " + sql_table2 + "." + n;
+        }
+        for (i in 0...(all_cols2.length)) {
+            var key = all_cols2[i];
+            if (!present1.exists(key)) {
+                if (sql_data_mismatch!="") sql_data_mismatch += " OR ";
+                var n : String = remote.getQuotedColumnName(key);
+                sql_data_mismatch += sql_table2 + "." + n + " IS NOT NULL";
+            }
         }
         var sql_dbl_cols: String = "";
         var dbl_cols: Array<String> = [];
-        for (i in 0...(all_cols.length)) {
-            if (i>0) sql_dbl_cols += ",";
-            var n : String = local.getQuotedColumnName(all_cols[i]);
+        for (i in 0...(all_cols1.length)) {
+            if (sql_dbl_cols!="") sql_dbl_cols += ",";
             var buf : String = "__coopy_" + i;
+            var n : String = local.getQuotedColumnName(all_cols1[i]);
             sql_dbl_cols += sql_table1 + "." + n + " AS " + buf;
             dbl_cols.push(buf);
-            sql_dbl_cols += ",";
-            sql_dbl_cols += sql_table2 + "." + n + " AS " + buf + "b";
-            dbl_cols.push(buf + "b");
+        }
+        for (i in 0...(all_cols2.length)) {
+            if (sql_dbl_cols!="") sql_dbl_cols += ",";
+            var buf : String = "__coopy_" + i + "b";
+            var n : String = local.getQuotedColumnName(all_cols2[i]);
+            sql_dbl_cols += sql_table2 + "." + n + " AS " + buf;
+            dbl_cols.push(buf);
         }
         var sql_order: String = "";
         for (i in 0...(key_cols.length)) {
             if (i>0) sql_order += ",";
             var n : String = local.getQuotedColumnName(key_cols[i]);
             sql_order += n;
-        }
-        var sql_dbl_order: String = "";
-        for (i in 0...(key_cols.length)) {
-            if (i>0) sql_dbl_order += ",";
-            var n : String = local.getQuotedColumnName(key_cols[i]);
-            sql_dbl_order += sql_table1 + "." + n;
         }
         
         var rowid : String = "-3";
@@ -168,13 +250,12 @@ class SqlCompare {
             rowid2 = sql_table2 + "." + rowid_name;
         }
 
-        var sql_inserts : String = "SELECT DISTINCT NULL, " + rowid + " AS rowid, " + sql_all_cols + " FROM " + sql_table2 + " WHERE NOT EXISTS (SELECT 1 FROM " + sql_table1 + " WHERE " + sql_key_match + ")";
-        var sql_inserts_order : Array<String> = ["NULL","rowid"].concat(all_cols);
-        var sql_updates : String = "SELECT DISTINCT " + rowid1 + " AS __coopy_rowid0, " + rowid2 + " AS __coopy_rowid1, " + sql_dbl_cols + " FROM " + sql_table1 + " INNER JOIN " + sql_table2 + " ON " + sql_key_match + " WHERE " + sql_data_mismatch;
-        // + " ORDER BY " + sql_dbl_order;
+        var sql_inserts : String = "SELECT DISTINCT NULL, " + rowid + " AS rowid, " + sql_all_cols2 + " FROM " + sql_table2 + " WHERE NOT EXISTS (SELECT 1 FROM " + sql_table1 + where(sql_key_match) + ")";
+        var sql_inserts_order : Array<String> = ["NULL","rowid"].concat(all_cols2);
+        var sql_updates : String = "SELECT DISTINCT " + rowid1 + " AS __coopy_rowid0, " + rowid2 + " AS __coopy_rowid1, " + sql_dbl_cols + " FROM " + sql_table1 + " INNER JOIN " + sql_table2 + " ON " + sql_key_match + where(sql_data_mismatch);
         var sql_updates_order : Array<String> = ["__coopy_rowid0", "__coopy_rowid1"].concat(dbl_cols);
-        var sql_deletes : String = "SELECT DISTINCT " + rowid + " AS rowid, NULL, " + sql_all_cols + " FROM " + sql_table1 + " WHERE NOT EXISTS (SELECT 1 FROM " + sql_table2 + " WHERE " + sql_key_match + ")";
-        var sql_deletes_order : Array<String> = ["rowid","NULL"].concat(all_cols);
+        var sql_deletes : String = "SELECT DISTINCT " + rowid + " AS rowid, NULL, " + sql_all_cols1 + " FROM " + sql_table1 + " WHERE NOT EXISTS (SELECT 1 FROM " + sql_table2 + where(sql_key_match) + ")";
+        var sql_deletes_order : Array<String> = ["rowid","NULL"].concat(all_cols1);
  
         at0 = 1;
         at1 = 1;

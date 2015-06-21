@@ -29,6 +29,7 @@ class Coopy {
     private var order_preference : Bool;
     private var io : TableIO;
     private var pretty : Bool;
+    private var strategy : String;
     var css_output : String;
     var fragment : Bool;
 
@@ -252,6 +253,9 @@ class Coopy {
         }
         var txt : String = "";
         checkFormat(name);
+        if (format_preference=="sqlite" && !extern_preference) {
+            format_preference = "csv";
+        }
         if (format_preference=="csv") {
             var csv : Csv = new Csv(delim_preference);
             txt = csv.renderTable(t);
@@ -344,6 +348,7 @@ class Coopy {
             }
             var tab = new SqlTable(sql,new SqlTableName(names[0]),
                                    helper);
+            strategy = "sql";
             return tab;
         }
         if (ext == "ndjson") {
@@ -835,6 +840,7 @@ class Coopy {
                 output = args[1+offset];
             }
         }
+        flags.diff_strategy = strategy;
 
         if (inplace) {
             if (output!=null) {

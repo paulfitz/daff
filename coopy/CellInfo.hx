@@ -111,6 +111,14 @@ class CellInfo {
      */
     public var rvalue : String;
 
+    /**
+     *
+     * If this is a change in a property of the table rather than
+     * the data in the table itself, this field names that property.
+     *
+     */
+    public var meta : String;
+
     public function new() : Void {}
 
     /**

@@ -558,7 +558,6 @@ class TableDiff {
     }
 
     private function addMeta(output: Table) : Bool {
-        // do nothing yet
         var a_meta : Table;
         var b_meta : Table;
         var p_meta : Table;
@@ -570,12 +569,15 @@ class TableDiff {
         if (!checkMeta(b,b_meta)) return false;
         if (!checkMeta(p,p_meta)) return false;
 
+        if (!flags.show_meta) return false;
+
         // Crude method: create a temporary table, write meta diff to it, copy as needed.
 
         var meta_diff = new SimpleTable(0,0);
         var meta_flags = new CompareFlags();
         meta_flags.addPrimaryKey("@@");
         meta_flags.addPrimaryKey("@");
+        meta_flags.unchanged_column_context = 65536; // FIXME - want infinite
         meta_flags.unchanged_context = 0;
         var meta_align = Coopy.compareTables3((a_meta==p_meta)?null:p_meta,a_meta,b_meta,meta_flags).align();
         var td = new TableDiff(meta_align,meta_flags);
