@@ -133,7 +133,11 @@ class TableIO {
      *
      */
     public function isTtyKnown() : Bool {
+#if python
+        return true;
+#else
         return false;
+#end
     }
 
     /**
@@ -142,7 +146,15 @@ class TableIO {
      *
      */
     public function isTty() : Bool {
+#if python
+        if (python.Syntax.pythonCode("__import__('sys').stdout.isatty()")) return true;
+#end
+#if js
         return true;
+#else
+        if (Sys.getEnv("GIT_PAGER_IN_USE")=="true") return true;
+        return false;
+#end
     }
 
     /**

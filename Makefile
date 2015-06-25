@@ -101,6 +101,7 @@ py:
 	cat scripts/python_table_view.py >> python_bin/daff.py
 	echo "if __name__ == '__main__':" >> python_bin/daff.py
 	echo "\tCoopy.main()" >> python_bin/daff.py
+	sed -i 's/Sys.stdout().writeString/python_lib_Sys.stdout.write/' python_bin/daff.py # fix utf-8
 	cp scripts/example.py python_bin/
 	@echo 'Output in python_bin, run "python3 python_bin/daff.py" for an example utility'
 	@echo 'or try "python3 python_bin/example.py" for an example of using daff as a library'
