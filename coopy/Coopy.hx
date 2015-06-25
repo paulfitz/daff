@@ -784,18 +784,23 @@ class Coopy {
         }
         if (git) {
             var ct = args.length-offset;
-            if (ct!=7) {
-                io.writeStderr("Expected 7 parameters from git, but got " + ct + "\n");
+            if (ct!=7 && ct!=9) {
+                io.writeStderr("Expected 7 or 9 parameters from git, but got " + ct + "\n");
                 return 1;
             }
             var git_args = args.splice(offset,ct);
             args.splice(0,args.length);
             offset = 0;
-            var path = git_args[0];
+            var old_display_path = git_args[0];
+            var new_display_path = git_args[0];
             var old_file = git_args[1];
             var new_file = git_args[4];
-            io.writeStdout("--- a/" + path + "\n");
-            io.writeStdout("+++ b/" + path + "\n");
+            if (ct==9) {
+                io.writeStdout(git_args[8]);
+                new_display_path = git_args[7];
+            }
+            io.writeStdout("--- a/" + old_display_path + "\n");
+            io.writeStdout("+++ b/" + new_display_path + "\n");
             args.push(old_file);
             args.push(new_file);
         }
