@@ -843,7 +843,7 @@ class Coopy {
             td.hilite(o);
             var use_color = color;
             if (!(color||no_color)) {
-                if (output=="-"&&output_format=="") {
+                if (output=="-"&&output_format=="copy") {
                     if (io.isTtyKnown()) use_color = io.isTty();
                 }
             }
