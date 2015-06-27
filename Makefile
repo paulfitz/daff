@@ -250,6 +250,10 @@ perf_php:
 	#time hhvm ntest_php_dir/index.php
 	time php5 ntest_php_dir/index.php
 
+integration: js py
+	./test/integration_git.sh js
+	./test/integration_git.sh py3
+
 ##############################################################################
 ##############################################################################
 ## 
