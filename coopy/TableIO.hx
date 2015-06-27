@@ -167,5 +167,9 @@ class TableIO {
     public function openSqliteDatabase(path: String) : SqlDatabase {
         return null;
     }
+
+    public function sendToBrowser(html: String) : Void {
+        trace("do not know how to send to browser in this language");
+    }
 }
 

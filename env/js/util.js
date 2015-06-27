@@ -70,6 +70,38 @@ if (typeof exports != "undefined") {
 	return null;
     }
 
+    tio.sendToBrowser = function(html) {
+        var http = require("http");
+        var server = http.createServer(function(request, response) {
+            response.writeHead(200, 
+                               {
+                                   "Content-Type": "text/html; charset=UTF-8",
+                                   "Connection": "close"
+                               });
+            response.write(html);
+            response.end();
+            server.close();
+        });
+        server.listen(0);
+        var target = "http://" + server.address().address + ":" + server.address().port;
+        var exec = require('child_process').exec;
+        var cmd = "xdg-open";
+        switch (process.platform) {
+        case 'darwin':
+            cmd = 'open';
+            break;
+        case 'win32':
+            cmd = 'start ""';
+            break;
+        }
+        exec(cmd + ' "' + target + '"', function(error) { 
+            if(error) {
+                console.error(error);
+                server.close();
+            }
+        });
+    }
+
     var cmd_result = 1;
     var cmd_pending = null;
 
@@ -114,7 +146,9 @@ if (typeof exports != "undefined") {
 	var main = new exports.Coopy();
 	var code = run_daff_base(main,process.argv.slice(2));
 	if (code!=999) {
-	    process.exit(code);
+            if (code!=0) {
+	        process.exit(code);
+            }
 	}
     }
 

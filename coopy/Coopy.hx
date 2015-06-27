@@ -211,6 +211,8 @@ class Coopy {
                 format_preference = "sqlite";
             case "html", "htm":
                 format_preference = "html";
+            case "www":
+                format_preference = "www";
             default:
                 ext = "";
             }
@@ -233,7 +235,11 @@ class Coopy {
         if (!fragment) {
             renderer.completeHtml();
         }
-        saveText(name,renderer.html());
+        if (format_preference=="www") {
+            io.sendToBrowser(renderer.html());
+        } else {
+            saveText(name,renderer.html());
+        }
         if (css_output!=null) {
             saveText(css_output,renderer.sampleCss());
         }
@@ -251,7 +257,7 @@ class Coopy {
             txt = csv.renderTable(t);
         } else if (format_preference=="ndjson") {
             txt = new Ndjson(t).render();
-        } else if (format_preference=="html") {
+        } else if (format_preference=="html"||format_preference=="www") {
             return renderTable(name,t);
         } else if (format_preference=="sqlite") {
             io.writeStderr("! Cannot yet output to sqlite, aborting\n");
@@ -569,6 +575,7 @@ class Coopy {
         var flags : CompareFlags = new CompareFlags();
         flags.always_show_header = true;
 
+        // this command line processing method is totally daft, sorry!
         while (more) {
             more = false;
             for (i in 0...args.length) {
@@ -690,6 +697,11 @@ class Coopy {
                     flags.never_show_order = false;
                     args.splice(i,1);
                     break;
+                } else if (tag=="--www") {
+                    more = true;
+                    output_format = "www";
+                    output_format_set = true;
+                    args.splice(i,1);
                 }
             }
         }
@@ -732,6 +744,7 @@ class Coopy {
             io.writeStderr("  daff [--output OUTPUT.html] a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff [--output OUTPUT.ndjson] a.ndjson b.ndjson\n");
+            io.writeStderr("  daff [--www] a.csv b.csv\n");
             io.writeStderr("  daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv\n");
             io.writeStderr("  daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
             io.writeStderr("  daff trim [--output OUTPUT.csv] source.csv\n");
@@ -766,6 +779,7 @@ class Coopy {
             io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
             io.writeStderr("     --fragment:    generate just a html fragment rather than a page\n");
             io.writeStderr("     --plain:       do not use fancy utf8 characters to make arrows prettier\n");
+            io.writeStderr("     --www:         send output to a browser\n");
             return 1;
         }
         var cmd : String = args[0];
