@@ -72,6 +72,7 @@ if (typeof exports != "undefined") {
 
     tio.sendToBrowser = function(html) {
         var http = require("http");
+	var shutdown = null;
         var server = http.createServer(function(request, response) {
             response.writeHead(200, 
                                {
@@ -80,26 +81,41 @@ if (typeof exports != "undefined") {
                                });
             response.write(html);
             response.end();
-            server.close();
+	    shutdown();
         });
-        server.listen(0);
-        var target = "http://" + server.address().address + ":" + server.address().port;
-        var exec = require('child_process').exec;
-        var cmd = "xdg-open";
-        switch (process.platform) {
-        case 'darwin':
-            cmd = 'open';
-            break;
-        case 'win32':
-            cmd = 'start ""';
-            break;
-        }
-        exec(cmd + ' "' + target + '"', function(error) { 
-            if(error) {
-                console.error(error);
-                server.close();
+	var sockets = {}, nextSocketId = 0;
+	server.on('connection', function (socket) {
+	    var socketId = nextSocketId++;
+	    sockets[socketId] = socket;
+	    socket.on('close', function () {
+		delete sockets[socketId];
+	    });
+	});
+	shutdown = function() {
+	    server.close();
+	    for (var socketId in sockets) {
+		sockets[socketId].destroy();
+	    }
+	};
+        server.listen(0,null,null,function() {
+            var target = "http://localhost:" + server.address().port;
+            var exec = require('child_process').exec;
+            var cmd = "xdg-open";
+            switch (process.platform) {
+            case 'darwin':
+		cmd = 'open';
+		break;
+            case 'win32':
+		cmd = 'start ""';
+		break;
             }
-        });
+            exec(cmd + ' "' + target + '"', function(error) { 
+		if (error) {
+                    console.error(error);
+                    server.close();
+		}
+            });
+	});
     }
 
     var cmd_result = 1;
