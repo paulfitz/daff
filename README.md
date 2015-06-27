@@ -181,7 +181,6 @@ patcher.apply();
 For other languages, you should find sample code in 
 the packages on the [Releases](https://github.com/paulfitz/daff/releases) page.
 
-
 Supported languages
 -------------------
 
@@ -198,10 +197,10 @@ can be translated reasonably well into at least the following languages:
 
 Some translations are done for you on the
 [Releases](https://github.com/paulfitz/daff/releases) page.
-To make another translation, 
-follow the 
-[Haxe getting started tutorial](http://haxe.org/doc/start) for the
-language you care about, then do one of:
+To make another translation, or to compile from source
+first follow the [Haxe getting started tutorial](http://haxe.org/doc/start) for the
+language you care about.  At the time of writing, if you are on OSX, you should
+install haxe using `brew install haxe --HEAD`.  Then do one of:
 
 ```
 make js
