@@ -115,6 +115,16 @@ class CompareFlags {
 
     /**
      *
+     * List of tables to process.  Used when reading from a source
+     * with multiple tables.  Defaults to null, meaning all tables.
+     * WARNING: currently only a single table can actually be
+     * processed.
+     *
+     */
+    public var tables : Array<String>;
+
+    /**
+     *
      * Should cells in diff output contain nested content?
      * This is the difference between getting eg the string 
      * "version1->version2" and a hash {before: "version1", after: "version2"}.
@@ -171,6 +181,7 @@ class CompareFlags {
         diff_strategy = null;
         show_meta = true;
         show_unchanged_meta = false;
+        tables = null;
     }
 
     /**
@@ -179,7 +190,7 @@ class CompareFlags {
      * @param act set this to "update", "insert", or "delete"
      * @param allow set this to true to allow this kind, or false to
      * deny it.
-     * @retrun true if the kind of change was recognized.
+     * @return true if the kind of change was recognized.
      *
      */
     public function filter(act: String, allow: Bool) : Bool {
@@ -254,15 +265,21 @@ class CompareFlags {
 
     /**
      *
-     * Add a column to ignore in all calculations.  Fine to call
-     * multiple times.
+     * Add a table to compare.  Fine to call multiple times,
+     * although multiple tables won't do anything sensible
+     * yet at the time of writing.
      *
-     * @param column a name of a column to ignore
+     * @param table the name of a table to consider
      *
      */
     public function ignoreColumn(column: String) : Void {
         if (columns_to_ignore==null) columns_to_ignore = new Array<String>();
         columns_to_ignore.push(column);
+    }
+
+    public function addTable(table: String) : Void {
+        if (tables==null) tables = new Array<String>();
+        tables.push(table);
     }
 
     /**

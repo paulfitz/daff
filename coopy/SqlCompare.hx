@@ -42,6 +42,9 @@ class SqlCompare {
         var all_cols2 = remote.getColumnNames();
         var key_cols1 = local.getPrimaryKey();
         var key_cols2 = remote.getPrimaryKey();
+        if (all_cols1.length==0 || all_cols2.length==0) {
+            throw("Error accessing SQL table");
+        }
         if (!equalArray(key_cols1,key_cols2)) {
             trace("sql diff not possible when primary key changes");
             return false;

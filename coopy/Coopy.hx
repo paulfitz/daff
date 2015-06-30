@@ -30,8 +30,9 @@ class Coopy {
     private var io : TableIO;
     private var pretty : Bool;
     private var strategy : String;
-    var css_output : String;
-    var fragment : Bool;
+    private var css_output : String;
+    private var fragment : Bool;
+    private var flags : CompareFlags;
 
     // just to get code included
     private var mv : Mover;
@@ -52,6 +53,7 @@ class Coopy {
         pretty = true;
         css_output = null;
         fragment = false;
+        flags = null;
     }
 
     /**
@@ -337,16 +339,25 @@ class Coopy {
                 return null;
             }
             var helper = new SqliteHelper();
-            var names = helper.getTableNames(sql);
-            if (names==null) {
-                io.writeStderr("! Cannot find database tables, aborting\n");
-                return null;
+            var name = "";
+            if (flags == null || flags.tables == null || flags.tables.length == 0) {
+                var names = helper.getTableNames(sql);
+                if (names==null) {
+                    io.writeStderr("! Cannot find database tables, aborting\n");
+                    return null;
+                }
+                if (names.length==0) {
+                    io.writeStderr("! No tables in database, aborting\n");
+                    return null;
+                }
+                name = names[0];
+            } else {
+                name = flags.tables[0];
+                if (flags.tables.length>1) {
+                    io.writeStderr("! Cannot compare more than one table yet\n");
+                }
             }
-            if (names.length==0) {
-                io.writeStderr("! No tables in database, aborting\n");
-                return null;
-            }
-            var tab = new SqlTable(sql,new SqlTableName(names[0]),
+            var tab = new SqlTable(sql,new SqlTableName(name),
                                    helper);
             strategy = "sql";
             return tab;
@@ -370,19 +381,7 @@ class Coopy {
         }
         format_preference = "csv";
         var csv : Csv = new Csv(delim_preference);
-        //var data : Array<Array<String>> = csv.parseTable(txt);
-        //var h : Int = data.length;
-        //var w : Int = 0;
-        //if (h>0) w = data[0].length;
         var output = new SimpleTable(0,0);
-        /*
-        for (i in 0...h) {
-            for (j in 0...w) {
-                var val : String = data[i][j];
-                output.setCell(j,i,cellFor(val));
-            }
-        }
-        */
         csv.parseTable(txt,output);
         if (output!=null) output.trimBlank();
         return output;
@@ -577,7 +576,7 @@ class Coopy {
         var color : Bool = false;
         var no_color : Bool = false;
 
-        var flags : CompareFlags = new CompareFlags();
+        flags = new CompareFlags();
         flags.always_show_header = true;
 
         // this command line processing method is totally daft, sorry!
@@ -690,10 +689,7 @@ class Coopy {
                     break;
                 } else if (tag=="--ignore") {
                     more = true;
-                    if (flags.columns_to_ignore == null) {
-                        flags.columns_to_ignore = new Array<String>();
-                    }
-                    flags.columns_to_ignore.push(args[i+1]);
+                    flags.ignoreColumn(args[i+1]);
                     args.splice(i,2);
                     break;
                 } else if (tag=="--index") {
@@ -707,6 +703,11 @@ class Coopy {
                     output_format = "www";
                     output_format_set = true;
                     args.splice(i,1);
+                } else if (tag=="--table") {
+                    more = true;
+                    flags.addTable(args[i+1]);
+                    args.splice(i,2);
+                    break;
                 }
             }
         }
@@ -767,18 +768,16 @@ class Coopy {
             io.writeStderr("     --all-rows:    do not prune unchanged rows\n");
             io.writeStderr("     --all-columns: do not prune unchanged columns\n");
             io.writeStderr("     --color:       highlight changes with terminal colors (default in terminals)\n");
-            io.writeStderr("     --no-color:    make sure terminal colors are not used\n");
             io.writeStderr("     --context NUM: show NUM rows of context\n");
             io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
             io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
+            io.writeStderr("     --index:       include row/columns numbers from original tables\n");
             io.writeStderr("     --input-format [csv|tsv|ssv|json]: set format to expect for input\n");
+            io.writeStderr("     --no-color:    make sure terminal colors are not used\n");
             io.writeStderr("     --ordered:     assume row order is meaningful (default for CSV)\n");
             io.writeStderr("     --output-format [csv|tsv|ssv|json|copy|html]: set format for output\n");
+            io.writeStderr("     --table NAME:  compare the named table, used with SQL sources\n");
             io.writeStderr("     --unordered:   assume row order is meaningless (default for json formats)\n");
-            io.writeStderr("\n");
-            io.writeStderr("  daff diff --git path old-file old-hex old-mode new-file new-hex new-mode\n");
-            io.writeStderr("     --git:         process arguments provided by git to diff drivers\n");
-            io.writeStderr("     --index:       include row/columns numbers from orginal tables\n");
             io.writeStderr("\n");
             io.writeStderr("  daff render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
             io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
