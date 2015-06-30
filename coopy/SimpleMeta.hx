@@ -16,6 +16,8 @@ class SimpleMeta implements Meta {
     private var has_properties : Bool;
     private var metadata : Map<String,Map<String,Dynamic>>;
     private var keys : Map<String,Bool>;
+    private var row_active : Bool;
+    private var row_change_cache : Array<RowChange>;
 
     public function new(t: Table, has_properties: Bool = true) {
         this.t = t;
@@ -24,6 +26,19 @@ class SimpleMeta implements Meta {
         this.has_properties = has_properties;
         this.metadata = null;
         this.keys = null;
+        row_active = false;
+        row_change_cache = null;
+    }
+
+    /**
+     *
+     * This sneaky method will divert any row-level modifications
+     * made during patching to a user-supplied array.
+     *
+     */
+    public function storeRowChanges(changes : Array<RowChange>) {
+        row_change_cache = changes;
+        row_active = true;
     }
 
     private function rowChange() {
@@ -158,7 +173,7 @@ class SimpleMeta implements Meta {
         return mt;
     }
 
-    public function clone(table: Table = null) : Meta {
+    public function cloneMeta(table: Table = null) : Meta {
         var result = new SimpleMeta(table);
         if (metadata!=null) {
             result.keys = new Map<String,Bool>();
@@ -175,6 +190,27 @@ class SimpleMeta implements Meta {
             }
         }
         return result;
+    }
+
+    public function useForColumnChanges() : Bool {
+        return true;
+    }
+
+    public function useForRowChanges() : Bool {
+        return row_active;
+    }
+
+    public function changeRow(rc: RowChange) : Bool {
+        row_change_cache.push(rc);
+        return false;
+    }
+
+    public function applyFlags(flags: CompareFlags) : Bool {
+        return false;
+    }
+
+    public function getRowStream() : RowStream {
+        return new TableStream(t);
     }
 }
 

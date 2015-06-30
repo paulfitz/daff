@@ -8,14 +8,27 @@ package coopy;
 class SqlColumn {
     public var name : String;
     public var primary : Bool;
+    public var type_value : String;
+    public var type_family : String;
 
-    public function new() {}
+    public function new() {
+        name = "";
+        primary = false;
+        type_value = null;
+        type_family = null;
+    }
 
-    public static function byNameAndPrimaryKey(name: String, primary: Bool) {
-        var result : SqlColumn = new SqlColumn();
-        result.name = name;
-        result.primary = primary;
-        return result;
+    public function setName(name: String) {
+        this.name = name;
+    }
+
+    public function setPrimaryKey(primary: Bool) {
+        this.primary = primary;
+    }
+
+    public function setType(value: String, family: String) {
+        this.type_value = value;
+        this.type_family = family;
     }
 
     public function getName() : String {

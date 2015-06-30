@@ -1,6 +1,6 @@
 
 class PythonCellView(View):
-    def __init(self):
+    def __init__(self):
         pass
 
     def toString(self,d):

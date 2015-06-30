@@ -1,50 +1,6 @@
 import daff
-import sqlite3 as sqlite
 
-class SqliteDatabase(daff.SqlDatabase):
-    def __init__(self,db):
-        self.db = db
-        self.cursor = db.cursor()
-        self.row = None
-
-    # needed because pragmas do not support bound parameters
-    def getQuotedColumnName(self,name):
-        return name  # adequate for test, not real life
-
-    # needed because pragmas do not support bound parameters
-    def getQuotedTableName(self,name):
-        return name.toString()  # adequate for test, not real life
-
-    def getColumns(self,name):
-        qname = self.getQuotedTableName(name)
-        info = self.cursor.execute("pragma table_info(%s)"%qname).fetchall()
-        return [daff.SqlColumn.byNameAndPrimaryKey(x[1],x[5]>0) for x in info]
-
-    def begin(self,query,args=[],order=[]):
-        self.cursor.execute(query,args or [])
-        return True
-
-    def beginRow(self,tab,row,order=[]):
-        self.cursor.execute("SELECT * FROM " + self.getQuotedTableName(tab) + " WHERE rowid = ?",[row])
-        return True
-
-    def read(self):
-        self.row = self.cursor.fetchone()
-        return self.row!=None
-
-    def get(self,index):
-        v = self.row[index]
-        if v is None:
-            return v
-        return v
-
-    def end(self):
-        pass
-
-    def rowid(self):
-        return "rowid"
-
-db = sqlite.connect(':memory:')
+db = daff.sqlite3.connect(':memory:')
 c = db.cursor()
 
 c.execute("CREATE TABLE ver1 (id INTEGER PRIMARY KEY, name TEXT)")
@@ -58,7 +14,7 @@ data = [(2, "Noemi"),
         (4, "Hobbes")]
 c.executemany('INSERT INTO ver2 VALUES (?,?)', data)
 
-sd = SqliteDatabase(db)
+sd = daff.SqliteDatabase(db,None)
 
 st1 = daff.SqlTable(sd,daff.SqlTableName("ver1"))
 st2 = daff.SqlTable(sd,daff.SqlTableName("ver2"))

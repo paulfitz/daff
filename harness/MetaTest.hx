@@ -79,4 +79,18 @@ class MetaTest extends haxe.unit.TestCase {
         coopy.Coopy.patch(t3c,diff);
         assertTrue(coopy.SimpleTable.tableIsSimilar(t2,t3));
     }
+
+    public function testRowChange() {
+        var diff = Native.table([['@@', 'id', 'name'],
+                                 ['+++', 3, 'Calvin'],
+                                 ['->', 2, 'Naomi->Noemi'],
+                                 ['---', 1, 'Paul']]);
+        var o = new coopy.SimpleTable(0,0);
+        var m = new coopy.SimpleMeta(o);
+        o.setMeta(m);
+        var lst = new Array<coopy.RowChange>();
+        m.storeRowChanges(lst);
+        coopy.Coopy.patch(o,diff);
+        assertEquals(lst.length,3);
+    }
 }

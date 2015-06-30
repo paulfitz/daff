@@ -62,6 +62,9 @@ class HighlightPatch implements Row {
     private var prev_meta : Map<String,Array<PropertyChange>>;
     private var next_meta : Map<String,Array<PropertyChange>>;
 
+    private var finished_columns : Bool;
+    private var meta : Meta;
+
     /**
      *
      * Constructor.
@@ -77,6 +80,7 @@ class HighlightPatch implements Row {
         if (flags==null) this.flags = new CompareFlags();
         view = patch.getCellView();
         sourceView = source.getCellView();
+        meta = source.getMeta();
     }
 
     private function reset() : Void {
@@ -111,6 +115,8 @@ class HighlightPatch implements Row {
         process_meta = false;
         prev_meta = null;
         next_meta = null;
+
+        finished_columns = false;
     }
 
     private function processMeta() {
@@ -140,7 +146,6 @@ class HighlightPatch implements Row {
         for (r in 0...patch.height) {
             applyRow(r);
         }
-        // switching order so column meta will be dealt with before touching rows
         finishColumns();
         finishRows();
         return true;
@@ -273,6 +278,7 @@ class HighlightPatch implements Row {
         }
         if (process_meta) return; // don't do anything beyond this point
         if (!done) {
+            finishColumns();
             if (code=="+++") {
                 applyAction(code);
             } else if (code=="---") {
@@ -337,14 +343,17 @@ class HighlightPatch implements Row {
                 headerMove.set(name,1);
             }
         }
-        if (source.height==0) {
-            applyAction("+++");
+        if (!useMetaForRowChanges()) {
+            if (source.height==0) {
+                applyAction("+++");
+            }
         }
     }
 
     private function lookUp(del : Int = 0) : Int {
-        var at : Null<Int> = patchInSourceRow.get(currentRow+del);
-        if (at!=null) return at;
+        if (patchInSourceRow.exists(currentRow+del)) {
+            return patchInSourceRow.get(currentRow+del);
+        }
         var result : Int = -1;
         currentRow += del;
         if (currentRow>=0 && currentRow<patch.height) {
@@ -374,7 +383,48 @@ class HighlightPatch implements Row {
         return result;
     }
 
+    private function applyActionExternal(code : String) : Void {
+        if (code=="@@") return;
+
+        var rc = new RowChange();
+        rc.action = code;
+
+        checkAct();
+        if (code!="+++") rc.cond = new Map<String,Dynamic>();
+        if (code!="---") rc.val = new Map<String,Dynamic>();
+        for (i in payloadCol...payloadTop) {
+            var prev_name = header[i];
+            var name = prev_name;
+            if (headerRename.exists(prev_name)) {
+                name = headerRename.get(prev_name);
+            }
+            var cact : String = modifier.get(i);
+            var txt : String = getString(i);
+            var updated = false;
+            if (rowInfo.updated) {
+                getPreString(txt);
+                updated = cellInfo.updated;
+            }
+            if (updated) {
+                rc.cond.set(name,cellInfo.lvalue);
+                rc.val.set(name,cellInfo.rvalue);
+            } else if (code=="+++") {
+                rc.val.set(name,txt);
+            } else {
+                if (cact!="+++") {
+                    rc.cond.set(name,txt);
+                }
+            }
+        }
+        meta.changeRow(rc);
+    }
+
+
     private function applyAction(code : String) : Void {
+        if (useMetaForRowChanges()) {
+            applyActionExternal(code);
+            return;
+        }
         var mod : HighlightPatchUnit = new HighlightPatchUnit();
         mod.code = code;
         mod.add = (code == "+++");
@@ -500,7 +550,9 @@ class HighlightPatch implements Row {
                 if (mod.add && mod.sourceNextRow!=-1) {
                     last = mod.sourceNextRow+mod.sourceRowOffset;
                 } else {
-                    last = -1;
+                    if (mod.rem||mod.add) {
+                        last = -1;
+                    }
                 }
             }
         }
@@ -512,6 +564,16 @@ class HighlightPatch implements Row {
             }
         }
         return len+offset;
+    }
+
+    private function useMetaForColumnChanges() : Bool {
+        if (meta==null) return false;
+        return meta.useForColumnChanges();
+    }
+
+    private function useMetaForRowChanges() : Bool {
+        if (meta==null) return false;
+        return meta.useForRowChanges();
     }
 
     private function computeOrdering(mods : Array<HighlightPatchUnit>,
@@ -596,6 +658,8 @@ class HighlightPatch implements Row {
     }
 
     private function finishRows() : Void {
+        if (useMetaForRowChanges()) return;
+
         if (source.width==0) {
             // no columns left
             if (source.height!=0) {
@@ -694,13 +758,16 @@ class HighlightPatch implements Row {
     }
 
     private function finishColumns() : Void {
+        if (finished_columns) return;
+        finished_columns = true;
         needSourceColumns();
         for (i in payloadCol...payloadTop) {
             var act : String = modifier.get(i);
             var hdr : String = header.get(i);
             if (act==null) act = "";
             if (act=="---") {
-                var at : Int = patchInSourceCol.get(i);
+                var at : Int = -1;
+                if (patchInSourceCol.exists(i)) at = patchInSourceCol.get(i);
                 var mod : HighlightPatchUnit = new HighlightPatchUnit();
                 mod.code = act;
                 mod.rem = true;
@@ -723,10 +790,12 @@ class HighlightPatch implements Row {
                 mod.patchRow = i;
                 cmods.push(mod);
             } else if (act!="...") {
+                var at : Int = -1;
+                if (patchInSourceCol.exists(i)) at = patchInSourceCol.get(i);
                 var mod : HighlightPatchUnit = new HighlightPatchUnit();
                 mod.code = act;
                 mod.patchRow = i;
-                mod.sourceRow = patchInSourceCol.get(i);
+                mod.sourceRow = at;
                 cmods.push(mod);
             }
         }
@@ -747,7 +816,6 @@ class HighlightPatch implements Row {
         }
         var fate : Array<Int> = new Array<Int>();
         permuteColumns();
-        var meta = source.getMeta();
         if (headerMove!=null) {
             if (colPermutation.length>0) {
                 for (mod in cmods) {
@@ -755,16 +823,27 @@ class HighlightPatch implements Row {
                         mod.sourceRow = colPermutation[mod.sourceRow];
                     }
                 }
-                if (meta==null) source.insertOrDeleteColumns(colPermutation,colPermutation.length);
+                if (!useMetaForColumnChanges()) {
+                    source.insertOrDeleteColumns(colPermutation,colPermutation.length);
+                }
             }
         }
 
         var len : Int = processMods(cmods,fate,source.width);
 
-        if (meta==null) {
+        if (!useMetaForColumnChanges()) {
             source.insertOrDeleteColumns(fate,len);
             return;
         }
+
+        var changed = false;
+        for (mod in cmods) {
+            if (mod.code!="") {
+                changed = true;
+                break;
+            }
+        }
+        if (!changed) return;
 
         var columns = new Array<ColumnChange>();
         var target = new Map<Int,Int>();

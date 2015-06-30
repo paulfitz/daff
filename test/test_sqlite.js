@@ -15,7 +15,7 @@ try {
 }
 
 Fiber(function() {
-    var sql = new SqliteDatabase(new sqlite3.Database(':memory:'),Fiber);
+    var sql = new SqliteDatabase(new sqlite3.Database(':memory:'),null,Fiber);
     sql.exec("CREATE TABLE ver1 (id INTEGER PRIMARY KEY, name TEXT)");
     sql.exec("CREATE TABLE ver2 (id INTEGER PRIMARY KEY, name TEXT)");
     sql.exec("INSERT INTO ver1 VALUES(?,?)",[1, "Paul"]);

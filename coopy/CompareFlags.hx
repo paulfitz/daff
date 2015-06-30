@@ -130,6 +130,30 @@ class CompareFlags {
      */
     public var warnings : Array<String>;
 
+    /**
+     *
+     * Strategy to use when making comparisons.  Valid values are "hash" and "sql".
+     * The latter is only useful for SQL sources.  Leave null for a sensible default.
+     *
+     */
+    public var diff_strategy : String;
+
+    /**
+     *
+     * Show changes in column properties, not just data, if available.
+     * Defaults to true.
+     *
+     */
+    public var show_meta : Bool;
+
+    /**
+     *
+     * Show all column properties, if available, even if unchanged.
+     * Defaults to false.
+     *
+     */
+    public var show_unchanged_meta : Bool;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -144,6 +168,9 @@ class CompareFlags {
         columns_to_ignore = null;
         allow_nested_cells = false;
         warnings = null;
+        diff_strategy = null;
+        show_meta = true;
+        show_unchanged_meta = false;
     }
 
     /**

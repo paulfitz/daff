@@ -131,4 +131,35 @@ class Native {
     return Reflect.field(h,k);
 #end
     }
+
+    static public function wrap(callback : Dynamic) : Bool {
+#if js
+    untyped __js__("if (typeof Fiber == 'undefined') { GLOBAL.Fiber = require('fibers'); }");
+    untyped __js__("if (typeof sqlite3 == 'undefined') { GLOBAL.sqlite3 = require('sqlite3'); }");
+    untyped __js__("Fiber(function() { callback.body(); }).run();");
+    return true;
+#end
+    return false;
+    }
+
+    static public function hasSqlite() : Bool {
+#if js
+    return true;
+#end
+#if python
+    return true;
+#end
+    return false;
+    }
+
+    static public function openSqlite(name: String) : coopy.SqlDatabase {
+#if js
+    return untyped __js__("new SqliteDatabase(new sqlite3.Database(name),name,Fiber)");
+#elseif python
+    python.Syntax.pythonCode("daff = __import__('daff')");
+    return python.Syntax.pythonCode("daff.SqliteDatabase(daff.sqlite3.connect(name),name)");
+#end
+    return null;
+    }
 }
+

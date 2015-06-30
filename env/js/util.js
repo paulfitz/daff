@@ -64,7 +64,7 @@ if (typeof exports != "undefined") {
 
     tio.openSqliteDatabase = function(path) {
 	if (Fiber) {
-	    return new SqliteDatabase(new sqlite3.Database(path),Fiber);
+	    return new SqliteDatabase(new sqlite3.Database(path),path,Fiber);
 	}
 	throw("run inside Fiber plz");
 	return null;
@@ -190,7 +190,6 @@ if (typeof require != "undefined") {
 		}
 		Fiber(function() {
 		    exports.run_daff_main();
-		    console.log("ok");
 		}).run();
             } else {
                 throw(e);

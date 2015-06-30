@@ -33,6 +33,10 @@ class CompareTable {
      *
      */
     public function run() : Bool {
+        if (useSql()) {
+            comp.completed = true;
+            return false;
+        }
         var more : Bool = compareCore();
         while (more && comp.run_to_completion) {
             more = compareCore();
@@ -52,6 +56,16 @@ class CompareTable {
     public function align() : Alignment {
         while (!comp.completed) {
             run();
+        }
+        if (useSql()) {
+            if (comp.p!=null && comp.p!=comp.a) {
+                trace("Cannot do 3-way sql yet");
+                return null;
+            }
+            var tab1 : SqlTable = cast comp.a;
+            var tab2 : SqlTable = cast comp.b;
+            var sc = new SqlCompare(tab1.getDatabase(),tab1,tab2);
+            return sc.apply();
         }
         var alignment : Alignment = new Alignment();
         alignCore(alignment);
@@ -554,5 +568,10 @@ class CompareTable {
      */
     public function getIndexes() : Array<IndexPair> {
         return indexes;
+    }
+
+    private function useSql() : Bool {
+        if (comp.compare_flags == null) return false;
+        return (comp.compare_flags.diff_strategy == "sql");
     }
 }
