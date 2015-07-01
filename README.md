@@ -84,7 +84,7 @@ for `*.csv` files in your repository.  Run `daff git` for instructions
 on doing this manually. Your CSV diffs and merges will get smarter,
 since git will suddenly understand about rows and columns, not just lines:
 
-![Example CSV diff](scripts/diff.png)
+![Example CSV diff](http://paulfitz.github.io/daff-doc/images/daff_vs_diff.png)
 
 The library
 -----------
