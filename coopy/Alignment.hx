@@ -23,9 +23,13 @@ class Alignment {
     private var order_cache : Ordering;
     private var order_cache_has_reference : Bool;
     private var index_columns : Array<Unit>;
+    private var marked_as_identical : Bool;
 
     public var reference: Alignment;
     public var meta: Alignment;
+    public var comp: TableComparisonState;
+    public var has_addition : Bool;
+    public var has_removal : Bool;
 
     public function new() : Void {
         map_a2b = new Map<Int,Int>();
@@ -34,9 +38,11 @@ class Alignment {
         map_count = 0;
         reference = null;
         meta = null;
+        comp = null;
         order_cache_has_reference = false;
         ia = -1;
         ib = -1;
+        marked_as_identical = false;
     }
 
     /**
@@ -95,8 +101,16 @@ class Alignment {
      *
      */
     public function link(a: Int, b: Int) : Void {
-        if (a!=-1) map_a2b.set(a,b);
-        if (b!=-1) map_b2a.set(b,a);
+        if (a!=-1) {
+            map_a2b.set(a,b);
+        } else {
+            has_addition = true;
+        }
+        if (b!=-1) {
+            map_b2a.set(b,a);
+        } else {
+            has_removal = true;
+        }
         map_count++;
     }
 
@@ -381,5 +395,13 @@ class Alignment {
         result.setList(order);
         if (reference==null) result.ignoreParent();
         return result;
+    }
+
+    public function markIdentical() {
+        marked_as_identical = true;
+    }
+
+    public function isMarkedAsIdentical() : Bool {
+        return marked_as_identical;
     }
 }

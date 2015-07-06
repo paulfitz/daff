@@ -123,7 +123,33 @@ class SqliteHelper implements SqlHelper {
     }
 
     public function attach(db: SqlDatabase, tag: String, resource_name: String) : Bool {
-        // tag is controlled by us - no user input to sanitize
+        var tag_present = false;
+        var tag_correct = false;
+        var result = new Array<Int>();
+        var q = "PRAGMA database_list";
+        if (!db.begin(q,null,["seq","name","file"])) return false;
+        while (db.read()) {
+            var name : String = cast db.get(1);
+            if (name == tag) {
+                tag_present = true;
+                var file : String = cast db.get(2);
+                if (file == resource_name) {
+                    tag_correct = true;
+                }
+            }
+        }
+        db.end();
+
+        if (tag_present) {
+            if (tag_correct) return true;
+            // tag is controlled by us - no user input to sanitize
+            if (!db.begin("DETACH `" + tag + "`",null,[])) {
+                trace("Failed to detach " + tag);
+                return false;
+            }
+            db.end();
+        }
+
         if (!db.begin("ATTACH ? AS `" + tag + "`",[resource_name],[])) {
             trace("Failed to attach " + resource_name + " as " + tag);
             return false;

@@ -117,8 +117,6 @@ class CompareFlags {
      *
      * List of tables to process.  Used when reading from a source
      * with multiple tables.  Defaults to null, meaning all tables.
-     * WARNING: currently only a single table can actually be
-     * processed.
      *
      */
     public var tables : Array<String>;

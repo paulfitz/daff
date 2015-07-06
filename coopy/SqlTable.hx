@@ -232,6 +232,14 @@ class SqlTable implements Table implements Meta implements RowStream {
         return this;
     }
 
+    public function isNested() : Bool {
+        return false;
+    }
+
+    public function isSql() : Bool {
+        return true;
+    }
+
     public function fetchRow() : Map<String, Dynamic> {
         if (db.read()) {
             var row = new Map<String,Dynamic>();
@@ -247,6 +255,10 @@ class SqlTable implements Table implements Meta implements RowStream {
     public function fetchColumns() : Array<String> {
         getColumns();
         return columnNames;
+    }
+
+    public function getName() : String {
+        return name.toString();
     }
 }
 

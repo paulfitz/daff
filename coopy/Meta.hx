@@ -88,4 +88,26 @@ interface Meta {
      *
      */
     function getRowStream() : RowStream;
+
+
+    /**
+     *
+     * @return true if the table may be nested (containing subtables).
+     *
+     */
+    function isNested() : Bool;
+
+    /**
+     *
+     * @return true if the table is best accessed via sql.
+     *
+     */
+    function isSql() : Bool;
+
+    /**
+     *
+     * @return a name for the table if it has one, otherwise null.
+     *
+     */
+    function getName() : String;
 }

@@ -63,5 +63,17 @@ class SimpleView implements View {
         return Std.is(h,haxe.ds.StringMap);
 #end
     }
+
+    public function isTable(t : Dynamic) : Bool {
+        return Std.is(t,Table);
+    }
+
+    public function getTable(t : Dynamic) : Table {
+        return cast t;
+    }
+
+    public function wrapTable(t : Table) : Dynamic {
+        return t;
+    }
 }
 

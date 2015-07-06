@@ -86,4 +86,10 @@ interface View {
      *
      */
     function hashGet(h: Dynamic, str: String) : Dynamic;
+
+    function isTable(t : Dynamic) : Bool;
+
+    function getTable(t : Dynamic) : Table;
+
+    function wrapTable(t : Table) : Dynamic;
 }

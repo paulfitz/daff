@@ -64,6 +64,9 @@ class CompareTable {
         }
         var alignment : Alignment = new Alignment();
         alignCore(alignment);
+        // squirrel away state in case we need to do nested comparisons
+        alignment.comp = comp;
+        comp.alignment = alignment;
         return alignment;
     }
 
@@ -91,7 +94,11 @@ class CompareTable {
                 tab2 = cast comp.b;
                 tab3 = cast comp.a;
             }
-            var sc = new SqlCompare(tab1.getDatabase(),tab1,tab2,tab3,align);
+            var db : SqlDatabase = null;
+            if (tab1!=null) db = tab1.getDatabase();
+            if (db==null && tab2!=null) db = tab2.getDatabase();
+            if (db==null && tab3!=null) db = tab3.getDatabase();
+            var sc = new SqlCompare(db,tab1,tab2,tab3,align);
             sc.apply();
             if (comp.p!=null) {
                 align.meta.reference = align.reference.meta;
@@ -546,6 +553,17 @@ class CompareTable {
         var p : Table = comp.p;
         var a : Table = comp.a;
         var b : Table = comp.b;
+        comp.getMeta();
+        var nested = false;
+        if (comp.p_meta!=null) if (comp.p_meta.isNested()) nested = true;
+        if (comp.a_meta!=null) if (comp.a_meta.isNested()) nested = true;
+        if (comp.b_meta!=null) if (comp.b_meta.isNested()) nested = true;
+        if (nested) {
+            // when nesting, we want to reach a smarter part of the code.
+            comp.is_equal = false;
+            comp.is_equal_known = true;
+            return true;
+        }
         var eq : Bool = isEqual2(a,b);
         if (eq && p!=null) {
             eq = isEqual2(p,a);
@@ -611,6 +629,14 @@ class CompareTable {
 
     private function useSql() : Bool {
         if (comp.compare_flags == null) return false;
-        return (comp.compare_flags.diff_strategy == "sql");
+        comp.getMeta();
+        var sql = true;
+        if (comp.p_meta!=null) if (!comp.p_meta.isSql()) sql = false;
+        if (comp.a_meta!=null) if (!comp.a_meta.isSql()) sql = false;
+        if (comp.b_meta!=null) if (!comp.b_meta.isSql()) sql = false;
+        if (comp.p!=null && comp.p_meta==null) sql = false;
+        if (comp.a!=null && comp.a_meta==null) sql = false;
+        if (comp.b!=null && comp.b_meta==null) sql = false;
+        return sql;
     }
 }
