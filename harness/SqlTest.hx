@@ -75,4 +75,24 @@ class SqlTest extends haxe.unit.TestCase {
         assertEquals(20,out.getCell(2,3));
         assertEquals("Naomi",out.getCell(3,3));
     }
+
+    public function comparePair(name1: String, name2: String) {
+        setup();
+        var st1 = new coopy.SqlTable(db,new coopy.SqlTableName(name1));
+        var st2 = new coopy.SqlTable(db,new coopy.SqlTableName(name2));
+        flags.show_meta = true;
+        var out = coopy.Coopy.diff(st1,st2,flags);
+        coopy.Coopy.patch(st1,out);
+        out = coopy.Coopy.diff(st1,st2,flags);
+        assertTrue(out.height<=1);
+    }
+
+    public function testColumnPatch() {
+        var names = ["ver1", "ver2", "ver3", "ver4"];
+        for (n1 in names) {
+            for (n2 in names) {
+                comparePair(n1,n2);
+            }
+        }
+    }
 }

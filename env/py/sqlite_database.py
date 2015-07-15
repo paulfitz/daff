@@ -3,6 +3,7 @@ import sqlite3
 class SqliteDatabase(SqlDatabase):
     def __init__(self,db,fname):
         self.db = db
+        db.isolation_level = None
         self.fname = fname
         self.cursor = db.cursor()
         self.row = None

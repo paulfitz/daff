@@ -14,4 +14,5 @@ interface SqlHelper {
                     conds: Map<String, Dynamic>,
                     vals: Map<String, Dynamic>) : Bool;
     function attach(db: SqlDatabase, tag: String, resource_name: String) : Bool;
+    function alterColumns(db: SqlDatabase, name: SqlTableName, columns : Array<ColumnChange>) : Bool;
 }

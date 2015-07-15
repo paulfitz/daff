@@ -20,7 +20,7 @@ if (typeof exports != "undefined") {
 	}
 	
 	SqliteDatabase.prototype.getQuotedTableName = function (name) {
-	    return name;
+	    return name.toString();
 	}
 	
 	SqliteDatabase.prototype.getColumns = function(name) {
