@@ -78,6 +78,8 @@ class SqlTable implements Table implements Meta implements RowStream {
             if (y>=0) {
                 y = id2rid[y];
             }
+        } else if (y==0) {
+            y = -1;
         }
         if (y<0) {
             getColumns();
@@ -166,7 +168,10 @@ class SqlTable implements Table implements Meta implements RowStream {
     }
 
     public function alterColumns(columns : Array<ColumnChange>) : Bool {
-        return false;
+        // pass the request on, too db-specific to do anything useful here
+        var result = helper.alterColumns(db,name,columns);
+        this.columns = null;
+        return result;
     }
 
     public function changeRow(rc: RowChange) : Bool {
@@ -191,10 +196,12 @@ class SqlTable implements Table implements Meta implements RowStream {
         var mt = new SimpleTable(w+1,pct);
         mt.setCell(0,0,"@");
         mt.setCell(0,1,"type");
+        mt.setCell(0,2,"pkey");
         for (x in 0...w) {
             var i = x+1;
             mt.setCell(i,0,columnNames[x]);
             mt.setCell(i,1,columns[x].type_value);
+            mt.setCell(i,2,columns[x].primary ? 1 : 0);
         }
         return mt;
     }

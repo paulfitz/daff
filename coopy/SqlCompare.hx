@@ -171,6 +171,10 @@ class SqlCompare {
             }
         }
         align.meta.range(all_cols1.length,all_cols2.length);
+        for (key in key_cols) {
+            var unit = new Unit(present1.get(key),present2.get(key));
+            align.addIndexColumns(unit);
+        }
 
         align.tables(local,remote);
 
@@ -255,7 +259,11 @@ class SqlCompare {
 
         var sql_inserts : String = "SELECT DISTINCT NULL, " + rowid + " AS rowid, " + sql_all_cols2 + " FROM " + sql_table2 + " WHERE NOT EXISTS (SELECT 1 FROM " + sql_table1 + where(sql_key_match) + ")";
         var sql_inserts_order : Array<String> = ["NULL","rowid"].concat(all_cols2);
-        var sql_updates : String = "SELECT DISTINCT " + rowid1 + " AS __coopy_rowid0, " + rowid2 + " AS __coopy_rowid1, " + sql_dbl_cols + " FROM " + sql_table1 + " INNER JOIN " + sql_table2 + " ON " + sql_key_match + where(sql_data_mismatch);
+        var sql_updates : String = "SELECT DISTINCT " + rowid1 + " AS __coopy_rowid0, " + rowid2 + " AS __coopy_rowid1, " + sql_dbl_cols + " FROM " + sql_table1;
+        if (sql_table1 != sql_table2) {
+            sql_updates += " INNER JOIN " + sql_table2 + " ON " + sql_key_match;
+        }
+        sql_updates += where(sql_data_mismatch);
         var sql_updates_order : Array<String> = ["__coopy_rowid0", "__coopy_rowid1"].concat(dbl_cols);
         var sql_deletes : String = "SELECT DISTINCT " + rowid + " AS rowid, NULL, " + sql_all_cols1 + " FROM " + sql_table1 + " WHERE NOT EXISTS (SELECT 1 FROM " + sql_table2 + where(sql_key_match) + ")";
         var sql_deletes_order : Array<String> = ["rowid","NULL"].concat(all_cols1);

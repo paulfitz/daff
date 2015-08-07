@@ -67,7 +67,6 @@ class SqliteHelper implements SqlHelper {
             q += " = ?";
             lst.push(conds.get(k));
         }
-        //trace(q + " // " + lst);
         if (!db.begin(q,lst,[])) {
             trace("Problem with database update");
             return false;
@@ -87,7 +86,6 @@ class SqliteHelper implements SqlHelper {
             q += " = ?";
             lst.push(conds.get(k));
         }
-        //trace(q);
         if (!db.begin(q,lst,[])) {
             trace("Problem with database delete");
             return false;
@@ -116,7 +114,6 @@ class SqliteHelper implements SqlHelper {
             need_comma = true;
         }
         q += ")";
-        //trace(q);
         if (!db.begin(q,lst,[])) {
             trace("Problem with database insert");
             return false;
@@ -132,6 +129,173 @@ class SqliteHelper implements SqlHelper {
             return false;
         }
         db.end();
+        return true;
+    }
+
+    private function columnListSql(x: Array<String>) {
+        return x.join(",");
+    }
+
+    private function fetchSchema(db: SqlDatabase, name: SqlTableName) : String {
+        var tname = db.getQuotedTableName(name);
+        var query = "select sql from sqlite_master where name = '" + tname + "'";
+        if (!db.begin(query,null,["sql"])) {
+            trace("Cannot find schema for table " + tname);
+            return null;
+        }
+        var sql = "";
+        if (db.read()) {
+            sql = db.get(0);
+        }
+        db.end();
+        return sql;
+    }
+
+    private function splitSchema(db: SqlDatabase, name: SqlTableName, sql: String) {
+        var preamble = "";
+        var parts = new Array<String>();
+
+        var double_quote = false;
+        var single_quote = false;
+        var token = "";
+        var nesting = 0;
+        for (i in 0...sql.length) {
+            var ch = sql.charAt(i);
+            if (double_quote||single_quote) {
+                if (double_quote) {
+                    if (ch=='\"') double_quote = false;
+                }
+                if (single_quote) {
+                    if (ch=='\'') single_quote = false;
+                }
+                token += ch;
+                continue;
+            }
+            var brk = false;
+            if (ch=='(') {
+                nesting++;
+                if (nesting==1) {
+                    brk = true;
+                }
+            } else if (ch==')') {
+                nesting--;
+                if (nesting==0) {
+                    brk = true;
+                }
+            }
+            if (ch==',') {
+                brk = true;
+                if (nesting==1) {
+                }
+            }
+            if (brk) {
+                if (token.charAt(0)==' ') {
+                    token = token.substr(1,token.length);
+                }
+                if (preamble=="") {
+                    preamble = token;
+                } else {
+                    parts.push(token);
+                }
+                token = "";
+            } else {
+                token += ch;
+            }
+        }
+        var cols = db.getColumns(name);
+        var name2part = new Map<String,String>();
+        var name2col = new Map<String,SqlColumn>();
+        for (i in 0...cols.length) {
+            var col = cols[i];
+            name2part.set(col.name,parts[i]);
+            name2col.set(col.name,cols[i]);
+        }
+        return {
+                "preamble": preamble,
+                "parts": parts,
+                "name2part": name2part,
+                "columns": cols,
+                "name2column": name2col
+                };
+    }
+
+    private function exec(db: SqlDatabase, query: String) : Bool {
+        if (!db.begin(query)) {
+            trace("database problem");
+            return false;
+        }
+        db.end();
+        return true;
+    }
+
+    public function alterColumns(db: SqlDatabase, name: SqlTableName,
+                                 columns : Array<ColumnChange>) : Bool {
+        // In Sqlite, we basically have to rip a table down and build it up from scratch.
+        // Exception: we could add columns non-destructively (but don't yet).
+
+        var notBlank = function(x:String) {
+            if (x==null || x=="" || x=="null") {
+                return false;
+            }
+            return true;
+        }
+
+        var sql = fetchSchema(db,name);
+        var schema = splitSchema(db,name,sql);
+        var parts = schema.parts;
+        var nparts = new Array<String>();
+
+        var new_column_list = new Array<String>();
+        var ins_column_list = new Array<String>();
+        var sel_column_list = new Array<String>();
+        var meta = schema.columns;
+        for (i in 0...columns.length) {
+            var c = columns[i];
+            if (c.name!=null) {
+                if (c.prevName!=null) {
+                    sel_column_list.push(c.prevName);
+                    ins_column_list.push(c.name);
+                }
+                var orig_type = "";
+                var orig_primary = false;
+                if (schema.name2column.exists(c.name)) {
+                    var m = schema.name2column.get(c.name);
+                    orig_type = m.type_value;
+                    orig_primary = m.primary;
+                }
+                var next_type = orig_type;
+                var next_primary = orig_primary;
+                if (c.props!=null) {
+                    for (p in c.props) {
+                        if (p.name == "type") {
+                            next_type = p.val;
+                        }
+                        if (p.name == "pkey") {
+                            next_primary = (""+p.val == "1");
+                        }
+                    }
+                }
+                var part = "" + c.name;
+                if (notBlank(next_type)) {
+                    part += " " + next_type;
+                }
+                if (next_primary) {
+                    part += " PRIMARY KEY";
+                }
+                nparts.push(part);
+                new_column_list.push(c.name);
+            }
+        }
+        if (!exec(db,"BEGIN TRANSACTION")) return false;
+        var c1 = columnListSql(ins_column_list);
+        var tname = db.getQuotedTableName(name);
+        if (!exec(db,"CREATE TEMPORARY TABLE __coopy_backup(" + c1 + ")")) return false;
+        if (!exec(db,"INSERT INTO __coopy_backup (" + c1 + ") SELECT " + c1 + " FROM " + tname)) return false;
+        if (!exec(db,"DROP TABLE " + tname)) return false;
+        if (!exec(db,schema.preamble + "(" + nparts.join(", ") + ")")) return false;
+        if (!exec(db,"INSERT INTO " + tname + " (" + c1 + ") SELECT " + c1 + " FROM __coopy_backup")) return false;
+        if (!exec(db,"DROP TABLE __coopy_backup")) return false;
+        if (!exec(db,"COMMIT")) return false;
         return true;
     }
 }

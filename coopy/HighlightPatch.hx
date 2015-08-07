@@ -392,6 +392,7 @@ class HighlightPatch implements Row {
         checkAct();
         if (code!="+++") rc.cond = new Map<String,Dynamic>();
         if (code!="---") rc.val = new Map<String,Dynamic>();
+        var have_column = false;
         for (i in payloadCol...payloadTop) {
             var prev_name = header[i];
             var name = prev_name;
@@ -399,22 +400,35 @@ class HighlightPatch implements Row {
                 name = headerRename.get(prev_name);
             }
             var cact : String = modifier.get(i);
+            if (cact=="...") continue;
+            if (name==null || name=="") continue;
             var txt : String = getString(i);
             var updated = false;
             if (rowInfo.updated) {
                 getPreString(txt);
                 updated = cellInfo.updated;
             }
+            if (cact=="+++" && code!="---") {
+                if (txt!=null && txt!="") {
+                    if (rc.val==null) rc.val = new Map<String,Dynamic>();
+                    rc.val.set(name,txt);
+                    have_column = true;
+                }
+            }
             if (updated) {
                 rc.cond.set(name,cellInfo.lvalue);
                 rc.val.set(name,cellInfo.rvalue);
             } else if (code=="+++") {
-                rc.val.set(name,txt);
+                if (cact!="---") rc.val.set(name,txt);
             } else {
-                if (cact!="+++") {
+                if (cact!="+++" && cact!="---") {
                     rc.cond.set(name,txt);
                 }
             }
+        }
+        if (rc.action == "+") {
+            if (!have_column) return;
+            rc.action = "->";
         }
         meta.changeRow(rc);
     }
@@ -657,8 +671,33 @@ class HighlightPatch implements Row {
         computeOrdering(mods,rowPermutation,rowPermutationRev,source.height);
     }
 
+    private function fillInNewColumns() : Void {
+        for (cmod in cmods) {
+            if (!cmod.rem) {
+                if (cmod.add) {
+                    for (mod in mods) {
+                        if (mod.patchRow!=-1 && mod.destRow!=-1) {
+                            var d : Dynamic = patch.getCell(cmod.patchRow,
+                                                            mod.patchRow);
+                            source.setCell(cmod.destRow,
+                                           mod.destRow,
+                                           d);
+                        }
+                    }
+                    var hdr : String = header.get(cmod.patchRow);
+                    source.setCell(cmod.destRow,
+                                   0,
+                                   view.toDatum(hdr));
+                }
+            }
+        }
+    }
+
     private function finishRows() : Void {
-        if (useMetaForRowChanges()) return;
+        if (useMetaForRowChanges()) {
+            // row changes have already happened in this case
+            return;
+        }
 
         if (source.width==0) {
             // no columns left
@@ -722,25 +761,7 @@ class HighlightPatch implements Row {
             }
         }
 
-        for (cmod in cmods) {
-            if (!cmod.rem) {
-                if (cmod.add) {
-                    for (mod in mods) {
-                        if (mod.patchRow!=-1 && mod.destRow!=-1) {
-                            var d : Dynamic = patch.getCell(cmod.patchRow,
-                                                            mod.patchRow);
-                            source.setCell(cmod.destRow,
-                                           mod.destRow,
-                                           d);
-                        }
-                    }
-                    var hdr : String = header.get(cmod.patchRow);
-                    source.setCell(cmod.destRow,
-                                   0,
-                                   view.toDatum(hdr));
-                }
-            }
-        }
+        fillInNewColumns();
         for (i in 0...source.width) {
             var name : String = view.toString(source.getCell(i,0));
             var next_name : String = headerRename.get(name);
@@ -861,7 +882,9 @@ class HighlightPatch implements Row {
             var prev_name : String = null;
             var name : String = null;
             if (idx_src!=-1) prev_name = source.getCell(idx_src,0);
-            if (header.exists(idx_patch)) name = header.get(idx_patch);
+            if (modifier.get(idx_patch)!="---") {
+                if (header.exists(idx_patch)) name = header.get(idx_patch);
+            }
             change.prevName = prev_name;
             change.name = name;
             if (next_meta!=null) {
