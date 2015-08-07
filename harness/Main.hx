@@ -17,7 +17,8 @@ class Main {
                      new SmallTableTest(), 
                      new SpeedTest(), 
                      new JsonTest(), 
-                     new MetaTest()
+                     new MetaTest(),
+                     new PatchTest()
                      ];
 
         if (Native.hasSqlite()) {
