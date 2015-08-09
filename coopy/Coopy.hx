@@ -330,7 +330,6 @@ class Coopy {
     }
 
     private function loadTable(name: String) : Table {
-        var txt : String = io.getContent(name);
         var ext = checkFormat(name);
         if (ext == "sqlite") {
             var sql = io.openSqliteDatabase(name);
@@ -362,6 +361,7 @@ class Coopy {
             strategy = "sql";
             return tab;
         }
+        var txt : String = io.getContent(name);
         if (ext == "ndjson") {
             var t : Table = new SimpleTable(0,0);
             var ndjson = new Ndjson(t);

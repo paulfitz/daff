@@ -165,6 +165,9 @@ class TableIO {
      *
      */
     public function openSqliteDatabase(path: String) : SqlDatabase {
+#if python
+        return (python.Syntax.pythonCode("SqliteDatabase(sqlite3.connect(path),path)"));
+#end
         return null;
     }
 
