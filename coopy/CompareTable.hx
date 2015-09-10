@@ -23,6 +23,11 @@ class CompareTable {
      */
     public function new(comp: TableComparisonState) {
         this.comp = comp;
+        if (comp.compare_flags!=null) {
+            if (comp.compare_flags.parent!=null) {
+                comp.p = comp.compare_flags.parent;
+            }
+        }
     }
 
     /**
@@ -57,16 +62,6 @@ class CompareTable {
         while (!comp.completed) {
             run();
         }
-        if (useSql()) {
-            if (comp.p!=null && comp.p!=comp.a) {
-                trace("Cannot do 3-way sql yet");
-                return null;
-            }
-            var tab1 : SqlTable = cast comp.a;
-            var tab2 : SqlTable = cast comp.b;
-            var sc = new SqlCompare(tab1.getDatabase(),tab1,tab2);
-            return sc.apply();
-        }
         var alignment : Alignment = new Alignment();
         alignCore(alignment);
         return alignment;
@@ -83,6 +78,26 @@ class CompareTable {
     }
 
     private function alignCore(align: Alignment) : Void {
+        if (useSql()) {
+            var tab1 : SqlTable = null;
+            var tab2 : SqlTable = null;
+            var tab3 : SqlTable = null;
+            if (comp.p==null) {
+                tab1 = cast comp.a;
+                tab2 = cast comp.b;
+            } else {
+                align.reference = new Alignment();
+                tab1 = cast comp.p;
+                tab2 = cast comp.b;
+                tab3 = cast comp.a;
+            }
+            var sc = new SqlCompare(tab1.getDatabase(),tab1,tab2,tab3,align);
+            sc.apply();
+            if (comp.p!=null) {
+                align.meta.reference = align.reference.meta;
+            }
+            return;
+        }
         if (comp.p==null) {
             alignCore2(align,comp.a,comp.b);
             return;
@@ -365,6 +380,17 @@ class CompareTable {
                 scale = -1;
             }
         }
+        // for consistency, explicitly mark unaligned things
+        for (i in 1...ha) {
+            if (!used_reverse.exists(i)) {
+                align.link(i,-1);
+            }
+        }
+        for (i in 1...hb) {
+            if (!used.exists(i)) {
+                align.link(-1,i);
+            }
+        }
         // we expect headers on row 0 - link them even if quite different.
         if (ha>0 && hb>0) {
             align.link(0,0);
@@ -390,41 +416,43 @@ class CompareTable {
         var ra_uniques : Int = 0;
         var rb_uniques : Int = 0;
         for (ra in 0...slop) {
-            if (ra>=a.height) break;
             for (rb in 0...slop) {
-                if (rb>=b.height) break;
                 var ma : Map<String,Int> = new Map<String,Int>();
                 var mb : Map<String,Int> = new Map<String,Int>();
                 var ct : Int = 0;
                 var uniques : Int = 0;
-                for (ca in 0...a.width) {
-                    var key : String = va.toString(a.getCell(ca,ra));
-                    if (ma.exists(key)) {
-                        ma.set(key,-1);
-                        uniques--;
-                    } else {
+                if (ra<a.height) {
+                    for (ca in 0...a.width) {
+                        var key : String = va.toString(a.getCell(ca,ra));
+                        if (ma.exists(key)) {
+                            ma.set(key,-1);
+                            uniques--;
+                        } else {
                         ma.set(key,ca);
                         uniques++;
+                        }
                     }
-                }
-                if (uniques>ra_uniques) {
-                    ra_header = ra;
-                    ra_uniques = uniques;
+                    if (uniques>ra_uniques) {
+                        ra_header = ra;
+                        ra_uniques = uniques;
+                    }
                 }
                 uniques = 0;
-                for (cb in 0...b.width) {
-                    var key : String = vb.toString(b.getCell(cb,rb));
-                    if (mb.exists(key)) {
-                        mb.set(key,-1);
-                        uniques--;
-                    } else {
-                        mb.set(key,cb);
-                        uniques++;
+                if (rb<b.height) {
+                    for (cb in 0...b.width) {
+                        var key : String = vb.toString(b.getCell(cb,rb));
+                        if (mb.exists(key)) {
+                            mb.set(key,-1);
+                            uniques--;
+                        } else {
+                            mb.set(key,cb);
+                            uniques++;
+                        }
                     }
-                }
-                if (uniques>rb_uniques) {
-                    rb_header = rb;
-                    rb_uniques = uniques;
+                    if (uniques>rb_uniques) {
+                        rb_header = rb;
+                        rb_uniques = uniques;
+                    }
                 }
 
                 for (key in ma.keys()) {
@@ -458,8 +486,19 @@ class CompareTable {
         for (key in ma_best.keys()) {
             var i0 : Null<Int> = ma_best.get(key);
             var i1 : Null<Int> = mb_best.get(key);
-            if (i1!=null && i0!=null) {
+            if (i0!=null && i1!=null) {
                 align.link(i0,i1);
+            } else if (i0!=null) {
+                align.link(i0,-1);
+            } else if (i1!=null) {
+                align.link(-1,i1);
+            }
+        }
+        for (key in mb_best.keys()) {
+            var i0 : Null<Int> = ma_best.get(key);
+            var i1 : Null<Int> = mb_best.get(key);
+            if (i0==null&&i1!=null) {
+                align.link(-1,i1);
             }
         }
         align.headers(ra_header,rb_header);

@@ -164,6 +164,15 @@ class CompareFlags {
      */
     public var show_unchanged_meta : Bool;
 
+
+    /**
+     *
+     * Set a common ancestor for use in comparison.  Defaults to null
+     * (no known common ancestor).
+     *
+     */
+    public var parent : Table;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -182,6 +191,7 @@ class CompareFlags {
         show_meta = true;
         show_unchanged_meta = false;
         tables = null;
+        parent = null;
     }
 
     /**

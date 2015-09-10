@@ -22,7 +22,6 @@ class SimpleView implements View {
     }
     
     public function equals(d1: Dynamic, d2: Dynamic) : Bool {
-        //trace("Comparing " + d1 + " and " + d2 + " -- " +  (("" + d1) == ("" + d2)));
         if (d1==null && d2==null) return true;
         if (d1==null && (""+d2)=="") return true;
         if ((""+d1)=="" && d2==null) return true;

@@ -68,6 +68,29 @@ class SimpleTable implements Table {
      *
      */
     public static function tableToString(tab : Table) : String {
+        var meta = tab.getMeta();
+        if (meta!=null) {
+            var stream = meta.getRowStream();
+            if (stream!=null) {
+                var x : String = "";
+                var cols = stream.fetchColumns();
+                for (i in 0...cols.length) {
+                    if (i>0) x += ",";
+                    x += cols[i];
+                }
+                x += "\n";
+                var row : Map<String,Dynamic> = stream.fetchRow();
+                while(row!=null) {
+                    for (i in 0...cols.length) {
+                        if (i>0) x += ",";
+                        x += row[cols[i]];
+                    }
+                    x += "\n";
+                    row = stream.fetchRow();
+                }
+                return x;
+            }
+        }
         var x : String = "";
         for (i in 0...tab.height) {
             for (j in 0...tab.width) {
@@ -89,6 +112,12 @@ class SimpleTable implements Table {
      *
      */
     public static function tableIsSimilar(tab1 : Table, tab2 : Table) : Bool {
+        if (tab1.height==-1 || tab2.height==-1) {
+            // At least one table is streaming.
+            var txt1 = tableToString(tab1);
+            var txt2 = tableToString(tab2);
+            return txt1 == txt2;
+        }
         if (tab1.width!=tab2.width) return false;
         if (tab1.height!=tab2.height) return false;
         var v = tab1.getCellView();

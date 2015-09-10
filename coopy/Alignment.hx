@@ -95,8 +95,8 @@ class Alignment {
      *
      */
     public function link(a: Int, b: Int) : Void {
-        map_a2b.set(a,b);
-        map_b2a.set(b,a);
+        if (a!=-1) map_a2b.set(a,b);
+        if (b!=-1) map_b2a.set(b,a);
         map_count++;
     }
 
@@ -161,7 +161,11 @@ class Alignment {
      *
      */
     public function toString() : String {
-        return "" + map_a2b;
+        var result = "" + map_a2b + " // " + map_b2a;
+        if (reference!=null) {
+            result += " (" + reference + ")";
+        }
+        return result;
     }
 
     /**
@@ -238,160 +242,144 @@ class Alignment {
     }
 
     private function toOrder3() : Ordering {
-        var ref : Alignment = reference;
-        if (ref == null) {
-            ref = new Alignment();
-            ref.range(ha,ha);
-            ref.tables(ta,ta);
-            for (i in 0...ha) {
-                ref.link(i,i);
-            }
-        }
-        var order : Ordering = new Ordering();
+        var order = new Array<Unit>();
         if (reference==null) {
-            order.ignoreParent();
+            for (k in map_a2b.keys()) {
+                var unit = new Unit();
+                unit.l = k;
+                unit.r = a2b(k);
+                order.push(unit);
+            }
+            for (k in map_b2a.keys()) {
+                if (b2a(k)==-1) {
+                    var unit = new Unit();
+                    unit.l = -1;
+                    unit.r = k;
+                    order.push(unit);
+                }
+            }
+        } else {
+            for (k in map_a2b.keys()) {
+                var unit = new Unit();
+                unit.p = k;
+                unit.l = reference.a2b(k);
+                unit.r = a2b(k);
+                order.push(unit);
+            }
+            for (k in reference.map_b2a.keys()) {
+                if (reference.b2a(k)==-1) {
+                    var unit = new Unit();
+                    unit.p = -1;
+                    unit.l = k;
+                    unit.r = -1;
+                    order.push(unit);
+                }
+            }
+            for (k in map_b2a.keys()) {
+                if (b2a(k)==-1) {
+                    var unit = new Unit();
+                    unit.p = -1;
+                    unit.l = -1;
+                    unit.r = k;
+                    order.push(unit);
+                }
+            }
         }
-        var xp : Int = 0;
-        var xl : Int = 0;
-        var xr : Int = 0;
-        var hp : Int = ha;
-        var hl : Int = ref.hb;
-        var hr : Int = hb;
-        var vp : Map<Int,Int> = new Map<Int,Int>();
-        var vl : Map<Int,Int> = new Map<Int,Int>();
-        var vr : Map<Int,Int> = new Map<Int,Int>();
-        for (i in 0...hp) vp.set(i,i);
-        for (i in 0...hl) vl.set(i,i);
-        for (i in 0...hr) vr.set(i,i);
-        var ct_vp: Int = hp;
-        var ct_vl: Int = hl;
-        var ct_vr: Int = hr;
-        var prev : Int = -1;
-        var ct : Int = 0;
-        var max_ct = (hp+hl+hr)*10;
-        while (ct_vp>0 || 
-               ct_vl>0 || 
-               ct_vr>0) {
-            ct++;
-            if (ct>max_ct) {
-                // Ordering did not complete, better to return than continue.
-                break;
+        var top = order.length;
+        var remotes = new Array<Int>();
+        var locals = new Array<Int>();
+        for (o in 0...top) {
+            if (order[o].r >= 0) {
+                remotes.push(o);
+            } else {
+                locals.push(o);
             }
-            if (xp>=hp) xp = 0;
-            if (xl>=hl) xl = 0;
-            if (xr>=hr) xr = 0;
-            if (xp<hp && ct_vp>0) {
-                if (a2b(xp) == null &&
-                    ref.a2b(xp) == null) {
-                    if (vp.exists(xp)) {
-                        order.add(-1,-1,xp);
-                        prev = xp;
-                        vp.remove(xp);
-                        ct_vp--;
-                    }
-                    xp++;
-                    continue;
-                }
-            }
-            var zl : Null<Int> = null;
-            var zr : Null<Int> = null;
-            if (xl<hl && ct_vl>0) {
-                zl = ref.b2a(xl);
-                if (zl==null) {
-                    if (vl.exists(xl)) {
-                        order.add(xl,-1,-1);
-                        vl.remove(xl);
-                        ct_vl--;
-                    }
-                    xl++;
-                    continue;
-                }
-            }
-            if (xr<hr && ct_vr>0) {
-                zr = b2a(xr);
-                if (zr==null) {
-                    if (vr.exists(xr)) {
-                        order.add(-1,xr,-1);
-                        vr.remove(xr);
-                        ct_vr--;
-                    }
-                    xr++;
-                    continue;
-                }
-            }
-            if (zl!=null) {
-                if (a2b(zl)==null) {
-                    // row deleted in remote
-                    if (vl.exists(xl)) {
-                        order.add(xl,-1,zl);
-                        prev = zl;
-                        vp.remove(zl);
-                        ct_vp--;
-                        vl.remove(xl);
-                        ct_vl--;
-                        xp = zl+1;
-                    }
-                    xl++;
-                    continue;
-                }
-            }
-            if (zr!=null) {
-                if (ref.a2b(zr)==null) {
-                    // row deleted in local
-                    if (vr.exists(xr)) {
-                        order.add(-1,xr,zr);
-                        prev = zr;
-                        vp.remove(zr);
-                        ct_vp--;
-                        vr.remove(xr);
-                        ct_vr--;
-                        xp = zr+1;
-                    }
-                    xr++;
-                    continue;
-                }
-            }
-            if (zl!=null && zr!=null && a2b(zl)!=null && 
-                ref.a2b(zr)!=null) {
-                // we have a choice of order
-                // local thinks zl should come next
-                // remote thinks zr should come next
-                if (zl==prev+1 || zr!=prev+1) {
-                    if (vr.exists(xr)) {
-                        order.add(ref.a2b(zr),xr,zr);
-                        prev = zr;
-                        vp.remove(zr);
-                        ct_vp--;
-                        vl.remove(ref.a2b(zr));
-                        ct_vl--;
-                        vr.remove(xr);
-                        ct_vr--;
-                        xp = zr+1;
-                        xl = ref.a2b(zr)+1;
-                    }
-                    xr++;
-                    continue;
-                } else {
-                    if (vl.exists(xl)) {
-                        order.add(xl,a2b(zl),zl);
-                        prev = zl;
-                        vp.remove(zl);
-                        ct_vp--;
-                        vl.remove(xl);
-                        ct_vl--;
-                        vr.remove(a2b(zl));
-                        ct_vr--;
-                        xp = zl+1;
-                        xr = a2b(zl)+1;
-                    }
-                    xl++;
-                    continue;
-                }
-            }
-            xp++;
-            xl++;
-            xr++;
         }
-        return order;
+        var remote_sort = function(a,b) {
+            return order[a].r-order[b].r;
+        }
+        var local_sort = function(a,b) {
+            if (a==b) return 0; // java does this
+            if (order[a].l>=0 && order[b].l>=0) {
+                return order[a].l-order[b].l;
+            }
+            if (order[a].l>=0) return 1;
+            if (order[b].l>=0) return -1;
+            return a-b;
+        }
+        if (reference!=null) {
+            remote_sort = function(a,b) {
+                if (a==b) return 0; // java does this
+                var o1 = order[a].r-order[b].r;
+                if (order[a].p>=0&&order[b].p>=0) {
+                    var o2 = order[a].p-order[b].p;
+                    if (o1*o2<0) {
+                        return o1;
+                    }
+                    var o3 = order[a].l-order[b].l;
+                    return o3;
+                }
+                return o1;
+            }
+            local_sort = function(a,b) {
+                if (a==b) return 0; // java does this
+                if (order[a].l>=0 && order[b].l>=0) {
+                    var o1 = order[a].l-order[b].l;
+                    if (order[a].p>=0&&order[b].p>=0) {
+                        var o2 = order[a].p-order[b].p;
+                        if (o1*o2<0) {
+                            return o1;
+                        }
+                        return o2;
+                    }
+                }
+                if (order[a].l>=0) return 1;
+                if (order[b].l>=0) return -1;
+                return a-b;
+            }
+        }
+        remotes.sort(remote_sort);
+        locals.sort(local_sort);
+        var revised_order = new Array<Unit>();
+        var at_r = 0;
+        var at_l = 0;
+        for (o in 0...top) {
+            if (at_r<remotes.length && at_l<locals.length) {
+                var ur = order[remotes[at_r]];
+                var ul = order[locals[at_l]];
+                if (ul.l==-1 && ul.p>=0 && ur.p>=0) {
+                    if (ur.p>ul.p) {
+                        revised_order.push(ul);
+                        at_l++;
+                        continue;
+                    }
+                } else if (ur.l>ul.l) {
+                    revised_order.push(ul);
+                    at_l++;
+                    continue;
+                }
+                revised_order.push(ur);
+                at_r++;
+                continue;
+            }
+            if (at_r<remotes.length) {
+                var ur = order[remotes[at_r]];
+                revised_order.push(ur);
+                at_r++;
+                continue;
+            }
+            if (at_l<locals.length) {
+                var ul = order[locals[at_l]];
+                revised_order.push(ul);
+                at_l++;
+                continue;
+            }
+        }
+        order = revised_order;
+
+        var result = new Ordering();
+        result.setList(order);
+        if (reference==null) result.ignoreParent();
+        return result;
     }
 }

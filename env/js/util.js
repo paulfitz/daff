@@ -64,7 +64,7 @@ if (typeof exports != "undefined") {
 
     tio.openSqliteDatabase = function(path) {
 	if (Fiber) {
-	    return new SqliteDatabase(new sqlite3.Database(path),path,Fiber);
+	    return new coopy.SqliteDatabase(new sqlite3.Database(path),path,Fiber);
 	}
 	throw("run inside Fiber plz");
 	return null;

@@ -533,6 +533,11 @@ class TableDiff {
                         output.setCell(j+1,at,
                                        b.getCell(cunit.r,rb_header));
                     }
+                } else if (cunit.l>=0) {
+                    if (a.height!=0) {
+                        output.setCell(j+1,at,
+                                       a.getCell(cunit.l,ra_header));
+                    }
                 } else if (cunit.lp()>=0) {
                     if (p.height!=0) {
                         output.setCell(j+1,at,
@@ -684,7 +689,7 @@ class TableDiff {
                 } else {
                     // have_pp, have_rr
                     if (v.equals(pp,rr)) {
-                        dd = pp;
+                        dd = ll;
                     } else {
                         // rr is different
                         dd = pp;

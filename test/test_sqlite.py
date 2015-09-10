@@ -19,7 +19,7 @@ sd = daff.SqliteDatabase(db,None)
 st1 = daff.SqlTable(sd,daff.SqlTableName("ver1"))
 st2 = daff.SqlTable(sd,daff.SqlTableName("ver2"))
 
-sc = daff.SqlCompare(sd,st1,st2)
+sc = daff.SqlCompare(sd,st1,st2,None)
 
 align = sc.apply()
 

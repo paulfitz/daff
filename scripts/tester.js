@@ -21,8 +21,9 @@ function order_asserts(order,lst) {
 function align_assert(align,a,b) {
     var msg = "alignment " + align + " " + a + " -> " + b;
     if (a==null) {
-	assert(align.b2a(b)==null,msg);
+	assert(align.b2a(b)==-1,msg);
     } else {
+        if (b==null) b = -1;
 	assert(align.a2b(a)==b,msg);
     }
 }
