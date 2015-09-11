@@ -179,7 +179,7 @@ class Coopy {
         var hp : HighlightPatch = new HighlightPatch(null,null);
         var csv : Csv = new Csv();
         var tm : TableModifier = new TableModifier(null);
-        var sc: SqlCompare = new SqlCompare(null,null,null);
+        var sc: SqlCompare = new SqlCompare(null,null,null,null);
 
         return 0;
     }

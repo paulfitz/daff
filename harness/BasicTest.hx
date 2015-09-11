@@ -5,6 +5,8 @@ package harness;
 class BasicTest extends haxe.unit.TestCase {
     var data1 : Array<Array<Dynamic>>;
     var data2 : Array<Array<Dynamic>>;
+    var data3 : Array<Array<Dynamic>>;
+    var data4 : Array<Array<Dynamic>>;
 
     override public function setup() {
         data1 = [['Country','Capital'],
@@ -16,8 +18,17 @@ class BasicTest extends haxe.unit.TestCase {
                  ['France','fr','Paris'],
                  ['Spain','es','Madrid'],
                  ['Germany','de','Berlin']];
+        data3 = [['Country','Capital','Time'],
+                 ['Ireland','Baile Atha Cliath',0],
+                 ['France','Paris',1],
+                 ['Spain','Barcelona',1]];
+        data4 = [['Country','Code','Capital','Time'],
+                 ['Ireland','ie','Baile Atha Cliath',0],
+                 ['France','fr','Paris',1],
+                 ['Spain','es','Madrid',1],
+                 ['Germany','de','Berlin',null]];
     }
-    
+
     public function testBasic(){
         var table1 = Native.table(data1);
         var table2 = Native.table(data2);
@@ -104,5 +115,18 @@ class BasicTest extends haxe.unit.TestCase {
         var render1 = new coopy.DiffRender().render(table_diff1).html();
         var render2 = new coopy.DiffRender().render(table_diff2).html();
         assertEquals(render1,render2);
+    }
+
+    public function testThreeWay() {
+        var flags = new coopy.CompareFlags();
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data2);
+        var table3 = Native.table(data3);
+        var table4 = Native.table(data4);
+        flags.parent = table1;
+        var out = coopy.Coopy.diff(table2,table3,flags);
+        var table2b = table2.clone();
+        coopy.Coopy.patch(table2b,out);
+        assertTrue(coopy.SimpleTable.tableIsSimilar(table4,table2b));
     }
 }

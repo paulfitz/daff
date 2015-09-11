@@ -27,17 +27,17 @@ class MergeTest extends haxe.unit.TestCase {
         data4 = [['Country','Code','Capital'],
                  ['Dear old Ireland','ie','Dublin'],
                  ['Spain','es','Madrid'],
-                 ['Germany','de','Berlin'],
-                 ['Finland',null,'Helsinki']];
+                 ['Finland',null,'Helsinki'],
+                 ['Germany','de','Berlin']];
         data3b = [['Country','Capital'],
                  ['Dear old Ireland','Dublin'],
                  ['Spain','Lisbon'],
                  ['Finland','Helsinki']];
         data4b = [['Country','Code','Capital'],
-                 ['Dear old Ireland','ie','Dublin'],
-                 ['Spain','es','((( Barcelona ))) Madrid /// Lisbon'],
-                 ['Germany','de','Berlin'],
-                 ['Finland',null,'Helsinki']];
+                  ['Dear old Ireland','ie','Dublin'],
+                  ['Spain','es','((( Barcelona ))) Madrid /// Lisbon'],
+                  ['Finland',null,'Helsinki'],
+                  ['Germany','de','Berlin']];
     }
     
     public function testUnconflicted(){

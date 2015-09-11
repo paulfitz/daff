@@ -45,6 +45,17 @@ class Ordering {
 
     /**
      *
+     * Replace the order with a prepared list.
+     *
+     * @param lst the new order
+     *
+     */
+    public function setList(lst: Array<Unit>) {
+        order = lst;
+    }
+
+    /**
+     *
      * @return the list of units in text form
      *
      */

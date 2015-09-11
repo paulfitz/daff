@@ -12,18 +12,33 @@ class SqlTest extends haxe.unit.TestCase {
         exec(db,"CREATE TABLE ver2 (id INTEGER PRIMARY KEY, name TEXT)");
         exec(db,"CREATE TABLE ver3 (id INTEGER PRIMARY KEY, name TEXT, count INTEGER)");
         exec(db,"CREATE TABLE ver4 (id INTEGER PRIMARY KEY, count INTEGER)");
+        exec(db,"CREATE TABLE ver5 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
+        exec(db,"CREATE TABLE ver6 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
+
         exec(db,"INSERT INTO ver1 VALUES(?,?)",[1, "Paul"]);
         exec(db,"INSERT INTO ver1 VALUES(?,?)",[2, "Naomi"]);
         exec(db,"INSERT INTO ver1 VALUES(?,?)",[4, "Hobbes"]);
+
         exec(db,"INSERT INTO ver2 VALUES(?,?)",[2, "Noemi"]);
         exec(db,"INSERT INTO ver2 VALUES(?,?)",[3, "Calvin"]);
         exec(db,"INSERT INTO ver2 VALUES(?,?)",[4, "Hobbes"]);
+
         exec(db,"INSERT INTO ver3 VALUES(?,?,?)",[2, "Noemi", 20]);
         exec(db,"INSERT INTO ver3 VALUES(?,?,?)",[3, "Calvin", 50]);
         exec(db,"INSERT INTO ver3 VALUES(?,?,?)",[4, "Hobbes", 92]);
+
         exec(db,"INSERT INTO ver4 VALUES(?,?)",[2, 20]);
         exec(db,"INSERT INTO ver4 VALUES(?,?)",[3, 50]);
         exec(db,"INSERT INTO ver4 VALUES(?,?)",[4, 92]);
+
+        exec(db,"INSERT INTO ver5 VALUES(?,?,?)",[1, 88, "Paul"]);
+        exec(db,"INSERT INTO ver5 VALUES(?,?,?)",[2, 77, "Naomi"]);
+        exec(db,"INSERT INTO ver5 VALUES(?,?,?)",[4, 88, "Hobbesian"]);
+
+        exec(db,"INSERT INTO ver6 VALUES(?,?,?)",[2, 77, "Noemi"]);
+        exec(db,"INSERT INTO ver6 VALUES(?,?,?)",[3, null, "Calvin"]);
+        exec(db,"INSERT INTO ver6 VALUES(?,?,?)",[4, 88, "Hobbesian"]);
+
         flags = new coopy.CompareFlags();
         flags.diff_strategy = "sql";
         flags.show_meta = false;
@@ -38,7 +53,7 @@ class SqlTest extends haxe.unit.TestCase {
 
         var st1 = new coopy.SqlTable(db,new coopy.SqlTableName("ver1"));
         var st2 = new coopy.SqlTable(db,new coopy.SqlTableName("ver2"));
-        var sc = new coopy.SqlCompare(db,st1,st2);
+        var sc = new coopy.SqlCompare(db,st1,st2,null);
         var alignment = sc.apply();
     
         var flags = new coopy.CompareFlags();
@@ -53,7 +68,7 @@ class SqlTest extends haxe.unit.TestCase {
         assertTrue(coopy.SimpleTable.tableIsSimilar(target,out));
         coopy.Coopy.patch(st1,target);
 
-        var sc2 = new coopy.SqlCompare(db,st1,st2);
+        var sc2 = new coopy.SqlCompare(db,st1,st2,null);
         var alignment2 = sc2.apply();
         var td = new coopy.TableDiff(alignment2,flags);
         var out2 = Native.table([]);
@@ -94,5 +109,16 @@ class SqlTest extends haxe.unit.TestCase {
                 comparePair(n1,n2);
             }
         }
+    }
+
+    public function test3WayDiff() {
+        var st1 = new coopy.SqlTable(db,new coopy.SqlTableName("ver1"));
+        var st2 = new coopy.SqlTable(db,new coopy.SqlTableName("ver2"));
+        var st5 = new coopy.SqlTable(db,new coopy.SqlTableName("ver5"));
+        var st6 = new coopy.SqlTable(db,new coopy.SqlTableName("ver6"));
+        flags.parent = st1;
+        var out = coopy.Coopy.diff(st2,st5,flags);
+        coopy.Coopy.patch(st2,out);
+        assertTrue(coopy.SimpleTable.tableIsSimilar(st2,st6));
     }
 }
