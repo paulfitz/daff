@@ -9,8 +9,10 @@ class FlatCellBuilder implements CellBuilder {
     private var view : View;
     private var separator : String;
     private var conflict_separator : String;
+    private var flags : CompareFlags;
 
-    public function new() {
+    public function new(flags: CompareFlags) {
+        this.flags = flags;
     }
 
     public function needSeparator() {
@@ -46,7 +48,10 @@ class FlatCellBuilder implements CellBuilder {
         return view.toDatum(label);
     }
 
-    public function links(unit: Unit) : Dynamic {
+    public function links(unit: Unit, row_like: Bool) : Dynamic {
+        if (flags.count_like_a_spreadsheet && !row_like) {
+            return view.toDatum(unit.toBase26String());
+        }
         return view.toDatum(unit.toString());
     }
 

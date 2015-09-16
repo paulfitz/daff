@@ -451,7 +451,7 @@ class TableDiff {
                     output.setCell(0,i,"");
                     continue;
                 }
-                output.setCell(0,i,builder.links(unit));
+                output.setCell(0,i,builder.links(unit,true));
             }
             target = new Array<Int>();
             for (i in 0...output.height) {
@@ -464,7 +464,7 @@ class TableDiff {
                     output.setCell(i,0,"");
                     continue;
                 }
-                output.setCell(i,0,builder.links(unit));
+                output.setCell(i,0,builder.links(unit,false));
             }
             output.setCell(0,0,builder.marker("@:@"));
         }
@@ -808,7 +808,7 @@ class TableDiff {
             if (flags.allow_nested_cells) {
                 builder = new NestedCellBuilder();
             } else {
-                builder = new FlatCellBuilder();
+                builder = new FlatCellBuilder(flags);
             }
         }
         output.resize(0,0);

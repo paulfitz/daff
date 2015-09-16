@@ -50,7 +50,7 @@ class NestedCellBuilder implements CellBuilder {
         return x;
     }
 
-    public function links(unit: Unit) : Dynamic {
+    public function links(unit: Unit, row_like: Bool) : Dynamic {
         var h = view.makeHash();
         if (unit.p>=-1) {
             view.hashSet(h,"before",negToNull(unit.p));
