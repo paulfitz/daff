@@ -16,7 +16,7 @@ before_install:
 install:
   - sudo apt-get install time php5 -y
   - if ! $USE_PAULFITZ; then sudo apt-get install haxe -y; fi
-  - if $USE_PAULFITZ; then wget https://github.com/paulfitz/haxe/releases/download/rb_v3.1.1_8/haxerb.zip; fi
+  - if $USE_PAULFITZ; then wget https://github.com/paulfitz/haxe/releases/download/rb_v3.1.1_9/haxerb.zip; fi
   - if $USE_PAULFITZ; then unzip -q haxerb.zip; fi
   - sudo apt-get install gcc-multilib g++-multilib -y  # VM is 64bit but hxcpp builds 32bit
   - mkdir -p ~/haxelib

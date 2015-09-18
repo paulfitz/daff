@@ -292,6 +292,7 @@ rdist:
 	echo "#!/usr/bin/env ruby" > bin/daff.rb
 	echo "require 'daff'" >> bin/daff.rb
 	echo "Daff::Coopy.main" >> bin/daff.rb
+	chmod u+x bin/daff.rb
 	rm -f daff-*.gem
 	gem build daff.gemspec
 
