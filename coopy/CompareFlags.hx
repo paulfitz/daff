@@ -182,6 +182,13 @@ class CompareFlags {
      */
     public var count_like_a_spreadsheet : Bool;
 
+    /**
+     *
+     * Should whitespace be omitted from comparisons.  Defaults to false.
+     *
+     */
+    public var ignore_whitespace : Bool;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -202,6 +209,7 @@ class CompareFlags {
         tables = null;
         parent = null;
         count_like_a_spreadsheet = true;
+        ignore_whitespace = false;
     }
 
     /**

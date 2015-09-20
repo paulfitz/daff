@@ -632,6 +632,13 @@ class TableDiff {
         }
     }
 
+    private function isEqual(v: View, aa: Dynamic, bb: Dynamic) {
+        if (flags.ignore_whitespace) {
+            return StringTools.trim(v.toString(aa)) == StringTools.trim(v.toString(bb));
+        }
+        return v.equals(aa,bb);
+    }
+
     /**
      *
      * Generate diff for given l/r/p row unit #i.
@@ -688,7 +695,7 @@ class TableDiff {
                     dd = pp;
                 } else {
                     // have_pp, have_rr
-                    if (v.equals(pp,rr)) {
+                    if (isEqual(v,pp,rr)) {
                         dd = ll;
                     } else {
                         // rr is different
@@ -696,8 +703,8 @@ class TableDiff {
                         dd_to = rr;
                         have_dd_to = true;
 
-                        if (!v.equals(pp,ll)) {
-                            if (!v.equals(pp,rr)) {
+                        if (!isEqual(v,pp,ll)) {
+                            if (!isEqual(v,pp,rr)) {
                                 dd_to_alt = ll;
                                 have_dd_to_alt = true;
                             }
@@ -708,7 +715,7 @@ class TableDiff {
                 if (!have_rr) {
                     dd = ll;
                 } else {
-                    if (v.equals(ll,rr)) {
+                    if (isEqual(v,ll,rr)) {
                         dd = ll;
                     } else {
                         // rr is different
@@ -739,7 +746,7 @@ class TableDiff {
                 }
                 var is_conflict : Bool = false;
                 if (have_dd_to_alt) {
-                    if (!v.equals(dd_to,dd_to_alt)) {
+                    if (!isEqual(v,dd_to,dd_to_alt)) {
                         is_conflict = true;
                     }
                 }

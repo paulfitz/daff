@@ -162,7 +162,7 @@ class CompareTable {
             // no need for heuristics, we've been told what columns
             // to use as a primary key
 
-            index_top = new IndexPair();
+            index_top = new IndexPair(comp.compare_flags);
             var ids_as_map = new Map<String,Bool>();
             for (id in ids) {
                 ids_as_map[id] = true;
@@ -262,7 +262,7 @@ class CompareTable {
                     at++;
                 }
 
-                var index : IndexPair = new IndexPair();
+                var index : IndexPair = new IndexPair(comp.compare_flags);
                 for (k in 0...active_columns.length) {
                     var col : Int = active_columns[k];
                     var unit : Unit = common_units[col];
