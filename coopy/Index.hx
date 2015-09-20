@@ -15,14 +15,19 @@ class Index {
     private var v : View;
     private var indexed_table : Table;
     private var hdr : Int;
+    private var ignore_whitespace : Bool;
 
-    public function new() : Void {
+    public function new(flags : CompareFlags) : Void {
         items = new Map<String,IndexItem>();
         cols = new Array<Int>();
         keys = new Array<String>();
         top_freq = 0;
         height = 0;
         hdr = 0;
+        ignore_whitespace = false;
+        if (flags!=null) {
+            ignore_whitespace = flags.ignore_whitespace;
+        }
     }
  
     public function addColumn(i: Int) : Void {
@@ -60,6 +65,9 @@ class Index {
         for (k in 0...cols.length) {
             var d : Dynamic = t.getCell(cols[k],i);
             var txt : String = v.toString(d);
+            if (ignore_whitespace) {
+                txt = StringTools.trim(txt);
+            }
             if (k>0) wide += " // ";
             if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;
             wide += txt;
@@ -71,6 +79,9 @@ class Index {
         var wide : String = row.isPreamble()?"_":"";
         for (k in 0...cols.length) {
             var txt : String = row.getRowString(cols[k]);
+            if (ignore_whitespace) {
+                txt = StringTools.trim(txt);
+            }
             if (k>0) wide += " // ";
             if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;
             wide += txt;

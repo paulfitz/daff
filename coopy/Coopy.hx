@@ -173,9 +173,9 @@ class Coopy {
         var st : SimpleTable = new SimpleTable(1,1);
         var v : Viterbi = new Viterbi();
         var td : TableDiff = new TableDiff(null,null);
-        var idx : Index = new Index();
-        var dr : DiffRender = new DiffRender();
         var cf : CompareFlags = new CompareFlags();
+        var idx : Index = new Index(cf);
+        var dr : DiffRender = new DiffRender();
         var hp : HighlightPatch = new HighlightPatch(null,null);
         var csv : Csv = new Csv();
         var tm : TableModifier = new TableModifier(null);
@@ -708,6 +708,11 @@ class Coopy {
                     flags.addTable(args[i+1]);
                     args.splice(i,2);
                     break;
+                } else if (tag=="-w" || tag=="--ignore-whitespace") {
+                    more = true;
+                    flags.ignore_whitespace = true;
+                    args.splice(i,1);
+                    break;
                 }
             }
         }
@@ -778,6 +783,7 @@ class Coopy {
             io.writeStderr("     --output-format [csv|tsv|ssv|json|copy|html]: set format for output\n");
             io.writeStderr("     --table NAME:  compare the named table, used with SQL sources\n");
             io.writeStderr("     --unordered:   assume row order is meaningless (default for json formats)\n");
+            io.writeStderr("     -w / --ignore-whitespace: ignore changes in leading/trailing whitespace\n");
             io.writeStderr("\n");
             io.writeStderr("  daff render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
             io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");

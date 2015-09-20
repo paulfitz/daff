@@ -17,13 +17,15 @@ class IndexPair {
     private var ib : Index;
     private var hdr : Int;
     private var quality : Float;
+    private var flags : CompareFlags;
 
-    public function new() : Void {
-        ia = new Index();
-        ib = new Index();
+    public function new(flags: CompareFlags) : Void {
+        this.flags = flags;
+        ia = new Index(flags);
+        ib = new Index(flags);
         quality = 0;
         hdr = 0;
-    }
+       }
 
     /**
      *
