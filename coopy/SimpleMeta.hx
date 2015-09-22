@@ -9,6 +9,7 @@ package coopy;
  * This implementation is unoptimized, it is expected to be replace with a native class.
  *
  */
+@:expose
 class SimpleMeta implements Meta {
     private var t : Table;
     private var name2row : Map<String,Int>;
