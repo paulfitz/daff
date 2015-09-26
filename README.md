@@ -3,7 +3,6 @@
 [![Gem Version](https://badge.fury.io/rb/daff.svg)](http://badge.fury.io/rb/daff)
 [![PyPI version](https://badge.fury.io/py/daff.svg)](http://badge.fury.io/py/daff)
 [![PHP version](https://badge.fury.io/ph/paulfitz%2Fdaff-php.svg)](http://badge.fury.io/ph/paulfitz%2Fdaff-php)
-[![tips](https://img.shields.io/gratipay/paulfitz.svg)](https://gratipay.com/paulfitz/)
 
 daff: data diff
 ===============
@@ -228,7 +227,9 @@ API documentation
 Sponsors
 --------
 
-The [Data Commons Co-op](http://datacommons.coop),  "perhaps the geekiest of all cooperative organizations on the planet," has given great moral support during the initial development of `daff`. There's currently no financial support for `daff`. You could change that! [![tips](https://img.shields.io/gratipay/paulfitz.svg)](https://gratipay.com/paulfitz/)
+<img src="http://datacommons.coop/images/the_zen_of_venn.png" alt="the zen of venn" height="100">
+The [Data Commons Co-op](http://datacommons.coop),  "perhaps the geekiest of all cooperative organizations on the planet," has given great moral support during the development of `daff`.
+Donate a multiple of `42.42` in your currency to let them know you care: [http://datacommons.coop/donate/](http://datacommons.coop/donate/)
 
 Reading material
 ----------------
