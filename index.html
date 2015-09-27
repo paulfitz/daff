@@ -1,153 +1,155 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<title>daff - data diffs in javascript, ruby, python, php, ...</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="lib/jquery.min.js"></script>
-<script src="dist/jquery.handsontable.full.js"></script>
-<script src="daff.js"></script>
-<script src="daff_handsontable.js"></script>
-<script src="test_data.js"></script>
-<link rel="stylesheet" media="screen" href="dist/jquery.handsontable.full.css">
-<link rel="stylesheet" media="screen" href="daff.css">
-<link rel="stylesheet" media="screen" href="daff_handsontable.css">
-</head>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>daff - data diffs in javascript, ruby, python, php, ...</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="lib/jquery.min.js"></script>
+        <script src="dist/jquery.handsontable.full.js"></script>
+        <script src="daff.js"></script>
+        <script src="daff_handsontable.js"></script>
+        <script src="test_data.js"></script>
+        <link rel="stylesheet" media="screen" href="dist/jquery.handsontable.full.css">
+        <link rel="stylesheet" media="screen" href="daff.css">
+        <link rel="stylesheet" media="screen" href="daff_handsontable.css">
+    </head>
 
-<body>
+    <body>
 
-<div class="top-info">
+        <div class="top-info">
 
-<div class="source-link">
-<a class="github-button" href="https://github.com/paulfitz/daff" data-count-href="/paulfitz/daff/stargazers" data-count-api="/repos/paulfitz/daff#stargazers_count">Github</a>
-</div>
-  
-  <h1>daff</h1>
+            <div class="source-link">
+                <a class="github-button" href="https://github.com/paulfitz/daff" data-count-href="/paulfitz/daff/stargazers" data-count-api="/repos/paulfitz/daff#stargazers_count">Github</a>
+            </div>
 
-  <p class="explain">
-    Ever wanted to compare tables as easily as you compare code?
-    <tt class="daff">daff</tt> (think &ldquo;data diff&rdquo;) is for you.
-    Here's a live example.
-  <p>
-  
-<div id="controls">
-  <a href="#" id="control-item-config" class="control-item control-menu" data-item="item-config"><b>&equiv;</b></a>
-  <a href="#" id="control-item-parent" class="control-item" data-item="item-parent" style="display: none;">Ancestor</a>
-  <a href="#" id="control-item-before" class="control-item" data-item="item-before">Original<span class="verbosity"> table</span></a>
-  <a href="#" id="control-item-after" class="control-item" data-item="item-after">Modified<span class="verbosity">  table</span></a>
-  <a href="#" id="control-item-diff" class="control-item" data-item="item-diff">Diff<span class="verbosity">erence</span></a>
-</div>
+            
+            <h1>daff</h1>
 
-</div>
+            <p class="explain">
+                Ever wanted to compare tables as easily as you compare code?
+                <tt class="daff">daff</tt> (think &ldquo;data diff&rdquo;) is for you.
+            </p>
 
-<div id="main">
+        </div>
 
-<div id="items">
 
-  <div id="item-config" class="item">
-    <form class="demo-options">
-      <span class="unit"><input id="parent_checkbox" type="checkbox" /><label for="parent_checkbox">Use 3-way comparison</label></span>
-    <span class="unit"><input id="order_checkbox" type="checkbox" /><label for="order_checkbox">Show row/column numbers</label></span>
-      <span class="unit"><input type=button id="button-clear" value="clear all cells" /></span>
-    </form>
-  </div>
+        <div id="content">
 
-  <div id="item-parent" class="item">
-    <div id="table0" class="tabular"></div>
-    <div class="explain">
-      You can edit this table. The <a class="show-item" data-item="item-diff" href="#">difference</a> will be recalculated immediately.  This table should be a common ancestor for the <a class="show-item" data-item="item-before" href="#">&ldquo;original&rdquo; table</a> and the <a class="show-item" data-item="item-after" href="#">modified table</a>.
-    </div>
-  </div>
-  
-  <div id="item-before" class="item">
-    <div id="table1" class="tabular"></div>
-    <div class="explain">
-      You can edit this table. The <a class="show-item" data-item="item-diff" href="#">difference</a> will be recalculated immediately.  We are using this as the original version of the table.  The difference will show the changes that were made in the <a class="show-item" data-item="item-after" href="#">modified table</a>.
-    </div>
-  </div>
-  <div id="item-after" class="item">
-    <div id="table2" class="tabular"></div>
-    <div class="explain">
-      You can edit this table. The <a class="show-item" data-item="item-diff" href="#">difference</a> will be recalculated immediately.  The difference will show the changes that were made in this table with respect to the <a class="show-item" data-item="item-before" href="#">original table</a>.
-    </div>
-  </div>
-  <div id="item-diff" class="item">
-    <div id="diff" class="highlighter tabular"></div>
-    <div class="explain">
-      <p>This shows the changes made in the <a class="show-item" data-item="item-after" href="#">modified table</a> with respect to the <a class="show-item" data-item="item-before" href="#">original table</a>.  The format used is the <a href="http://dataprotocols.org/tabular-diff-format/">highlighter tabular diff</a>.</p>
-      <p>You can collapse the diff down to nothing by
-      <a href="#" id="apply-diff">applying it to the original table</a>.
-      More usefully, you can edit the diff first before applying it.  Erasing
-      cells like &ldquo;<span class="plus">+++</span>&rdquo; or 
-      &ldquo;<span class="minus">---</span>&rdquo; means those changes won't get applied.
-      </p>
-      
-    </div>
-  </div>
-</div>
+            <div class="section">
 
-<div class="section">
-<h2>Installation</h2>
 
-<div class='terminal'>
-  <div class='snip snip-alt'>npm install daff -g</div>
-  <div class='snip snip-alt'>pip install daff</div>
-  <div class='snip snip-alt'>gem install daff</div>
-  <div class='snip'>composer require paulfitz/daff-php</div>
-</div>
+                <h2>Live example</h2>
+                
+                <div id="controls">
+                    &nbsp; &nbsp; <a href="#" id="control-item-config" class="control-item control-menu" data-item="item-config"><b>&equiv;</b></a>
+                    <a href="#" id="control-item-parent" class="control-item" data-item="item-parent" style="display: none;">Ancestor</a>
+                    <a href="#" id="control-item-before" class="control-item" data-item="item-before">Original<span class="verbosity"> table</span></a>
+                    <a href="#" id="control-item-after" class="control-item" data-item="item-after">Modified<span class="verbosity">  table</span></a>
+                    <a href="#" id="control-item-diff" class="control-item" data-item="item-diff">Diff<span class="verbosity">erence</span></a>
+                </div>
 
-<p class="explain">
-  For more options and languages, see <a href="https://github.com/paulfitz/daff">github repository</a>.
-</p>
-</div>
+                <div id="main">
 
-<div class="section">
-<h2>Using with git</h2>
+                    <div id="items">
 
-<p class="explain">
+                        <div id="item-config" class="item">
+                            <form class="demo-options">
+                                <span class="unit"><input id="parent_checkbox" type="checkbox" /><label for="parent_checkbox">Use 3-way comparison</label></span>
+                                <span class="unit"><input id="order_checkbox" type="checkbox" /><label for="order_checkbox">Show row/column numbers</label></span>
+                                <span class="unit"><input type=button id="button-clear" value="clear all cells" /></span>
+                            </form>
+                        </div>
 
-  Do you have a git repository with <tt>.csv</tt> files in it?  You
-  can make git diffs and merges table-aware using <tt>daff</tt>.
-  To see how, run:
+                        <div id="item-parent" class="item">
+                            <div id="table0" class="tabular"></div>
+                            <div class="explain">
+                                You can edit this table. The <a class="show-item" data-item="item-diff" href="#">difference</a> will be recalculated immediately.  This table should be a common ancestor for the <a class="show-item" data-item="item-before" href="#">&ldquo;original&rdquo; table</a> and the <a class="show-item" data-item="item-after" href="#">modified table</a>.
+                            </div>
+                        </div>
+                        
+                        <div id="item-before" class="item">
+                            <div id="table1" class="tabular"></div>
+                            <div class="explain">
+                                You can edit this table. The <a class="show-item" data-item="item-diff" href="#">difference</a> will be recalculated immediately.  We are using this as the original version of the table.  The difference will show the changes that were made in the <a class="show-item" data-item="item-after" href="#">modified table</a>.
+                            </div>
+                        </div>
+                        <div id="item-after" class="item">
+                            <div id="table2" class="tabular"></div>
+                            <div class="explain">
+                                You can edit this table. The <a class="show-item" data-item="item-diff" href="#">difference</a> will be recalculated immediately.  The difference will show the changes that were made in this table with respect to the <a class="show-item" data-item="item-before" href="#">original table</a>.
+                            </div>
+                        </div>
+                        <div id="item-diff" class="item">
+                            <div id="diff" class="highlighter tabular"></div>
+                            <div class="explain">
+                                <p>This shows the changes made in the <a class="show-item" data-item="item-after" href="#">modified table</a> with respect to the <a class="show-item" data-item="item-before" href="#">original table</a>.  The format used is the <a href="http://dataprotocols.org/tabular-diff-format/">highlighter tabular diff</a>.</p>
+                                <p>You can collapse the diff down to nothing by
+                                    <a href="#" id="apply-diff">applying it to the original table</a>.
+                                    More usefully, you can edit the diff first before applying it.  Erasing
+                                    cells like &ldquo;<span class="plus">+++</span>&rdquo; or 
+                                    &ldquo;<span class="minus">---</span>&rdquo; means those changes won't get applied.
+                                </p>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-</p>
+            <div class="section">
+                <h2>Installation</h2>
 
-<div class="terminal">
-  <div class="snip">daff git</div>
-</div>
+                <div class='terminal'>
+                    <div class='snip snip-alt'>npm install daff -g</div>
+                    <div class='snip snip-alt'>pip install daff</div>
+                    <div class='snip snip-alt'>gem install daff</div>
+                    <div class='snip'>composer require paulfitz/daff-php</div>
+                </div>
 
-<p class="explain">
-  To set everything up automatically, run:
-</p>
+                <p class="explain">
+                    For more options and languages, see <a href="https://github.com/paulfitz/daff">github repository</a>.
+                </p>
+            </div>
 
-<div class="terminal">
-  <div class="snip">daff git csv</div>
-</div>
+            <div class="section">
+                <h2>Using with git</h2>
 
-<p class="explain">
-  <tt>daff</tt> will explain everything it is doing.  Once that is done,
-  <tt>git diff</tt> will become more useful for <tt>.csv</tt> differences:
-</p>
+                <p class="explain">
 
-<a href="https://github.com/theodi/test-data/commit/9f391e6e35963b96aa0eed56c20ccd70f326e1f7"><img src="images/diff.png" /></a>
+                    Do you have a git repository with <tt>.csv</tt> files in it?  You
+                    can make git diffs and merges table-aware using <tt>daff</tt>.
+                    To set this up, run:
 
-<p class="explain">
-You can get the same results online on github using <a href="http://floppy.org.uk/">Floppy</a>'s <a href="https://github.com/theodi/csvhub">csvhub</a> chrome extension.
-</p>
-</div>
+                </p>
 
-<div class="section">
-<h2>Help</h2>
+                <div class="terminal">
+                    <div class="snip">daff git csv</div>
+                </div>
 
-  <p class="explain">
-  Make sure to read the <a href="https://github.com/paulfitz/daff/blob/master/README.md">README</a>.
-  Then just file an issue or <a href="https://twitter.com/fitzyfitzyfitzy">@fitzyfitzyfitzy</a> me, I'll be excited to hear from you.
-  </p>
+                <p class="explain">
+                    Your CSV diffs and merges will get smarter,
+                    since git will suddenly understand about rows and columns, not just lines:
+                </p>
 
-</div>
+                <a href="http://paulfitz.github.io/daff-doc/images/daff_vs_diff.png"><img src="http://paulfitz.github.io/daff-doc/images/daff_vs_diff.png" style="width: 450px;" /></a>
 
-</div>
+                <p class="explain">
+                    You can get the same results online on github using <a href="http://floppy.org.uk/">Floppy</a>'s <a href="https://github.com/theodi/csvhub">csvhub</a> chrome extension.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Help</h2>
+
+                <p class="explain">
+                    Make sure to read the <a href="https://github.com/paulfitz/daff/blob/master/README.md">README</a>.
+                    Then just file an issue or <a href="https://twitter.com/fitzyfitzyfitzy">@fitzyfitzyfitzy</a> me, I'll be excited to hear from you.
+                </p>
+
+            </div>
+
+        </div>
 
 <script>
 $(function() {
@@ -412,5 +414,5 @@ $(function() {
 
 <script async defer id="github-bjs" src="buttons.js"></script>
 
-</body>
+    </body>
 </html>
