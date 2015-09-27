@@ -180,7 +180,7 @@ class Coopy {
         var csv : Csv = new Csv();
         var tm : TableModifier = new TableModifier(null);
         var sc: SqlCompare = new SqlCompare(null,null,null,null);
-
+        var sq: SqliteHelper = new SqliteHelper();
         return 0;
     }
 
@@ -337,28 +337,7 @@ class Coopy {
                 io.writeStderr("! Cannot open database, aborting\n");
                 return null;
             }
-            var helper = new SqliteHelper();
-            var name = "";
-            if (flags == null || flags.tables == null || flags.tables.length == 0) {
-                var names = helper.getTableNames(sql);
-                if (names==null) {
-                    io.writeStderr("! Cannot find database tables, aborting\n");
-                    return null;
-                }
-                if (names.length==0) {
-                    io.writeStderr("! No tables in database, aborting\n");
-                    return null;
-                }
-                name = names[0];
-            } else {
-                name = flags.tables[0];
-                if (flags.tables.length>1) {
-                    io.writeStderr("! Cannot compare more than one table yet\n");
-                }
-            }
-            var tab = new SqlTable(sql,new SqlTableName(name),
-                                   helper);
-            strategy = "sql";
+            var tab = new SqlTables(sql,flags);
             return tab;
         }
         var txt : String = io.getContent(name);
@@ -870,7 +849,8 @@ class Coopy {
             var align : Alignment = ct.align();
             var td : TableDiff = new TableDiff(align,flags);
             var o = new SimpleTable(0,0);
-            td.hilite(o);
+            var os = new Tables(o);
+            td.hiliteWithNesting(os);
             var use_color = color;
             if (!(color||no_color)) {
                 if (output=="-"&&output_format=="copy") {
@@ -879,9 +859,33 @@ class Coopy {
             }
             if (use_color) {
                 var render = new TerminalDiffRender();
-                tool.saveText(output,render.render(o));
+                var order = os.getOrder();
+                var need_blank = false;
+                if (order.length==0 || os.hasInsDel()) {
+                    tool.saveText(output,render.render(os.one()));
+                    need_blank = true;
+                }
+                if (order.length>1) {
+                    // only good for stdout
+                    for (i in 1...order.length) {
+                        var t = os.get(order[i]);
+                        if (t!=null) {
+                            if (need_blank) {
+                                tool.saveText(output,"\n");
+                            }
+                            need_blank = true;
+                            tool.saveText(output,order[i]+"\n");
+                            var line = "";
+                            for (i in 0...order[i].length) {
+                                line += "=";
+                            }
+                            tool.saveText(output,line + "\n");
+                            tool.saveText(output,render.render(os.get(order[i])));
+                        }
+                    }
+                }
             } else {
-                tool.saveTable(output,o);
+                tool.saveTable(output,os.one());
             }
         } else if (cmd=="patch") {
             var patcher : HighlightPatch = new HighlightPatch(a,b);

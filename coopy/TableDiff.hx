@@ -62,6 +62,9 @@ class TableDiff {
     private var schema_diff_found : Bool;
     private var preserve_columns : Bool;
 
+    private var nested : Bool;
+    private var nesting_present : Bool;
+
     /**
      *
      * Constructor.
@@ -301,8 +304,18 @@ class TableDiff {
         allow_delete = flags.allowDelete();
         allow_update = flags.allowUpdate();
 
-        v = a.getCellView();
+        var common = a;
+        if (common==null) common = b;
+        if (common==null) common = p;
+        v = common.getCellView();
         builder.setView(v);
+
+        nested = false;
+        var meta = common.getMeta();
+        if (meta!=null) {
+            nested = meta.isNested();
+        }
+        nesting_present = false;
     }
 
     private function scanActivity() {
@@ -557,6 +570,7 @@ class TableDiff {
     }
 
     private function getMetaTable(t: Table) : Table {
+        if (t==null) return null;
         var meta = t.getMeta();
         if (meta==null) return null;
         return meta.asTable();
@@ -639,6 +653,80 @@ class TableDiff {
         return v.equals(aa,bb);
     }
 
+    private function checkNesting(v: View,
+                                  have_ll: Bool, ll: Dynamic,
+                                  have_rr: Bool, rr: Dynamic,
+                                  have_pp: Bool, pp: Dynamic,
+                                  x: Int, y: Int) : Array<Dynamic> {
+        var all_tables = true;
+        if (have_ll) all_tables = all_tables && v.isTable(ll);
+        if (have_rr) all_tables = all_tables && v.isTable(rr);
+        if (have_pp) all_tables = all_tables && v.isTable(pp);
+        if (!all_tables) return [ll,rr,pp];
+        // life just got interesting!
+        var ll_table : Table = null;
+        var rr_table : Table = null;
+        var pp_table : Table = null;
+        if (have_ll) ll_table = v.getTable(ll);
+        if (have_rr) rr_table = v.getTable(rr);
+        if (have_pp) pp_table = v.getTable(pp);
+        var compare = false;
+        var comp = new TableComparisonState();
+        comp.a = ll_table;
+        comp.b = rr_table;
+        comp.p = pp_table;
+        comp.compare_flags = flags;
+        comp.getMeta();
+        var key = null;
+        if (comp.a_meta!=null) {
+            key = comp.a_meta.getName();
+        }
+        if (key == null && comp.b_meta!=null) {
+            key = comp.b_meta.getName();
+        }
+        if (key == null) {
+            key = x + "_" + y;
+        }
+        if (align.comp != null) {
+            if (align.comp.children == null) {
+                align.comp.children = new Map<String, TableComparisonState>();
+                align.comp.child_order = new Array<String>();
+                compare = true;
+            } else {
+                compare = !align.comp.children.exists(key);
+            }
+        }
+        if (compare) {
+            nesting_present = true;
+            align.comp.children.set(key,comp);
+            align.comp.child_order.push(key);
+            var ct = new CompareTable(comp);
+            ct.align();
+        } else {
+            comp = align.comp.children.get(key);
+        }
+        // could at this point check whether there are differences
+        var ll_out : String = null;
+        var rr_out : String = null;
+        var pp_out : String = null;
+        if (comp.alignment.isMarkedAsIdentical() || (have_ll&&!have_rr) || (have_rr&&!have_ll)) {
+            ll_out = "[" + key + "]";
+            rr_out = ll_out;
+            pp_out = ll_out;
+        } else {
+            if (ll!=null) {
+                ll_out = "[a." + key + "]";
+            }
+            if (rr!=null) {
+                rr_out = "[b." + key + "]";
+            }
+            if (pp!=null) {
+                pp_out = "[p." + key + "]";
+            }
+        }
+        return [ll_out, rr_out, pp_out];
+    }
+
     /**
      *
      * Generate diff for given l/r/p row unit #i.
@@ -687,6 +775,20 @@ class TableDiff {
                         }
                     }
                 }
+            }
+
+            // if dealing with a nested table, now have ll rr pp
+            // should do something smart like starting a subcomparison
+            // (or enqueuing, but possible we need results now)
+            if (nested) {
+                var ndiff = checkNesting(v,
+                                         have_ll,ll,
+                                         have_rr,rr,
+                                         have_pp,pp,
+                                         i, j);
+                ll = ndiff[0];
+                rr = ndiff[1];
+                pp = ndiff[2];
             }
 
             // for now, just interested in p->r
@@ -938,6 +1040,30 @@ class TableDiff {
         return true;
     }
 
+
+    // multi-table version
+    public function hiliteWithNesting(output: Tables) : Bool {
+        var base = output.add("base");
+        var result = hilite(base);
+        if (!result) return false;
+        if (align.comp==null) return true;
+        var order = align.comp.child_order;
+        if (order==null) return true;
+        output.alignment = align;
+        for (name in order) {
+            var child = align.comp.children.get(name);
+            var alignment = child.alignment;
+            if (alignment.isMarkedAsIdentical()) {
+                align.comp.children.set(name,null);
+                continue;
+            }
+            var td = new TableDiff(alignment,flags);
+            var child_output = output.add(name);
+            result = result && td.hilite(child_output);
+        }
+        return result;
+    }
+
     /**
      *
      * @return true if a difference was found during call to `hilite()`
@@ -954,6 +1080,10 @@ class TableDiff {
      */
     public function hasSchemaDifference() : Bool {
         return schema_diff_found;
+    }
+
+    public function isNested() : Bool {
+        return nesting_present;
     }
 }
 

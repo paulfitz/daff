@@ -81,6 +81,14 @@ class TableComparisonState {
      */
     public var compare_flags : CompareFlags;
 
+    public var p_meta : Meta;
+    public var a_meta : Meta;
+    public var b_meta : Meta;
+
+    public var alignment : Alignment;
+    public var children : Map<String,TableComparisonState>;
+    public var child_order : Array<String>;
+
     public function new() : Void {
         reset();
     }
@@ -99,5 +107,14 @@ class TableComparisonState {
         has_same_columns = false;
         has_same_columns_known = false;
         compare_flags = null;
+        alignment = null;
+        children = null;
+        child_order = null;
+    }
+
+    public function getMeta() : Void {
+        if (p!=null && p_meta==null) p_meta = p.getMeta();
+        if (a!=null && a_meta==null) a_meta = a.getMeta();
+        if (b!=null && b_meta==null) b_meta = b.getMeta();
     }
 }

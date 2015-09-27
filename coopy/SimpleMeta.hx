@@ -18,12 +18,15 @@ class SimpleMeta implements Meta {
     private var keys : Map<String,Bool>;
     private var row_active : Bool;
     private var row_change_cache : Array<RowChange>;
+    private var may_be_nested : Bool;
 
-    public function new(t: Table, has_properties: Bool = true) {
+    public function new(t: Table, has_properties: Bool = true,
+                        may_be_nested : Bool = false) {
         this.t = t;
         rowChange();
         colChange();
         this.has_properties = has_properties;
+        this.may_be_nested = may_be_nested;
         this.metadata = null;
         this.keys = null;
         row_active = false;
@@ -211,6 +214,18 @@ class SimpleMeta implements Meta {
 
     public function getRowStream() : RowStream {
         return new TableStream(t);
+    }
+
+    public function isNested() : Bool {
+        return may_be_nested;
+    }
+
+    public function isSql() : Bool {
+        return false;
+    }
+
+    public function getName() : String {
+        return null;
     }
 }
 
