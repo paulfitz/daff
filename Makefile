@@ -254,6 +254,8 @@ perf_php:
 integration: js py
 	./test/integration_git.sh js
 	./test/integration_git.sh py3
+	./test/integration_sqlite.sh js
+	./test/integration_sqlite.sh py3
 
 ##############################################################################
 ##############################################################################

@@ -249,7 +249,12 @@ class Coopy {
         return true;
     }
 
-    private function saveTable(name: String, t: Table) : Bool {
+    private function saveTable(name: String, t: Table, render: TerminalDiffRender = null) : Bool {
+        var txt = encodeTable(name, t, render);
+        return saveText(name,txt);
+    }
+
+    private function encodeTable(name: String, t: Table, render: TerminalDiffRender = null) : String {
         if (output_format!="copy") {
             setFormat(output_format);
         }
@@ -258,20 +263,60 @@ class Coopy {
         if (format_preference=="sqlite" && !extern_preference) {
             format_preference = "csv";
         }
-        if (format_preference=="csv") {
-            var csv : Csv = new Csv(delim_preference);
-            txt = csv.renderTable(t);
-        } else if (format_preference=="ndjson") {
-            txt = new Ndjson(t).render();
-        } else if (format_preference=="html"||format_preference=="www") {
-            return renderTable(name,t);
-        } else if (format_preference=="sqlite") {
-            io.writeStderr("! Cannot yet output to sqlite, aborting\n");
-            return false;
-        } else {
-            txt = haxe.Json.stringify(jsonify(t),null,"  ");
+        if (render==null) {
+            if (format_preference=="csv") {
+                var csv : Csv = new Csv(delim_preference);
+                txt = csv.renderTable(t);
+            } else if (format_preference=="ndjson") {
+                txt = new Ndjson(t).render();
+            } else if (format_preference=="html"||format_preference=="www") {
+                renderTable(name,t);
+                // cannot handle multi-table output yet
+            } else if (format_preference=="sqlite") {
+                io.writeStderr("! Cannot yet output to sqlite, aborting\n");
+                return "";
+            } else {
+                txt = haxe.Json.stringify(jsonify(t),null,"  ");
+            }
+        } else{
+            txt = render.render(t);
         }
-        return saveText(name,txt);
+        return txt;
+    }
+
+    private function saveTables(name: String, os: Tables, use_color: Bool) : Bool {
+        var txt = "";
+        var render : TerminalDiffRender = null;
+        if (use_color) render = new TerminalDiffRender();
+
+        var order = os.getOrder();
+        if (order.length==1) {
+            return saveTable(name,os.one(),render);
+        }
+        var need_blank = false;
+        if (order.length==0 || os.hasInsDel()) {
+            txt += encodeTable(name, os.one(), render);
+            need_blank = true;
+        }
+        if (order.length>1) {
+            for (i in 1...order.length) {
+                var t = os.get(order[i]);
+                if (t!=null) {
+                    if (need_blank) {
+                        txt += "\n";
+                    }
+                    need_blank = true;
+                    txt += order[i]+"\n";
+                    var line = "";
+                    for (i in 0...order[i].length) {
+                        line += "=";
+                    }
+                    txt += line + "\n";
+                    txt += encodeTable(name, os.get(order[i]), render);
+                }
+            }
+        }
+        return saveText(name, txt);
     }
 
     private function saveText(name: String, txt: String) : Bool {
@@ -857,36 +902,7 @@ class Coopy {
                     if (io.isTtyKnown()) use_color = io.isTty();
                 }
             }
-            if (use_color) {
-                var render = new TerminalDiffRender();
-                var order = os.getOrder();
-                var need_blank = false;
-                if (order.length==0 || os.hasInsDel()) {
-                    tool.saveText(output,render.render(os.one()));
-                    need_blank = true;
-                }
-                if (order.length>1) {
-                    // only good for stdout
-                    for (i in 1...order.length) {
-                        var t = os.get(order[i]);
-                        if (t!=null) {
-                            if (need_blank) {
-                                tool.saveText(output,"\n");
-                            }
-                            need_blank = true;
-                            tool.saveText(output,order[i]+"\n");
-                            var line = "";
-                            for (i in 0...order[i].length) {
-                                line += "=";
-                            }
-                            tool.saveText(output,line + "\n");
-                            tool.saveText(output,render.render(os.get(order[i])));
-                        }
-                    }
-                }
-            } else {
-                tool.saveTable(output,os.one());
-            }
+            tool.saveTables(output,os,use_color);
         } else if (cmd=="patch") {
             var patcher : HighlightPatch = new HighlightPatch(a,b);
             patcher.apply();
