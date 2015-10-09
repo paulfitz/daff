@@ -1,0 +1,14 @@
+@@,name,table
+---,t1,[t1]
+->,t2,[a.t2]->[b.t2]
+
+t1
+==
+!,---,---
+@@,id,name
+---,1,test
+
+t2
+==
+@@,id,count,note
++++,4,101,news
