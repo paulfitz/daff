@@ -196,12 +196,12 @@ class SqlTable implements Table implements Meta implements RowStream {
         var mt = new SimpleTable(w+1,pct);
         mt.setCell(0,0,"@");
         mt.setCell(0,1,"type");
-        mt.setCell(0,2,"pkey");
+        mt.setCell(0,2,"key");
         for (x in 0...w) {
             var i = x+1;
             mt.setCell(i,0,columnNames[x]);
             mt.setCell(i,1,columns[x].type_value);
-            mt.setCell(i,2,columns[x].primary ? 1 : 0);
+            mt.setCell(i,2,columns[x].primary ? "primary" : "");
         }
         return mt;
     }

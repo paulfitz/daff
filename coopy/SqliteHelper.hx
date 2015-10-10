@@ -296,8 +296,8 @@ class SqliteHelper implements SqlHelper {
                         if (p.name == "type") {
                             next_type = p.val;
                         }
-                        if (p.name == "pkey") {
-                            next_primary = (""+p.val == "1");
+                        if (p.name == "key") {
+                            next_primary = (""+p.val == "primary");
                         }
                     }
                 }
