@@ -82,7 +82,7 @@ class Coopy {
      */
     static public function diffAsAnsi(local: Table, remote: Table, ?flags: CompareFlags) : String {
         var o = diff(local,remote,flags);
-        var render = new TerminalDiffRender();
+        var render = new TerminalDiffRender(flags);
         return render.render(o);
     }
 
@@ -289,7 +289,7 @@ class Coopy {
     private function saveTables(name: String, os: Tables, use_color: Bool) : Bool {
         var txt = "";
         var render : TerminalDiffRender = null;
-        if (use_color) render = new TerminalDiffRender();
+        if (use_color) render = new TerminalDiffRender(flags);
 
         var order = os.getOrder();
         if (order.length==1) {
@@ -739,6 +739,11 @@ class Coopy {
                     flags.ignore_whitespace = true;
                     args.splice(i,1);
                     break;
+                } else if (tag=="--padding") {
+                    more = true;
+                    flags.padding_strategy = args[i+1];
+                    args.splice(i,2);
+                    break;
                 }
             }
         }
@@ -807,6 +812,7 @@ class Coopy {
             io.writeStderr("     --no-color:    make sure terminal colors are not used\n");
             io.writeStderr("     --ordered:     assume row order is meaningful (default for CSV)\n");
             io.writeStderr("     --output-format [csv|tsv|ssv|json|copy|html]: set format for output\n");
+            io.writeStderr("     --padding [dense|sparse|smart]: set padding method for aligning columns\n");
             io.writeStderr("     --table NAME:  compare the named table, used with SQL sources\n");
             io.writeStderr("     --unordered:   assume row order is meaningless (default for json formats)\n");
             io.writeStderr("     -w / --ignore-whitespace: ignore changes in leading/trailing whitespace\n");

@@ -17,9 +17,21 @@ class TerminalDiffRender {
     private var csv: Csv;
     private var v: View;
     private var align_columns : Bool;
+    private var wide_columns : Bool;
+    private var flags : CompareFlags;
 
-    public function new() {
+    public function new(flags: CompareFlags = null) {
         align_columns = true;
+        wide_columns = false;
+        this.flags = flags;
+        if (flags!=null) {
+            if (flags.padding_strategy == "dense") {
+                align_columns = false;
+            }
+            if (flags.padding_strategy == "sparse") {
+                wide_columns = true;
+            }
+        }
     }
 
 
@@ -163,6 +175,9 @@ class TerminalDiffRender {
             most = mmostmax;
             if (mmin!=-1) {
                 if (most<mmin) most = mmin;
+            }
+            if (wide_columns) {
+                most = full;
             }
             sizes.push(most);
             total += most;
