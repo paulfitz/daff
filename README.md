@@ -22,6 +22,7 @@ pip install daff     # python
 gem install daff     # ruby
 composer require paulfitz/daff-php  # php
 install.packages('daff') # R wrapper by Edwin de Jonge
+bower install daff   # web/javascript
 ````
 
 Other translations are available here:
