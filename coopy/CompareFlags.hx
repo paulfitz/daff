@@ -148,6 +148,14 @@ class CompareFlags {
 
     /**
      *
+     * Strategy to use when padding columns.  Valid values are "smart", "dense",
+     * and "sparse".  Leave null for a sensible default.
+     *
+     */
+    public var padding_strategy : String;
+
+    /**
+     *
      * Show changes in column properties, not just data, if available.
      * Defaults to true.
      *
