@@ -64,16 +64,24 @@ class TerminalDiffRender {
         if (align_columns) sizes = pickSizes(t);
 
         for (y in 0...h) {
+            var target = 0;
+            var at = 0;
             for (x in 0...w) {
                 if (x>0) {
                     txt += codes["minor"] + "," + codes["done"];
                 }
+                if (sizes!=null) {
+                    var spaces = target-at;
+                    for (i in 0...spaces) {
+                        txt += " ";
+                        at++;
+                    }
+                }
                 txt += getText(x,y,true);
                 if (sizes!=null) {
                     var bit = getText(x,y,false);
-                    for (i in 0...(sizes[x]-bit.length)) {
-                        txt += " ";
-                    }
+                    at += bit.length;
+                    target += sizes[x];
                 }
             }
             txt += "\r\n";
