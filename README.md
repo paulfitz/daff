@@ -4,6 +4,7 @@
 [![PyPI version](https://badge.fury.io/py/daff.svg)](http://badge.fury.io/py/daff)
 [![PHP version](https://badge.fury.io/ph/paulfitz%2Fdaff-php.svg)](http://badge.fury.io/ph/paulfitz%2Fdaff-php)
 [![Bower version](https://badge.fury.io/bo/daff.svg)](http://badge.fury.io/bo/daff)
+[![Badge count](http://img.shields.io/:badges-7/7-99ff99.svg)]
 
 daff: data diff
 ===============
