@@ -129,4 +129,13 @@ class BasicTest extends haxe.unit.TestCase {
         coopy.Coopy.patch(table2b,out);
         assertTrue(coopy.SimpleTable.tableIsSimilar(table4,table2b));
     }
+
+    public function testStraySpaceInCsv() {
+        var csv = new coopy.Csv();
+        var tab = csv.makeTable("id,color\n" +
+                                "15,red\n" +
+                                "13,mauve,,,\n" +
+                                "2,green\n");
+        assertEquals(tab.width,2);
+    }
 }
