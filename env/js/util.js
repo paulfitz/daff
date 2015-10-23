@@ -12,11 +12,17 @@ if (typeof exports != "undefined") {
     var tty = null;
     
     tio.getContent = function(name) {
+        var txt = "";
 	if (name=="-") {
 	    // only works on Linux, all other solutions seem broken
-	    return fs.readFileSync('/dev/stdin',"utf8");
+	    txt = fs.readFileSync('/dev/stdin',"utf8");
+	} else {
+	    txt = fs.readFileSync(name,"utf8");
+        }
+        if (txt.charCodeAt(0) === 0xFEFF) {
+	    return txt.slice(1);
 	}
-	return fs.readFileSync(name,"utf8");
+        return txt;
     }
     
     tio.saveContent = function(name,txt) {
