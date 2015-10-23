@@ -127,8 +127,19 @@ class Csv {
                 tab.resize(w,h);
             }
             if (at>=w) {
-                w = at+1;
-                tab.resize(w,h);
+                if (yat>0) {
+                    if (cell != "" && cell != null) {
+                        var context : String = "";
+                        for (i in 0...w) {
+                            if (i>0) context += ",";
+                            context += tab.getCell(i,yat);
+                        }
+                        trace("Ignored overflowing row " + yat + " with cell '" + cell + "' after: " + context);
+                    }
+                } else {
+                    w = at+1;
+                    tab.resize(w,h);
+                }
             }
             tab.setCell(at,h-1,cell);
             at++;
