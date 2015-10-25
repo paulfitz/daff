@@ -97,14 +97,17 @@ class Coopy {
      */
     static public function diff(local: Table, remote: Table, ?flags: CompareFlags) : Table {
         var comp : TableComparisonState = new TableComparisonState();
-        comp.a = local;
-        comp.b = remote;
+        comp.a = tablify(local);
+        comp.b = tablify(remote);
         if (flags==null) flags = new CompareFlags();
         comp.compare_flags = flags;
         var ct: CompareTable = new CompareTable(comp);
         var align : Alignment = ct.align();
         var td : TableDiff = new TableDiff(align,flags);
-        var o = new SimpleTable(0,0);
+        var o : Table = null;
+        if (comp.a!=null) o = comp.a.create();
+        if (o==null && comp.b!=null) o = comp.b.create();
+        if (o==null) o = new SimpleTable(0,0);
         td.hilite(o);
         return o;
     }
@@ -121,7 +124,7 @@ class Coopy {
      *
      */
     static public function patch(local: Table, patch: Table, ?flags: CompareFlags) : Bool {
-        var patcher = new HighlightPatch(local,patch);
+        var patcher = new HighlightPatch(tablify(local),tablify(patch));
         return patcher.apply();
     }
 
@@ -137,8 +140,8 @@ class Coopy {
      */
     static public function compareTables(local: Table, remote: Table, ?flags: CompareFlags) : CompareTable {
         var comp : TableComparisonState = new TableComparisonState();
-        comp.a = local;
-        comp.b = remote;
+        comp.a = tablify(local);
+        comp.b = tablify(remote);
         comp.compare_flags = flags;
         var ct: CompareTable = new CompareTable(comp);
         return ct;
@@ -161,9 +164,9 @@ class Coopy {
      */
     static public function compareTables3(parent: Table, local: Table, remote: Table, ?flags: CompareFlags) : CompareTable {
         var comp : TableComparisonState = new TableComparisonState();
-        comp.p = parent;
-        comp.a = local;
-        comp.b = remote;
+        comp.p = tablify(parent);
+        comp.a = tablify(local);
+        comp.b = tablify(remote);
         comp.compare_flags = flags;
         var ct: CompareTable = new CompareTable(comp);
         return ct;
@@ -982,5 +985,41 @@ class Coopy {
         }
         workbook.set("sheet",sheet);
         return workbook;
+    }
+
+    /**
+     *
+     * This takes input in an unknown format and tries to make a table out of it,
+     * through the power of guesswork.
+     *
+     * @param t an alleged table
+     * @return a daff-compatible table, or null
+     *
+     */
+    public static function tablify(data: Dynamic) : Table {
+        if (data==null) return data;
+#if rb
+        if (untyped __rb__("data.respond_to? :get_cell_view")) return data;
+#else
+        var get_cell_view = Reflect.field(data,"getCellView");
+        if (get_cell_view!=null) return data;
+#end
+
+        // emergency! try to find and use native wrapper
+#if js
+        return untyped __js__("new (typeof window != 'undefined' ? window : exports).daff.TableView(data)");
+#elseif python
+        python.Syntax.pythonCode("daff = __import__('daff')");
+        return python.Syntax.pythonCode("daff.PythonTableView(data)");
+#elseif rb
+        untyped __rb__("require 'ruby_table_view' unless defined?(RubyTableView)");
+        return untyped __js__("::RubyTableView.new(data)");
+#elseif php
+        return untyped __php__("new coopy_PhpTableView($data)");
+#elseif java
+        return untyped __java__("new JavaTableView((Object[][])data)");
+#else
+        return null;
+#end
     }
 }

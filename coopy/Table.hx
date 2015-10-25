@@ -174,6 +174,13 @@ interface Table {
 
     /**
      *
+     * @return an empty table of the same type, if possible, or null if not possible.
+     *
+     */
+    function create() : Table;
+
+    /**
+     *
      * @return a interface to the columns of this table, or null
      * if no interface is available.
      *

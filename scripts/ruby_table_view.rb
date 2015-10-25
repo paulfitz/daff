@@ -125,7 +125,7 @@ class RubyTableView < Coopy::Table
   end
 
 
-  def clone()
+  def clone
     result = RubyTableView.new([])
     result.resize(@width,@height)
     @width.times do |c|
@@ -134,6 +134,10 @@ class RubyTableView < Coopy::Table
       end
     end
     result
+  end
+
+  def create
+    RubyTableView.new([])
   end
 
   def get_meta

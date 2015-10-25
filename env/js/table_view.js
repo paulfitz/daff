@@ -178,6 +178,10 @@ TableView.prototype.clone = function() {
     return new TableView(ndata);
 }
 
+TableView.prototype.create = function() {
+    return new TableView([]);
+}
+
 TableView.prototype.insertOrDeleteRows = function(fate, hfate) {
     var ndata = [];
     for (var i=0; i<fate.length; i++) {
@@ -243,9 +247,14 @@ TableView.prototype.getMeta = function() {
     return null;
 }
 
+coopy.TableView = TableView;
+
 if (typeof exports != "undefined") {
     exports.CellView = CellView;
     exports.TableView = TableView;
+    if (typeof exports["daff"] == "undefined") exports["daff"] = exports["coopy"];
+    exports.daff.CellView = TableView;
+    exports.daff.TableView = TableView;
 } else {
     if (typeof window["daff"] == "undefined") window["daff"] = {};
     window.daff.CellView = CellView;

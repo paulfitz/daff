@@ -183,6 +183,11 @@ class coopy_PhpTableView implements coopy_Table{
     return $result;
   }
 
+  public function create() {
+    $blank = array();
+    return new coopy_PhpTableView($blank);
+  }
+
   public function getMeta() {
     return null;
   }

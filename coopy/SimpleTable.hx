@@ -245,6 +245,10 @@ class SimpleTable implements Table {
         return result;
     }
 
+    public function create() : Table {
+        return new SimpleTable(width,height);
+    }
+
     public function setMeta(meta: Meta) {
         this.meta = meta;
     }

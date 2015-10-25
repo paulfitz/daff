@@ -134,6 +134,10 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
 	return result;
     }
 
+    @Override public JavaTableView create() {
+	return new JavaTableView();
+    }
+
     @Override public coopy.Meta getMeta() {
 	return null;
     }

@@ -153,5 +153,8 @@ class PythonTableView(Table):
                 result.setCell(c,r,self.getCell(c,r))
         return result
 
+    def create(self):
+        return PythonTableView([])
+
     def getMeta(self):
         return None

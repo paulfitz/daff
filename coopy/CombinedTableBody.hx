@@ -123,6 +123,10 @@ class CombinedTableBody implements Table {
         return new CombinedTable(all.clone());
     }
 
+    public function create() : Table {
+        return new CombinedTable(all.create());
+    }
+
     public function getMeta() : Meta {
         return parent.getMeta();
     }

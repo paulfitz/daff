@@ -41,6 +41,13 @@ class BasicTest extends haxe.unit.TestCase {
         assertEquals(""+table_diff.getCell(0,4),"->");
     }
 
+    public function testBasicModern(){
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data2);
+        var data_diff = coopy.Coopy.diff(table1,table2);
+        assertEquals(""+data_diff.getCell(0,4),"->");
+    }
+
     public function testNamedID(){
         var table1 = Native.table(data1);
         var table2 = Native.table(data2);

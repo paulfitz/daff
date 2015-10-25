@@ -96,6 +96,10 @@ class SqlTables implements Table {
         return null;
     }
 
+    public function create() : Table {
+        return null;
+    }
+
     public function getMeta() : Meta {
         return new SimpleMeta(this,true,true);
     }

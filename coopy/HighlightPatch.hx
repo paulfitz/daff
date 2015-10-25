@@ -226,7 +226,7 @@ class HighlightPatch implements Row {
         if (prev_meta==null) prev_meta = new Map<String,Array<PropertyChange>>();
         if (next_meta==null) next_meta = new Map<String,Array<PropertyChange>>();
         for (i in payloadCol...payloadTop) {
-            var txt : String = getString(i);
+            var txt : String = getDatum(i);
             var idx_patch = i;
             var idx_src = patchInSourceCol.exists(idx_patch) ? patchInSourceCol.get(idx_patch) : -1;
             var prev_name : String = null;
