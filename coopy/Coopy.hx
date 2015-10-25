@@ -1017,7 +1017,7 @@ class Coopy {
 #elseif php
         return untyped __php__("new coopy_PhpTableView($data)");
 #elseif java
-        return untyped __java__("new coopy.JavaTableView((Object[][])data)");
+        return untyped __java__("new JavaTableView((Object[][])data)");
 #else
         return null;
 #end

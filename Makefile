@@ -77,12 +77,14 @@ php:
 
 
 java:
-	haxe language/java.hxml
+	rm -rf java_bin
+	haxe -D no-compilation language/java.hxml
 	cp scripts/JavaTableView.java java_bin/src/coopy
+	cd java_bin && find src -iname "*.java" > cmd
 	cp scripts/Example.java java_bin
-	echo "src/coopy/JavaTableView.java" >> java_bin/cmd
+	echo "Main-Class: coopy.Coopy" > java_bin/manifest
+	cd java_bin && mkdir obj
 	cd java_bin && javac -sourcepath src -d obj -g:none "@cmd"
-	cd java_bin && rm *.jar
 	cd java_bin/obj && jar cvfm ../daff.jar ../manifest .
 	cd java_bin && javac -cp daff.jar Example.java
 	@echo 'Output in java_bin, run "java -jar java_bin/daff.jar" for help'
