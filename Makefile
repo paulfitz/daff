@@ -236,7 +236,8 @@ ntest_java:
 	cd ntest_java_dir && javac -sourcepath src -d obj -g:none "@cmd"
 	java -cp ntest_java_dir/obj harness.Main
 
-ntest_rb:
+ntest_rb: rb
+	./scripts/run_tests.sh "" rb
 	haxe -rb ntestdotrb -main harness.Main
 	cp scripts/ruby_table_view.rb ntestdotrb/lib/coopy
 	RUBYLIB=$$PWD/ntestdotrb ruby ntestdotrb/index.rb

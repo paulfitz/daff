@@ -95,6 +95,10 @@ class CombinedTableHead implements Table {
         return null;
     }
 
+    public function create() : Table {
+        return null;
+    }
+
     public function getMeta() : Meta {
         return null;
     }

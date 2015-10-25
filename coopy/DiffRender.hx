@@ -80,7 +80,11 @@ class DiffRender {
             cell_decorate = " class=\"" + mode + "\"";
         }
         insert(td_open+cell_decorate+">");
-        insert(txt);
+        if (txt!=null) {
+            insert(txt);
+        } else {
+            insert("null");
+        }
         insert(td_close);
     }
 
@@ -131,8 +135,6 @@ class DiffRender {
                                        cell : CellInfo,
                                        offset : Int = 0) : Void {
         var nested = view.isHash(raw);
-        var value : String = null;
-        if (!nested) value = view.toString(raw);
         cell.category = "";
         cell.category_given_tr = "";
         cell.separator = "";
@@ -140,8 +142,7 @@ class DiffRender {
         cell.conflicted = false;
         cell.updated = false;
         cell.meta = cell.pvalue = cell.lvalue = cell.rvalue = null;
-        cell.value = value;
-        if (cell.value==null) cell.value = "";
+        cell.value = raw;
         cell.pretty_value = cell.value;
         if (vrow==null) vrow = "";
         if (vcol==null) vcol = "";
@@ -184,7 +185,9 @@ class DiffRender {
                 var full : String = vrow;
                 var part : String = tokens[1];
                 if (part==null) part = full;
-                if (nested || cell.value.indexOf(part)>=0) {
+                var str = view.toString(cell.value);
+                if (str==null) str = "";
+                if (nested || str.indexOf(part)>=0) {
                     var cat : String = "modify";
                     var div = part;
                     // render with utf8 -> symbol
@@ -192,7 +195,7 @@ class DiffRender {
                         if (nested) {
                             cell.conflicted = view.hashExists(raw,"theirs");
                         } else {
-                            cell.conflicted = cell.value.indexOf(full)>=0;
+                            cell.conflicted = str.indexOf(full)>=0;
                         }
                         if (cell.conflicted) {
                             div = full;
@@ -212,6 +215,8 @@ class DiffRender {
                                       view.hashGet(raw,"after")];
                         }
                     } else {
+                        cell.pretty_value = view.toString(cell.pretty_value);
+                        if (cell.pretty_value==null) cell.pretty_value = "";
                         if (cell.pretty_value==div) {
                             tokens = ["",""];
                         } else {

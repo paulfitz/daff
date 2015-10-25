@@ -117,6 +117,10 @@ class CombinedTable implements Table {
         return core.clone();
     }
 
+    public function create() : Table {
+        return t.create();
+    }
+
     public function getMeta() : Meta {
         return meta;
     }
