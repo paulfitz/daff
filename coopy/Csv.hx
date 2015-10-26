@@ -200,7 +200,7 @@ class Csv {
                         row_ended = true;
                         break;
                     }
-                    if (ch=="\"".code || ch=="\'".code) {
+                    if (ch=="\"".code) {
                         if (i==cursor) {
                             quoting = true;
                             quote = ch;
