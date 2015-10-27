@@ -15,6 +15,6 @@ data2 = [
     ['Germany','de','Berlin']
 ]
 
-table_diff = daff.Coopy.diff(data1,data2)
+table_diff = daff.diff(data1,data2)
 assert(table_diff.height==6)
 assert(table_diff.width==4)
