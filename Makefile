@@ -101,6 +101,7 @@ py:
 	sed -i "1i#!/usr/bin/env python" python_bin/daff.py
 	sed -i "s|.*Coopy.main.*||" python_bin/daff.py
 	cat scripts/python_table_view.py >> python_bin/daff.py
+	cat env/py/export_functions.py >> python_bin/daff.py
 	cat env/py/sqlite_database.py >> python_bin/daff.py
 	echo "if __name__ == '__main__':" >> python_bin/daff.py
 	echo "\tCoopy.main()" >> python_bin/daff.py
