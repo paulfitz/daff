@@ -236,10 +236,13 @@ class Coopy {
         extern_preference = true;
     }
 
-    private function renderTable(name: String, t: Table) : Bool {
+    private function getRenderer() : DiffRender {
         var renderer : DiffRender = new DiffRender();
         renderer.usePrettyArrows(pretty);
-        renderer.render(t);
+        return renderer;
+    }
+
+    private function applyRenderer(name: String, renderer: DiffRender) : Bool {
         if (!fragment) {
             renderer.completeHtml();
         }
@@ -252,6 +255,18 @@ class Coopy {
             saveText(css_output,renderer.sampleCss());
         }
         return true;
+    }
+
+    private function renderTable(name: String, t: Table) : Bool {
+        var renderer : DiffRender = getRenderer();
+        renderer.render(t);
+        return applyRenderer(name, renderer);
+    }
+
+    private function renderTables(name: String, t: Tables) : Bool {
+        var renderer : DiffRender = getRenderer();
+        renderer.renderTables(t);
+        return applyRenderer(name, renderer);
     }
 
     private function saveTable(name: String, t: Table, render: TerminalDiffRender = null) : Bool {
@@ -290,13 +305,20 @@ class Coopy {
     }
 
     private function saveTables(name: String, os: Tables, use_color: Bool) : Bool {
-        var txt = "";
+        if (output_format!="copy") {
+            setFormat(output_format);
+        }
+        var txt : String = "";
+        checkFormat(name);
         var render : TerminalDiffRender = null;
         if (use_color) render = new TerminalDiffRender(flags);
 
         var order = os.getOrder();
         if (order.length==1) {
             return saveTable(name,os.one(),render);
+        }
+        if (format_preference=="html"||format_preference=="www") {
+            return renderTables(name, os);
         }
         var need_blank = false;
         if (order.length==0 || os.hasInsDel()) {
@@ -342,7 +364,15 @@ class Coopy {
 #end
     }
 
-    private static function jsonToTable(json: Dynamic) : Table {
+    private function jsonToTables(json: Dynamic) : Table {
+        var tables = Reflect.field(json,"tables");
+        if (tables==null) {
+            return jsonToTable(json);
+        }
+        return new JsonTables(json,flags);
+    }
+
+    private function jsonToTable(json: Dynamic) : Table {
         var output : Table = null;
         for (name in Reflect.fields(json)) {
             var t = Reflect.field(json,name);
@@ -401,7 +431,7 @@ class Coopy {
             try {
                 var json = haxe.Json.parse(txt);
                 format_preference = "json";
-                var t : Table = jsonToTable(json);
+                var t : Table = jsonToTables(json);
                 if (t==null) throw "JSON failed";
                 return t;
             } catch (e: Dynamic) {

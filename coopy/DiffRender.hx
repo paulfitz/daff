@@ -367,6 +367,23 @@ class DiffRender {
         return this;
     }
 
+    public function renderTables(tabs: Tables) : DiffRender {
+        var order : Array<String> = tabs.getOrder();
+        if (order.length==0 || tabs.hasInsDel()) {
+            render(tabs.one());
+        }
+        for (i in 1...order.length) {
+            var name = order[i];
+            var tab : Table = tabs.get(name);
+            if (tab.height<=1) continue;
+            insert("<h3>");
+            insert(name);
+            insert("</h3>\n");
+            render(tab);
+        }
+        return this;
+    }
+
     /**
      *
      * @return sample css for the generated html
