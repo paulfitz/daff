@@ -99,7 +99,7 @@ class JsonTable implements Table implements Meta {
     }
 
     public function create() : Table {
-        return new JsonTable(null, null);
+        return null;
     }
 
     public function alterColumns(columns : Array<ColumnChange>) : Bool {
