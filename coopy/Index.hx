@@ -16,6 +16,7 @@ class Index {
     private var indexed_table : Table;
     private var hdr : Int;
     private var ignore_whitespace : Bool;
+    private var ignore_case : Bool;
 
     public function new(flags : CompareFlags) : Void {
         items = new Map<String,IndexItem>();
@@ -25,8 +26,10 @@ class Index {
         height = 0;
         hdr = 0;
         ignore_whitespace = false;
+        ignore_case = false;
         if (flags!=null) {
             ignore_whitespace = flags.ignore_whitespace;
+            ignore_case = flags.ignore_case;
         }
     }
  
@@ -68,6 +71,9 @@ class Index {
             if (ignore_whitespace) {
                 txt = StringTools.trim(txt);
             }
+            if (ignore_case) {
+                txt = txt.toLowerCase();
+            }
             if (k>0) wide += " // ";
             if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;
             wide += txt;
@@ -81,6 +87,9 @@ class Index {
             var txt : String = row.getRowString(cols[k]);
             if (ignore_whitespace) {
                 txt = StringTools.trim(txt);
+            }
+            if (ignore_case) {
+                txt = txt.toLowerCase();
             }
             if (k>0) wide += " // ";
             if (txt==null || txt=="" || txt=="null" || txt=="undefined") continue;

@@ -195,6 +195,13 @@ class CompareFlags {
      */
     public var ignore_whitespace : Bool;
 
+    /**
+     *
+     * Should case be omitted from comparisons.  Defaults to false.
+     *
+     */
+    public var ignore_case : Bool;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -216,6 +223,7 @@ class CompareFlags {
         parent = null;
         count_like_a_spreadsheet = true;
         ignore_whitespace = false;
+        ignore_case = false;
     }
 
     /**

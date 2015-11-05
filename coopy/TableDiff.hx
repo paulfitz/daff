@@ -415,7 +415,7 @@ class TableDiff {
                 if (p.height>=rp_header && b.height>=rb_header) {
                     var pp : Dynamic = p.getCell(cunit.lp(),rp_header);
                     var bb : Dynamic = b.getCell(cunit.r,rb_header);
-                    if (!v.equals(pp,bb)) {
+                    if (!isEqual(v,pp,bb)) {
                         have_schema = true;
                         act = "(";
                         act += v.toString(pp);
@@ -646,9 +646,24 @@ class TableDiff {
         }
     }
 
-    private function isEqual(v: View, aa: Dynamic, bb: Dynamic) {
+    private function normalizeString(v: View, str: Dynamic) : String {
+        if (str==null) return str;
+        if (!(flags.ignore_whitespace||flags.ignore_case)) {
+            return str;
+        }
+        var txt = v.toString(str);
         if (flags.ignore_whitespace) {
-            return StringTools.trim(v.toString(aa)) == StringTools.trim(v.toString(bb));
+            txt = StringTools.trim(txt);
+        }
+        if (flags.ignore_case) {
+            txt = txt.toLowerCase();
+        }
+        return txt;
+    }
+
+    private function isEqual(v: View, aa: Dynamic, bb: Dynamic) : Bool {
+        if (flags.ignore_whitespace || flags.ignore_case) {
+            return normalizeString(v,aa) == normalizeString(v,bb);
         }
         return v.equals(aa,bb);
     }
