@@ -19,7 +19,7 @@ class Main {
                      new JsonTest(), 
                      new MetaTest(),
                      new PatchTest(),
-                     new WhiteSpaceTest()
+                     new EqualityTest()
                      ];
 
         if (Native.hasSqlite()) {
