@@ -10,7 +10,7 @@ env:
 before_install:
   - sudo apt-get update
   - if ! $USE_PAULFITZ; then sudo apt-get install python-software-properties -y; fi
-  - if ! $USE_PAULFITZ; then sudo add-apt-repository ppa:eyecreate/haxe -y; fi
+  - if ! $USE_PAULFITZ; then sudo add-apt-repository ppa:haxe/releases -y; fi
   - if ! $USE_PAULFITZ; then sudo apt-get update; fi
 
 install:
