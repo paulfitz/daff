@@ -37,8 +37,9 @@ class Coopy {
     // just to get code included
     private var mv : Mover;
 
-    private function new() : Void {
+    public function new(io: TableIO = null) : Void {
         init();
+        this.io = io;
     }
 
     private function init() : Void {
@@ -66,9 +67,16 @@ class Coopy {
      *
      */
     static public function diffAsHtml(local: Table, remote: Table, ?flags: CompareFlags) : String {
-        var o = diff(local,remote,flags);
+        var comp : TableComparisonState = new TableComparisonState();
+        var td : TableDiff = align(local,remote,flags,comp);
+        var o : Table = getBlankTable(td,comp);
+        if (comp.a!=null) o = comp.a.create();
+        if (o==null && comp.b!=null) o = comp.b.create();
+        if (o==null) o = new SimpleTable(0,0);
+        var os = new Tables(o);
+        td.hiliteWithNesting(os);
         var render = new DiffRender();
-        return render.render(o).html();
+        return render.renderTables(os).html();
     }
 
     /**
@@ -97,14 +105,8 @@ class Coopy {
      */
     static public function diff(local: Table, remote: Table, ?flags: CompareFlags) : Table {
         var comp : TableComparisonState = new TableComparisonState();
-        comp.a = tablify(local);
-        comp.b = tablify(remote);
-        if (flags==null) flags = new CompareFlags();
-        comp.compare_flags = flags;
-        var ct: CompareTable = new CompareTable(comp);
-        var align : Alignment = ct.align();
-        var td : TableDiff = new TableDiff(align,flags);
-        var o : Table = null;
+        var td : TableDiff = align(local,remote,flags,comp);
+        var o : Table = getBlankTable(td,comp);
         if (comp.a!=null) o = comp.a.create();
         if (o==null && comp.b!=null) o = comp.b.create();
         if (o==null) o = new SimpleTable(0,0);
@@ -112,6 +114,26 @@ class Coopy {
         return o;
     }
 
+    static private function getBlankTable(td : TableDiff,
+                                          comp: TableComparisonState) : Table {
+        var o : Table = null;
+        if (comp.a!=null) o = comp.a.create();
+        if (o==null && comp.b!=null) o = comp.b.create();
+        if (o==null) o = new SimpleTable(0,0);
+        return o;
+    }
+
+    static private function align(local: Table, remote: Table, flags: CompareFlags,
+                                  comp: TableComparisonState) : TableDiff {
+        comp.a = tablify(local);
+        comp.b = tablify(remote);
+        if (flags==null) flags = new CompareFlags();
+        comp.compare_flags = flags;
+        var ct: CompareTable = new CompareTable(comp);
+        var align : Alignment = ct.align();
+        var td : TableDiff = new TableDiff(align,flags);
+        return td;
+    }
 
     /**
      *
@@ -409,7 +431,15 @@ class Coopy {
         return output;
     }
 
-    private function loadTable(name: String) : Table {
+    /**
+     *
+     * Load a table from a file.
+     *
+     * @param name filename to read from
+     * @return a table
+     *
+     */
+    public function loadTable(name: String) : Table {
         var ext = checkFormat(name);
         if (ext == "sqlite") {
             var sql = io.openSqliteDatabase(name);

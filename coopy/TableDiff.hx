@@ -927,6 +927,10 @@ class TableDiff {
      *
      */
     public function hilite(output: Table) : Bool { 
+        return hiliteSingle(output);
+    }
+
+    private function hiliteSingle(output: Table) : Bool { 
         if (!output.isResizable()) return false;
         if (builder==null) {
             if (flags.allow_nested_cells) {
@@ -1059,7 +1063,7 @@ class TableDiff {
     // multi-table version
     public function hiliteWithNesting(output: Tables) : Bool {
         var base = output.add("base");
-        var result = hilite(base);
+        var result = hiliteSingle(base);
         if (!result) return false;
         if (align.comp==null) return true;
         var order = align.comp.child_order;
@@ -1074,7 +1078,7 @@ class TableDiff {
             }
             var td = new TableDiff(alignment,flags);
             var child_output = output.add(name);
-            result = result && td.hilite(child_output);
+            result = result && td.hiliteSingle(child_output);
         }
         return result;
     }
@@ -1099,6 +1103,11 @@ class TableDiff {
 
     public function isNested() : Bool {
         return nesting_present;
+    }
+
+    public function getComparisonState() : TableComparisonState {
+        if (align==null) return null;
+        return align.comp;
     }
 }
 

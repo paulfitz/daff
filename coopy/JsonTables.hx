@@ -38,7 +38,7 @@ class JsonTables implements Table {
         var names : Array<String> = Reflect.field(json, "names");
         var allowed : Map<String,Bool> = null;
         var count : Int = names.length;
-        if (flags.tables!=null) {
+        if (flags!=null && flags.tables!=null) {
             allowed = new Map<String,Bool>();
             for (name in flags.tables) {
                 allowed.set(name,true);
@@ -125,6 +125,6 @@ class JsonTables implements Table {
     }
 
     public function create() : Table {
-        return new JsonTables(null,null);
+        return null;
     }
 }
