@@ -318,6 +318,7 @@ class DiffRender {
      *
      */
     public function render(tab: Table) : DiffRender {
+        tab = Coopy.tablify(tab); // accept native tables
         if (tab.width==0||tab.height==0) return this;
         var render : DiffRender = this;
         render.beginTable();

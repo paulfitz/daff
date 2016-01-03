@@ -1078,8 +1078,7 @@ class Coopy {
         python.Syntax.pythonCode("daff = __import__('daff')");
         return python.Syntax.pythonCode("daff.PythonTableView(data)");
 #elseif rb
-        untyped __rb__("require 'ruby_table_view' unless defined?(RubyTableView)");
-        return untyped __js__("::RubyTableView.new(data)");
+        return untyped __rb__("::Coopy::TableView.new(data)");
 #elseif php
         return untyped __php__("new coopy_PhpTableView($data)");
 #elseif java

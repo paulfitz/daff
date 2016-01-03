@@ -1,16 +1,15 @@
 #!/usr/bin/env ruby
 
 require_relative 'daff'
-require_relative 'ruby_table_view'
 
-data1 = [
+table1 = [
   ['Country','Capital'],
   ['Ireland','Dublin'],
   ['France','Paris'],
   ['Spain','Barcelona']
   ]
 
-data2 = [
+table2 = [
   ['Country','Code','Capital'],
   ['Ireland','ie','Dublin'],
   ['France','fr','Paris'],
@@ -18,13 +17,9 @@ data2 = [
   ['Germany','de','Berlin']
   ]
 
-table1 = RubyTableView.new(data1)
-table2 = RubyTableView.new(data2)
-
 alignment = Daff::Coopy.compare_tables(table1,table2).align()
 
-data_diff = []
-table_diff = RubyTableView.new(data_diff)
+table_diff = []
 
 flags = Daff::CompareFlags.new
 highlighter = Daff::TableDiff.new(alignment,flags)
