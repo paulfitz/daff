@@ -927,6 +927,7 @@ class TableDiff {
      *
      */
     public function hilite(output: Table) : Bool { 
+        output = Coopy.tablify(output); // accept native tables
         return hiliteSingle(output);
     }
 

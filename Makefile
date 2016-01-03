@@ -139,13 +139,14 @@ best_py:
 rb:
 	haxe language/rb.hxml || { echo "Ruby failed, do you have paulfitz/haxe?"; exit 1; }
 	grep -v "Coopy.main" < ruby_bin/index.rb > ruby_bin/daff.rb
+	echo "require_relative 'lib/coopy/table_view'" >> ruby_bin/daff.rb
 	echo "Daff = Coopy" >> ruby_bin/daff.rb
 	echo 'if __FILE__ == $$0' >> ruby_bin/daff.rb
 	echo "\tCoopy::Coopy.main" >> ruby_bin/daff.rb
 	echo "end" >> ruby_bin/daff.rb
 	rm -f ruby_bin/index.rb
 	chmod u+x ruby_bin/daff.rb
-	cp scripts/ruby_table_view.rb ruby_bin/
+	cp env/rb/table_view.rb ruby_bin/lib/coopy
 	cp scripts/example.rb ruby_bin/
 	chmod u+x ruby_bin/example.rb
 
@@ -242,7 +243,7 @@ ntest_java:
 ntest_rb: rb
 	./scripts/run_tests.sh "" rb
 	haxe -rb ntestdotrb -main harness.Main
-	cp scripts/ruby_table_view.rb ntestdotrb/lib/coopy
+	cp env/rb/table_view.rb ntestdotrb/lib/coopy
 	RUBYLIB=$$PWD/ntestdotrb ruby ntestdotrb/index.rb
 
 perf_js:

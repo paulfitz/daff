@@ -80,8 +80,8 @@ class Native {
         python.Syntax.pythonCode("daff = __import__('daff')");
         return python.Syntax.pythonCode("daff.PythonTableView(data)");
 #elseif rb
-        untyped __rb__("require 'lib/coopy/ruby_table_view' unless defined?(RubyTableView)");
-        return untyped __js__("RubyTableView.new(data)");
+        untyped __rb__("require 'lib/coopy/table_view' unless defined?(::Coopy::TableView)");
+        return untyped __js__("::Coopy::TableView.new(data)");
 #elseif php
         return untyped __php__("new coopy_PhpTableView($data)");
 #elseif java
