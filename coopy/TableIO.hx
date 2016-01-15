@@ -16,6 +16,20 @@ class TableIO {
 
     /**
      *
+     * Check if system services are in fact implemented.  For some
+     * platforms, an external implementation needs to be passed in.
+     *
+     */
+    public function valid() : Bool {
+#if coopyhx_util
+        return true;
+#else
+        return false;
+#end
+    }
+
+    /**
+     *
      * Read a file.
      * @param name the name of the file to read
      * @return the content of the file
