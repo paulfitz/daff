@@ -33,6 +33,7 @@ class Coopy {
     private var css_output : String;
     private var fragment : Bool;
     private var flags : CompareFlags;
+    private var cache_txt : String;
 
     // just to get code included
     private var mv : Mover;
@@ -55,6 +56,7 @@ class Coopy {
         css_output = null;
         fragment = false;
         flags = null;
+        cache_txt = null;
     }
 
     /**
@@ -89,9 +91,10 @@ class Coopy {
      *
      */
     static public function diffAsAnsi(local: Table, remote: Table, ?flags: CompareFlags) : String {
-        var o = diff(local,remote,flags);
-        var render = new TerminalDiffRender(flags);
-        return render.render(o);
+        var tool = new Coopy();
+        tool.cache_txt = "";
+        tool.runDiff(flags.parent, local, remote, flags, null);
+        return tool.cache_txt;
     }
 
     /**
@@ -369,7 +372,9 @@ class Coopy {
     }
 
     private function saveText(name: String, txt: String) : Bool {
-        if (name!="-") {
+        if (name==null) {
+            cache_txt += txt;
+        } else if (name!="-") {
             io.saveContent(name,txt);
         } else {
             io.writeStdout(txt);
@@ -430,6 +435,24 @@ class Coopy {
         if (output!=null) output.trimBlank();
         return output;
     }
+
+    private function runDiff(parent: Table, a: Table, b: Table, flags: CompareFlags,
+                             output: String) {
+        var ct : CompareTable = compareTables3(parent,a,b,flags);
+        var align : Alignment = ct.align();
+        var td : TableDiff = new TableDiff(align,flags);
+        var o = new SimpleTable(0,0);
+        var os = new Tables(o);
+        td.hiliteWithNesting(os);
+        var use_color = flags.terminal_format == "ansi";
+        if (flags.terminal_format == null) {
+            if ((output==null || output=="-") && output_format=="copy") {
+                if (io.isTtyKnown()) use_color = io.isTty();
+            }
+        }
+        saveTables(output,os,use_color);
+    }
+
 
     /**
      *
@@ -640,30 +663,35 @@ class Coopy {
         return 0;
     }
 
+
     /**
      *
      * This implements the daff command-line utility.
      *
-     * @param io should be an implementation of all the system services daff needs
+     * @param args the list of command-line arguments
+     * @param io should be an implementation of all the system services daff needs,
+     * if null one will be created
      * @return 0 on success, non-zero on error.
      *
      */
-    public function coopyhx(io: TableIO) : Int {
-        init();
-
-        var args : Array<String> = io.args();
-
-        // Quick code path to keep certain classes from being optimized out.
-        if (args[0] == "--keep") {
-            return keepAround();
+    public function run(args : Array<String>, io: TableIO = null) : Int {
+#if coopyhx_util
+        if (io == null) {
+            io = new TableIO();
         }
+#end
+        if (io == null) {
+            trace("No system interface available");
+            return 1;
+        }
+
+        init();
+        this.io = io;
 
         var more : Bool = true;
         var output : String = null;
         var inplace : Bool = false;
         var git : Bool = false;
-        var color : Bool = false;
-        var no_color : Bool = false;
 
         flags = new CompareFlags();
         flags.always_show_header = true;
@@ -749,12 +777,12 @@ class Coopy {
                     break;
                 } else if (tag=="--color") {
                     more = true;
-                    color = true;
+                    flags.terminal_format = "ansi";
                     args.splice(i,1);
                     break;
                 } else if (tag=="--no-color") {
                     more = true;
-                    no_color = true;
+                    flags.terminal_format = "plain";
                     args.splice(i,1);
                     break;
                 } else if (tag=="--input-format") {
@@ -929,19 +957,17 @@ class Coopy {
             args.push(old_file);
             args.push(new_file);
         }
-        var tool : Coopy = this;
-        tool.io = io;
         var parent = null;
         if (args.length-offset>=3) {
-            parent = tool.loadTable(args[offset]);
+            parent = loadTable(args[offset]);
             offset++;
         }
         var aname = args[0+offset];
-        var a = tool.loadTable(aname);
+        var a = loadTable(aname);
         var b = null;
         if (args.length-offset>=2) {
             if (cmd!="copy") {
-                b = tool.loadTable(args[1+offset]);
+                b = loadTable(args[1+offset]);
             } else {
                 output = args[1+offset];
             }
@@ -967,23 +993,11 @@ class Coopy {
                 if (!flags.ordered) flags.unchanged_context = 0;
             }
             flags.allow_nested_cells = nested_output;
-            var ct : CompareTable = compareTables3(parent,a,b,flags);
-            var align : Alignment = ct.align();
-            var td : TableDiff = new TableDiff(align,flags);
-            var o = new SimpleTable(0,0);
-            var os = new Tables(o);
-            td.hiliteWithNesting(os);
-            var use_color = color;
-            if (!(color||no_color)) {
-                if (output=="-"&&output_format=="copy") {
-                    if (io.isTtyKnown()) use_color = io.isTty();
-                }
-            }
-            tool.saveTables(output,os,use_color);
+            runDiff(parent,a,b,flags,output);
         } else if (cmd=="patch") {
             var patcher : HighlightPatch = new HighlightPatch(a,b);
             patcher.apply();
-            tool.saveTable(output,a);
+            saveTable(output,a);
         } else if (cmd=="merge") {
             var merger : Merger = new Merger(parent,a,b,flags);
             var conflicts = merger.apply();
@@ -991,15 +1005,27 @@ class Coopy {
             if (conflicts>0) {
                 io.writeStderr(conflicts + " conflict" + ((conflicts>1)?"s":"") + "\n");
             }
-            tool.saveTable(output,a);
+            saveTable(output,a);
         } else if (cmd=="trim") {
-            tool.saveTable(output,a);
+            saveTable(output,a);
         } else if (cmd=="render") {
             renderTable(output,a);
         } else if (cmd=="copy") {
-            tool.saveTable(output,a);
+            saveTable(output,a);
         }
         return ok?0:1;
+    }
+
+    public function coopyhx(io: TableIO) : Int {
+
+        var args : Array<String> = io.args();
+
+        // Quick code path to keep certain classes from being optimized out.
+        if (args[0] == "--keep") {
+            return keepAround();
+        }
+
+        return run(args, io);
     }
 #end
 

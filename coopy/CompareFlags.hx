@@ -202,6 +202,15 @@ class CompareFlags {
      */
     public var ignore_case : Bool;
 
+    /**
+     *
+     * Format to use for terminal output.  "plain" for plain text,
+     * "ansi", for ansi color codes, null to autodetect.  Defaults to
+     * autodetect.
+     *
+     */
+    public var terminal_format : String;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -224,6 +233,7 @@ class CompareFlags {
         count_like_a_spreadsheet = true;
         ignore_whitespace = false;
         ignore_case = false;
+        terminal_format = null;
     }
 
     /**

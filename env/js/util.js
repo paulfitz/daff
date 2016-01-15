@@ -11,6 +11,10 @@ if (typeof exports != "undefined") {
     var sqlite3 = null;
     var tty = null;
     
+    tio.valid = function() {
+        return true;
+    }
+
     tio.getContent = function(name) {
         var txt = "";
 	if (name=="-") {
