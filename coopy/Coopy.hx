@@ -52,6 +52,7 @@ class Coopy {
         nested_output = false;
         order_set = false;
         order_preference = false;
+        strategy = null;
         pretty = true;
         css_output = null;
         fragment = false;
@@ -91,8 +92,12 @@ class Coopy {
      *
      */
     static public function diffAsAnsi(local: Table, remote: Table, ?flags: CompareFlags) : String {
-        var tool = new Coopy();
+        var tool = new Coopy(new TableIO());
         tool.cache_txt = "";
+        if (flags == null) {
+            flags = new CompareFlags();
+        }
+        tool.output_format = "csv";
         tool.runDiff(flags.parent, local, remote, flags, null);
         return tool.cache_txt;
     }
@@ -221,33 +226,35 @@ class Coopy {
             return format_preference;
         }
         var ext = "";
-        var pt = name.lastIndexOf(".");
-        if (pt>=0) {
-            ext = name.substr(pt+1).toLowerCase();
-            switch(ext) {
-            case "json":
-                format_preference = "json";
-            case "ndjson":
-                format_preference = "ndjson";
-            case "csv":
-                format_preference = "csv";
-                delim_preference = ",";
-            case "tsv":
-                format_preference = "csv";
-                delim_preference = "\t";
-            case "ssv":
-                format_preference = "csv";
-                delim_preference = ";";
-            case "sqlite3":
-                format_preference = "sqlite";
-            case "sqlite":
-                format_preference = "sqlite";
-            case "html", "htm":
-                format_preference = "html";
-            case "www":
-                format_preference = "www";
-            default:
-                ext = "";
+        if (name!=null) {
+            var pt = name.lastIndexOf(".");
+            if (pt>=0) {
+                ext = name.substr(pt+1).toLowerCase();
+                switch(ext) {
+                case "json":
+                    format_preference = "json";
+                case "ndjson":
+                    format_preference = "ndjson";
+                case "csv":
+                    format_preference = "csv";
+                    delim_preference = ",";
+                case "tsv":
+                    format_preference = "csv";
+                    delim_preference = "\t";
+                case "ssv":
+                    format_preference = "csv";
+                    delim_preference = ";";
+                case "sqlite3":
+                    format_preference = "sqlite";
+                case "sqlite":
+                    format_preference = "sqlite";
+                case "html", "htm":
+                    format_preference = "html";
+                case "www":
+                    format_preference = "www";
+                default:
+                    ext = "";
+                }
             }
         }
         nested_output = (format_preference=="json"||format_preference=="ndjson");
@@ -446,8 +453,10 @@ class Coopy {
         td.hiliteWithNesting(os);
         var use_color = flags.terminal_format == "ansi";
         if (flags.terminal_format == null) {
-            if ((output==null || output=="-") && output_format=="copy") {
-                if (io.isTtyKnown()) use_color = io.isTty();
+            if ((output==null || output=="-") && (output_format=="copy"||output_format=="csv")) {
+                if (io!=null) {
+                    if (io.isTtyKnown()) use_color = io.isTty();
+                }
             }
         }
         saveTables(output,os,use_color);

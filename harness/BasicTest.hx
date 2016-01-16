@@ -137,6 +137,13 @@ class BasicTest extends haxe.unit.TestCase {
         assertTrue(coopy.SimpleTable.tableIsSimilar(table4,table2b));
     }
 
+    public function testAnsiOutput() {
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data2);
+        var txt = coopy.Coopy.diffAsAnsi(table1, table2);
+        assertTrue(txt.indexOf("Germany")>=0);
+    }
+
     public function testStraySpaceInCsv() {
         var csv = new coopy.Csv();
         var tab = csv.makeTable("id,color\n" +
