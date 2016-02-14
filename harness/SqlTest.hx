@@ -39,6 +39,13 @@ class SqlTest extends haxe.unit.TestCase {
         exec(db,"INSERT INTO ver6 VALUES(?,?,?)",[3, null, "Calvin"]);
         exec(db,"INSERT INTO ver6 VALUES(?,?,?)",[4, 88, "Hobbesian"]);
 
+
+        exec(db,"CREATE TABLE nully1 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
+        exec(db,"INSERT INTO nully1 VALUES(?,?,?)",[2, null, null]);
+
+        exec(db,"CREATE TABLE nully2 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
+        exec(db,"INSERT INTO nully2 VALUES(?,?,?)",[2, null, "frog"]);
+
         flags = new coopy.CompareFlags();
         flags.diff_strategy = "sql";
         flags.show_meta = false;
@@ -120,5 +127,15 @@ class SqlTest extends haxe.unit.TestCase {
         var out = coopy.Coopy.diff(st2,st5,flags);
         coopy.Coopy.patch(st2,out);
         assertTrue(coopy.SimpleTable.tableIsSimilar(st2,st6));
+    }
+
+    public function testChangeNull() {
+        var nully1 = new coopy.SqlTable(db,new coopy.SqlTableName("nully1"));
+        var nully2 = new coopy.SqlTable(db,new coopy.SqlTableName("nully2"));
+        var patch = new Array<Array<Dynamic>>();
+        patch = [["@@","id","happy","name"],
+                 ["->",2,"NULL","NULL->frog"]];
+        coopy.Coopy.patch(nully1,Native.table(patch));
+        assertTrue(coopy.SimpleTable.tableIsSimilar(nully1,nully2));
     }
 }

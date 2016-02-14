@@ -64,7 +64,7 @@ class SqliteHelper implements SqlHelper {
                 q += " and ";
             }
             q += db.getQuotedColumnName(k);
-            q += " = ?";
+            q += " IS ?";
             lst.push(conds.get(k));
         }
         if (!db.begin(q,lst,[])) {

@@ -402,7 +402,7 @@ class HighlightPatch implements Row {
             var cact : String = modifier.get(i);
             if (cact=="...") continue;
             if (name==null || name=="") continue;
-            var txt : String = getString(i);
+            var txt : String = csv.parseCell(getString(i));
             var updated = false;
             if (rowInfo.updated) {
                 getPreString(txt);
@@ -416,8 +416,8 @@ class HighlightPatch implements Row {
                 }
             }
             if (updated) {
-                rc.cond.set(name,cellInfo.lvalue);
-                rc.val.set(name,cellInfo.rvalue);
+                rc.cond.set(name,csv.parseCell(cellInfo.lvalue));
+                rc.val.set(name,csv.parseCell(cellInfo.rvalue));
             } else if (code=="+++") {
                 if (cact!="---") rc.val.set(name,txt);
             } else {
