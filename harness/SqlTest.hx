@@ -129,12 +129,22 @@ class SqlTest extends haxe.unit.TestCase {
         assertTrue(coopy.SimpleTable.tableIsSimilar(st2,st6));
     }
 
-    public function testChangeNull() {
+    public function testChangeNull1() {
         var nully1 = new coopy.SqlTable(db,new coopy.SqlTableName("nully1"));
         var nully2 = new coopy.SqlTable(db,new coopy.SqlTableName("nully2"));
         var patch = new Array<Array<Dynamic>>();
         patch = [["@@","id","happy","name"],
                  ["->",2,"NULL","NULL->frog"]];
+        coopy.Coopy.patch(nully1,Native.table(patch));
+        assertTrue(coopy.SimpleTable.tableIsSimilar(nully1,nully2));
+    }
+
+    public function testChangeNull2() {
+        var nully1 = new coopy.SqlTable(db,new coopy.SqlTableName("nully1"));
+        var nully2 = new coopy.SqlTable(db,new coopy.SqlTableName("nully2"));
+        var patch = new Array<Array<Dynamic>>();
+        patch = [["@@","id","happy","name"],
+                 ["->",2,null,"NULL->frog"]];
         coopy.Coopy.patch(nully1,Native.table(patch));
         assertTrue(coopy.SimpleTable.tableIsSimilar(nully1,nully2));
     }

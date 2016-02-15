@@ -301,6 +301,12 @@ class HighlightPatch implements Row {
         return view.toString(getDatum(c));
     }
 
+    private function getStringNull(c: Int) : String {
+        var d = getDatum(c);
+        if (d==null) return null;
+        return view.toString(d);
+    }
+
 
     private function applyMeta() : Void {
         for (i in payloadCol...payloadTop) {
@@ -402,7 +408,7 @@ class HighlightPatch implements Row {
             var cact : String = modifier.get(i);
             if (cact=="...") continue;
             if (name==null || name=="") continue;
-            var txt : String = csv.parseCell(getString(i));
+            var txt : String = csv.parseCell(getStringNull(i));
             var updated = false;
             if (rowInfo.updated) {
                 getPreString(txt);
