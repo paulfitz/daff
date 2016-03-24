@@ -210,7 +210,7 @@ ntest: ntest_js ntest_rb ntest_py ntest_php ntest_java
 
 ntest_js: js
 	haxe -js ntest.js -D haxeJSON -main harness.Main
-	NODE_PATH=$$PWD/lib node ntest.js
+	NODE_PATH=$$PWD/lib nodejs ntest.js
 
 ntest_py: py
 	./scripts/run_tests.sh "" py
@@ -248,7 +248,7 @@ ntest_rb: rb
 
 perf_js:
 	haxe -D enbiggen -js ntest.js -main harness.Main
-	NODE_PATH=$$PWD/lib node ntest.js
+	NODE_PATH=$$PWD/lib nodejs ntest.js
 
 perf_php:
 	haxe -D enbiggen -php ntest_php_dir -main harness.Main
