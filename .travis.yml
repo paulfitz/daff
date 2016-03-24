@@ -12,6 +12,9 @@ before_install:
   - if ! $USE_PAULFITZ; then sudo apt-get install python-software-properties -y; fi
   - if ! $USE_PAULFITZ; then sudo add-apt-repository ppa:haxe/releases -y; fi
   - if ! $USE_PAULFITZ; then sudo apt-get update; fi
+  - sudo apt-get --purge remove node
+  - sudo apt-get --purge remove nodejs
+  - sudo apt-get install nodejs
 
 install:
   - sudo apt-get install time php5 sqlite3 -y
