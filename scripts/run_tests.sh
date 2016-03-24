@@ -12,7 +12,7 @@ for f in `ls -1 *.$EXT | grep "$1"`; do
     echo "=============================================================================="
     echo "== $f"
     if [[ "$EXT" = "js" ]]; then
-	NODE_PATH=$BASE/lib:$BASE/scripts node ./$f || exit 1
+	NODE_PATH=$BASE/lib:$BASE/scripts nodejs ./$f || exit 1
     elif [[ "$EXT" = "py" ]]; then
 	PYTHONPATH=$PYTHONPATH:$BASE/python_bin python3 ./$f || exit 1
     elif [[ "$EXT" = "rb" ]]; then
