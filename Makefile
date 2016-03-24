@@ -29,8 +29,20 @@ js:
 	@echo "## Check size"
 	@wc bin/daff.js
 
-test: js
-	./scripts/run_tests.sh
+# The following 5 lines are the Makefile syntax for writing:
+#
+# for file in `ls -1 test/*.js`; do
+#   node $file
+# done
+#
+# in a way in which each invocation of node $file is a separate
+# rule (unlike the old run_test in which all the $files are
+# in the same rule)
+js_test_files=$(wildcard test/*.js)
+js_targets=$(subst .js,_js,$(js_test_files))
+test: js $(js_targets)
+test/%_js: test/%.js
+	@cd test; echo == $*.js; NODE_PATH=$(PWD)/lib:$(PWD)/scripts node $*.js
 
 min: js
 	uglifyjs lib/daff.js > lib/daff.min.js
@@ -212,11 +224,14 @@ ntest_js: js
 	haxe -js ntest.js -D haxeJSON -main harness.Main
 	NODE_PATH=$$PWD/lib node ntest.js
 
-ntest_py: py
-	./scripts/run_tests.sh "" py
+py_test_files=$(wildcard test/*.py)
+py_targets=$(subst .py,_py,$(py_test_files))
+ntest_py: py $(py_targets)
 	rm -f daff/__init__.py daff.py
 	haxe -python ntest.py -main harness.Main
 	PYTHONPATH=$$PWD/python_bin python3 ntest.py
+test/%_py: test/%.py
+	@cd test; echo == $*.py; PYTHONPATH=${PYTHONPATH}:$(PWD)/python_bin python3 $*.py
 
 ntest_py2: py2
 	rm -f daff/__init__.py daff.py
@@ -240,11 +255,14 @@ ntest_java:
 	cd ntest_java_dir && javac -sourcepath src -d obj -g:none "@cmd"
 	java -cp ntest_java_dir/obj harness.Main
 
-ntest_rb: rb
-	./scripts/run_tests.sh "" rb
+rb_test_files=$(wildcard test/*.rb)
+rb_targets=$(subst .rb,_rb,$(rb_test_files))
+ntest_rb: rb $(rb_tergets)
 	haxe -rb ntestdotrb -main harness.Main
 	cp env/rb/table_view.rb ntestdotrb/lib/coopy
 	RUBYLIB=$$PWD/ntestdotrb ruby ntestdotrb/index.rb
+test/%_rb: test/%.rb
+	@cd test; echo == $*.rb; RUBYLIB=$(PWD)/ruby_bin:${RUBYLIB} ruby $*.rb
 
 perf_js:
 	haxe -D enbiggen -js ntest.js -main harness.Main
