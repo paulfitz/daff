@@ -429,14 +429,18 @@ class CompareTable {
                 var ct : Int = 0;
                 var uniques : Int = 0;
                 if (ra<a.height) {
+                    var offset : Map<String,Int> = new Map<String,Int>();
                     for (ca in 0...a.width) {
                         var key : String = va.toString(a.getCell(ca,ra));
-                        if (ma.exists(key)) {
-                            ma.set(key,-1);
-                            uniques--;
-                        } else {
+                        if (!offset.exists(key)) {
+                            offset.set(key,0);
+                        }
+                        var o = offset.get(key);
+                        offset.set(key,o+1);
+                        key = key + "_" + o;
                         ma.set(key,ca);
-                        uniques++;
+                        if (o == 0) {
+                            uniques++;
                         }
                     }
                     if (uniques>ra_uniques) {
@@ -446,13 +450,17 @@ class CompareTable {
                 }
                 uniques = 0;
                 if (rb<b.height) {
+                    var offset : Map<String,Int> = new Map<String,Int>();
                     for (cb in 0...b.width) {
                         var key : String = vb.toString(b.getCell(cb,rb));
-                        if (mb.exists(key)) {
-                            mb.set(key,-1);
-                            uniques--;
-                        } else {
-                            mb.set(key,cb);
+                        if (!offset.exists(key)) {
+                            offset.set(key,0);
+                        }
+                        var o = offset.get(key);
+                        offset.set(key,o+1);
+                        key = key + "_" + o;
+                        mb.set(key,cb);
+                        if (o == 0) {
                             uniques++;
                         }
                     }

@@ -209,4 +209,15 @@ class SmallTableTest extends haxe.unit.TestCase {
         var table_diff = checkDiff(e1,e2);
         assertEquals(table_diff.get_height(),3);
     }
+
+    public function testIssueDaff61() {
+        var e1 : Array<Dynamic> =
+            [['A', 'B', 'C'],
+             ['a', 'b', 'c']];
+        var e2 : Array<Dynamic> =
+            [['A', 'B', 'C', 'C'],
+             ['a', 'b', 'c', 'c']];
+        var table_diff = checkDiff(e1,e2);
+        assertEquals('+++', table_diff.getCell(4,0));
+    }
 }
