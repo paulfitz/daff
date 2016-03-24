@@ -29,8 +29,20 @@ js:
 	@echo "## Check size"
 	@wc bin/daff.js
 
-test: js
-	./scripts/run_tests.sh
+# The following 5 lines are the Makefile syntax for writing:
+#
+# for file in `ls -1 test/*.js`; do
+#   node $file
+# done
+#
+# in a way in which each invocation of node $file is a separate
+# rule (unlike the old run_test in which all the $files are
+# in the same rule)
+js_test_files=$(wildcard test/*.js)
+js_targets=$(subst .js,,$(js_test_files))
+test: js $(js_targets)
+test/%: test/%.js
+	@cd test; echo == $*.js; NODE_PATH=$(PWD)/lib:$(PWD)/scripts node $*.js
 
 min: js
 	uglifyjs lib/daff.js > lib/daff.min.js
