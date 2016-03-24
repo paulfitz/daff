@@ -12,6 +12,9 @@ before_install:
   - if ! $USE_PAULFITZ; then sudo apt-get install python-software-properties -y; fi
   - if ! $USE_PAULFITZ; then sudo add-apt-repository ppa:haxe/releases -y; fi
   - if ! $USE_PAULFITZ; then sudo apt-get update; fi
+  - sudo apt-get --purge remove node
+  - sudo apt-get --purge remove nodejs
+  - sudo apt-get install nodejs
 
 install:
   - sudo apt-get install time php5 sqlite3 -y
@@ -28,7 +31,6 @@ install:
   - if ! $USE_PAULFITZ; then haxelib install hxcs; fi
   - npm install
   - if $USE_PAULFITZ; then hg -y clone https://bitbucket.org/eshuy/lib3to2; cd lib3to2; sudo python3 ./setup.py install; cd ..; fi
-  - sudo apt-get install nodejs
 
 script:
   - make test
