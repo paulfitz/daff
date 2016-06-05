@@ -70,6 +70,7 @@ tag:
 	@echo "git commit -m \"`cat version.txt`\" -a"
 	@echo "git tag -a \"v`cat version.txt`\" -m \"`cat version.txt`\""
 	read x
+	git tag -d "v`cat version.txt`"
 	git commit -m "`cat version.txt`" -a && git tag -a "v`cat version.txt`" -m "`cat version.txt`"
 
 doc:
