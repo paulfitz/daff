@@ -303,6 +303,7 @@ class Coopy {
 
     private function saveTable(name: String, t: Table, render: TerminalDiffRender = null) : Bool {
         var txt = encodeTable(name, t, render);
+        if (txt == null) return true;
         return saveText(name,txt);
     }
 
@@ -323,6 +324,7 @@ class Coopy {
                 txt = new Ndjson(t).render();
             } else if (format_preference=="html"||format_preference=="www") {
                 renderTable(name,t);
+                return null;
                 // cannot handle multi-table output yet
             } else if (format_preference=="sqlite") {
                 io.writeStderr("! Cannot yet output to sqlite, aborting\n");
