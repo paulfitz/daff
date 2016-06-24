@@ -18,11 +18,13 @@ class TerminalDiffRender {
     private var v: View;
     private var align_columns : Bool;
     private var wide_columns : Bool;
+    private var use_glyphs : Bool;
     private var flags : CompareFlags;
 
     public function new(flags: CompareFlags = null) {
         align_columns = true;
         wide_columns = false;
+        use_glyphs = true;
         this.flags = flags;
         if (flags!=null) {
             if (flags.padding_strategy == "dense") {
@@ -31,6 +33,7 @@ class TerminalDiffRender {
             if (flags.padding_strategy == "sparse") {
                 wide_columns = true;
             }
+            use_glyphs = flags.use_glyphs;
         }
     }
 
@@ -118,18 +121,19 @@ class TerminalDiffRender {
                 if (code_tr!=null) code = code_tr;
             }
             if (code!=null) {
+                var separator = use_glyphs ? cell.pretty_separator : cell.separator;
                 if (cell.rvalue!=null) {
-                    val = codes["remove"] + cell.lvalue + codes["modify"] + cell.pretty_separator + codes["add"] + cell.rvalue + codes["done"];
+                    val = codes["remove"] + cell.lvalue + codes["modify"] + separator + codes["add"] + cell.rvalue + codes["done"];
                     if (cell.pvalue!=null) {
-                        val = codes["conflict"] + cell.pvalue + codes["modify"] + cell.pretty_separator + val;
+                        val = codes["conflict"] + cell.pvalue + codes["modify"] + separator + val;
                     }
                 } else {
-                    val = cell.pretty_value;
+                    val = use_glyphs ? cell.pretty_value : cell.value;
                     val = code + val + codes["done"];
                 }
             }
         } else {
-            val = cell.pretty_value;
+            val = use_glyphs ? cell.pretty_value : cell.value;
         }
         return csv.renderCell(v,val);
     }

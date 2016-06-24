@@ -28,7 +28,6 @@ class Coopy {
     private var order_set : Bool;
     private var order_preference : Bool;
     private var io : TableIO;
-    private var pretty : Bool;
     private var strategy : String;
     private var css_output : String;
     private var fragment : Bool;
@@ -53,7 +52,6 @@ class Coopy {
         order_set = false;
         order_preference = false;
         strategy = null;
-        pretty = true;
         css_output = null;
         fragment = false;
         flags = null;
@@ -270,7 +268,7 @@ class Coopy {
 
     private function getRenderer() : DiffRender {
         var renderer : DiffRender = new DiffRender();
-        renderer.usePrettyArrows(pretty);
+        renderer.usePrettyArrows(flags.use_glyphs);
         return renderer;
     }
 
@@ -730,7 +728,7 @@ class Coopy {
                     break;
                 } else if (tag=="--plain") {
                     more = true;
-                    pretty = false;
+                    flags.use_glyphs = false;
                     args.splice(i,1);
                     break;
                 } else if (tag=="--all") {

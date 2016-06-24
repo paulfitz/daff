@@ -211,6 +211,14 @@ class CompareFlags {
      */
     public var terminal_format : String;
 
+    /**
+     *
+     * Choose whether we can use utf8 characters for describing diff
+     * (specifically long arrow).  Defaults to true.
+     *
+     */
+    public var use_glyphs : Bool;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -234,6 +242,7 @@ class CompareFlags {
         ignore_whitespace = false;
         ignore_case = false;
         terminal_format = null;
+        use_glyphs = true;
     }
 
     /**
