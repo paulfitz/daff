@@ -244,6 +244,8 @@ Reading material
  * http://okfnlabs.org/blog/2013/08/08/diffing-and-patching-data.html : a summary of where the library came from.
  * http://blog.okfn.org/2013/07/02/git-and-github-for-data/ : a post about storing small data in git/github.
  * http://blog.ouseful.info/2013/08/27/diff-or-chop-github-csv-data-files-and-openrefine/ : counterpoint - a post discussing tracked-changes rather than diffs.
+ * http://blog.byronjsmith.com/makefile-shortcuts.html : a tutorial on using `make` for data, with daff in the mix. "Since git considers changes on a per-line basis,
+   looking at diffs of comma-delimited and tab-delimited files can get obnoxious. The program daff fixes this problem."
 
 ## License
 
