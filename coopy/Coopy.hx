@@ -1048,7 +1048,9 @@ class Coopy {
 #if coopyhx_util
     var io = new TableIO();
     var coopy = new Coopy();
-    return coopy.coopyhx(io);
+    var ret = coopy.coopyhx(io);
+    if (ret!=0) Sys.exit(ret);
+    return ret;
 #else
     // do nothing
     return 0;
