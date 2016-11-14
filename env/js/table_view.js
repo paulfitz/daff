@@ -253,7 +253,7 @@ if (typeof exports != "undefined") {
     exports.CellView = CellView;
     exports.TableView = TableView;
     if (typeof exports["daff"] == "undefined") exports["daff"] = exports["coopy"];
-    exports.daff.CellView = TableView;
+    exports.daff.CellView = CellView;
     exports.daff.TableView = TableView;
 } else {
     if (typeof window["daff"] == "undefined") window["daff"] = {};
