@@ -32,3 +32,4 @@ lib/daff.rb
 ntest_java_dir
 ntestdotrb
 *.sqlite
+.haxelib

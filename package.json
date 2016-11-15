@@ -26,7 +26,8 @@
   },
   "optionalDependencies": {
     "sqlite3": "^3.0.0",
-    "fibers": "^1.0.0"
+    "fibers": "^1.0.0",
+    "exceljs": "^0.2.36"
   },
   "scripts": {
     "prepublish": "make js",

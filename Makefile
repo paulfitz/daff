@@ -7,6 +7,9 @@ default: test
 
 js:
 	@echo "#######################################################"
+	@echo "## Install dependencies"
+	yes | haxelib install language/js.hxml
+	@echo "#######################################################"
 	@echo "## Set up directories"
 	mkdir -p bin
 	mkdir -p lib

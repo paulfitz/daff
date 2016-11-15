@@ -1,3 +1,4 @@
 -js lib/daff.js
 -D haxeJSON
 -main coopy.Coopy
+-lib exceljs-hx
