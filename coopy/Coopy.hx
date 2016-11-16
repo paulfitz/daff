@@ -209,6 +209,7 @@ class Coopy {
         var dr : DiffRender = new DiffRender();
         var hp : HighlightPatch = new HighlightPatch(null,null);
         var csv : Csv = new Csv();
+        var xlsx : Xlsx = new Xlsx();
         var tm : TableModifier = new TableModifier(null);
         var sc: SqlCompare = new SqlCompare(null,null,null,null);
         var sq: SqliteHelper = new SqliteHelper();
