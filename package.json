@@ -25,9 +25,9 @@
     "url": "http://paulfitz.github.io/"
   },
   "optionalDependencies": {
-    "sqlite3": "^3.0.0",
+    "exceljs": "^0.2.36",
     "fibers": "^1.0.0",
-    "exceljs": "^0.2.36"
+    "sqlite3": "^3.0.0"
   },
   "scripts": {
     "prepublish": "make js",
