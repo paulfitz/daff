@@ -12,12 +12,15 @@ package coopy;
  */
 @:expose
 class Xlsx {
+    private var impl : XlsxImpl;
+
     /**
      *
      * Constructor.
      *
      */
     public function new() : Void {
+        // TODO create impl
     }
 
     /**
@@ -29,7 +32,13 @@ class Xlsx {
      *
      */
     public function renderTable(t: Table) : haxe.io.Bytes {
-        return null;
+        if (impl==null) {
+            return null;
+        }
+
+        var workbook : Workbook = impl.create();
+        render(workbook, "Sheet", t);
+        return workbook.getBytes();
     }
 
     /**
@@ -41,7 +50,34 @@ class Xlsx {
      *
      */
     public function renderTables(tabs: Tables) : haxe.io.Bytes {
-        return null;
+        if (impl==null) {
+            return null;
+        }
+
+        var workbook : Workbook = impl.create();
+        var order : Array<String> = tabs.getOrder();
+        if (order.length==0 || tabs.hasInsDel()) {
+            render(workbook, "Sheet", tabs.one());
+        }
+        for (i in 1...order.length) {
+            var name : String = order[i];
+            var tab : Table = tabs.get(name);
+            if (tab.height<=1) continue;
+            render(workbook, name, tab);
+        }
+        return workbook.getBytes();
+    }
+
+    private function render(workbook : Workbook, name : String, tab : Table) : Void {
+        var worksheet : Worksheet = workbook.addWorksheet(name);
+
+        for (x in 0...tab.width) {
+            for (y in 0...tab.height) {
+                worksheet.setCellValue(x, y, tab.getCell(x, y));
+            }
+        }
+
+        // TODO fill color
     }
 
     /**
@@ -54,6 +90,12 @@ class Xlsx {
      *
      */
     public function parseTable(bytes: haxe.io.Bytes) : Table {
-        return null;
+        if (impl==null) {
+            return null;
+        }
+
+        var workbook : Workbook = impl.read(bytes);
+        var worksheet : Worksheet = workbook.getWorksheet(0);
+        return Coopy.tablify(worksheet.getData());
     }
 }
