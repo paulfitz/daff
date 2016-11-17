@@ -118,7 +118,8 @@ py:
 	cat env/py/sqlite_database.py >> python_bin/daff.py
 	echo "if __name__ == '__main__':" >> python_bin/daff.py
 	echo "\tCoopy.main()" >> python_bin/daff.py
-	sed -i 's/Sys.stdout().writeString(txt)/(python_lib_Sys.stdout.buffer if hasattr(python_lib_Sys.stdout,"buffer") else python_lib_Sys.stdout).write(txt.encode("utf-8", "strict"))/' python_bin/daff.py # fix utf-8
+	sed -i 's/Sys.stdout().writeString(txt)/get_stdout().write(txt.encode("utf-8", "strict"))/' python_bin/daff.py # fix utf-8
+	sed -i 's/python_lib_Sys.stdout.buffer/get_stdout()/' python_bin/daff.py
 	cp scripts/example.py python_bin/
 	@echo 'Output in python_bin, run "python3 python_bin/daff.py" for an example utility'
 	@echo 'or try "python3 python_bin/example.py" for an example of using daff as a library'
@@ -140,6 +141,8 @@ py2: py
 	sed -i 's/xrange/hxrange/g' python_bin/daff.py
 	sed -i 's/python_lib_FuncTools.cmp_to_key/hx_cmp_to_key/g' python_bin/daff.py
 	sed -i 's/^\([ \t]*\)def next(/\1def __next__(self): return self.next()\n\n\1def next(/g' python_bin/daff.py
+	sed -i 's/from datetime import timezone/#from datetime import timezone/' python_bin/daff.py
+	sed -i 's/Date.EPOCH_UTC =/#Date.EPOCH_UTC =/' python_bin/daff.py
 	cp scripts/python23.py python_bin/daff2.py
 	cat python_bin/daff.py | grep -v "from __future__" | grep -v "from __builtin__ import" | grep -v "import __builtin__ as" | grep -v '#!' >> python_bin/daff2.py
 	mv python_bin/daff2.py python_bin/daff.py

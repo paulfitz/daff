@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 try:
     import builtins
 except:
@@ -43,7 +43,10 @@ else:
         return x.__next__()
     hx_cmp_to_key = functools.cmp_to_key
 
-python_lib_Builtin = builtins
+python_lib_Builtins = python_lib_Builtin = builtins
 String = builtins.str
 python_lib_Dict = builtins.dict
 python_lib_Set = builtins.set
+
+def get_stdout():
+    return (python_lib_Sys.stdout.buffer if hasattr(python_lib_Sys.stdout,"buffer") else python_lib_Sys.stdout)
