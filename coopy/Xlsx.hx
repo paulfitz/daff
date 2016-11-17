@@ -79,7 +79,40 @@ class Xlsx {
             }
         }
 
-        // TODO fill color
+        var view : View = tab.getCellView();
+        for (x in 0...tab.width) {
+            for (y in 0...tab.height) {
+                var color : String = null;
+
+                var cell : CellInfo = DiffRender.renderCell(tab, view, x, y);
+                if (cell.category!=null) {
+                    color = getColor(cell.category);
+                }
+
+                if (color!=null) {
+                    worksheet.setCellFillColor(x, y, color);
+                }
+            }
+        }
+    }
+
+    private function getColor(type) {
+        switch (type) {
+            case "header":
+                return "AAAAFF";
+            case "spec":
+                return "AAAAAA";
+            case "add":
+                return "7FFF7F";
+            case "conflict":
+                return "FF0000";
+            case "modify":
+                return "7f7fff";
+            case "remove":
+                return "FF7F7F";
+            default:
+                return null;
+        }
     }
 
     /**
