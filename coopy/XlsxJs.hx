@@ -10,7 +10,8 @@ class XlsxJs implements XlsxImpl {
     }
 
     public function create() : Workbook {
-        return null;
+        var workbook = new exceljs.Workbook();
+        return new XlsxJsWorkbook(workbook);
     }
 
     public function read(bytes: haxe.io.Bytes) : Workbook {
@@ -31,7 +32,8 @@ class XlsxJsWorkbook implements Workbook {
     }
 
     public function addWorksheet(name: String) : Worksheet {
-        return null;
+        var worksheet = workbook.addWorksheet(name);
+        return new XlsxJsWorksheet(worksheet);
     }
 
     public function getWorksheet(index: Int) : Worksheet {
@@ -41,7 +43,9 @@ class XlsxJsWorkbook implements Workbook {
     }
 
     public function getBytes() : haxe.io.Bytes {
-        return null;
+        var stream = new WritableStreamBuffer();
+        untyped __js__("require('fibers/future').fromPromise(this.workbook.xlsx.write(stream)).wait()");
+        return stream.getContents();
     }
 }
 
@@ -61,6 +65,7 @@ class XlsxJsWorksheet implements Worksheet {
     }
 
     public function setCellValue(x: Int, y: Int, value: Dynamic) : Void {
+        worksheet.getCell(y + 1, x + 1).value = value;
     }
 }
 
@@ -70,4 +75,11 @@ extern class ReadableStreamBuffer {
 
     public function put(bytes: haxe.io.Bytes) : Void;
     public function stop() : Void;
+}
+
+@:jsRequire("stream-buffers", "WritableStreamBuffer")
+extern class WritableStreamBuffer {
+    public function new();
+
+    public function getContents() : haxe.io.Bytes;
 }
