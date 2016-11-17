@@ -20,7 +20,9 @@ class Xlsx {
      *
      */
     public function new() : Void {
-        // TODO create impl
+#if js
+        impl = new XlsxJs();
+#end
     }
 
     /**
