@@ -67,6 +67,16 @@ class XlsxJsWorksheet implements Worksheet {
     public function setCellValue(x: Int, y: Int, value: Dynamic) : Void {
         worksheet.getCell(y + 1, x + 1).value = value;
     }
+
+    public function setCellFillColor(x: Int, y: Int, color: String) : Void {
+        worksheet.getCell(y + 1, x + 1).fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: {
+                argb: "FF" + color
+            }
+        };
+    }
 }
 
 @:jsRequire("stream-buffers", "ReadableStreamBuffer")

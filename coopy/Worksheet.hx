@@ -7,4 +7,5 @@ package coopy;
 interface Worksheet {
     public function getData() : Dynamic;
     public function setCellValue(x: Int, y: Int, value: Dynamic) : Void;
+    public function setCellFillColor(x: Int, y: Int, color: String) : Void;
 }
