@@ -28,9 +28,24 @@ if (typeof exports != "undefined") {
 	}
         return txt;
     }
+
+    tio.getBytes = function(name) {
+        var bytes = Buffer.from('');
+	if (name=="-") {
+	    // only works on Linux, all other solutions seem broken
+	    bytes = fs.readFileSync('/dev/stdin');
+	} else {
+	    bytes = fs.readFileSync(name);
+        }
+        return bytes;
+    }
     
     tio.saveContent = function(name,txt) {
 	return fs.writeFileSync(name,txt,"utf8");
+    }
+
+    tio.saveBytes = function(name,bytes) {
+	return fs.writeFileSync(name,bytes);
     }
     
     tio.args = function() {

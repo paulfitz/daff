@@ -243,6 +243,8 @@ class Coopy {
                 case "ssv":
                     format_preference = "csv";
                     delim_preference = ";";
+                case "xlsx":
+                    format_preference = "xlsx";
                 case "sqlite3":
                     format_preference = "sqlite";
                 case "sqlite":
@@ -319,6 +321,15 @@ class Coopy {
             if (format_preference=="csv") {
                 var csv : Csv = new Csv(delim_preference);
                 txt = csv.renderTable(t);
+            } else if (format_preference=="xlsx") {
+                var xlsx : Xlsx = new Xlsx();
+                var bytes : haxe.io.Bytes = xlsx.renderTable(t);
+                if (bytes==null) {
+                    io.writeStderr("! Cannot yet output to xlsx, aborting\n");
+                    return "";
+                }
+                saveBytes(name,bytes);
+                return null;
             } else if (format_preference=="ndjson") {
                 txt = new Ndjson(t).render();
             } else if (format_preference=="html"||format_preference=="www") {
@@ -352,6 +363,14 @@ class Coopy {
         }
         if (format_preference=="html"||format_preference=="www") {
             return renderTables(name, os);
+        } else if (format_preference=="xlsx") {
+            var xlsx : Xlsx = new Xlsx();
+            var bytes : haxe.io.Bytes = xlsx.renderTables(os);
+            if (bytes==null) {
+                io.writeStderr("! Cannot yet output to xlsx, aborting\n");
+                return false;
+            }
+            return saveBytes(name,bytes);
         }
         var need_blank = false;
         if (order.length==0 || os.hasInsDel()) {
@@ -386,6 +405,15 @@ class Coopy {
             io.saveContent(name,txt);
         } else {
             io.writeStdout(txt);
+        }
+        return true;
+    }
+
+    private function saveBytes(name: String, bytes: haxe.io.Bytes) : Bool {
+        if (name!="-") {
+            io.saveBytes(name,bytes);
+        } else {
+            io.writeStdout(bytes.toString());
         }
         return true;
     }
@@ -499,6 +527,14 @@ class Coopy {
                 return t;
             } catch (e: Dynamic) {
                 if (ext == "json") throw e;
+            }
+        }
+        if (ext == "xlsx") {
+            var bytes : haxe.io.Bytes = io.getBytes(name);
+            var xlsx : Xlsx = new Xlsx();
+            var output = xlsx.parseTable(bytes);
+            if (output!=null) {
+                return output;
             }
         }
         format_preference = "csv";

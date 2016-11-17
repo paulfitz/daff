@@ -45,6 +45,21 @@ class TableIO {
 
     /**
      *
+     * Read a file.
+     * @param name the name of the file to read
+     * @return the bytes of the file
+     *
+     */
+    public function getBytes(name: String) : haxe.io.Bytes {
+#if coopyhx_util
+        return sys.io.File.getBytes(name);
+#else
+        return haxe.io.Bytes.ofString("");
+#end
+    }
+
+    /**
+     *
      * Save a file.
      * @param name the name of the file to save
      * @param txt the content of the file
@@ -54,6 +69,23 @@ class TableIO {
     public function saveContent(name: String, txt: String) : Bool {
 #if coopyhx_util
         sys.io.File.saveContent(name,txt);
+        return true;
+#else
+        return false;
+#end
+    }
+
+    /**
+     *
+     * Save a file.
+     * @param name the name of the file to save
+     * @param bytes the bytes of the file
+     * @return true on success
+     *
+     */
+    public function saveBytes(name: String, bytes: haxe.io.Bytes) : Bool {
+#if coopyhx_util
+        sys.io.File.saveBytes(name,bytes);
         return true;
 #else
         return false;
