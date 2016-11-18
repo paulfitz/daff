@@ -90,6 +90,33 @@ class XlsxJsWorksheet implements Worksheet {
         }
         return false;
     }
+
+    public function setAllRowHeight(height: Int) : Void {
+        worksheet.eachRow(function (row, rowNumber) {
+            row.height = height;
+        });
+    }
+
+    public function borderAllCell() : Void {
+        var border = {
+            style: "thin",
+            color: {
+                argb: "#FF000000"
+            }
+        };
+        var borders = {
+            top: border,
+            left: border,
+            bottom: border,
+            right: border
+        };
+
+        worksheet.eachRow({ includeEmpty: true }, function (row, rowNumber) {
+            row.eachCell({ includeEmpty: true }, function (cell, colNumber) {
+                cell.border = borders;
+            });
+        });
+    }
 }
 
 @:jsRequire("stream-buffers", "ReadableStreamBuffer")

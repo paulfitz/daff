@@ -82,6 +82,11 @@ class Xlsx {
         worksheet.tryFitColumnWidth();
 
         var view : View = tab.getCellView();
+        var corner : CellInfo = DiffRender.renderCell(tab, view, 0, 0);
+        if (corner.category=="") {
+            return;
+        }
+
         for (x in 0...tab.width) {
             for (y in 0...tab.height) {
                 var color : String = null;
@@ -96,6 +101,9 @@ class Xlsx {
                 }
             }
         }
+
+        worksheet.setAllRowHeight(25);
+        worksheet.borderAllCell();
     }
 
     private function getColor(type) {
