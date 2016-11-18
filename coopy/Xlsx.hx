@@ -79,6 +79,8 @@ class Xlsx {
             }
         }
 
+        worksheet.tryFitColumnWidth();
+
         var view : View = tab.getCellView();
         for (x in 0...tab.width) {
             for (y in 0...tab.height) {

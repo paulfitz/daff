@@ -77,6 +77,19 @@ class XlsxJsWorksheet implements Worksheet {
             }
         };
     }
+
+    public function tryFitColumnWidth() : Bool {
+        for (i in 0...worksheet.columns.length) {
+            var column = worksheet.columns[i];
+            var maxLength = 5;
+            worksheet.eachRow(function (row, rowNumer) {
+                maxLength = Std.int(Math.max(maxLength, row.getCell(i + 1).text.length));
+            });
+            var widthPerLength = 1.5;
+            column.width = Std.int(maxLength * widthPerLength);
+        }
+        return false;
+    }
 }
 
 @:jsRequire("stream-buffers", "ReadableStreamBuffer")
