@@ -317,6 +317,9 @@ class Coopy {
         if (format_preference=="sqlite" && !extern_preference) {
             format_preference = "csv";
         }
+        if (format_preference=="xlsx" && name=="-") {
+            format_preference = "csv";
+        }
         if (render==null) {
             if (format_preference=="csv") {
                 var csv : Csv = new Csv(delim_preference);
