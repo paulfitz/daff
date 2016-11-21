@@ -25,6 +25,7 @@ class Merger {
     private var column_mix_local : Map<Int,Int>;
     private var column_mix_remote : Map<Int,Int>;
     private var conflicts : Int;
+    private var conflict_infos : Array<ConflictInfo>;
 
     /**
      *
@@ -109,6 +110,7 @@ class Merger {
      */
     public function apply() : Int {
         conflicts = 0;
+        conflict_infos = new Array<ConflictInfo>();
 
         var ct : CompareTable = Coopy.compareTables3(parent,local,remote);
         var align : Alignment = ct.align();
@@ -142,6 +144,7 @@ class Merger {
                                 local.setCell(col.l,row.l,
                                               makeConflictedCell(view,pcell,lcell,rcell));
                                 conflicts++;
+                                addConflictInfo(row.l,col.l,view,pcell,lcell,rcell);
                             }
                         }
                     }
@@ -179,6 +182,23 @@ class Merger {
         }
 
         return conflicts;
+    }
+
+    public function getConflictInfos() : Array<ConflictInfo> {
+        return conflict_infos;
+    }
+
+    private function addConflictInfo(row: Int,
+                                     col: Int,
+                                     view: View,
+                                     pcell: Dynamic,
+                                     lcell: Dynamic,
+                                     rcell: Dynamic) : Void {
+        conflict_infos.push(new ConflictInfo(row,
+                                             col,
+                                             view.toString(pcell),
+                                             view.toString(lcell),
+                                             view.toString(rcell)));
     }
 
     private static function makeConflictedCell(view: View,
