@@ -21,6 +21,7 @@ class Coopy {
 
     private var format_preference : String;
     private var delim_preference : String;
+    private var csv_eol_preference : String;
     private var extern_preference : Bool;
     private var output_format : String;
     private var output_format_set : Bool;
@@ -46,6 +47,7 @@ class Coopy {
         extern_preference = false;
         format_preference = null;
         delim_preference = null;
+        csv_eol_preference = null;
         output_format = "copy";
         output_format_set = false;
         nested_output = false;
@@ -316,7 +318,7 @@ class Coopy {
         }
         if (render==null) {
             if (format_preference=="csv") {
-                var csv : Csv = new Csv(delim_preference);
+                var csv : Csv = new Csv(delim_preference, csv_eol_preference);
                 txt = csv.renderTable(t);
             } else if (format_preference=="ndjson") {
                 txt = new Ndjson(t).render();
@@ -504,6 +506,9 @@ class Coopy {
         var csv : Csv = new Csv(delim_preference);
         var output = new SimpleTable(0,0);
         csv.parseTable(txt,output);
+        if (csv_eol_preference == null) {
+            csv_eol_preference = csv.getDiscoveredEol();
+        }
         if (output!=null) output.trimBlank();
         return output;
     }
@@ -849,6 +854,24 @@ class Coopy {
                     flags.padding_strategy = args[i+1];
                     args.splice(i,2);
                     break;
+                } else if (tag=="-e" || tag=="--eol") {
+                    more = true;
+                    var ending = args[i+1];
+                    if (ending=="crlf") {
+                        ending = "\r\n";
+                    } else if (ending=="lf") {
+                        ending = "\n";
+                    } else if (ending=="cr") {
+                        ending = "\r";
+                    } else if (ending=="auto") {
+                        ending = null;
+                    } else {
+                        io.writeStderr("Expected line ending of either 'crlf' or 'lf' but got " + ending + "\n");
+                        return 1;
+                    }
+                    csv_eol_preference = ending;
+                    args.splice(i,2);
+                    break;
                 }
             }
         }
@@ -914,6 +937,7 @@ class Coopy {
             io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
             io.writeStderr("     --index:       include row/columns numbers from original tables\n");
             io.writeStderr("     --input-format [csv|tsv|ssv|json]: set format to expect for input\n");
+            io.writeStderr("     --eol [crlf|lf|cr|auto]: separator between rows of csv output.\n");
             io.writeStderr("     --no-color:    make sure terminal colors are not used\n");
             io.writeStderr("     --ordered:     assume row order is meaningful (default for CSV)\n");
             io.writeStderr("     --output-format [csv|tsv|ssv|json|copy|html]: set format for output\n");

@@ -34,4 +34,24 @@ cmp diff1 diff2 && {
     exit 1
 } || echo "good"
 
+header "Prepare for a merge test"
+sed -i "s/Whitestone/Whitestan/" bridges.csv
+cd ..
+git clone test_repo test_repo2
+cd test_repo2
+git config user.email "nevyn@example.com"
+git config user.name "Nevyn"
+$DAFF_SCRIPT git csv
+sed -i "s/Buck/Duck/" bridges.csv
+git commit -m "duck" -a
+cd ../test_repo
+git commit -m "stan" -a
+git pull --no-edit ../test_repo2
+
+# if we flunked eol fixes there'll be "ASCII text, with CRLF line terminators"
+file bridges.csv | grep -v CRLF || {
+    echo "EOL behavior doesn't look right"
+    exit 1
+}
+
 cd $org
