@@ -16,6 +16,8 @@ class Csv {
     private var row_ended: Bool;
     private var has_structure : Bool;
     private var delim : String;
+    private var discovered_eol : String;
+    private var preferred_eol : String;
 
     /**
      *
@@ -24,10 +26,12 @@ class Csv {
      * @param delim cell delimiter to use, defaults to a comma
      *
      */
-    public function new(?delim : String = ",") : Void {
+    public function new(?delim : String = ",", ?eol : String = null) : Void {
         cursor = 0;
         row_ended = false;
         this.delim = (delim==null)?",":delim;
+        this.discovered_eol = null;
+        this.preferred_eol = eol;
     }
 
     /**
@@ -39,6 +43,10 @@ class Csv {
      *
      */
     public function renderTable(t: Table) : String {
+        var eol = preferred_eol;
+        if (eol == null) {
+            eol = "\r\n"; // The "standard" says line endings should be this
+        }
         var result: String = "";
         var txt : String = "";
         var v : View = t.getCellView();
@@ -51,7 +59,7 @@ class Csv {
                 }
                 txt += renderCell(v,stream.getCell(x));
             }
-            txt += "\r\n";  // The "standard" says line endings should be this
+            txt += eol;
         }
         return txt;
     }
@@ -193,9 +201,16 @@ class Csv {
                         if (ch2!=null) {
                             if (ch2!=ch) {
                                 if (ch2=="\r".code || ch2=="\n".code) {
+                                    if (discovered_eol==null) {
+                                        discovered_eol = String.fromCharCode(ch) +
+                                            String.fromCharCode(ch2);
+                                    }
                                     last_processed++;
                                 }
                             }
+                        }
+                        if (discovered_eol==null) {
+                            discovered_eol = String.fromCharCode(ch);
                         }
                         row_ended = true;
                         break;
@@ -252,4 +267,28 @@ class Csv {
         return parseCellPart(txt);
     }
 
+    /**
+     *
+     * Return the EOL sequence discovered the last time
+     * a CSV file/string was parsed.
+     *
+     * @return one of "\n", "\r", "\n\r", "\r\n", null
+     *
+     */
+    public function getDiscoveredEol() : String {
+        return discovered_eol;
+    }
+
+    /**
+     *
+     * Set the EOL sequence to use at end of rows.
+     * a CSV file/string was parsed.
+     *
+     * @param eol "\n" or "\r\n" - if it is something else
+     * I don't want to know.
+     *
+     */
+    public function setPreferredEol(eol: String) : Void {
+        preferred_eol = eol;
+    }
 }
