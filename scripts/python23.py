@@ -39,6 +39,8 @@ else:
     hxunicode = str
     hxrange = range
     hxunichr = chr
+    unichr = chr
+    unicode = str
     def hxnext(x):
         return x.__next__()
     hx_cmp_to_key = functools.cmp_to_key
