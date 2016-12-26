@@ -143,6 +143,8 @@ py2: py
 	sed -i 's/^\([ \t]*\)def next(/\1def __next__(self): return self.next()\n\n\1def next(/g' python_bin/daff.py
 	sed -i 's/from datetime import timezone/#from datetime import timezone/' python_bin/daff.py
 	sed -i 's/Date.EPOCH_UTC =/#Date.EPOCH_UTC =/' python_bin/daff.py
+	sed -i 's/from itertools import imap/import itertools; imap = itertools.imap if hasattr(itertools, "imap") else map/' python_bin/daff.py
+	sed -i 's/from itertools import ifilter/import itertools; ifilter = itertools.ifilter if hasattr(itertools, "ifilter") else filter/' python_bin/daff.py
 	cp scripts/python23.py python_bin/daff2.py
 	cat python_bin/daff.py | grep -v "from __future__" | grep -v "from __builtin__ import" | grep -v "import __builtin__ as" | grep -v '#!' >> python_bin/daff2.py
 	mv python_bin/daff2.py python_bin/daff.py
