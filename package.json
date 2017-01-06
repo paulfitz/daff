@@ -25,8 +25,10 @@
     "url": "http://paulfitz.github.io/"
   },
   "optionalDependencies": {
+    "exceljs": "^0.2.36",
+    "fibers": "^1.0.0",
     "sqlite3": "^3.0.0",
-    "fibers": "^1.0.0"
+    "stream-buffers": "^3.0.1"
   },
   "scripts": {
     "prepublish": "make js",
