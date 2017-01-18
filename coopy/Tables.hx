@@ -11,6 +11,7 @@ class Tables {
     private var table_order : Array<String>;
 
     public var alignment: Alignment;
+    public var column_units: Array<Unit>;
 
     public function new(template : Table) {
         this.template = template;
@@ -37,6 +38,9 @@ class Tables {
         return tables.get(table_order[0]);
     }
 
+    public function singular() {
+        return alignment == null;
+    }
     public function hasInsDel() {
         if (alignment==null) return false;
         if (alignment.has_addition) return true;

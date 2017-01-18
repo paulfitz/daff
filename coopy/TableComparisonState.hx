@@ -86,6 +86,7 @@ class TableComparisonState {
     public var b_meta : Meta;
 
     public var alignment : Alignment;
+    public var column_units : Array<Unit>;
     public var children : Map<String,TableComparisonState>;
     public var child_order : Array<String>;
 

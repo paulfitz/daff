@@ -39,6 +39,7 @@ class TableStream implements RowStream {
         for (i in 0...t.width) {
             columns.push(t.getCell(i,0));
         }
+        at = 1;
         return columns;
     }
 
@@ -49,6 +50,7 @@ class TableStream implements RowStream {
         for (i in 0...columns.length) {
             row[columns[i]] = t.getCell(i,at);
         }
+        at++;
         return row;
     }
 

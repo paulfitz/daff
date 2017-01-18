@@ -257,9 +257,21 @@ class Coopy {
                 }
             }
         }
-        nested_output = (format_preference=="json"||format_preference=="ndjson");
-        order_preference = !nested_output;
+        updateNesting();
         return ext;
+    }
+
+    private function updateNesting() {
+        var format = (output_format!=null) ? output_format : format_preference;
+        nested_output = (format=="json"||format=="ndjson");
+        order_preference = !nested_output;
+        if (flags!=null) {
+            if (!order_set) {
+                flags.ordered = order_preference;
+                if (!flags.ordered) flags.unchanged_context = 0;
+            }
+            flags.allow_nested_cells = nested_output;
+        }
     }
 
     private function setFormat(name: String) : Void {
@@ -348,11 +360,40 @@ class Coopy {
         if (use_color) render = new TerminalDiffRender(flags);
 
         var order = os.getOrder();
-        if (order.length==1) {
+        if (order.length==1 && format_preference!="json") {
             return saveTable(name,os.one(),render);
         }
         if (format_preference=="html"||format_preference=="www") {
             return renderTables(name, os);
+        }
+        if (format_preference=="json") {
+            var singular = os.singular();
+            var tables = new Map<String, Dynamic>();
+            var tweak = new Map<String, Dynamic>();
+            var result = {
+                "version": "coopy-json-0.1",
+                "schema": singular?null:jsonify(os.one()),
+                "tables": tables,
+                "tweak": tweak
+            };
+            for (i in (singular?0:1)...order.length) {
+                tables[order[i]] = jsonify(os.get(order[i]));
+            }
+            if (os.alignment!=null) {
+                var comp = os.alignment.comp;
+                for (i in 0...comp.child_order.length) {
+                    var name = comp.child_order[i];
+                    var child = comp.children[name];
+                    child.getMeta();
+                    var tab = child.b_meta.asTable();
+                    var column_names = new Array<String>();
+                    for (j in 1...tab.width) {
+                        column_names.push(tab.getCell(j, 0));
+                    }
+                    tweak[order[i+1]] = column_names;
+                }
+            }
+            return saveText(name, haxe.Json.stringify(result,null,"  "));
         }
         var need_blank = false;
         if (order.length==0 || os.hasInsDel()) {
@@ -718,6 +759,9 @@ class Coopy {
                 if (tag=="--output") {
                     more = true;
                     output = args[i+1];
+                    if (!output_format_set) {
+                        output_format = checkFormat(output);
+                    }
                     args.splice(i,2);
                     break;
                 } else if (tag=="--css") {
@@ -1021,11 +1065,7 @@ class Coopy {
 
         var ok : Bool = true;
         if (cmd=="diff") {
-            if (!order_set) {
-                flags.ordered = order_preference;
-                if (!flags.ordered) flags.unchanged_context = 0;
-            }
-            flags.allow_nested_cells = nested_output;
+            updateNesting();
             runDiff(parent,a,b,flags,output);
         } else if (cmd=="patch") {
             var patcher : HighlightPatch = new HighlightPatch(a,b);
@@ -1097,7 +1137,6 @@ class Coopy {
 
 
     private static function jsonify(t: Table) : Dynamic {
-        var workbook : Map<String,Dynamic> = new Map<String,Dynamic>();
         var sheet : Array<Array<Dynamic>> = new Array<Array<Dynamic>>();
         var w : Int = t.width;
         var h : Int = t.height;
@@ -1110,8 +1149,7 @@ class Coopy {
             }
             sheet.push(row);
         }
-        workbook.set("sheet",sheet);
-        return workbook;
+        return sheet;
     }
 
     /**

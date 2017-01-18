@@ -1070,6 +1070,8 @@ class TableDiff {
         var order = align.comp.child_order;
         if (order==null) return true;
         output.alignment = align;
+        output.column_units = column_units;
+        align.comp.getMeta();
         for (name in order) {
             var child = align.comp.children.get(name);
             var alignment = child.alignment;
@@ -1080,6 +1082,8 @@ class TableDiff {
             var td = new TableDiff(alignment,flags);
             var child_output = output.add(name);
             result = result && td.hiliteSingle(child_output);
+            child.column_units = td.column_units;
+            child.getMeta();
         }
         return result;
     }

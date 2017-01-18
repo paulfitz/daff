@@ -222,7 +222,7 @@ clean:
 ## cross-target tests, with tests written in haxe
 ##
 
-ntest: ntest_js ntest_rb ntest_py ntest_php ntest_java
+ntest: ntest_js ntest_py ntest_php ntest_java
 
 ntest_js: js
 	haxe -js ntest.js -D haxeJSON -main harness.Main
