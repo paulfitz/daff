@@ -26,7 +26,7 @@ class Main {
             cases.push(new SqlTest());
         }
 
-        var filter = "";
+        var filter = "Json";
         for (c in cases) {
             var name = Type.getClassName(Type.getClass(c));
             if (filter=="" || name.indexOf(filter)>=0) {

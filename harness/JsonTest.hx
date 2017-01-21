@@ -61,4 +61,53 @@ class JsonTest extends haxe.unit.TestCase {
         assertEquals(111,t.getCell(ca,3));
         assertEquals(222,t.getCell(cb,3));
     }
+
+    public function testJsonTables(){
+        var tab1 = {
+            "names": ["t1", "t2"],
+            "tables": {
+                "t1": {
+                    "columns": ["c1", "c2"],
+                    "rows": [{
+                            "c1": 1, "c2": "one"
+                        }, {
+                            "c1": 2, "c2": "two"
+                        }]
+                },
+                "t2": {
+                    "columns": ["c1", "c2"],
+                    "rows": [{
+                            "c1": 1, "c2": "one"
+                        }, {
+                            "c1": 2, "c2": "two"
+                        }]
+                }
+            }
+        }
+        var jtab1 = new coopy.JsonTables(tab1, null);
+        var tab2 = {
+            "names": ["t1", "t2"],
+            "tables": {
+                "t1": {
+                    "columns": ["c1", "c2"],
+                    "rows": [{
+                            "c1": 1, "c2": "one"
+                        }, {
+                            "c1": 2, "c2": "three"
+                        }]
+                },
+                "t2": {
+                    "columns": ["c1", "c2"],
+                    "rows": [{
+                            "c1": 1, "c2": "one"
+                        }, {
+                            "c1": 2, "c2": "two"
+                        }]
+                }
+            }
+        }
+        var jtab2 = new coopy.JsonTables(tab2, null);
+        var diff = coopy.Coopy.diff(jtab1, jtab2);
+        trace(diff);
+    }
 }
