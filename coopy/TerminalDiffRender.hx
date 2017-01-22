@@ -20,8 +20,10 @@ class TerminalDiffRender {
     private var wide_columns : Bool;
     private var use_glyphs : Bool;
     private var flags : CompareFlags;
+    private var delim : String;
+    private var diff : Bool;
 
-    public function new(flags: CompareFlags = null) {
+    public function new(flags: CompareFlags = null, delim: String = null, diff : Bool = true) {
         align_columns = true;
         wide_columns = false;
         use_glyphs = true;
@@ -35,6 +37,8 @@ class TerminalDiffRender {
             }
             use_glyphs = flags.use_glyphs;
         }
+        this.delim = (delim!=null) ? delim : ",";
+        this.diff = diff;
     }
 
 
@@ -66,14 +70,18 @@ class TerminalDiffRender {
 
         codes = new Map<String,String>();
         codes.set("header","\x1b[0;1m");
+        if (diff) {
+            codes.set("minor","\x1b[2m");
+        } else {
+            codes.set("minor","\x1b[33m");
+        }
+        codes.set("done","\x1b[0m");
         codes.set("meta","\x1b[0;1m");
         codes.set("spec","\x1b[35;1m");
         codes.set("add","\x1b[32;1m");
         codes.set("conflict","\x1b[33;1m");
         codes.set("modify","\x1b[34;1m");
         codes.set("remove","\x1b[31;1m");
-        codes.set("minor","\x1b[2m");
-        codes.set("done","\x1b[0m");
 
         var sizes = null;
         if (align_columns) sizes = pickSizes(t);
@@ -82,15 +90,15 @@ class TerminalDiffRender {
             var target = 0;
             var at = 0;
             for (x in 0...w) {
-                if (x>0) {
-                    txt += codes["minor"] + "," + codes["done"];
-                }
                 if (sizes!=null) {
                     var spaces = target-at;
                     for (i in 0...spaces) {
                         txt += " ";
                         at++;
                     }
+                }
+                if (x>0) {
+                    txt += codes["minor"] + delim + codes["done"];
                 }
                 txt += getText(x,y,true);
                 if (sizes!=null) {
@@ -111,7 +119,7 @@ class TerminalDiffRender {
     private function getText(x: Int, y: Int, color: Bool) : String {
         var val : Dynamic = t.getCell(x,y);
         var cell = DiffRender.renderCell(t,v,x,y);
-        if (color) {
+        if (color && diff) {
             var code = null;
             if (cell.category!=null) {
                 code = codes[cell.category];
@@ -131,6 +139,10 @@ class TerminalDiffRender {
                     val = use_glyphs ? cell.pretty_value : cell.value;
                     val = code + val + codes["done"];
                 }
+            }
+        } else if (color && !diff) {
+            if (y==0) {
+                val = codes["header"] + val + codes["done"];
             }
         } else {
             val = use_glyphs ? cell.pretty_value : cell.value;
@@ -154,7 +166,10 @@ class TerminalDiffRender {
             var mmin : Int = -1;
             for (y in 0...h) {
                 var txt = getText(x,y,false);
-                if (txt=="@@"&&row==-1) {
+                if (txt=="@@"&&row==-1&&diff) {
+                    row = y;
+                }
+                if (row==-1&&!diff) {
                     row = y;
                 }
                 var len = txt.length;

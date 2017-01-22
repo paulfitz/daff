@@ -244,6 +244,15 @@ class Coopy {
                 case "ssv":
                     format_preference = "csv";
                     delim_preference = ";";
+					this.format_preference = "csv";
+                case "psv":
+                    format_preference = "csv";
+#if js
+                    io.writeStderr("javascript utf8 for astral planes is poop https://mathiasbynens.be/notes/javascript-unicode");
+                    throw "pooping out";
+#else
+					delim_preference = "💩";
+#end
                 case "sqlite3":
                     format_preference = "sqlite";
                 case "sqlite":
@@ -338,14 +347,14 @@ class Coopy {
         return txt;
     }
 
-    private function saveTables(name: String, os: Tables, use_color: Bool) : Bool {
+    private function saveTables(name: String, os: Tables, use_color: Bool, is_diff: Bool) : Bool {
         if (output_format!="copy") {
             setFormat(output_format);
         }
         var txt : String = "";
         checkFormat(name);
         var render : TerminalDiffRender = null;
-        if (use_color) render = new TerminalDiffRender(flags);
+        if (use_color) render = new TerminalDiffRender(flags, delim_preference, is_diff);
 
         var order = os.getOrder();
         if (order.length==1) {
@@ -445,6 +454,19 @@ class Coopy {
         return output;
     }
 
+    private function useColor(flags: CompareFlags, output: String) : Bool {
+        var use_color = flags.terminal_format == "ansi";
+        if (flags.terminal_format == null) {
+            if ((output==null || output=="-") && 
+                (output_format=="copy"||output_format=="csv"||output_format=="psv")) {
+                if (io!=null) {
+                    if (io.isTtyKnown()) use_color = io.isTty();
+                }
+            }
+        }
+        return use_color;
+    }
+
     private function runDiff(parent: Table, a: Table, b: Table, flags: CompareFlags,
                              output: String) {
         var ct : CompareTable = compareTables3(parent,a,b,flags);
@@ -453,15 +475,8 @@ class Coopy {
         var o = new SimpleTable(0,0);
         var os = new Tables(o);
         td.hiliteWithNesting(os);
-        var use_color = flags.terminal_format == "ansi";
-        if (flags.terminal_format == null) {
-            if ((output==null || output=="-") && (output_format=="copy"||output_format=="csv")) {
-                if (io!=null) {
-                    if (io.isTtyKnown()) use_color = io.isTty();
-                }
-            }
-        }
-        saveTables(output,os,use_color);
+        var use_color = useColor(flags,output);
+        saveTables(output,os,use_color,true);
     }
 
 
@@ -908,60 +923,71 @@ class Coopy {
                 io.writeStderr("\n");
                 return 0;
             }
-            io.writeStderr("daff can produce and apply tabular diffs.\n");
-            io.writeStderr("Call as:\n");
-            io.writeStderr("  daff [--color] [--no-color] [--output OUTPUT.csv] a.csv b.csv\n");
-            io.writeStderr("  daff [--output OUTPUT.html] a.csv b.csv\n");
-            io.writeStderr("  daff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
-            io.writeStderr("  daff [--output OUTPUT.ndjson] a.ndjson b.ndjson\n");
-            io.writeStderr("  daff [--www] a.csv b.csv\n");
-            io.writeStderr("  daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv\n");
-            io.writeStderr("  daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
-            io.writeStderr("  daff trim [--output OUTPUT.csv] source.csv\n");
-            io.writeStderr("  daff render [--output OUTPUT.html] diff.csv\n");
-            io.writeStderr("  daff copy in.csv out.tsv\n");
-            io.writeStderr("  daff git\n");
-            io.writeStderr("  daff version\n");
-            io.writeStderr("\n");
-            io.writeStderr("The --inplace option to patch and merge will result in modification of a.csv.\n");
-            io.writeStderr("\n");
-            io.writeStderr("If you need more control, here is the full list of flags:\n");
-            io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
-            io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
-            io.writeStderr("     --all:         do not prune unchanged rows or columns\n");
-            io.writeStderr("     --all-rows:    do not prune unchanged rows\n");
-            io.writeStderr("     --all-columns: do not prune unchanged columns\n");
-            io.writeStderr("     --color:       highlight changes with terminal colors (default in terminals)\n");
-            io.writeStderr("     --context NUM: show NUM rows of context\n");
-            io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
-            io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
-            io.writeStderr("     --index:       include row/columns numbers from original tables\n");
-            io.writeStderr("     --input-format [csv|tsv|ssv|json]: set format to expect for input\n");
-            io.writeStderr("     --eol [crlf|lf|cr|auto]: separator between rows of csv output.\n");
-            io.writeStderr("     --no-color:    make sure terminal colors are not used\n");
-            io.writeStderr("     --ordered:     assume row order is meaningful (default for CSV)\n");
-            io.writeStderr("     --output-format [csv|tsv|ssv|json|copy|html]: set format for output\n");
-            io.writeStderr("     --padding [dense|sparse|smart]: set padding method for aligning columns\n");
-            io.writeStderr("     --table NAME:  compare the named table, used with SQL sources\n");
-            io.writeStderr("     --unordered:   assume row order is meaningless (default for json formats)\n");
-            io.writeStderr("     -w / --ignore-whitespace: ignore changes in leading/trailing whitespace\n");
-            io.writeStderr("     -i / --ignore-case: ignore differences in case\n");
-            io.writeStderr("\n");
-            io.writeStderr("  daff render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
-            io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
-            io.writeStderr("     --fragment:    generate just a html fragment rather than a page\n");
-            io.writeStderr("     --plain:       do not use fancy utf8 characters to make arrows prettier\n");
-            io.writeStderr("     --www:         send output to a browser\n");
-            return 1;
+            if (args.length < 1) {
+                io.writeStderr("daff can produce and apply tabular diffs.\n");
+                io.writeStderr("Call as:\n");
+                io.writeStderr("  daff [--color] [--no-color] [--output OUTPUT.csv] a.csv b.csv\n");
+                io.writeStderr("  daff [--output OUTPUT.html] a.csv b.csv\n");
+                io.writeStderr("  daff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
+                io.writeStderr("  daff [--output OUTPUT.ndjson] a.ndjson b.ndjson\n");
+                io.writeStderr("  daff [--www] a.csv b.csv\n");
+                io.writeStderr("  daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv\n");
+                io.writeStderr("  daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
+                io.writeStderr("  daff trim [--output OUTPUT.csv] source.csv\n");
+                io.writeStderr("  daff render [--output OUTPUT.html] diff.csv\n");
+                io.writeStderr("  daff copy in.csv out.tsv\n");
+                io.writeStderr("  daff in.csv\n");
+                io.writeStderr("  daff git\n");
+                io.writeStderr("  daff version\n");
+                io.writeStderr("\n");
+                io.writeStderr("The --inplace option to patch and merge will result in modification of a.csv.\n");
+                io.writeStderr("\n");
+                io.writeStderr("If you need more control, here is the full list of flags:\n");
+                io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
+                io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
+                io.writeStderr("     --all:         do not prune unchanged rows or columns\n");
+                io.writeStderr("     --all-rows:    do not prune unchanged rows\n");
+                io.writeStderr("     --all-columns: do not prune unchanged columns\n");
+                io.writeStderr("     --color:       highlight changes with terminal colors (default in terminals)\n");
+                io.writeStderr("     --context NUM: show NUM rows of context\n");
+                io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
+                io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
+                io.writeStderr("     --index:       include row/columns numbers from original tables\n");
+                io.writeStderr("     --input-format [csv|tsv|ssv|psv|json]: set format to expect for input\n");
+                io.writeStderr("     --eol [crlf|lf|cr|auto]: separator between rows of csv output.\n");
+                io.writeStderr("     --no-color:    make sure terminal colors are not used\n");
+                io.writeStderr("     --ordered:     assume row order is meaningful (default for CSV)\n");
+                io.writeStderr("     --output-format [csv|tsv|ssv|psv|json|copy|html]: set format for output\n");
+                io.writeStderr("     --padding [dense|sparse|smart]: set padding method for aligning columns\n");
+                io.writeStderr("     --table NAME:  compare the named table, used with SQL sources\n");
+                io.writeStderr("     --unordered:   assume row order is meaningless (default for json formats)\n");
+                io.writeStderr("     -w / --ignore-whitespace: ignore changes in leading/trailing whitespace\n");
+                io.writeStderr("     -i / --ignore-case: ignore differences in case\n");
+                io.writeStderr("\n");
+                io.writeStderr("  daff render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
+                io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
+                io.writeStderr("     --fragment:    generate just a html fragment rather than a page\n");
+                io.writeStderr("     --plain:       do not use fancy utf8 characters to make arrows prettier\n");
+                io.writeStderr("     --www:         send output to a browser\n");
+                return 1;
+            }
         }
         var cmd : String = args[0];
         var offset : Int = 1;
-        // "diff" is optional when followed by a filename with a dot in it,
-        // or by an --option.
+        // "diff" or "copy" is optional when followed by a filename with a dot in it,
+        // or (for "diff") by a --option.
         if (!Lambda.has(["diff","patch","merge","trim","render","git","version","copy"],cmd)) {
-            if (cmd.indexOf(".")!=-1 || cmd.indexOf("--")==0) {
+            if (cmd.indexOf("--")==0) {
                 cmd = "diff";
                 offset = 0;
+            } else if (cmd.indexOf(".")!=-1) {
+                if (args.length == 2) {
+                    cmd = "diff";
+                    offset = 0;
+                } else if (args.length == 1) {
+                    cmd = "copy";
+                    offset = 0;
+                }
             }
         }
         if (cmd == "git") {
@@ -1044,7 +1070,9 @@ class Coopy {
         } else if (cmd=="render") {
             renderTable(output,a);
         } else if (cmd=="copy") {
-            saveTable(output,a);
+            var os = new Tables(a);
+            os.add("untitled");
+            saveTables(output,os,useColor(flags,output),false);
         }
         return ok?0:1;
     }

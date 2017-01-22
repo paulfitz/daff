@@ -79,11 +79,18 @@ class Csv {
         }
         var str: String = v.toString(d);
         var need_quote : Bool = false;
-        for (i in 0...str.length) {
-            var ch : String = str.charAt(i);
-            if (ch=='"'||ch=='\''||ch==delim||ch=='\r'||ch=='\n'||ch=='\t'||ch==' ') {
+        if (str.length > 0) {
+            if (str.charAt(0)==' '||str.charAt(str.length-1)==' ') {
                 need_quote = true;
-                break;
+            }
+        }
+        if (!need_quote) {
+            for (i in 0...str.length) {
+                var ch : String = str.charAt(i);
+                if (ch=='"'||ch=='\''||ch==delim||ch=='\r'||ch=='\n'||ch=='\t') {
+                    need_quote = true;
+                    break;
+                }
             }
         }
         
