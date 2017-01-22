@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
 try:
@@ -47,7 +46,7 @@ else:
         return x.__next__()
     hx_cmp_to_key = functools.cmp_to_key
 
-python_lib_Builtins = python_lib_Builtin = builtins
+python_lib_Builtin = builtins
 String = builtins.str
 python_lib_Dict = builtins.dict
 python_lib_Set = builtins.set

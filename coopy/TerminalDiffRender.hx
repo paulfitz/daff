@@ -70,11 +70,7 @@ class TerminalDiffRender {
 
         codes = new Map<String,String>();
         codes.set("header","\x1b[0;1m");
-        if (diff) {
-            codes.set("minor","\x1b[2m");
-        } else {
-            codes.set("minor","\x1b[33m");
-        }
+        codes.set("minor","\x1b[33m");
         codes.set("done","\x1b[0m");
         codes.set("meta","\x1b[0;1m");
         codes.set("spec","\x1b[35;1m");

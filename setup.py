@@ -34,9 +34,10 @@ setup(
     keywords="data diff patch",
     url=package['url'],
     packages=['daff'],
+    scripts=['daff.py'],
     entry_points={
         "console_scripts": [
-            "daff=daff.__main__:main"
+            "daff=daff:main"
         ]
     },
     long_description=read('README.md'),

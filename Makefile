@@ -134,6 +134,7 @@ py2: py
 	sed -i '14iimport codecs' python_bin/daff.py
 	sed -i 's/.*stream.writable.*//' python_bin/daff.py
 	sed -i 's/.*Read only stream.*//' python_bin/daff.py
+	sed -i 's/python_lib_Builtins/python_lib_Builtin/g' python_bin/daff.py
 	sed -i 's/python_lib_Builtin.open(path,.r.*)/codecs.open(path,"r","utf-8")/' python_bin/daff.py
 	sed -i 's/python_lib_Builtin.open(path,.w.*)/codecs.open(path,"w","utf-8")/' python_bin/daff.py
 	sed -i 's/= \([a-z0-9_.]*\)\.next()/= hxnext(\1)/' python_bin/daff.py
@@ -296,10 +297,13 @@ integration: js py
 
 setup_py: best_py
 	mkdir -p daff
-	cp python_bin/daff.py daff/__init__.py
-	echo "import daff\ndef main():\n\tdaff.Coopy.main()" > daff/__main__.py
+	echo "# -*- coding: utf-8 -*-" > daff/__init__.py
+	cat python_bin/daff.py >> daff/__init__.py
 	echo "#!/usr/bin/env python" > daff.py
+	echo "# -*- coding: utf-8 -*-" >> daff.py
 	cat python_bin/daff.py >> daff.py # wasteful but robust
+	echo "def main():\n\tCoopy.main()" >> daff.py
+	echo "def main():\n\tCoopy.main()" >> daff/__init__.py
 
 sdist: setup_py
 	rm -rf dist
