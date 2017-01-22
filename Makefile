@@ -116,10 +116,12 @@ py:
 	cat scripts/python_table_view.py >> python_bin/daff.py
 	cat env/py/export_functions.py >> python_bin/daff.py
 	cat env/py/sqlite_database.py >> python_bin/daff.py
-	echo "if __name__ == '__main__':" >> python_bin/daff.py
-	echo "\tCoopy.main()" >> python_bin/daff.py
 	sed -i 's/Sys.stdout().writeString(txt)/get_stdout().write(txt.encode("utf-8", "strict"))/' python_bin/daff.py # fix utf-8
 	sed -i 's/python_lib_Sys.stdout.buffer/get_stdout()/' python_bin/daff.py
+	echo 'def get_stdout():\n\treturn (python_lib_Sys.stdout.buffer if hasattr(python_lib_Sys.stdout,"buffer") else python_lib_Sys.stdout)' >> python_bin/daff.py
+	echo "if __name__ == '__main__':" >> python_bin/daff.py
+	echo "\tCoopy.main()" >> python_bin/daff.py
+
 	cp scripts/example.py python_bin/
 	@echo 'Output in python_bin, run "python3 python_bin/daff.py" for an example utility'
 	@echo 'or try "python3 python_bin/example.py" for an example of using daff as a library'
@@ -295,6 +297,7 @@ integration: js py
 setup_py: best_py
 	mkdir -p daff
 	cp python_bin/daff.py daff/__init__.py
+	echo "import daff\ndef main():\n\tdaff.Coopy.main()" > daff/__main__.py
 	echo "#!/usr/bin/env python" > daff.py
 	cat python_bin/daff.py >> daff.py # wasteful but robust
 
