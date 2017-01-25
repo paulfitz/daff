@@ -87,9 +87,30 @@ class Csv {
         if (!need_quote) {
             for (i in 0...str.length) {
                 var ch : String = str.charAt(i);
-                if (ch=='"'||ch=='\''||ch==delim||ch=='\r'||ch=='\n'||ch=='\t') {
+                if (ch=='"'||ch=='\''||ch=='\r'||ch=='\n'||ch=='\t') {
                     need_quote = true;
                     break;
+                }
+                if (ch==delim.charAt(0)) {
+                    if (delim.length==1) {
+                        need_quote = true;
+                        break;
+                    }
+                    // handle multi-char delims, like poop emoji in
+                    // javascript
+                    if (i+delim.length<=str.length) {
+                        var match = true;
+                        for (j in 1...delim.length) {
+                            if (str.charAt(i+j)!=delim.charAt(j)) {
+                                match = false;
+                                break;
+                            }
+                        }
+                        if (match) {
+                            need_quote = true;
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -201,7 +222,22 @@ class Csv {
             if (has_structure) {
                 if (!quoting) {
                     if (ch==delim.charCodeAt(0)) {
-                        break;
+                        if (delim.length==1) {
+                            break;
+                        }
+                        if (i+delim.length<=txt.length) {
+                            var match = true;
+                            for (j in 1...delim.length) {
+                                if (txt.charAt(i+j)!=delim.charAt(j)) {
+                                    match = false;
+                                    break;
+                                }
+                            }
+                            if (match) {
+                                last_processed+=delim.length-1;
+                                break;
+                            }
+                        }
                     }
                     if (ch=="\r".code || ch=="\n".code) {
                         var ch2: Null<Int> = txt.charCodeAt(i+1);

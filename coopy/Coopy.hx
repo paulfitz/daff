@@ -248,10 +248,9 @@ class Coopy {
                 case "psv":
                     format_preference = "csv";
 #if js
-                    io.writeStderr("javascript utf8 for astral planes is poop https://mathiasbynens.be/notes/javascript-unicode");
-                    throw "pooping out";
+                    delim_preference = untyped __js__('String.fromCharCode(0xD83D, 0xDCA9)');
 #else
-					delim_preference = "💩";
+                    delim_preference = String.fromCharCode(0x1F4A9);
 #end
                 case "sqlite3":
                     format_preference = "sqlite";
