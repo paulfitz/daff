@@ -72,6 +72,19 @@ class BasicTest extends haxe.unit.TestCase {
         assertEquals("\"",tab.getCell(1,2));
     }
 
+    public function testCSVLongDelim() {
+        var txt = "nameBORKage\n\"BORK\"BORKBOR\n";
+        var tab = Native.table([]);
+        var csv = new coopy.Csv("BORK");
+        csv.parseTable(txt,tab);
+        assertEquals(2,tab.height);
+        assertEquals(2,tab.width);
+        assertEquals("name",tab.getCell(0,0));
+        assertEquals("age",tab.getCell(1,0));
+        assertEquals("BORK",tab.getCell(0,1));
+        assertEquals("BOR",tab.getCell(1,1));
+    }
+
     public function testEmpty() {
         var table1 = Native.table(data1);
         var table2 = Native.table([]);
