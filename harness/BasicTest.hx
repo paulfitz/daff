@@ -165,4 +165,13 @@ class BasicTest extends haxe.unit.TestCase {
                                 "2,green\n");
         assertEquals(tab.width,2);
     }
+
+    public function testShowChanged() {
+        var table1 = Native.table(data1);
+        var flags = new coopy.CompareFlags();
+        flags.show_unchanged = true;
+        var table = coopy.Coopy.diff(table1,table1,flags);
+        assertEquals(4,table.height);
+        assertEquals(3,table.width);
+    }
 }
