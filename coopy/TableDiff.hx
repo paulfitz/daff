@@ -1001,8 +1001,9 @@ class TableDiff {
                 publish = flags.show_unchanged;
                 var dummy : Bool = false;
                 if (out==1) {
-                    publish = active_row[i]>0;
-                    dummy = active_row[i]==3;
+                    var value: Null<Int> = active_row[i];
+                    publish = value!=null && value>0;
+                    dummy = value!=null && value==3;
                     if (dummy&&showed_dummy) continue;
                     if (!publish) continue;
                 }
