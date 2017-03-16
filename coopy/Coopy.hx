@@ -159,6 +159,29 @@ class Coopy {
     }
 
     /**
+     * Compare and visualize two tables in the typical case.
+     *
+     * @param local the reference version of the table
+     * @param remote another version of the table
+     * @param flags control how the comparison will be made
+     * @return a string you can print to html or terminal
+     *
+     */
+    static public function compareAndRenderTables(local: Table, remote: Table, ?flags: CompareFlags) : CompareTable {
+        var comp : TableComparisonState = new TableComparisonState();
+        comp.a = local;
+        comp.b = remote;
+        comp.compare_flags = flags;
+        var ct: CompareTable = new CompareTable(comp);
+        var align : Alignment = ct.align();
+        var td : TableDiff = new TableDiff(align,flags);
+        var o = new SimpleTable(0,0);
+        td.hilite(o);
+        var render = new TerminalDiffRender();
+        return render.render(o);
+    }
+
+    /**
      *
      * Prepare to compare two tables.
      *
