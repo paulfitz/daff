@@ -62,6 +62,16 @@ class TableDiff {
     private var schema_diff_found : Bool;
     private var preserve_columns : Bool;
 
+    private var row_deletes : Int;
+    private var row_inserts : Int;
+    private var row_updates : Int;
+    private var row_reorders : Int;
+
+    private var col_deletes : Int;
+    private var col_inserts : Int;
+    private var col_renames : Int;
+    private var col_reorders : Int;
+
     private var nested : Bool;
     private var nesting_present : Bool;
 
@@ -260,6 +270,14 @@ class TableDiff {
         top_line_done = false;
         diff_found = false;
         schema_diff_found = false;
+        row_deletes = 0;
+        row_inserts = 0;
+        row_updates = 0;
+        row_reorders = 0;
+        col_deletes = 0;
+        col_inserts = 0;
+        col_renames = 0;
+        col_reorders = 0;
     }
 
     private function setupTables() : Void {
@@ -401,14 +419,20 @@ class TableDiff {
                 have_schema = true;
                 act = "+++";
                 if (active_column!=null) {
-                    if (allow_update) active_column[j] = 1;
+                    if (allow_update) {
+                        active_column[j] = 1;
+                        col_inserts++;
+                    }
                 }
             }
             if (cunit.r<0 && cunit.lp()>=0) {
                 have_schema = true;
                 act = "---";
                 if (active_column!=null) {
-                    if (allow_update) active_column[j] = 1;
+                    if (allow_update) {
+                        active_column[j] = 1;
+                        col_deletes++;
+                    }
                 }
             }
             if (cunit.r>=0 && cunit.lp()>=0) {
@@ -420,7 +444,10 @@ class TableDiff {
                         act = "(";
                         act += v.toString(pp);
                         act += ")";
-                        if (active_column!=null) active_column[j] = 1;
+                        if (active_column!=null) {
+                            active_column[j] = 1;
+                            col_renames++;
+                        }
                     }
                 }
             }
@@ -428,6 +455,7 @@ class TableDiff {
                 act = ":" + act;
                 have_schema = true;
                 if (active_column!=null) active_column = null; // bail
+                col_reorders++;
             }
 
             schema.push(act);
@@ -756,7 +784,8 @@ class TableDiff {
      * @param i the index of the row unit
      *
      */
-    private function scanRow(unit: Unit, output: Table, at: Int, i: Int) {
+    private function scanRow(unit: Unit, output: Table, at: Int, i: Int, out: Int) {
+        var row_update : Bool = false;
         for (j in 0...column_units.length) {
             var cunit : Unit = column_units[j];
             var pp : Dynamic = null;
@@ -847,6 +876,10 @@ class TableDiff {
 
             var cell : Dynamic = dd;
             if (have_dd_to&&allow_update) {
+                if (!row_update) {
+                    if (out==0) row_updates++;
+                    row_update = true;
+                }
                 if (active_column!=null) {
                     active_column[j] = 1;
                 }
@@ -1029,15 +1062,20 @@ class TableDiff {
                 var skip : Bool = false;
                 
                 act = "";
-                if (reordered) act = ":";
+                if (reordered) {
+                    act = ":";
+                    if (out==0) row_reorders++;
+                }
 
                 if (unit.p<0 && unit.l<0 && unit.r>=0) {
                     if (!allow_insert) skip = true;
                     act = "+++";
+                    if (out==0 && !skip) row_inserts++;
                 }
                 if ((unit.p>=0||!has_parent) && unit.l>=0 && unit.r<0) {
                     if (!allow_delete) skip = true;
                     act = "---";
+                    if (out==0 && !skip) row_deletes++;
                 }
 
                 if (skip) {
@@ -1049,7 +1087,7 @@ class TableDiff {
                     continue;
                 }
 
-                scanRow(unit,output,at,i);
+                scanRow(unit,output,at,i,out);
             }
         }
 
@@ -1110,6 +1148,31 @@ class TableDiff {
     public function getComparisonState() : TableComparisonState {
         if (align==null) return null;
         return align.comp;
+    }
+
+    /**
+     *
+     * Get statistics of the diff - number of rows deleted, updated,
+     * etc.
+     *
+     */
+    public function getSummary() : DiffSummary {
+        var ds = new DiffSummary();
+        ds.row_deletes = row_deletes;
+        ds.row_inserts = row_inserts;
+        ds.row_updates = row_updates;
+        ds.row_reorders = row_reorders;
+        ds.col_deletes = col_deletes;
+        ds.col_inserts = col_inserts;
+        ds.col_renames = col_renames;
+        ds.col_reorders = col_reorders;
+        ds.row_count_initial_with_header = align.getSource().height;
+        ds.row_count_final_with_header = align.getTarget().height;
+        ds.row_count_initial = align.getSource().height - align.getSourceHeader() - 1;
+        ds.row_count_final = align.getTarget().height - align.getTargetHeader() - 1;
+        ds.col_count_initial = align.getSource().width;
+        ds.col_count_final = align.getTarget().width;
+        return ds;
     }
 }
 

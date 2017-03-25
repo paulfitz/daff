@@ -39,6 +39,36 @@ class BasicTest extends haxe.unit.TestCase {
         var highlighter = new coopy.TableDiff(alignment,flags);
         highlighter.hilite(table_diff);
         assertEquals(""+table_diff.getCell(0,4),"->");
+        assertTrue(highlighter.hasDifference());
+        var summary = highlighter.getSummary();
+        assertEquals(summary.row_deletes, 0);
+        assertEquals(summary.row_inserts, 1);
+        assertEquals(summary.row_updates, 1);
+        assertEquals(summary.col_deletes, 0);
+        assertEquals(summary.col_inserts, 1);
+        assertEquals(summary.row_count_initial_with_header, 4);
+        assertEquals(summary.row_count_final_with_header, 5);
+        assertEquals(summary.row_count_initial, 3);
+        assertEquals(summary.row_count_final, 4);
+        assertEquals(summary.col_count_initial, 2);
+        assertEquals(summary.col_count_final, 3);
+    }
+
+    public function testBasicReversed(){
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data2);
+        var alignment = coopy.Coopy.compareTables(table2,table1).align();
+        var data_diff = [];
+        var table_diff = Native.table(data_diff);
+        var flags = new coopy.CompareFlags();
+        var highlighter = new coopy.TableDiff(alignment,flags);
+        highlighter.hilite(table_diff);
+        var summary = highlighter.getSummary();
+        assertEquals(summary.row_deletes, 1);
+        assertEquals(summary.row_inserts, 0);
+        assertEquals(summary.row_updates, 1);
+        assertEquals(summary.col_deletes, 1);
+        assertEquals(summary.col_inserts, 0);
     }
 
     public function testBasicModern(){
