@@ -69,8 +69,10 @@ class TableDiff {
 
     private var col_deletes : Int;
     private var col_inserts : Int;
+    private var col_updates : Int;
     private var col_renames : Int;
     private var col_reorders : Int;
+    private var column_units_updated : Map<Int,Bool>;
 
     private var nested : Bool;
     private var nesting_present : Bool;
@@ -276,8 +278,10 @@ class TableDiff {
         row_reorders = 0;
         col_deletes = 0;
         col_inserts = 0;
+        col_updates = 0;
         col_renames = 0;
         col_reorders = 0;
+        column_units_updated = new Map<Int,Bool>();
     }
 
     private function setupTables() : Void {
@@ -918,6 +922,10 @@ class TableDiff {
                     cell = builder.conflict(dd,dd_to_alt,dd_to);
                     act = conflict_sep;
                 }
+                if (!column_units_updated.exists(j)) {
+                    column_units_updated.set(j,true);
+                    col_updates++;
+                }
             }
             if (act == "" && have_addition) {
                 act = "+";
@@ -1164,6 +1172,7 @@ class TableDiff {
         ds.row_reorders = row_reorders;
         ds.col_deletes = col_deletes;
         ds.col_inserts = col_inserts;
+        ds.col_updates = col_updates;
         ds.col_renames = col_renames;
         ds.col_reorders = col_reorders;
         ds.row_count_initial_with_header = align.getSource().height;

@@ -18,6 +18,7 @@ class DiffSummary {
 
     public var col_deletes : Int;
     public var col_inserts : Int;
+    public var col_updates : Int;
     public var col_renames : Int;
     public var col_reorders : Int;
 

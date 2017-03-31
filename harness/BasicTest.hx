@@ -7,6 +7,7 @@ class BasicTest extends haxe.unit.TestCase {
     var data2 : Array<Array<Dynamic>>;
     var data3 : Array<Array<Dynamic>>;
     var data4 : Array<Array<Dynamic>>;
+    var data5 : Array<Array<Dynamic>>;
 
     override public function setup() {
         data1 = [['Country','Capital'],
@@ -27,6 +28,11 @@ class BasicTest extends haxe.unit.TestCase {
                  ['France','fr','Paris',1],
                  ['Spain','es','Madrid',1],
                  ['Germany','de','Berlin',null]];
+        data5 = [['Country','Code','Capital'],
+                 ['Ireland','xie','Dublinx'],
+                 ['France','xfr','Parisx'],
+                 ['Spain','es','Madridx'],
+                 ['Germany','de','Berlinx']];
     }
 
     public function testBasic(){
@@ -41,17 +47,18 @@ class BasicTest extends haxe.unit.TestCase {
         assertEquals(""+table_diff.getCell(0,4),"->");
         assertTrue(highlighter.hasDifference());
         var summary = highlighter.getSummary();
-        assertEquals(summary.row_deletes, 0);
-        assertEquals(summary.row_inserts, 1);
-        assertEquals(summary.row_updates, 1);
-        assertEquals(summary.col_deletes, 0);
-        assertEquals(summary.col_inserts, 1);
-        assertEquals(summary.row_count_initial_with_header, 4);
-        assertEquals(summary.row_count_final_with_header, 5);
-        assertEquals(summary.row_count_initial, 3);
-        assertEquals(summary.row_count_final, 4);
-        assertEquals(summary.col_count_initial, 2);
-        assertEquals(summary.col_count_final, 3);
+        assertEquals(summary.row_deletes,0);
+        assertEquals(summary.row_inserts,1);
+        assertEquals(summary.row_updates,1);
+        assertEquals(summary.col_deletes,0);
+        assertEquals(summary.col_inserts,1);
+        assertEquals(summary.col_updates,1);
+        assertEquals(summary.row_count_initial_with_header,4);
+        assertEquals(summary.row_count_final_with_header,5);
+        assertEquals(summary.row_count_initial,3);
+        assertEquals(summary.row_count_final,4);
+        assertEquals(summary.col_count_initial,2);
+        assertEquals(summary.col_count_final,3);
     }
 
     public function testBasicReversed(){
@@ -64,11 +71,12 @@ class BasicTest extends haxe.unit.TestCase {
         var highlighter = new coopy.TableDiff(alignment,flags);
         highlighter.hilite(table_diff);
         var summary = highlighter.getSummary();
-        assertEquals(summary.row_deletes, 1);
-        assertEquals(summary.row_inserts, 0);
-        assertEquals(summary.row_updates, 1);
-        assertEquals(summary.col_deletes, 1);
-        assertEquals(summary.col_inserts, 0);
+        assertEquals(summary.row_deletes,1);
+        assertEquals(summary.row_inserts,0);
+        assertEquals(summary.row_updates,1);
+        assertEquals(summary.col_deletes,1);
+        assertEquals(summary.col_inserts,0);
+        assertEquals(summary.col_updates,1);
     }
 
     public function testBasicModern(){
@@ -203,5 +211,18 @@ class BasicTest extends haxe.unit.TestCase {
         var table = coopy.Coopy.diff(table1,table1,flags);
         assertEquals(4,table.height);
         assertEquals(3,table.width);
+    }
+
+    public function testCountColumnChanges() {
+        var table1 = Native.table(data2);
+        var table2 = Native.table(data5);
+        var alignment = coopy.Coopy.compareTables(table1,table2).align();
+        var data_diff = [];
+        var table_diff = Native.table(data_diff);
+        var flags = new coopy.CompareFlags();
+        var highlighter = new coopy.TableDiff(alignment,flags);
+        highlighter.hilite(table_diff);
+        var summary = highlighter.getSummary();
+        assertEquals(summary.col_updates,2);
     }
 }
