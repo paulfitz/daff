@@ -65,6 +65,9 @@ class HighlightPatch implements Row {
     private var finished_columns : Bool;
     private var meta : Meta;
 
+    private var patch_to_source_assignment : Map<Int,Int>;
+    private var source_to_patch_assignment : Map<Int,Int>;
+
     /**
      *
      * Constructor.
@@ -117,6 +120,9 @@ class HighlightPatch implements Row {
         next_meta = null;
 
         finished_columns = false;
+
+        patch_to_source_assignment = new Map<Int, Int>();
+        source_to_patch_assignment = new Map<Int, Int>();
     }
 
     private function processMeta() {
@@ -363,6 +369,7 @@ class HighlightPatch implements Row {
         var result : Int = -1;
         currentRow += del;
         if (currentRow>=0 && currentRow<patch.height) {
+            var best_match : CrossMatch = null;
             for (idx in indexes) {
                 var match : CrossMatch = idx.queryByContent(this);
                 if (match.spot_a == 0) continue;
@@ -370,19 +377,28 @@ class HighlightPatch implements Row {
                     result = match.item_a.value();
                     break;
                 }
-                if (currentRow>0) {
-                    var prev : Null<Int> = patchInSourceRow.get(currentRow-1);
-                    if (prev!=null) {
-                        var lst : Array<Int> = match.item_a.asList();
-                        for (row in lst) {
-                            if (row == prev+1) {
-                                result = row;
-                                break;
-                            }
+                if (best_match==null) {
+                    best_match = match;
+                } else if (match.spot_a<best_match.spot_a) {
+                    best_match = match;
+                }
+            }
+            if (result==-1&&best_match!=null&&currentRow>0) {
+                if (patch_to_source_assignment.exists(currentRow)) {
+                    result = patch_to_source_assignment.get(currentRow);
+                } else {
+                    var lst : Array<Int> = best_match.item_a.asList();
+                    for (cursor in 0...lst.length) {
+                        var speculation = lst[cursor];
+                        if (!source_to_patch_assignment.exists(speculation)) {
+                            result = speculation;
+                            patch_to_source_assignment.set(currentRow,result);
+                            source_to_patch_assignment.set(currentRow,result);
+                            break;
                         }
                     }
                 }
-            }
+            }    
         }
         patchInSourceRow[currentRow] = result;
         currentRow -= del;
