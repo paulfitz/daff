@@ -425,8 +425,10 @@ class TableDiff {
                 if (active_column!=null) {
                     if (allow_update) {
                         active_column[j] = 1;
-                        col_inserts++;
                     }
+                }
+                if (allow_update) {
+                    col_inserts++;
                 }
             }
             if (cunit.r<0 && cunit.lp()>=0) {
@@ -435,8 +437,10 @@ class TableDiff {
                 if (active_column!=null) {
                     if (allow_update) {
                         active_column[j] = 1;
-                        col_deletes++;
                     }
+                }
+                if (allow_update) {
+                    col_deletes++;
                 }
             }
             if (cunit.r>=0 && cunit.lp()>=0) {

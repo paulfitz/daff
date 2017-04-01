@@ -8,6 +8,7 @@ class BasicTest extends haxe.unit.TestCase {
     var data3 : Array<Array<Dynamic>>;
     var data4 : Array<Array<Dynamic>>;
     var data5 : Array<Array<Dynamic>>;
+    var data6 : Array<Array<Dynamic>>;
 
     override public function setup() {
         data1 = [['Country','Capital'],
@@ -33,6 +34,11 @@ class BasicTest extends haxe.unit.TestCase {
                  ['France','xfr','Parisx'],
                  ['Spain','es','Madridx'],
                  ['Germany','de','Berlinx']];
+        data6 = [['Country','Time','Code','Capital','Golfers'],
+                 ['Ireland',0,'ie','Baile Atha Cliath',1000],
+                 ['France',1,'fr','Paris',10000],
+                 ['Spain',1,'es','Madrid',2000],
+                 ['Germany',null,'de','Berlin',2]];
     }
 
     public function testBasic(){
@@ -224,5 +230,35 @@ class BasicTest extends haxe.unit.TestCase {
         highlighter.hilite(table_diff);
         var summary = highlighter.getSummary();
         assertEquals(summary.col_updates,2);
+    }
+
+    public function testCountAddAndMoveColumns() {
+        var table1 = Native.table(data4);
+        var table2 = Native.table(data6);
+        var alignment = coopy.Coopy.compareTables(table1,table2).align();
+        var data_diff = [];
+        var table_diff = Native.table(data_diff);
+        var flags = new coopy.CompareFlags();
+        var highlighter = new coopy.TableDiff(alignment,flags);
+        highlighter.hilite(table_diff);
+        var summary = highlighter.getSummary();
+        assertEquals(summary.col_inserts,1);
+        assertEquals(summary.col_reorders,1);
+        assertEquals(summary.col_deletes,0);
+    }
+
+    public function testCountAddAndMoveColumnsReversed() {
+        var table1 = Native.table(data6);
+        var table2 = Native.table(data4);
+        var alignment = coopy.Coopy.compareTables(table1,table2).align();
+        var data_diff = [];
+        var table_diff = Native.table(data_diff);
+        var flags = new coopy.CompareFlags();
+        var highlighter = new coopy.TableDiff(alignment,flags);
+        highlighter.hilite(table_diff);
+        var summary = highlighter.getSummary();
+        assertEquals(summary.col_inserts,0);
+        assertEquals(summary.col_reorders,1);
+        assertEquals(summary.col_deletes,1);
     }
 }
