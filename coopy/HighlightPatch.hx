@@ -393,7 +393,7 @@ class HighlightPatch implements Row {
                         if (!source_to_patch_assignment.exists(speculation)) {
                             result = speculation;
                             patch_to_source_assignment.set(currentRow,result);
-                            source_to_patch_assignment.set(currentRow,result);
+                            source_to_patch_assignment.set(result,currentRow);
                             break;
                         }
                     }

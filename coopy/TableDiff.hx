@@ -913,6 +913,25 @@ class TableDiff {
             if (!publish) {
                 if (active_row!=null) {
                     active_row[i] = 1;
+                    if (align!=null&&unit.l>=0) {
+                        if (align.indexes!=null) {
+                            var best_match : CrossMatch = null;
+                            for (idx in align.indexes) {
+                                var match : CrossMatch = idx.queryLocal(unit.l);
+                                if (match.spot_a<=1) continue;
+                                if (best_match==null) {
+                                    best_match = match;
+                                } else if (match.spot_a<best_match.spot_a) {
+                                    best_match = match;
+                                }
+                            }
+                            if (best_match!=null) {
+                                for (ii in best_match.item_a.asList()) {
+                                    active_row[ii] = 1;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

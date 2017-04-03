@@ -118,6 +118,8 @@ class CompareTable {
 
     private function alignCore2(align: Alignment,
                                 a: Table, b: Table) : Void {
+        storeIndexes();
+        align.indexes = indexes;
         if (align.meta == null) {
             align.meta = new Alignment();
         }
@@ -609,7 +611,9 @@ class CompareTable {
      *
      */
     public function storeIndexes() : Void {
-        indexes = new Array<IndexPair>();
+        if (indexes==null) {
+            indexes = new Array<IndexPair>();
+        }
     }
 
     /**

@@ -30,6 +30,7 @@ class Alignment {
     public var comp: TableComparisonState;
     public var has_addition : Bool;
     public var has_removal : Bool;
+    public var indexes : Array<IndexPair>;
 
     public function new() : Void {
         map_a2b = new Map<Int,Int>();
@@ -357,22 +358,43 @@ class Alignment {
         var revised_order = new Array<Unit>();
         var at_r = 0;
         var at_l = 0;
+        var p_p = -1;
+        var p_r = -1;
+        var p_l = -1;
+        var m_l = -1;
+        var m_r = -1;
         for (o in 0...top) {
             if (at_r<remotes.length && at_l<locals.length) {
                 var ur = order[remotes[at_r]];
                 var ul = order[locals[at_l]];
+                //trace(ul + " // " + ur + "    (" + p_l + "," + p_r + ";" + m_l + ")    " + revised_order);
                 if (ul.l==-1 && ul.p>=0 && ur.p>=0) {
                     if (ur.p>ul.p) {
                         revised_order.push(ul);
+                        p_p = ul.p;
+                        p_l = ul.l;
+                        p_r = ul.r;
+                        if (ul.l>m_l) m_l = ul.l;
+                        if (ul.r>m_r) m_r = ul.r;
                         at_l++;
                         continue;
                     }
-                } else if (ur.l>ul.l) {
+                } else if (ur.l>ul.l&&ul.l==m_l+1) {
                     revised_order.push(ul);
+                    p_p = ul.p;
+                    p_l = ul.l;
+                    p_r = ul.r;
+                    if (ul.l>m_l) m_l = ul.l;
+                    if (ul.r>m_r) m_r = ul.r;
                     at_l++;
                     continue;
                 }
                 revised_order.push(ur);
+                p_p = ur.p;
+                p_l = ur.l;
+                p_r = ur.r;
+                if (ur.l>m_l) m_l = ur.l;
+                if (ur.r>m_r) m_r = ur.r;
                 at_r++;
                 continue;
             }
