@@ -106,10 +106,24 @@ class CellInfo {
 
     /**
      *
+     * Local/reference cell value if applicable, with explanatory glyphs.
+     *
+     */
+    public var pretty_lvalue : String;
+
+    /**
+     *
      * Remote/changed cell value if applicable.
      *
      */
     public var rvalue : String;
+
+    /**
+     *
+     * Remote/changed cell value if applicable, with explanatory glyphs.
+     *
+     */
+    public var pretty_rvalue : String;
 
     /**
      *
