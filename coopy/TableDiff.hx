@@ -367,6 +367,26 @@ class TableDiff {
         }
     }
 
+    private function addLinearMoves(units: Array<Unit>,
+                                    moves: Map<Int,Int>) {
+        var l = -1;
+        for (i in 0...units.length) {
+            var unit = units[i];
+            if (unit.l>=0) {
+                if (unit.l==l+1) {
+                    l = unit.l;
+                    continue;
+                }
+                l = unit.l;
+                if (unit.r>=0) {
+                    if (!moves.exists(i)) {
+                        moves.set(i, -1);
+                    }
+                }
+            }
+        }
+    }
+
     private function setupMoves() {
         if (flags.ordered) {
             row_moves = new Map<Int,Int>();
@@ -374,11 +394,13 @@ class TableDiff {
             for (i in 0...moves.length) {
                 row_moves[moves[i]] = i;
             }
+            addLinearMoves(row_units, row_moves);
             col_moves = new Map<Int,Int>();
             moves = Mover.moveUnits(column_units);
             for (i in 0...moves.length) {
                 col_moves[moves[i]] = i;
             }
+            addLinearMoves(column_units, col_moves);
         }
     }
 

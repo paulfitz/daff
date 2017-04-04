@@ -49,6 +49,7 @@ class SqlTest extends haxe.unit.TestCase {
         flags = new coopy.CompareFlags();
         flags.diff_strategy = "sql";
         flags.show_meta = false;
+        flags.ordered = false;
     }
 
     private function exec(db: coopy.SqlDatabase, query: String, ?args: Array<Dynamic>) {
