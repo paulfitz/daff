@@ -294,6 +294,7 @@ class HighlightPatch implements Row {
             } else if (code.indexOf("->")>=0) {
                 applyAction("->");
             } else {
+                lookUp(0);
                 lastSourceRow = -1;
             }
         }
@@ -368,7 +369,7 @@ class HighlightPatch implements Row {
         }
         var result : Int = -1;
         currentRow += del;
-        if (currentRow>=0 && currentRow<patch.height) {
+        if (currentRow>=0 && currentRow<patch.height && indexes!=null) {
             var best_match : CrossMatch = null;
             for (idx in indexes) {
                 var match : CrossMatch = idx.queryByContent(this);
@@ -401,6 +402,7 @@ class HighlightPatch implements Row {
             }    
         }
         patchInSourceRow[currentRow] = result;
+        trace("---> " + currentRow + "  " + result);
         currentRow -= del;
         return result;
     }

@@ -65,6 +65,8 @@ class TableDiff {
     private var nested : Bool;
     private var nesting_present : Bool;
 
+    private var local_to_row_unit : Map<Int,Int>;
+
     /**
      *
      * Constructor.
@@ -260,6 +262,7 @@ class TableDiff {
         top_line_done = false;
         diff_found = false;
         schema_diff_found = false;
+        local_to_row_unit = null;
     }
 
     private function setupTables() : Void {
@@ -369,9 +372,17 @@ class TableDiff {
 
     private function addLinearMoves(units: Array<Unit>,
                                     moves: Map<Int,Int>) {
+        //trace("LINEAR MOVES");
+        //trace(units);
+        //trace(moves);
+        //return;
         var l = -1;
         for (i in 0...units.length) {
             var unit = units[i];
+            //if (moves.exists(i)) {
+            //l++;
+            //continue;
+            //}
             if (unit.l>=0) {
                 if (unit.l==l+1) {
                     l = unit.l;
@@ -379,10 +390,13 @@ class TableDiff {
                 }
                 l = unit.l;
                 if (unit.r>=0) {
-                    if (!moves.exists(i)) {
-                        moves.set(i, -1);
-                    }
+                    moves.set(i, -1);
                 }
+                if (moves.exists(i)) {
+                    l = -2;
+                }
+            } else {
+                //l = -2;
             }
         }
     }
@@ -935,23 +949,44 @@ class TableDiff {
             if (!publish) {
                 if (active_row!=null) {
                     active_row[i] = 1;
-                    if (align!=null&&unit.l>=0) {
-                        if (align.indexes!=null) {
-                            var best_match : CrossMatch = null;
-                            for (idx in align.indexes) {
-                                var match : CrossMatch = idx.queryLocal(unit.l);
-                                if (match.spot_a<=1) continue;
-                                if (best_match==null) {
-                                    best_match = match;
-                                } else if (match.spot_a<best_match.spot_a) {
-                                    best_match = match;
-                                }
+                    spreadToCopies(unit.l);
+                    if (unit.l>0) {
+                        spreadToCopies(unit.l-1);
+                    }
+                }
+            }
+        }
+    }
+
+    private function spreadToCopies(row: Int) {
+        if (align!=null&&row>=0) {
+            var indexes = has_parent ? align.reference.indexes : align.indexes;
+            if (indexes!=null) {
+                var best_match : CrossMatch = null;
+                for (idx in indexes) {
+                    var match : CrossMatch;
+                    if (has_parent) {
+                        match = idx.queryRemote(row);
+                    } else {
+                        match = idx.queryLocal(row);
+                    }
+                    if (match.spot_a<=1) continue;
+                    if (best_match==null) {
+                        best_match = match;
+                    } else if (match.spot_a<best_match.spot_a) {
+                        best_match = match;
+                    }
+                }
+                if (best_match!=null) {
+                    for (ii in best_match.item_a.asList()) {
+                        if (local_to_row_unit==null) {
+                            local_to_row_unit = new Map<Int,Int>();
+                            for (k in 0...row_units.length) {
+                                local_to_row_unit[row_units[k].l] = k;
                             }
-                            if (best_match!=null) {
-                                for (ii in best_match.item_a.asList()) {
-                                    active_row[ii] = 1;
-                                }
-                            }
+                        }
+                        if (local_to_row_unit.exists(ii)) {
+                            active_row[local_to_row_unit[ii]] = 1;
                         }
                     }
                 }
