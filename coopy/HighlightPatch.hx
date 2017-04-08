@@ -392,17 +392,27 @@ class HighlightPatch implements Row {
                     for (cursor in 0...lst.length) {
                         var speculation = lst[cursor];
                         if (!source_to_patch_assignment.exists(speculation)) {
-                            result = speculation;
-                            patch_to_source_assignment.set(currentRow,result);
-                            source_to_patch_assignment.set(result,currentRow);
-                            break;
+                            var rejected = false;
+                            for (i in 0...source.width) {
+                                if (sourceInPatchCol.exists(i)) {
+                                    if (!sourceView.equals(source.getCell(i,speculation),getRowString(i))) {
+                                        rejected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!rejected) {
+                                result = speculation;
+                                patch_to_source_assignment.set(currentRow,result);
+                                source_to_patch_assignment.set(result,currentRow);
+                                break;
+                            }
                         }
                     }
                 }
             }    
         }
         patchInSourceRow[currentRow] = result;
-        trace("---> " + currentRow + "  " + result);
         currentRow -= del;
         return result;
     }
@@ -739,6 +749,12 @@ class HighlightPatch implements Row {
             for (mod in mods) {
                 if (mod.sourceRow>=0) {
                     mod.sourceRow = rowPermutation[mod.sourceRow];
+                }
+                if (mod.sourceNextRow>=0) {
+                    mod.sourceNextRow = rowPermutation[mod.sourceNextRow];
+                }
+                if (mod.sourcePrevRow>=0) {
+                    mod.sourcePrevRow = rowPermutation[mod.sourcePrevRow];
                 }
             }
         }

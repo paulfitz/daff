@@ -66,6 +66,7 @@ class TableDiff {
     private var nesting_present : Bool;
 
     private var local_to_row_unit : Map<Int,Int>;
+    private var row_unit_to_last_local : Map<Int,Int>;
 
     /**
      *
@@ -263,6 +264,7 @@ class TableDiff {
         diff_found = false;
         schema_diff_found = false;
         local_to_row_unit = null;
+        row_unit_to_last_local = null;
     }
 
     private function setupTables() : Void {
@@ -372,17 +374,9 @@ class TableDiff {
 
     private function addLinearMoves(units: Array<Unit>,
                                     moves: Map<Int,Int>) {
-        //trace("LINEAR MOVES");
-        //trace(units);
-        //trace(moves);
-        //return;
         var l = -1;
         for (i in 0...units.length) {
             var unit = units[i];
-            //if (moves.exists(i)) {
-            //l++;
-            //continue;
-            //}
             if (unit.l>=0) {
                 if (unit.l==l+1) {
                     l = unit.l;
@@ -395,8 +389,6 @@ class TableDiff {
                 if (moves.exists(i)) {
                     l = -2;
                 }
-            } else {
-                //l = -2;
             }
         }
     }
@@ -949,9 +941,23 @@ class TableDiff {
             if (!publish) {
                 if (active_row!=null) {
                     active_row[i] = 1;
+                    var context = unit.l;
+                    if (context==-1) {
+                        if (row_unit_to_last_local==null) {
+                            row_unit_to_last_local = new Map<Int,Int>();
+                            var last = -1;
+                            for (k in 0...row_units.length) {
+                                if (row_units[k].l>=0) {
+                                    last = row_units[k].l;
+                                }
+                                row_unit_to_last_local[k] = last;
+                            }
+                        }
+                        context = row_unit_to_last_local[i];
+                    }
                     spreadToCopies(unit.l);
-                    if (unit.l>0) {
-                        spreadToCopies(unit.l-1);
+                    if (context>=0) {
+                        spreadToCopies(context);
                     }
                 }
             }
