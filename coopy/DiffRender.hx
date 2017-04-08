@@ -223,7 +223,10 @@ class DiffRender {
                             tokens = cell.pretty_value.split(div);
                         }
                     }
-                    var pretty_tokens : Array<String> = tokens;
+                    var pretty_tokens : Array<String> = [];
+                    for (token in tokens) {
+                        pretty_tokens.push(token);
+                    }
                     if (tokens.length>=2) {
                         pretty_tokens[0] = markSpaces(tokens[0],tokens[1]);
                         pretty_tokens[1] = markSpaces(tokens[1],tokens[0]);
@@ -239,6 +242,8 @@ class DiffRender {
                     var offset : Int = cell.conflicted?1:0;
                     cell.lvalue = tokens[offset];
                     cell.rvalue = tokens[offset+1];
+                    cell.pretty_lvalue = pretty_tokens[offset];
+                    cell.pretty_rvalue = pretty_tokens[offset+1];
                     if (cell.conflicted) cell.pvalue = tokens[0];
                 }
             }

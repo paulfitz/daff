@@ -127,7 +127,9 @@ class TerminalDiffRender {
             if (code!=null) {
                 var separator = use_glyphs ? cell.pretty_separator : cell.separator;
                 if (cell.rvalue!=null) {
-                    val = codes["remove"] + cell.lvalue + codes["modify"] + separator + codes["add"] + cell.rvalue + codes["done"];
+                    var lv = use_glyphs ? cell.pretty_lvalue : cell.lvalue;
+                    var rv = use_glyphs ? cell.pretty_rvalue : cell.rvalue;
+                    val = codes["remove"] + lv + codes["modify"] + separator + codes["add"] + rv + codes["done"];
                     if (cell.pvalue!=null) {
                         val = codes["conflict"] + cell.pvalue + codes["modify"] + separator + val;
                     }

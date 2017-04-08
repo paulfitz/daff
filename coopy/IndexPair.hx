@@ -110,6 +110,18 @@ class IndexPair {
 
     /**
      *
+     * Find matches for a given row in the second (remote) table.
+     *
+     * @return match information
+     *
+     */
+    public function queryRemote(row: Int) : CrossMatch {
+        var ka : String = ib.toKey(ib.getTable(),row);
+        return queryByKey(ka);
+    }
+
+    /**
+     *
      * Get the key of a row in the first (local) table.
      *
      * @param row the row to get a key for

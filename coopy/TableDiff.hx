@@ -65,6 +65,9 @@ class TableDiff {
     private var nested : Bool;
     private var nesting_present : Bool;
 
+    private var local_to_row_unit : Map<Int,Int>;
+    private var row_unit_to_last_local : Map<Int,Int>;
+
     /**
      *
      * Constructor.
@@ -260,6 +263,8 @@ class TableDiff {
         top_line_done = false;
         diff_found = false;
         schema_diff_found = false;
+        local_to_row_unit = null;
+        row_unit_to_last_local = null;
     }
 
     private function setupTables() : Void {
@@ -367,6 +372,27 @@ class TableDiff {
         }
     }
 
+    private function addLinearMoves(units: Array<Unit>,
+                                    moves: Map<Int,Int>) {
+        var l = -1;
+        for (i in 0...units.length) {
+            var unit = units[i];
+            if (unit.l>=0) {
+                if (unit.l==l+1) {
+                    l = unit.l;
+                    continue;
+                }
+                l = unit.l;
+                if (unit.r>=0) {
+                    moves.set(i, -1);
+                }
+                if (moves.exists(i)) {
+                    l = -2;
+                }
+            }
+        }
+    }
+
     private function setupMoves() {
         if (flags.ordered) {
             row_moves = new Map<Int,Int>();
@@ -374,11 +400,13 @@ class TableDiff {
             for (i in 0...moves.length) {
                 row_moves[moves[i]] = i;
             }
+            addLinearMoves(row_units, row_moves);
             col_moves = new Map<Int,Int>();
             moves = Mover.moveUnits(column_units);
             for (i in 0...moves.length) {
                 col_moves[moves[i]] = i;
             }
+            addLinearMoves(column_units, col_moves);
         }
     }
 
@@ -913,6 +941,60 @@ class TableDiff {
             if (!publish) {
                 if (active_row!=null) {
                     active_row[i] = 1;
+                    var context = unit.l;
+                    if (context==-1) {
+                        if (row_unit_to_last_local==null) {
+                            row_unit_to_last_local = new Map<Int,Int>();
+                            var last = -1;
+                            for (k in 0...row_units.length) {
+                                if (row_units[k].l>=0) {
+                                    last = row_units[k].l;
+                                }
+                                row_unit_to_last_local[k] = last;
+                            }
+                        }
+                        context = row_unit_to_last_local[i];
+                    }
+                    spreadToCopies(unit.l);
+                    if (context>=0) {
+                        spreadToCopies(context);
+                    }
+                }
+            }
+        }
+    }
+
+    private function spreadToCopies(row: Int) {
+        if (align!=null&&row>=0) {
+            var indexes = has_parent ? align.reference.indexes : align.indexes;
+            if (indexes!=null) {
+                var best_match : CrossMatch = null;
+                for (idx in indexes) {
+                    var match : CrossMatch;
+                    if (has_parent) {
+                        match = idx.queryRemote(row);
+                    } else {
+                        match = idx.queryLocal(row);
+                    }
+                    if (match.spot_a<=1) continue;
+                    if (best_match==null) {
+                        best_match = match;
+                    } else if (match.spot_a<best_match.spot_a) {
+                        best_match = match;
+                    }
+                }
+                if (best_match!=null) {
+                    for (ii in best_match.item_a.asList()) {
+                        if (local_to_row_unit==null) {
+                            local_to_row_unit = new Map<Int,Int>();
+                            for (k in 0...row_units.length) {
+                                local_to_row_unit[row_units[k].l] = k;
+                            }
+                        }
+                        if (local_to_row_unit.exists(ii)) {
+                            active_row[local_to_row_unit[ii]] = 1;
+                        }
+                    }
                 }
             }
         }

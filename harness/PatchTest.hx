@@ -52,4 +52,55 @@ class PatchTest extends haxe.unit.TestCase {
         patcher.apply();
         assertTrue(coopy.SimpleTable.tableIsSimilar(t,table4));
     }
+
+    public function testWithRowDupesPart1(){
+        var base = [['thing1','thing2'],
+                    ['A','B'],
+                    ['A','B'],
+                    ['C','D1']];
+        var patch = [['@@','thing1','thing2'],
+                     ['---','A','B']];
+        var target = [['thing1','thing2'],
+                      ['A','B'],
+                      ['C','D1']];
+        var t = Native.table(base);
+        var patcher = new coopy.HighlightPatch(t,Native.table(patch));
+        patcher.apply();
+        assertTrue(coopy.SimpleTable.tableIsSimilar(t,Native.table(target)));
+    }
+
+    public function testWithRowDupesPart2(){
+        var base = [['thing1','thing2'],
+                    ['A','B'],
+                    ['A','B'],
+                    ['C','D1']];
+        var patch = [['@@','thing1','thing2'],
+                     ['---','A','B'],
+                     ['---','A','B']];
+        var target = [['thing1','thing2'],
+                      ['C','D1']];
+        var t = Native.table(base);
+        var patcher = new coopy.HighlightPatch(t,Native.table(patch));
+        patcher.apply();
+        assertTrue(coopy.SimpleTable.tableIsSimilar(t,Native.table(target)));
+    }
+
+    public function testWithRowDupesPart3(){
+        var base = [['thing1','thing2'],
+                    ['A','B'],
+                    ['A','B'],
+                    ['C','D1']];
+        var patch = [['@@','thing1','thing2'],
+                     ['---','A','B'],
+                     ['---','A','B'],
+                     ['->','C','D1->D2'],
+                     ['+++','E','F']];
+        var target = [['thing1','thing2'],
+                      ['C','D2'],
+                      ['E','F']];
+        var t = Native.table(base);
+        var patcher = new coopy.HighlightPatch(t,Native.table(patch));
+        patcher.apply();
+        assertTrue(coopy.SimpleTable.tableIsSimilar(t,Native.table(target)));
+    }
 }

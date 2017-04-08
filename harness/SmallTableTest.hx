@@ -198,7 +198,7 @@ class SmallTableTest extends haxe.unit.TestCase {
                                    [ null, null ],
                                    [ 4, null ],
                                    [ 5, null ]];
-        checkDiff(e1,e2);
+        checkDiff(e1,e2,true);
     }
 
     public function testStartFromBlank() {

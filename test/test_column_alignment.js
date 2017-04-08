@@ -64,7 +64,7 @@ var tester = require('tester');
     var ct = new coopy.Coopy.compareTables(t1,t2);
     var align = ct.align();
     tester.order_asserts(align.meta.toOrder(),
-		  [[1,-1],[2,0],[0,1]]);
+		  [[2,0],[0,1],[1,-1]]);
     tester.order_asserts(align.toOrder(),
 			 [[0,0],[1,1],[2,2],[-1,3],[3,-1]]);
 }
