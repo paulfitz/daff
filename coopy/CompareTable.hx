@@ -401,6 +401,7 @@ class CompareTable {
         // we expect headers on row 0 - link them even if quite different.
         if (ha>0 && hb>0) {
             align.link(0,0);
+            align.headers(0,0);
         }
     }
 
