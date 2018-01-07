@@ -48,20 +48,20 @@ class Csv {
             eol = "\r\n"; // The "standard" says line endings should be this
         }
         var result: String = "";
-        var txt : String = "";
         var v : View = t.getCellView();
         var stream = new TableStream(t);
         var w = stream.width();
+        var txts = new Array<String>();
         while (stream.fetch()) {
             for (x in 0...w) {
                 if (x>0) {
-                    txt += delim;
+                    txts.push(delim);
                 }
-                txt += renderCell(v,stream.getCell(x));
+                txts.push(renderCell(v,stream.getCell(x)));
             }
-            txt += eol;
+            txts.push(eol);
         }
-        return txt;
+        return txts.join("");
     }
 
     /**

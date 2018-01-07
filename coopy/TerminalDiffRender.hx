@@ -64,7 +64,6 @@ class TerminalDiffRender {
         var result: String = "";
         var w : Int = t.width;
         var h : Int = t.height;
-        var txt : String = "";
         this.t = t;
         v = t.getCellView();
 
@@ -82,6 +81,7 @@ class TerminalDiffRender {
         var sizes = null;
         if (align_columns) sizes = pickSizes(t);
 
+        var txts = new Array<String>();
         for (y in 0...h) {
             var target = 0;
             var at = 0;
@@ -89,27 +89,29 @@ class TerminalDiffRender {
                 if (sizes!=null) {
                     var spaces = target-at;
                     for (i in 0...spaces) {
-                        txt += " ";
+                        txts.push(" ");
                         at++;
                     }
                 }
                 if (x>0) {
-                    txt += codes["minor"] + delim + codes["done"];
+                    txts.push(codes["minor"]);
+                    txts.push(delim);
+                    txts.push(codes["done"]);
                 }
-                txt += getText(x,y,true);
+                txts.push(getText(x,y,true));
                 if (sizes!=null) {
                     var bit = getText(x,y,false);
                     at += bit.length;
                     target += sizes[x];
                 }
             }
-            txt += "\r\n";
+            txts.push("\r\n");
         }
         this.t = null;
         v = null;
         csv = null;
         codes = null;
-        return txt;
+        return txts.join("");
     }
 
     private function getText(x: Int, y: Int, color: Bool) : String {
