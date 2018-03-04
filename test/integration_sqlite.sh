@@ -57,16 +57,29 @@ EOF
 } | sqlite3 birds_v2.sqlite
 
 
+function run_diff {
+    v1="$1"
+    v2="$2"
+    diff="$3"
+    $DAFF_SCRIPT $v1 $v2 > $diff
+    echo ""
+    echo "$v1 -> $v2 ($diff)"
+    $DAFF_SCRIPT $v1 $v2 # run separately to see color
+    if [ -e $org/test/sqlite/${diff} ]; then
+        diff -w ${diff} $org/test/sqlite/${diff} || {
+            echo "${diff} not created correctly."
+            exit 1
+        } && {
+            echo "${diff} created correctly."
+        }
+    else
+        echo "${diff} has nothing to compare with."
+    fi
+}
 
-$DAFF_SCRIPT v1.sqlite v2.sqlite | tee basic.diff
-$DAFF_SCRIPT v1.sqlite v2.sqlite
-$DAFF_SCRIPT v1.sqlite v3.sqlite | tee remove_table.diff
-$DAFF_SCRIPT v3.sqlite v1.sqlite | tee add_table.diff
-$DAFF_SCRIPT birds_v1.sqlite birds_v2.sqlite
+run_diff v1.sqlite v2.sqlite basic.diff
+run_diff v1.sqlite v3.sqlite remove_table.diff
+run_diff v3.sqlite v1.sqlite add_table.diff
+run_diff birds_v1.sqlite birds_v2.sqlite type_change.diff
+run_diff $org/test/sqlite/blank.sqlite $org/test/sqlite/awkward.sqlite create_all.diff
 
-for diff in basic.diff add_table.diff remove_table.diff; do
-    diff -w ${diff} $org/test/sqlite/${diff} || {
-        echo "${diff} not created correctly."
-        exit 1
-    }
-done
