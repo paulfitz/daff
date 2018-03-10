@@ -7,14 +7,17 @@ class SqliteDatabase(SqlDatabase):
         self.fname = fname
         self.cursor = db.cursor()
         self.row = None
+        # quoting rule for CSV is compatible with Sqlite
+        self.quoter = Csv()
+        self.view = SimpleView()
 
     # needed because pragmas do not support bound parameters
     def getQuotedColumnName(self,name):
-        return name  # adequate for test, not real life
+        return self.quoter.renderCell(self.view, name)
 
     # needed because pragmas do not support bound parameters
     def getQuotedTableName(self,name):
-        return name.toString()  # adequate for test, not real life
+        return self.quoter.renderCell(self.view, name.toString())
 
     def getColumns(self,name):
         qname = self.getQuotedTableName(name)
