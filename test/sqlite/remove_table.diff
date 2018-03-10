@@ -6,6 +6,8 @@ t1
 ==
 !,---,---
 @@,id,name
+@type@---,INTEGER,TEXT
+@key@---,primary,
 ---,1,test
 
 t2

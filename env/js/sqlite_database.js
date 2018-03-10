@@ -9,6 +9,9 @@ if (typeof exports != "undefined") {
 	    this.active = false;
 	    this.index2name = {};
 	    this.Fiber = Fiber;
+            // quoting rule for CSV is compatible with Sqlite
+            this.quoter = new daff.Csv();
+            this.view = new daff.SimpleView();
 	}
 
         SqliteDatabase.prototype.getHelper = function() {
@@ -16,11 +19,11 @@ if (typeof exports != "undefined") {
         }
 	
 	SqliteDatabase.prototype.getQuotedColumnName = function (name) {
-	    return name;
+	    return this.quoter.renderCell(this.view, name);
 	}
 	
 	SqliteDatabase.prototype.getQuotedTableName = function (name) {
-	    return name.toString();
+	    return this.quoter.renderCell(this.view, name.toString());
 	}
 	
 	SqliteDatabase.prototype.getColumns = function(name) {

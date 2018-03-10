@@ -600,31 +600,38 @@ class TableDiff {
     }
 
     private function checkMeta(t: Table, meta: Table) : Bool {
+        if (meta==null) {
+            return false;
+        }
+        if (t==null) {
+            return (meta.width==1 && meta.height==1);
+        }
         if (meta.width!=t.width+1) return false;
         if (meta.width==0||meta.height==0) return false;
         return true;
     }
 
     private function getMetaTable(t: Table) : Table {
-        if (t==null) return null;
+        if (t==null) {
+            var result = new SimpleTable(1,1);
+            result.setCell(0,0,"@");
+            return result;
+        }
         var meta = t.getMeta();
         if (meta==null) return null;
         return meta.asTable();
     }
 
     private function addMeta(output: Table) : Bool {
-        var a_meta : Table;
-        var b_meta : Table;
-        var p_meta : Table;
-        a_meta = getMetaTable(a);
-        b_meta = getMetaTable(b);
-        p_meta = getMetaTable(p);
-        if (a_meta==null || b_meta==null || p_meta==null) return false;
+        if (a==null&&b==null&&p==null) return false;
+        if (!flags.show_meta) return false;
+
+        var a_meta : Table = getMetaTable(a);
+        var b_meta : Table = getMetaTable(b);
+        var p_meta : Table = getMetaTable(p);
         if (!checkMeta(a,a_meta)) return false;
         if (!checkMeta(b,b_meta)) return false;
         if (!checkMeta(p,p_meta)) return false;
-
-        if (!flags.show_meta) return false;
 
         // Crude method: create a temporary table, write meta diff to it, copy as needed.
 
@@ -639,7 +646,7 @@ class TableDiff {
         td.preserve_columns = true;
         td.hilite(meta_diff);
 
-        if (td.hasDifference()) {
+        if (td.hasDifference()||td.hasSchemaDifference()) {
             var h = output.height;
             var dh = meta_diff.height;
             var offset = td.hasSchemaDifference()?2:1;

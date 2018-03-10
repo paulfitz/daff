@@ -1,0 +1,9 @@
+birds
+=====
+!,,,,+++
+@@,id,name,count,weather
+@type@->,INTEGER,TEXT,TEXT->INTEGER,TEXT
++++,4,penguin,5,cold
++,1,robin,251,warm
+,2,eagle,10,
+...,...,...,...,...
