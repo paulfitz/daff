@@ -1185,6 +1185,9 @@ class TableDiff {
         ds.row_count_final = align.getTarget().height - align.getTargetHeader() - 1;
         ds.col_count_initial = align.getSource().width;
         ds.col_count_final = align.getTarget().width;
+        ds.different = (row_deletes + row_inserts + row_updates + row_reorders +
+                        col_deletes + col_inserts + col_updates + col_renames +
+                        col_reorders) > 0;
         return ds;
     }
 }
