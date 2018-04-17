@@ -731,6 +731,7 @@ class Coopy {
         var output : String = null;
         var inplace : Bool = false;
         var git : Bool = false;
+        var help : Bool = false;
 
         flags = new CompareFlags();
         flags.always_show_header = true;
@@ -902,13 +903,21 @@ class Coopy {
                     fail_if_diff = true;
                     args.splice(i,1);
                     break;
+                } else if (tag=="help"||tag=="-h"||tag=="--help") {
+                    more = true;
+                    args.splice(i,1);
+                    help = true;
+                    break;
                 }
             }
         }
 
         var cmd : String = args[0];
         var ok : Bool = true;
-
+        if (help) {
+            cmd = "";
+            args = [];
+        }
         try {
             if (args.length < 2) {
                 if (cmd == "version") {
