@@ -29,6 +29,8 @@ class DiffSummary {
     public var col_count_initial : Int;
     public var col_count_final : Int;
 
+    public var different : Bool;
+
     public function new() {
     }
 }

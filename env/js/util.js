@@ -190,7 +190,7 @@ if (typeof require != "undefined") {
 	try {
 	    exports.run_daff_main();
 	} catch (e) {
-	    if (e == "run inside Fiber plz") {
+	    if (("" + e).indexOf("run inside Fiber plz") !== -1) {
 		try {
 		    Fiber = require('fibers');
 		    sqlite3 = require('sqlite3');
