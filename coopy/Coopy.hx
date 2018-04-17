@@ -1104,8 +1104,7 @@ class Coopy {
             }
         } catch (e: Dynamic) {
             if (!fail_if_diff) {
-                io.writeStderr("" + e + "\n");
-                return 1;
+                throw e;
             }
             return 2;
         }
