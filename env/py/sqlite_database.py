@@ -13,11 +13,11 @@ class SqliteDatabase(SqlDatabase):
 
     # needed because pragmas do not support bound parameters
     def getQuotedColumnName(self,name):
-        return self.quoter.renderCell(self.view, name)
+        return self.quoter.renderCell(self.view, name, True)
 
     # needed because pragmas do not support bound parameters
     def getQuotedTableName(self,name):
-        return self.quoter.renderCell(self.view, name.toString())
+        return self.quoter.renderCell(self.view, name.toString(), True)
 
     def getColumns(self,name):
         qname = self.getQuotedTableName(name)
