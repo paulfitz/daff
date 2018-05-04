@@ -19,11 +19,11 @@ if (typeof exports != "undefined") {
         }
 	
 	SqliteDatabase.prototype.getQuotedColumnName = function (name) {
-	    return this.quoter.renderCell(this.view, name);
+	    return this.quoter.renderCell(this.view, name, true);
 	}
 	
 	SqliteDatabase.prototype.getQuotedTableName = function (name) {
-	    return this.quoter.renderCell(this.view, name.toString());
+	    return this.quoter.renderCell(this.view, name.toString(), true);
 	}
 	
 	SqliteDatabase.prototype.getColumns = function(name) {
@@ -82,6 +82,16 @@ if (typeof exports != "undefined") {
 	    this.active = true;
 	    var self = this;
 	    this.db.each(query,(args==null)?[]:args,function(err,row) {
+                var keys = Object.keys(row);
+                for (var i=0; i<keys.length; i++) {
+                    var val = row[keys[i]];
+                    // cannot do much with blobs - replace them with a short hash.
+                    if (Buffer.isBuffer(val)) {
+                        var crypto = require('crypto');
+                        var hash = crypto.createHash('md5').update(val).digest('hex');
+                        row[keys[i]] = '[buffer:' + hash + ']';
+                    }
+                }
 		if (err) {
 		    fiber.run([false,0]);
 		} else {

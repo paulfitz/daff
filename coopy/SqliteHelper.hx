@@ -164,7 +164,7 @@ class SqliteHelper implements SqlHelper {
 
     private function fetchSchema(db: SqlDatabase, name: SqlTableName) : String {
         var tname = db.getQuotedTableName(name);
-        var query = "select sql from sqlite_master where name = '" + tname + "'";
+        var query = "select sql from sqlite_master where name = " + tname;
         if (!db.begin(query,null,["sql"])) {
             trace("Cannot find schema for table " + tname);
             return null;

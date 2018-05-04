@@ -70,18 +70,21 @@ class Csv {
      *
      * @param v a helper for interpreting the cell content
      * @param d the cell content
+     * @param force_quote set if cell should always be quoted
      * @return the cell in text format, quoted in a CSV-y way
      *
      */
-    public function renderCell(v: View, d: Dynamic) : String {
+    public function renderCell(v: View, d: Dynamic, force_quote: Bool = false) : String {
         if (d==null) {
             return "NULL"; // I don't like this, why is it here?
         }
         var str: String = v.toString(d);
-        var need_quote : Bool = false;
-        if (str.length > 0) {
-            if (str.charAt(0)==' '||str.charAt(str.length-1)==' ') {
-                need_quote = true;
+        var need_quote : Bool = force_quote;
+        if (!need_quote) {
+            if (str.length > 0) {
+                if (str.charAt(0)==' '||str.charAt(str.length-1)==' ') {
+                    need_quote = true;
+                }
             }
         }
         if (!need_quote) {
