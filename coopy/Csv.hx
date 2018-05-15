@@ -90,7 +90,7 @@ class Csv {
         if (!need_quote) {
             for (i in 0...str.length) {
                 var ch : String = str.charAt(i);
-                if (ch=='"'||ch=='\''||ch=='\r'||ch=='\n'||ch=='\t') {
+                if (ch=='"'||ch=='\r'||ch=='\n'||ch=='\t') {
                     need_quote = true;
                     break;
                 }
