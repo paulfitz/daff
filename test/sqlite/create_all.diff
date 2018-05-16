@@ -4,7 +4,7 @@
 awkwardly "named !table ~
 =========================
 !,+++,+++
-@@,"hmm's","  really makes you wonder"
+@@,hmm's,"  really makes you wonder"
 @type@+++,INTEGER,TEXT
 @key@+++,primary,
 +++,1,thing1
