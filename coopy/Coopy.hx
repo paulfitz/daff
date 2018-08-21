@@ -283,6 +283,7 @@ class Coopy {
     private function getRenderer() : DiffRender {
         var renderer : DiffRender = new DiffRender();
         renderer.usePrettyArrows(flags.use_glyphs);
+        renderer.quoteHtml(flags.quote_html);
         return renderer;
     }
 
@@ -762,6 +763,11 @@ class Coopy {
                     flags.use_glyphs = false;
                     args.splice(i,1);
                     break;
+                } else if (tag=="--unquote") {
+                    more = true;
+                    flags.quote_html = false;
+                    args.splice(i,1);
+                    break;
                 } else if (tag=="--all") {
                     more = true;
                     flags.show_unchanged = true;
@@ -995,6 +1001,7 @@ class Coopy {
                     io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
                     io.writeStderr("     --fragment:    generate just a html fragment rather than a page\n");
                     io.writeStderr("     --plain:       do not use fancy utf8 characters to make arrows prettier\n");
+                    io.writeStderr("     --unquote:     do not quote html characters in html diffs\n");
                     io.writeStderr("     --www:         send output to a browser\n");
                     return 1;
                 }

@@ -219,6 +219,13 @@ class CompareFlags {
      */
     public var use_glyphs : Bool;
 
+    /**
+     * Choose whether html elements should be neutralized or passed through,
+     * in html contexts.
+     *
+     */
+    public var quote_html : Bool;
+
     public function new() {
         ordered = true;
         show_unchanged = false;
@@ -243,6 +250,7 @@ class CompareFlags {
         ignore_case = false;
         terminal_format = null;
         use_glyphs = true;
+        quote_html = true;
     }
 
     /**

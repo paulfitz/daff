@@ -9,6 +9,7 @@ class BasicTest extends haxe.unit.TestCase {
     var data4 : Array<Array<Dynamic>>;
     var data5 : Array<Array<Dynamic>>;
     var data6 : Array<Array<Dynamic>>;
+    var data7 : Array<Array<Dynamic>>;
 
     override public function setup() {
         data1 = [['Country','Capital'],
@@ -39,6 +40,10 @@ class BasicTest extends haxe.unit.TestCase {
                  ['France',1,'fr','Paris',10000],
                  ['Spain',1,'es','Madrid',2000],
                  ['Germany',null,'de','Berlin',2]];
+        data7 = [['Country','Capital'],
+                 ['Ireland','Dublin'],
+                 ['France','<i>Paris</i>...'],
+                 ['Spain','Barcelona']];
     }
 
     public function testBasic(){
@@ -260,5 +265,23 @@ class BasicTest extends haxe.unit.TestCase {
         assertEquals(summary.col_inserts,0);
         assertEquals(summary.col_reorders,1);
         assertEquals(summary.col_deletes,1);
+    }
+
+    public function testQuotedHtml() {
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data7);
+        var alignment = coopy.Coopy.compareTables(table1,table2).align();
+        var table_diff = Native.table([]);
+        var flags = new coopy.CompareFlags();
+        var highlighter = new coopy.TableDiff(alignment,flags);
+        highlighter.hilite(table_diff);
+        var dr1 = new coopy.DiffRender();
+        var dr2 = new coopy.DiffRender();
+        dr2.quoteHtml(false);
+        var render1 = dr1.render(table_diff).html();
+        var render2 = dr2.render(table_diff).html();
+        assertFalse(render1 == render2);
+        assertTrue(render1.indexOf("&lt;i&gt;Paris&lt;/i&gt;") != -1);
+        assertTrue(render2.indexOf("<i>Paris</i>") != -1);
     }
 }
