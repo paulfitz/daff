@@ -16,12 +16,14 @@ class DiffRender {
     private var td_close : String;
     private var open : Bool;
     private var pretty_arrows: Bool;
+    private var quote_html: Bool;
     private var section : String;
 
     public function new() : Void {
         text_to_insert = new Array<String>();
         open = false;
         pretty_arrows = true;
+        quote_html = true;
     }
 
     /**
@@ -32,6 +34,10 @@ class DiffRender {
      */
     public function usePrettyArrows(flag: Bool) : Void {
         pretty_arrows = flag;
+    }
+
+    public function quoteHtml(flag: Bool) : Void {
+        quote_html = flag;
     }
 
     private function insert(str: String) : Void {
@@ -359,8 +365,11 @@ class DiffRender {
                             corner,
                             cell,
                             off);
-                render.insertCell(pretty_arrows?cell.pretty_value:cell.value,
-                                  cell.category_given_tr);
+                var val = pretty_arrows?cell.pretty_value:cell.value;
+                if (quote_html) {
+                    val = StringTools.htmlEscape(view.toString(val));
+                }
+                render.insertCell(val, cell.category_given_tr);
             }
             render.endRow();
         }

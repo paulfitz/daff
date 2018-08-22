@@ -91,7 +91,7 @@ if (typeof exports != "undefined") {
                                });
             response.write(html);
             response.end();
-	    shutdown();
+	    setTimeout(function() { shutdown(); }, 0);
         });
 	var sockets = {}, nextSocketId = 0;
 	server.on('connection', function (socket) {
