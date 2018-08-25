@@ -201,6 +201,14 @@ class BasicTest extends haxe.unit.TestCase {
         assertTrue(txt.indexOf("Germany")>=0);
     }
 
+    public function testHtmlOutput() {
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data2);
+        var txt = coopy.Coopy.diffAsHtml(table1, table2);
+        trace(txt);
+        assertTrue(txt.indexOf("Germany")>=0);
+    }
+
     public function testStraySpaceInCsv() {
         var csv = new coopy.Csv();
         var tab = csv.makeTable("id,color\n" +
