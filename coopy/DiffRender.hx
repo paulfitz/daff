@@ -379,10 +379,12 @@ class DiffRender {
 
     public function renderTables(tabs: Tables) : DiffRender {
         var order : Array<String> = tabs.getOrder();
-        if (order.length==0 || tabs.hasInsDel()) {
+        var start = 0;
+        if (order.length<=1 || tabs.hasInsDel()) {
             render(tabs.one());
+            start = 1;
         }
-        for (i in 1...order.length) {
+        for (i in start...order.length) {
             var name = order[i];
             var tab : Table = tabs.get(name);
             if (tab.height<=1) continue;
