@@ -134,6 +134,17 @@ class BasicTest extends haxe.unit.TestCase {
         assertEquals("BOR",tab.getCell(1,1));
     }
 
+    public function testCSVWithFinalNewline() {
+        var txt = "name,age\nPaul,\"\n\"\n";
+        var tab = Native.table([]);
+        var csv = new coopy.Csv(',','\n');
+        csv.parseTable(txt,tab);
+        assertEquals(2,tab.height);
+        assertEquals(2,tab.width);
+        var out = csv.renderTable(tab);
+        assertEquals(txt,out);
+    }
+
     public function testEmpty() {
         var table1 = Native.table(data1);
         var table2 = Native.table([]);
@@ -210,7 +221,6 @@ class BasicTest extends haxe.unit.TestCase {
         var table1 = Native.table(data1);
         var table2 = Native.table(data2);
         var txt = coopy.Coopy.diffAsHtml(table1, table2);
-        trace(txt);
         assertTrue(txt.indexOf("Germany")>=0);
     }
 
