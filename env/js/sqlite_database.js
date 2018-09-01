@@ -1,6 +1,4 @@
-if (typeof exports != "undefined") {
     (function() {
-	var daff = exports;
 
 	SqliteDatabase = function(db,fname,Fiber) {
 	    this.db = db;
@@ -139,4 +137,3 @@ if (typeof exports != "undefined") {
 	exports.SqliteDatabase = SqliteDatabase;
 
     })();
-}

@@ -1,16 +1,5 @@
 (function() {
 
-var coopy = null;
-if (typeof exports != "undefined") {
-    if (typeof exports.Coopy != "undefined") {
-	coopy = exports;
-    }
-}
-if (coopy == null) {
-    coopy = window.daff;
-}
-
-
 /**
  *
  * Wrapper around a table expressed as rows of hashes.  A mapping function can be passed if the
@@ -73,11 +62,11 @@ NdjsonTable.prototype.setCell = function(x,y,c) {
 }
 
 NdjsonTable.prototype.toString = function() {
-    return coopy.SimpleTable.tableToString(this);
+    return daff.SimpleTable.tableToString(this);
 }
 
 NdjsonTable.prototype.getCellView = function() {
-    return new coopy.CellView();
+    return new daff.CellView();
 }
 
 NdjsonTable.prototype.isResizable = function() {
@@ -122,11 +111,6 @@ NdjsonTable.prototype.getMeta = function() {
 }
 
 
-if (typeof exports != "undefined") {
-    exports.NdjsonTable = NdjsonTable;
-} else {
-    if (typeof window["daff"] == "undefined") window["daff"] = {};
-    window.daff.NdjsonTable = NdjsonTable;
-}
+daff.NdjsonTable = NdjsonTable;
 
 })();

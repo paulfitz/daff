@@ -1,6 +1,6 @@
 
-
-if (typeof exports != "undefined") {
+var daff = null;
+if (exports.coopy) {
     // avoid having excess nesting (coopy.coopy) when using node
     for (f in exports.coopy) { 
 	if (exports.coopy.hasOwnProperty(f)) {
@@ -13,6 +13,7 @@ if (typeof exports != "undefined") {
 	    exports[f] = exports.Coopy[f]; 
 	}
     } 
+    daff = exports;
 } else {
     // promote methods of coopy.Coopy
     for (f in coopy.Coopy) { 
@@ -20,5 +21,5 @@ if (typeof exports != "undefined") {
 	    coopy[f] = coopy.Coopy[f]; 
 	}
     } 
-    daff = coopy;
+    window.daff = daff = coopy;
 }

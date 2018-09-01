@@ -1212,7 +1212,7 @@ class Coopy {
 
         // emergency! try to find and use native wrapper
 #if js
-        return untyped __js__("new (typeof exports != 'undefined' ? exports : window).daff.TableView(data)");
+        return untyped __js__("new daff.TableView(data)");
 #elseif python
         python.Syntax.pythonCode("daff = __import__('daff')");
         return python.Syntax.pythonCode("daff.PythonTableView(data)");
