@@ -249,13 +249,13 @@ Sponsors
 --------
 
 <img src="http://datacommons.coop/images/the_zen_of_venn.png" alt="the zen of venn" height="100">
-The [Data Commons Co-op](http://datacommons.coop),  "perhaps the geekiest of all cooperative organizations on the planet," has given great moral support during the development of `daff`.
-Donate a multiple of `42.42` in your currency to let them know you care: [http://datacommons.coop/donate/](http://datacommons.coop/donate/)
+The <a href="https://datacommons.coop">Data Commons Co-op</a>,  "perhaps the geekiest of all cooperative organizations on the planet," has given great moral support during the development of `daff`.
+Donate a multiple of `42.42` in your currency to let them know you care: <a href="https://datacommons.coop/donate/">https://datacommons.coop/donate/</a>.
 
 Reading material
 ----------------
 
- * http://dataprotocols.org/tabular-diff-format/ : a specification of the diff format we use.
+ * http://dataprotocols.org/tabular-diff-format/ : a specification of the diff format we use (appears to have gone away; see https://paulfitz.github.io/daff-doc/spec.html now).
  * http://theodi.org/blog/csvhub-github-diffs-for-csv-files : using this library with github.
  * https://github.com/ropensci/unconf/issues/19 : a thread about diffing data in which daff shows up in at least four guises (see if you can spot them all).
  * http://theodi.org/blog/adapting-git-simple-data : using this library with gitlab.
