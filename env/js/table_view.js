@@ -1,15 +1,5 @@
 (function() {
 
-var coopy = null;
-if (typeof exports != "undefined") {
-    if (typeof exports.Coopy != "undefined") {
-	coopy = exports;
-    }
-}
-if (coopy == null) {
-    coopy = window.daff;
-}
-
 var CellView = function() {
 }
 
@@ -83,12 +73,11 @@ TableView.prototype.setCell = function(x,y,c) {
 }
 
 TableView.prototype.toString = function() {
-    return coopy.SimpleTable.tableToString(this);
+    return daff.SimpleTable.tableToString(this);
 }
 
 TableView.prototype.getCellView = function() {
     return new CellView();
-    //return new coopy.SimpleView();
 }
 
 TableView.prototype.isResizable = function() {
@@ -247,18 +236,9 @@ TableView.prototype.getMeta = function() {
     return null;
 }
 
-coopy.TableView = TableView;
+daff.TableView = TableView;
 
-if (typeof exports != "undefined") {
-    exports.CellView = CellView;
-    exports.TableView = TableView;
-    if (typeof exports["daff"] == "undefined") exports["daff"] = exports["coopy"];
-    exports.daff.CellView = CellView;
-    exports.daff.TableView = TableView;
-} else {
-    if (typeof window["daff"] == "undefined") window["daff"] = {};
-    window.daff.CellView = CellView;
-    window.daff.TableView = TableView;
-}
+daff.CellView = CellView;
+daff.TableView = TableView;
 
 })();

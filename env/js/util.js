@@ -1,4 +1,4 @@
-if (typeof exports != "undefined") {
+if (true) {
     
     var tio = {};
     var tio_args = [];
@@ -168,8 +168,8 @@ if (typeof exports != "undefined") {
 	return code;
     }
     
-    exports.run_daff_main = function() {
-	var main = new exports.Coopy();
+    daff.run_daff_main = function() {
+	var main = new daff.Coopy();
 	var code = run_daff_base(main,process.argv.slice(2));
 	if (code!=999) {
             if (code!=0) {
@@ -178,8 +178,8 @@ if (typeof exports != "undefined") {
 	}
     }
 
-    exports.cmd = function(args) {
-	var main = new exports.Coopy();
+    daff.cmd = function(args) {
+	var main = new daff.Coopy();
 	var code = run_daff_base(main,args);
 	return code;
     }
@@ -188,7 +188,7 @@ if (typeof exports != "undefined") {
 if (typeof require != "undefined") {
     if (require.main === module) {
 	try {
-	    exports.run_daff_main();
+	    daff.run_daff_main();
 	} catch (e) {
 	    if (("" + e).indexOf("run inside Fiber plz") !== -1) {
 		try {
@@ -199,7 +199,7 @@ if (typeof require != "undefined") {
 		    console.log("No sqlite3/fibers");
 		}
 		Fiber(function() {
-		    exports.run_daff_main();
+		    daff.run_daff_main();
 		}).run();
             } else {
                 throw(e);
