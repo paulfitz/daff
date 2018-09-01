@@ -34,7 +34,7 @@ Or use the library to view csv diffs on github via a chrome extension:
 > https://github.com/theodi/csvhub
 
 The diff format used by `daff` is specified here:
-> http://dataprotocols.org/tabular-diff-format/
+> http://paulfitz.github.io/daff-doc/spec.html
 
 This library is a stripped down version of the coopy toolbox (see
 http://share.find.coop).  To compare tables from different origins, 
@@ -149,7 +149,7 @@ highlighter.hilite(table_diff);
 
 The diff is now in `data_diff` in highlighter format, see
 specification here:
-> http://share.find.coop/doc/spec_hilite.html
+> http://paulfitz.github.io/daff-doc/spec.html
 
 ```js
 [ [ '!', '', '+++', '' ],
