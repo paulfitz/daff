@@ -45,7 +45,7 @@ if (true) {
 	process.stderr.write(txt);
     }
     
-    tio.async = function() {
+    tio.hasAsync = function() {
 	return true;
     }
 

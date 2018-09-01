@@ -118,10 +118,10 @@ class TableIO {
     /**
      *
      * @return true if the platform has no built-in way to call a command
-     * synchronously i.e. IT IS NODE
+     * synchronously i.e. IT IS (OLD) NODE
      *
      */
-    public function async() : Bool {
+    public function hasAsync() : Bool {
         return false;
     }
 
