@@ -94,7 +94,7 @@ If you need more control, here is the full list of flags:
      --www:         send output to a browser
 ````
 
-Formats supported are CSV, TSV, and [ndjson](http://dataprotocols.org/ndjson/).
+Formats supported are CSV, TSV, and ndjson.
 
 Using with git
 --------------
