@@ -544,7 +544,7 @@ class Coopy {
 
     private function command(io: TableIO, cmd: String, args: Array<String>) : Int {
         var r = 0;
-        if (io.async()) r = io.command(cmd,args);
+        if (io.hasAsync()) r = io.command(cmd,args);
         if (r!=999) {
             io.writeStdout("$ " + cmd);
             for (arg in args) {
@@ -556,7 +556,7 @@ class Coopy {
             }
             io.writeStdout("\n");
         }
-        if (!io.async()) r = io.command(cmd,args);
+        if (!io.hasAsync()) r = io.command(cmd,args);
         return r;
     }
 
