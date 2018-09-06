@@ -136,6 +136,9 @@ class Csv {
                 line_buf+=ch;
             }
         }
+        if (line_buf.length>0) {
+            result += line_buf;
+        }
         if (need_quote) { result += '"'; }
         return result;
     }
