@@ -256,7 +256,7 @@ class CompareFlags {
     /**
      *
      * Filter for particular kinds of changes.
-     * @param act set this to "update", "insert", or "delete"
+     * @param act set this to "update", "insert", "delete", or "column".
      * @param allow set this to true to allow this kind, or false to
      * deny it.
      * @return true if the kind of change was recognized.
@@ -268,6 +268,7 @@ class CompareFlags {
             acts.set("update",!allow);
             acts.set("insert",!allow);
             acts.set("delete",!allow);
+            acts.set("column",!allow);
         }
         if (!acts.exists(act)) return false;
         acts.set(act,allow);
@@ -302,6 +303,16 @@ class CompareFlags {
     public function allowDelete() : Bool {
         if (acts==null) return true;
         return acts.exists("delete");
+    }
+
+    /**
+     *
+     * @return true if column additions/deletions are allowed by the current filters.
+     *
+     */
+    public function allowColumn() : Bool {
+        if (acts==null) return true;
+        return acts.exists("column");
     }
 
     /**
