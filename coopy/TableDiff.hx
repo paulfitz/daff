@@ -42,6 +42,7 @@ class TableDiff {
     private var allow_insert : Bool;
     private var allow_delete : Bool;
     private var allow_update : Bool;
+    private var allow_column : Bool;
 
     private var v : View;
 
@@ -266,7 +267,7 @@ class TableDiff {
         show_rc_numbers = false;
         row_moves = null;
         col_moves = null;
-        allow_insert = allow_delete = allow_update = true;
+        allow_insert = allow_delete = allow_update = allow_column = true;
         sep = "";
         conflict_sep = "";
         top_line_done = false;
@@ -325,6 +326,7 @@ class TableDiff {
         allow_insert = flags.allowInsert();
         allow_delete = flags.allowDelete();
         allow_update = flags.allowUpdate();
+        allow_column = flags.allowColumn();
 
         var common = a;
         if (common==null) common = b;
@@ -423,11 +425,11 @@ class TableDiff {
                 have_schema = true;
                 act = "+++";
                 if (active_column!=null) {
-                    if (allow_update) {
+                    if (allow_column) {
                         active_column[j] = 1;
                     }
                 }
-                if (allow_update) {
+                if (allow_column) {
                     col_inserts++;
                 }
             }
@@ -435,11 +437,11 @@ class TableDiff {
                 have_schema = true;
                 act = "---";
                 if (active_column!=null) {
-                    if (allow_update) {
+                    if (allow_column) {
                         active_column[j] = 1;
                     }
                 }
-                if (allow_update) {
+                if (allow_column) {
                     col_deletes++;
                 }
             }
@@ -828,7 +830,7 @@ class TableDiff {
                 if ((have_pp ? cunit.p : cunit.l)<0) {
                     if (rr != null) {
                         if (v.toString(rr) != "") {
-                            if (flags.allowUpdate()) {
+                            if (allow_column) {
                                 have_addition = true;
                             }
                         }
@@ -890,7 +892,7 @@ class TableDiff {
             }
 
             var cell : Dynamic = dd;
-            if (have_dd_to&&allow_update) {
+            if (have_dd_to&&((dd!=null&&allow_update)||allow_column)) {
                 if (!row_update) {
                     if (out==0) row_updates++;
                     row_update = true;

@@ -302,4 +302,37 @@ class BasicTest extends haxe.unit.TestCase {
         assertTrue(render1.indexOf("&lt;i&gt;Paris&lt;/i&gt;") != -1);
         assertTrue(render2.indexOf("<i>Paris</i>") != -1);
     }
+
+    public function testIgnoreTypesOfChanges() {
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data2);
+        var flags = new coopy.CompareFlags();
+        flags.unchanged_context = 0;
+        flags.filter("column", false);
+        var data_diff = coopy.Coopy.diff(table1,table2,flags);
+        assertEquals(4,data_diff.height);
+        flags.filter("insert", false);
+        data_diff = coopy.Coopy.diff(table1,table2,flags);
+        assertEquals(3,data_diff.height);
+        flags.filter("update", false);
+        data_diff = coopy.Coopy.diff(table1,table2,flags);
+        assertEquals(2,data_diff.height);
+        data_diff = coopy.Coopy.diff(table2,table1,flags);
+        assertEquals(3,data_diff.height);
+        flags.filter("delete", false);
+        data_diff = coopy.Coopy.diff(table2,table1,flags);
+        assertEquals(2,data_diff.height);
+        flags = new coopy.CompareFlags();
+        flags.unchanged_context = 0;
+        flags.filter("insert", true);
+        data_diff = coopy.Coopy.diff(table1,table2,flags);
+        assertEquals(3,data_diff.height);
+        flags.filter("update", true);
+        data_diff = coopy.Coopy.diff(table1,table2,flags);
+        assertEquals(4,data_diff.height);
+        flags.filter("column", true);
+        data_diff = coopy.Coopy.diff(table1,table2,flags);
+        assertEquals(6,data_diff.height);
+    }
+
 }
