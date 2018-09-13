@@ -892,7 +892,7 @@ class TableDiff {
             }
 
             var cell : Dynamic = dd;
-            if (have_dd_to&&((dd&&allow_update)||allow_column)) {
+            if (have_dd_to&&((dd!=null&&allow_update)||allow_column)) {
                 if (!row_update) {
                     if (out==0) row_updates++;
                     row_update = true;
