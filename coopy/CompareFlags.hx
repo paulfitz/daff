@@ -282,7 +282,7 @@ class CompareFlags {
      */
     public function allowUpdate() : Bool {
         if (acts==null) return true;
-        return acts.exists("update");
+        return acts.exists("update") && acts.get("update");
     }
 
     /**
@@ -292,7 +292,7 @@ class CompareFlags {
      */
     public function allowInsert() : Bool {
         if (acts==null) return true;
-        return acts.exists("insert");
+        return acts.exists("insert") && acts.get("insert");
     }
 
     /**
@@ -302,7 +302,7 @@ class CompareFlags {
      */
     public function allowDelete() : Bool {
         if (acts==null) return true;
-        return acts.exists("delete");
+        return acts.exists("delete") && acts.get("delete");
     }
 
     /**
@@ -312,7 +312,7 @@ class CompareFlags {
      */
     public function allowColumn() : Bool {
         if (acts==null) return true;
-        return acts.exists("column");
+        return acts.exists("column") && acts.get("column");
     }
 
     /**

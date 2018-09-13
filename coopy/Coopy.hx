@@ -976,7 +976,7 @@ class Coopy {
                     io.writeStderr("\n");
                     io.writeStderr("If you need more control, here is the full list of flags:\n");
                     io.writeStderr("  daff diff [--output OUTPUT.csv] [--context NUM] [--all] [--act ACT] a.csv b.csv\n");
-                    io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete)\n");
+                    io.writeStderr("     --act ACT:     show only a certain kind of change (update, insert, delete, column)\n");
                     io.writeStderr("     --all:         do not prune unchanged rows or columns\n");
                     io.writeStderr("     --all-rows:    do not prune unchanged rows\n");
                     io.writeStderr("     --all-columns: do not prune unchanged columns\n");
