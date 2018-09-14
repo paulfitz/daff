@@ -335,4 +335,31 @@ class BasicTest extends haxe.unit.TestCase {
         assertEquals(6,data_diff.height);
     }
 
+    public function testChangeToBlank() {
+        var v1 = Native.table([["id", "name"], ["1", " "]]);
+        var v2 = Native.table([["id", "name"], ["1", ""]]);
+        var diff = coopy.Coopy.diff(v1,v2);
+        assertEquals(" ->", diff.getCell(2,1));
+    }
+
+    public function testChangeToNull() {
+        var v1 = Native.table([["id", "name"], ["1", ""]]);
+        var v2 = Native.table([["id", "name"], ["1", null]]);
+        var diff = coopy.Coopy.diff(v1,v2);
+        assertEquals("->NULL", diff.getCell(2,1));
+    }
+
+    public function testChangeFromNull() {
+        var v1 = Native.table([["id", "name"], ["1", null]]);
+        var v2 = Native.table([["id", "name"], ["1", ""]]);
+        var diff = coopy.Coopy.diff(v1,v2);
+        assertEquals("NULL->", diff.getCell(2,1));
+    }
+
+    public function testToLiteralStringNull() {
+        var v1 = Native.table([["id", "name"], ["1", null]]);
+        var v2 = Native.table([["id", "name"], ["1", "NULL"]]);
+        var diff = coopy.Coopy.diff(v1,v2);
+        assertEquals("NULL->_NULL", diff.getCell(2,1));
+    }
 }

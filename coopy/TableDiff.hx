@@ -136,23 +136,6 @@ class TableDiff {
         return sep;
     }
 
-    private function quoteForDiff(v: View, d: Dynamic) : String {
-        var nil : String = "NULL";
-        if (v.equals(d,null)) {
-            return nil;
-        }
-        var str : String = v.toString(d);
-        var score : Int = 0;
-        for (i in 0...str.length) {
-            if (str.charCodeAt(score)!='_'.code) break;
-            score++;
-        }
-        if (str.substr(score)==nil) {
-            str = "_" + str;
-        }
-        return str;
-    }
-
     private function isReordered(m: Map<Int,Unit>, ct: Int) : Bool {
         var reordered : Bool = false;
         var l : Int = -1;

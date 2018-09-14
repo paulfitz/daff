@@ -5,7 +5,9 @@ class coopy_PhpCellView implements coopy_View {
     return print_r($d,true);
   }
   public function equals($d1,$d2) {
-      return "".$d1 == "".$d2;
+    if ($d1===null&&$d2===null) { return true; }
+    if ($d1===null||$d2===null) { return false; }
+    return "".$d1 == "".$d2;
   }
   public function toDatum($d) { return $d; }
   public function makeHash() { return array(); }
