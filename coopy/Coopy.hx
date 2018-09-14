@@ -798,6 +798,12 @@ class Coopy {
                     if (context>=0) flags.unchanged_context = context;
                     args.splice(i,2);
                     break;
+                } else if (tag=="--context-columns") {
+                    more = true;
+                    var context : Int = Std.parseInt(args[i+1]);
+                    if (context>=0) flags.unchanged_column_context = context;
+                    args.splice(i,2);
+                    break;
                 } else if (tag=="--inplace") {
                     more = true;
                     inplace = true;
@@ -981,7 +987,8 @@ class Coopy {
                     io.writeStderr("     --all-rows:    do not prune unchanged rows\n");
                     io.writeStderr("     --all-columns: do not prune unchanged columns\n");
                     io.writeStderr("     --color:       highlight changes with terminal colors (default in terminals)\n");
-                    io.writeStderr("     --context NUM: show NUM rows of context\n");
+                    io.writeStderr("     --context NUM: show NUM rows of context (0=none)\n");
+                    io.writeStderr("     --context-columns NUM: show NUM columns of context (0=none)\n");
                     io.writeStderr("     --fail-if-diff: return status is 0 if equal, 1 if different, 2 if problem\n");
                     io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
                     io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
