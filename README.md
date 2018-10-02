@@ -37,7 +37,7 @@ The diff format used by `daff` is specified here:
 > http://paulfitz.github.io/daff-doc/spec.html
 
 This library is a stripped down version of the coopy toolbox (see
-http://share.find.coop).  To compare tables from different origins, 
+http://share.find.coop).  To compare tables from different origins,
 or with automatically generated IDs, or other complications, check out
 the coopy toolbox.
 
@@ -109,7 +109,7 @@ since git will suddenly understand about rows and columns, not just lines:
 The library
 -----------
 
-You can use `daff` as a library from any supported language.  We take 
+You can use `daff` as a library from any supported language.  We take
 here the example of Javascript.  To use `daff` on a webpage,
 first include `daff.js`:
 ```html
@@ -198,7 +198,7 @@ patcher.apply();
 // table1 should now equal table2
 ```
 
-For other languages, you should find sample code in 
+For other languages, you should find sample code in
 the packages on the [Releases](https://github.com/paulfitz/daff/releases) page.
 
 Supported languages
@@ -212,15 +212,15 @@ can be translated reasonably well into at least the following languages:
  * Java
  * C#
  * C++
- * Ruby (using an [unofficial haxe target](https://github.com/paulfitz/haxe) developed for `daff`) 
+ * Ruby (using an [unofficial haxe target](https://github.com/paulfitz/haxe) developed for `daff`)
  * PHP
 
 Some translations are done for you on the
 [Releases](https://github.com/paulfitz/daff/releases) page.
 To make another translation, or to compile from source
-first follow the [Haxe getting started tutorial](http://haxe.org/doc/start) for the
+first follow the [Haxe language introduction](https://haxe.org/documentation/introduction/language-introduction.html) for the
 language you care about.  At the time of writing, if you are on OSX, you should
-install haxe using `brew install haxe --HEAD`.  Then do one of:
+install haxe using `brew install haxe`.  Then do one of:
 
 ```
 make js
