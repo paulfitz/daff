@@ -199,7 +199,7 @@ class TerminalDiffRender {
             sizes.push(most);
             total += most;
         }
-        if (total>130) {  // arbitrary wide terminal size
+        if (total>130&&!wide_columns) {  // arbitrary wide terminal size
             return null;
         }
         return sizes;

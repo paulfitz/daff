@@ -136,9 +136,11 @@ class CompareTable {
 
         var ids : Array<String> = null;
         var ignore : Map<String,Bool> = null;
+        var ordered : Bool = true;
         if (comp.compare_flags!=null) {
             ids = comp.compare_flags.ids;
             ignore = comp.compare_flags.getIgnoredColumns();
+            ordered = comp.compare_flags.ordered;
         }
  
         var common_units : Array<Unit> = new Array<Unit>();
