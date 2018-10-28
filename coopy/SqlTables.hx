@@ -10,16 +10,16 @@ class SqlTables implements Table {
     private var t: Table;
     private var flags: CompareFlags;
 
-    public function new(db: SqlDatabase, flags: CompareFlags) {
+    public function new(db: SqlDatabase, flags: CompareFlags, role: String) {
         this.db = db;
         var helper = this.db.getHelper();
         var names = helper.getTableNames(db);
-        var allowed : Map<String,Bool> = null;
+        var allowed : Map<String,String> = null;
         var count : Int = names.length;
         if (flags.tables!=null) {
-            allowed = new Map<String,Bool>();
+            allowed = new Map<String,String>();
             for (name in flags.tables) {
-                allowed.set(name,true);
+                allowed.set(flags.getNameByRole(name, role),flags.getCanonicalName(name));
             }
             count = 0;
             for (name in names) {
@@ -34,10 +34,12 @@ class SqlTables implements Table {
         var v = t.getCellView();
         var at = 1;
         for (name in names) {
+            var cname = name;
             if (allowed!=null) {
                 if (!allowed.exists(name)) continue;
+                cname = allowed.get(name);
             }
-            t.setCell(0,at,name);
+            t.setCell(0,at,cname);
             t.setCell(1,at,v.wrapTable(new SqlTable(db, new SqlTableName(name))));
             at++;
         }

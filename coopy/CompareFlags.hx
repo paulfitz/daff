@@ -383,5 +383,50 @@ class CompareFlags {
     public function getWarning() : String {
         return warnings.join("\n");
     }
+
+    /**
+     *
+     * Primary key and table names may be specified as "local:remote" or "parent:local:remote"
+     * when they should be different for the local, remote, and parent sources.  This 
+     * method returns the appropriate part of a name given a role of local, remote, or parent.
+     *
+     */
+    public function getNameByRole(name: String, role: String): String {
+        var parts = name.split(":");
+        if (parts.length <= 1) { return name; }
+        if (role == 'parent') {
+            return parts[0];
+        }
+
+        if (role == 'local') {
+            return parts[parts.length - 2];
+        }
+        return parts[parts.length - 1];
+    }
+
+    /**
+     *
+     * If we need a single name for a table/column, we use the local name.
+     *
+     */
+    public function getCanonicalName(name: String): String {
+        return getNameByRole(name, 'local');
+    }
+
+    /**
+     *
+     * Returns primary key for 'local', 'remote', and 'parent' sources.
+     *
+     */
+    public function getIdsByRole(role: String): Array<String> {
+        var result = new Array<String>();
+        if (ids==null) {
+            return result;
+        }
+        for (name in ids) {
+            result.push(getNameByRole(name, role));
+        }
+        return result;
+    }
 }
 

@@ -13,6 +13,8 @@ class SqliteDatabase(SqlDatabase):
 
     # needed because pragmas do not support bound parameters
     def getQuotedColumnName(self,name):
+        if hasattr(name,'decode'):
+            name = unicode(name)
         return self.quoter.renderCell(self.view, name, True)
 
     # needed because pragmas do not support bound parameters

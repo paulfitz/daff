@@ -216,7 +216,7 @@ class Coopy {
         var hp : HighlightPatch = new HighlightPatch(null,null);
         var csv : Csv = new Csv();
         var tm : TableModifier = new TableModifier(null);
-        var sc: SqlCompare = new SqlCompare(null,null,null,null);
+        var sc: SqlCompare = new SqlCompare(null,null,null,null,null);
         var sq: SqliteHelper = new SqliteHelper();
         var sm : SimpleMeta = new SimpleMeta(null);
         var ct : CombinedTable = new CombinedTable(null);
@@ -496,10 +496,11 @@ class Coopy {
      * Load a table from a file.
      *
      * @param name filename to read from
+     * @param role one of "parent", "local", or "remote"
      * @return a table
      *
      */
-    public function loadTable(name: String) : Table {
+    public function loadTable(name: String, role: String) : Table {
         var ext = checkFormat(name);
         if (ext == "sqlite") {
             var sql = io.openSqliteDatabase(name);
@@ -507,7 +508,7 @@ class Coopy {
                 io.writeStderr("! Cannot open database, aborting\n");
                 return null;
             }
-            var tab = new SqlTables(sql,flags);
+            var tab = new SqlTables(sql,flags,role);
             return tab;
         }
         var txt : String = io.getContent(name);
@@ -1059,15 +1060,15 @@ class Coopy {
             }
             var parent = null;
             if (args.length-offset>=3) {
-                parent = loadTable(args[offset]);
+                parent = loadTable(args[offset], 'parent');
                 offset++;
             }
             var aname = args[0+offset];
-            var a = loadTable(aname);
+            var a = loadTable(aname, 'local');
             var b = null;
             if (args.length-offset>=2) {
                 if (cmd!="copy") {
-                    b = loadTable(args[1+offset]);
+                    b = loadTable(args[1+offset], 'remote');
                 } else {
                     output = args[1+offset];
                 }
