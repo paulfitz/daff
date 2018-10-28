@@ -494,7 +494,7 @@ class SqlCompare {
         }
 
         if (alt!=null) {
-            var sql_inserts : String = "SELECT DISTINCT 0 AS __coopy_code, NULL, " + rowid3 + " AS rowid, NULL, " + sql_all_cols3 + " FROM " + sql_table3;
+            var sql_inserts : String = "SELECT DISTINCT 0 AS __coopy_code, NULL, NULL, " + rowid3 + " AS rowid, " + sql_all_cols3 + " FROM " + sql_table3;
             if (local!=null) {
                 sql_inserts += " LEFT JOIN " + sql_table1;
                 sql_inserts += " ON " + sql_key_match3 + where(sql_key_null);
@@ -526,7 +526,7 @@ class SqlCompare {
 
         if (alt==null) {
             if (local!=null) {
-                var sql_deletes : String = "SELECT DISTINCT 0 AS __coopy_code, NULL, " + rowid1 + " AS rowid, NULL, " + sql_all_cols1 + " FROM " + sql_table1;
+                var sql_deletes : String = "SELECT DISTINCT 0 AS __coopy_code, " + rowid1 + " AS rowid, NULL, NULL, " + sql_all_cols1 + " FROM " + sql_table1;
                 if (remote!=null) {
                     sql_deletes += " LEFT JOIN " + sql_table2;
                     sql_deletes += " ON " + sql_key_match2 + where(sql_key_null2);
