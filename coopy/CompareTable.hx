@@ -98,7 +98,7 @@ class CompareTable {
             if (tab1!=null) db = tab1.getDatabase();
             if (db==null && tab2!=null) db = tab2.getDatabase();
             if (db==null && tab3!=null) db = tab3.getDatabase();
-            var sc = new SqlCompare(db,tab1,tab2,tab3,align);
+            var sc = new SqlCompare(db,tab1,tab2,tab3,align,comp.compare_flags);
             sc.apply();
             if (comp.p!=null) {
                 align.meta.reference = align.reference.meta;

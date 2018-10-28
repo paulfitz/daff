@@ -18,14 +18,20 @@ class SqlCompare {
     private var peered : Bool;
     private var alt_peered : Bool;
     private var needed : Array<Int>;
+    private var flags : CompareFlags;
 
     public function new(db: SqlDatabase, local: SqlTable, remote: SqlTable,
-                        alt: SqlTable, align: Alignment = null) {
+                        alt: SqlTable, align: Alignment = null,
+                        flags: CompareFlags = null) {
         this.db = db;
         this.local = local;
         this.remote = remote;
         this.alt = alt;
         this.align = align;
+        this.flags = flags;
+        if (this.flags==null) {
+            this.flags = new CompareFlags();
+        }
         peered = false;
         alt_peered = false;
         if (local!=null&&remote!=null) {
@@ -65,6 +71,9 @@ class SqlCompare {
             all_cols1 = local.getColumnNames();
             key_cols1 = local.getPrimaryKey();
             if (all_cols1.length==0) access_error = true;
+            if (flags.ids!=null) {
+                key_cols1 = flags.getIdsByRole('local');
+            }
             if (key_cols1.length==0) pk_missing = true;
         }
         var all_cols2 = [];
@@ -73,6 +82,9 @@ class SqlCompare {
             all_cols2 = remote.getColumnNames();
             key_cols2 = remote.getPrimaryKey();
             if (all_cols2.length==0) access_error = true;
+            if (flags.ids!=null) {
+                key_cols2 = flags.getIdsByRole('remote');
+            }
             if (key_cols2.length==0) pk_missing = true;
         }
         var all_cols3 = all_cols2;
@@ -81,6 +93,9 @@ class SqlCompare {
             all_cols3 = alt.getColumnNames();
             key_cols3 = alt.getPrimaryKey();
             if (all_cols3.length==0) access_error = true;
+            if (flags.ids!=null) {
+                key_cols3 = flags.getIdsByRole('parent');
+            }
             if (key_cols3.length==0) pk_missing = true;
         }
         if (access_error) {
@@ -97,7 +112,8 @@ class SqlCompare {
             if (!equalArray(key_cols1,key_cols3)) pk_change = true;
         }
         if (pk_change) {
-            throw("sql diff not possible when primary key changes");
+            throw("sql diff not possible when primary key changes: " +
+                  [key_cols1, key_cols2, key_cols3]);
         }
         return true;
     }
@@ -221,6 +237,19 @@ class SqlCompare {
             data_cols = local.getAllButPrimaryKey();
             all_cols = local.getColumnNames();
             all_cols1 = local.getColumnNames();
+            if (flags.ids!=null) {
+                key_cols = flags.getIdsByRole('local');
+                data_cols = new Array<String>();
+                var pks = new Map<String, Bool>();
+                for (col in key_cols) {
+                    pks.set(col, true);
+                }
+                for (col in all_cols) {
+                    if (!pks.exists(col)) {
+                        data_cols.push(col);
+                    }
+                }
+            }
         }
 
         if (remote!=null) {
@@ -329,12 +358,12 @@ class SqlCompare {
         var sql_all_cols1: String = "";
         for (i in 0...(all_cols1.length)) {
             if (i>0) sql_all_cols1 += ",";
-            sql_all_cols1 += local.getQuotedColumnName(all_cols1[i]);
+            sql_all_cols1 += sql_table1 + "." + local.getQuotedColumnName(all_cols1[i]);
         }
         var sql_all_cols2: String = "";
         for (i in 0...(all_cols2.length)) {
             if (i>0) sql_all_cols2 += ",";
-            sql_all_cols2 += remote.getQuotedColumnName(all_cols2[i]);
+            sql_all_cols2 += sql_table2 + "." + remote.getQuotedColumnName(all_cols2[i]);
         }
         var sql_all_cols3: String = "";
         if (alt!=null) {
@@ -342,6 +371,18 @@ class SqlCompare {
                 if (i>0) sql_all_cols3 += ",";
                 sql_all_cols3 += alt.getQuotedColumnName(all_cols3[i]);
             }
+        }
+        var sql_key_null : String = "";
+        for (i in 0...(key_cols.length)) {
+            if (i>0) sql_key_null += " AND ";
+            var n : String = common.getQuotedColumnName(key_cols[i]);
+            sql_key_null += sql_table1 + "." + n + " IS NULL";
+        }
+        var sql_key_null2 : String = "";
+        for (i in 0...(key_cols.length)) {
+            if (i>0) sql_key_null2 += " AND ";
+            var n : String = common.getQuotedColumnName(key_cols[i]);
+            sql_key_null2 += sql_table2 + "." + n + " IS NULL";
         }
         var sql_key_match2 : String = "";
         for (i in 0...(key_cols.length)) {
@@ -441,18 +482,20 @@ class SqlCompare {
         diff_ct = 0;
 
         if (remote!=null) {
-            var sql_inserts : String = "SELECT DISTINCT 0 AS __coopy_code, NULL, " + rowid + " AS rowid, NULL, " + sql_all_cols2 + " FROM " + sql_table2;
+            var sql_inserts : String = "SELECT DISTINCT 0 AS __coopy_code, NULL, " + rowid2 + " AS rowid, NULL, " + sql_all_cols2 + " FROM " + sql_table2;
             if (local!=null) {
-                sql_inserts += " WHERE NOT EXISTS (SELECT 1 FROM " + sql_table1 + where(sql_key_match2) + ")";
+                sql_inserts += " LEFT JOIN " + sql_table1;
+                sql_inserts += " ON " + sql_key_match2 + where(sql_key_null);
             }
             var sql_inserts_order : Array<String> = ["__coopy_code","NULL","rowid","NULL"].concat(all_cols2);
             linkQuery(sql_inserts,sql_inserts_order);
         }
 
         if (alt!=null) {
-            var sql_inserts : String = "SELECT DISTINCT 1 AS __coopy_code, NULL, NULL, " + rowid + " AS rowid, " + sql_all_cols3 + " FROM " + sql_table3;
+            var sql_inserts : String = "SELECT DISTINCT 0 AS __coopy_code, NULL, " + rowid3 + " AS rowid, NULL, " + sql_all_cols3 + " FROM " + sql_table3;
             if (local!=null) {
-                sql_inserts += " WHERE NOT EXISTS (SELECT 1 FROM " + sql_table1 + where(sql_key_match3) + ")";
+                sql_inserts += " LEFT JOIN " + sql_table1;
+                sql_inserts += " ON " + sql_key_match3 + where(sql_key_null);
             }
             var sql_inserts_order : Array<String> = ["__coopy_code","NULL","NULL","rowid"].concat(all_cols3);
             linkQuery(sql_inserts,sql_inserts_order);
@@ -479,9 +522,10 @@ class SqlCompare {
 
         if (alt==null) {
             if (local!=null) {
-                var sql_deletes : String = "SELECT DISTINCT 0 AS __coopy_code, " + rowid + " AS rowid, NULL, NULL, " + sql_all_cols1 + " FROM " + sql_table1;
+                var sql_deletes : String = "SELECT DISTINCT 0 AS __coopy_code, NULL, " + rowid1 + " AS rowid, NULL, " + sql_all_cols1 + " FROM " + sql_table1;
                 if (remote!=null) {
-                    sql_deletes += " WHERE NOT EXISTS (SELECT 1 FROM " + sql_table2 + where(sql_key_match2) + ")";
+                    sql_deletes += " LEFT JOIN " + sql_table2;
+                    sql_deletes += " ON " + sql_key_match2 + where(sql_key_null2);
                 }
                 var sql_deletes_order : Array<String> = ["__coopy_code","rowid","NULL","NULL"].concat(all_cols1);
                 linkQuery(sql_deletes,sql_deletes_order);
