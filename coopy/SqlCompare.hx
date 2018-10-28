@@ -369,7 +369,7 @@ class SqlCompare {
         if (alt!=null) {
             for (i in 0...(all_cols3.length)) {
                 if (i>0) sql_all_cols3 += ",";
-                sql_all_cols3 += alt.getQuotedColumnName(all_cols3[i]);
+                sql_all_cols3 += sql_table3 + "." + alt.getQuotedColumnName(all_cols3[i]);
             }
         }
         var sql_key_null : String = "";
@@ -487,8 +487,10 @@ class SqlCompare {
                 sql_inserts += " LEFT JOIN " + sql_table1;
                 sql_inserts += " ON " + sql_key_match2 + where(sql_key_null);
             }
-            var sql_inserts_order : Array<String> = ["__coopy_code","NULL","rowid","NULL"].concat(all_cols2);
-            linkQuery(sql_inserts,sql_inserts_order);
+            if (sql_table1!=sql_table2) {
+                var sql_inserts_order : Array<String> = ["__coopy_code","NULL","rowid","NULL"].concat(all_cols2);
+                linkQuery(sql_inserts,sql_inserts_order);
+            }
         }
 
         if (alt!=null) {
@@ -497,8 +499,10 @@ class SqlCompare {
                 sql_inserts += " LEFT JOIN " + sql_table1;
                 sql_inserts += " ON " + sql_key_match3 + where(sql_key_null);
             }
-            var sql_inserts_order : Array<String> = ["__coopy_code","NULL","NULL","rowid"].concat(all_cols3);
-            linkQuery(sql_inserts,sql_inserts_order);
+            if (sql_table1!=sql_table3) {
+                var sql_inserts_order : Array<String> = ["__coopy_code","NULL","NULL","rowid"].concat(all_cols3);
+                linkQuery(sql_inserts,sql_inserts_order);
+            }
         }
 
         if (local!=null && remote!=null) {
@@ -527,8 +531,10 @@ class SqlCompare {
                     sql_deletes += " LEFT JOIN " + sql_table2;
                     sql_deletes += " ON " + sql_key_match2 + where(sql_key_null2);
                 }
-                var sql_deletes_order : Array<String> = ["__coopy_code","rowid","NULL","NULL"].concat(all_cols1);
-                linkQuery(sql_deletes,sql_deletes_order);
+                if (sql_table1!=sql_table2) {
+                    var sql_deletes_order : Array<String> = ["__coopy_code","rowid","NULL","NULL"].concat(all_cols1);
+                    linkQuery(sql_deletes,sql_deletes_order);
+                }
             }
         }
 

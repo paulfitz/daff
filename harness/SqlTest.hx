@@ -8,6 +8,13 @@ class SqlTest extends haxe.unit.TestCase {
 
     override public function setup() {
         db = Native.openSqlite(":memory:");
+        createTables();
+    }
+
+    public function createTables() {
+        for (name in ["ver1", "ver2", "ver3", "ver4", "ver5", "ver6", "nully1", "nully2"]) {
+            exec(db,"DROP TABLE IF EXISTS "+name);
+        }
         exec(db,"CREATE TABLE ver1 (id INTEGER PRIMARY KEY, name TEXT)");
         exec(db,"CREATE TABLE ver2 (id INTEGER PRIMARY KEY, name TEXT)");
         exec(db,"CREATE TABLE ver3 (id INTEGER PRIMARY KEY, name TEXT, count INTEGER)");
@@ -99,7 +106,7 @@ class SqlTest extends haxe.unit.TestCase {
     }
 
     public function comparePair(name1: String, name2: String) {
-        setup();
+        createTables();
         var st1 = new coopy.SqlTable(db,new coopy.SqlTableName(name1));
         var st2 = new coopy.SqlTable(db,new coopy.SqlTableName(name2));
         flags.show_meta = true;
@@ -116,6 +123,7 @@ class SqlTest extends haxe.unit.TestCase {
                 comparePair(n1,n2);
             }
         }
+        createTables();
     }
 
     public function test3WayDiff() {
