@@ -965,13 +965,14 @@ class Coopy {
                 if (args.length < 1) {
                     io.writeStderr("daff can produce and apply tabular diffs.\n");
                     io.writeStderr("Call as:\n");
+                    io.writeStderr("  daff a.csv b.csv\n");
                     io.writeStderr("  daff [--color] [--no-color] [--output OUTPUT.csv] a.csv b.csv\n");
                     io.writeStderr("  daff [--output OUTPUT.html] a.csv b.csv\n");
-                    io.writeStderr("  daff [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
-                    io.writeStderr("  daff [--output OUTPUT.ndjson] a.ndjson b.ndjson\n");
                     io.writeStderr("  daff [--www] a.csv b.csv\n");
-                    io.writeStderr("  daff patch [--inplace] [--output OUTPUT.csv] a.csv patch.csv\n");
-                    io.writeStderr("  daff merge [--inplace] [--output OUTPUT.csv] parent.csv a.csv b.csv\n");
+                    io.writeStderr("  daff parent.csv a.csv b.csv\n");
+                    io.writeStderr("  daff --input-format sqlite a.db b.db\n");
+                    io.writeStderr("  daff patch [--inplace] a.csv patch.csv\n");
+                    io.writeStderr("  daff merge [--inplace] parent.csv a.csv b.csv\n");
                     io.writeStderr("  daff trim [--output OUTPUT.csv] source.csv\n");
                     io.writeStderr("  daff render [--output OUTPUT.html] diff.csv\n");
                     io.writeStderr("  daff copy in.csv out.tsv\n");
@@ -994,13 +995,13 @@ class Coopy {
                     io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
                     io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
                     io.writeStderr("     --index:       include row/columns numbers from original tables\n");
-                    io.writeStderr("     --input-format [csv|tsv|ssv|psv|json]: set format to expect for input\n");
+                    io.writeStderr("     --input-format [csv|tsv|ssv|psv|json|sqlite]: set format to expect for input\n");
                     io.writeStderr("     --eol [crlf|lf|cr|auto]: separator between rows of csv output.\n");
                     io.writeStderr("     --no-color:    make sure terminal colors are not used\n");
                     io.writeStderr("     --ordered:     assume row order is meaningful (default for CSV)\n");
                     io.writeStderr("     --output-format [csv|tsv|ssv|psv|json|copy|html]: set format for output\n");
                     io.writeStderr("     --padding [dense|sparse|smart]: set padding method for aligning columns\n");
-                    io.writeStderr("     --table NAME:  compare the named table, used with SQL sources\n");
+                    io.writeStderr("     --table NAME:  compare the named table, used with SQL sources. If name changes, use 'n1:n2'\n");
                     io.writeStderr("     --unordered:   assume row order is meaningless (default for json formats)\n");
                     io.writeStderr("     -w / --ignore-whitespace: ignore changes in leading/trailing whitespace\n");
                     io.writeStderr("     -i / --ignore-case: ignore differences in case\n");
