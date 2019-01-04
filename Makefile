@@ -254,7 +254,7 @@ ntest_php:
 	find ntest_php_dir/lib/coopy -iname "*View.*.php" -exec sed -i 's/function hashSet(/function hashSet(\&/' {} \;
 	cp env/php/*.class.php ntest_php_dir/lib/coopy/
 	#time hhvm ntest_php_dir/index.php
-	time php5 ntest_php_dir/index.php
+	time php ntest_php_dir/index.php
 	#php5 -d xdebug.profiler_enable=1 -d xdebug.profiler_output_dir=/tmp ntest_php_dir/index.php
 
 ntest_java:
@@ -283,7 +283,7 @@ perf_php:
 	haxe -D enbiggen -php ntest_php_dir -main harness.Main
 	cp env/php/*.class.php ntest_php_dir/lib/coopy/
 	#time hhvm ntest_php_dir/index.php
-	time php5 ntest_php_dir/index.php
+	time php ntest_php_dir/index.php
 
 integration: js py
 	./test/integration_git.sh js
