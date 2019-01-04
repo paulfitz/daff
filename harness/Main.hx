@@ -40,6 +40,11 @@ class Main {
     }
 
     static public function main() {
+        // php version workaround from https://github.com/HaxeFoundation/hscript/commit/dffa3345d0e2b154efd70251aef03193ae7a95c1
+        #if ((haxe_ver < 4) && php)
+            // uncaught exception: The each() function is deprecated. This message will be suppressed on further calls (errno: 8192)
+            untyped __php__("error_reporting(E_ALL ^ E_DEPRECATED);");
+		#end
         var main = new Main();
         if (!Native.wrap(main)) {
             main.body();
