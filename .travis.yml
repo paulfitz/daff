@@ -15,7 +15,7 @@ before_install:
   - if ! $USE_PAULFITZ; then sudo apt-get update; fi
 
 install:
-  - sudo apt-get install time php5 sqlite3 -y
+  - sudo apt-get install time php sqlite3 -y
   - if ! $USE_PAULFITZ; then sudo apt-get install haxe -y; fi
   - if $USE_PAULFITZ; then wget https://github.com/paulfitz/haxe/releases/download/rb_v3.1.1_16/haxerb.zip; fi
   - if $USE_PAULFITZ; then unzip -q haxerb.zip; fi
