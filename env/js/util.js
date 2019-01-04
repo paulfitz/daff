@@ -1,4 +1,4 @@
-if (true) {
+if (typeof exports !== 'undefined') {
     
     var tio = {};
     var tio_args = [];

@@ -1,6 +1,6 @@
 
 var daff = null;
-if (exports.coopy) {
+if (typeof exports !== 'undefined' && exports.coopy) {
     // avoid having excess nesting (coopy.coopy) when using node
     for (f in exports.coopy) { 
 	if (exports.coopy.hasOwnProperty(f)) {

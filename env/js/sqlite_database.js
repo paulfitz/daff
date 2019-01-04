@@ -134,6 +134,8 @@
 	    return this.fname;
 	}
 
-	exports.SqliteDatabase = SqliteDatabase;
+        if (typeof exports !== 'undefined') {
+            exports.SqliteDatabase = SqliteDatabase;
+        }
 
     })();
