@@ -462,6 +462,7 @@ class DiffRender {
 
 .highlighter td {
   empty-cells: show;
+  white-space: pre-wrap;
 }
 ";
     }
