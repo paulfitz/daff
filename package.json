@@ -29,7 +29,7 @@
     "fibers": "^1.0.0"
   },
   "scripts": {
-    "prepublish": "make js",
+    "prepublishOnly": "make js",
     "test": "make test"
   },
   "main": "lib/daff.js",
