@@ -241,21 +241,21 @@ clean:
 ntest: ntest_js ntest_rb ntest_py ntest_php ntest_java
 
 ntest_js: js
-	haxe -js ntest.js -L hx3compat -D haxeJSON -main harness.Main
+	haxe -js ntest.js -L hx3compat -D haxeJSON -main harness.Main || haxe -js ntest.js -D haxeJSON -main harness.Main
 	NODE_PATH=$$PWD/lib node ntest.js
 
 py_test_files=$(wildcard test/*.py)
 py_targets=$(subst .py,_py,$(py_test_files))
 ntest_py: py $(py_targets)
 	rm -f daff/__init__.py daff.py
-	haxe -python ntest.py -L hx3compat -main harness.Main
+	haxe -python ntest.py -L hx3compat -main harness.Main || haxe -python ntest.py -main harness.Main
 	PYTHONPATH=$$PWD/python_bin python3 ntest.py
 test/%_py: test/%.py
 	@cd test; echo == $*.py; PYTHONPATH=${PYTHONPATH}:$(PWD)/python_bin python3 $*.py
 
 ntest_py2: py2
 	rm -f daff/__init__.py daff.py
-	haxe -python ntest.py -L hx3compat -main harness.Main
+	haxe -python ntest.py -L hx3compat -main harness.Main || haxe -python ntest.py -main harness.Main
 	PYTHONPATH=$$PWD/python_bin python3 ntest.py 
 
 ntest_php:

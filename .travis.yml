@@ -41,7 +41,7 @@ script:
   - if ! $USE_PAULFITZ; then make cpp; fi
   - if ! $USE_PAULFITZ; then make cs; fi
   - make ntest_js
-  - make ntest_php
+  - if ! $USE_PAULFITZ; make ntest_php; fi
   - if ! $USE_PAULFITZ; then make ntest_java; fi
   - if $USE_PAULFITZ; then make ntest_py; fi
   - if $USE_PAULFITZ; then make ntest_rb; fi
