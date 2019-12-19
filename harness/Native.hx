@@ -83,7 +83,7 @@ class Native {
         untyped __rb__("require 'lib/coopy/table_view' unless defined?(::Coopy::TableView)");
         return untyped __js__("::Coopy::TableView.new(data)");
 #elseif php
-        return untyped __php__("new coopy_PhpTableView($data)");
+        return untyped __php__("new \\coopy\\PhpTableView($data)");
 #elseif java
         return untyped __java__("new coopy.JavaTableView((Object[][])data)");
 #else

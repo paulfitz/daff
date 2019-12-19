@@ -36,8 +36,8 @@ class SimpleTable implements Table {
         return this;
     }
 
-    public var height(get_height,never) : Int;
-    public var width(get_width,never) : Int;
+    public var height(get,never) : Int;
+    public var width(get,never) : Int;
 
     public function get_width() : Int {
         return w;

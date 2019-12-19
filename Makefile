@@ -91,8 +91,8 @@ cpp_package:
 
 php:
 	haxe language/php.hxml
-	find php_bin/lib/coopy -iname "*View.*.php" -exec sed -i.bak -e 's/function hashSet(/function hashSet(\&/' {} \;
-	cp env/php/*.class.php php_bin/lib/coopy/
+	find php_bin/lib/coopy -iname "*View.php" -exec $(SED) -i 's/function hashSet *(\$$/function hashSet(\&\$$/' {} \;
+	cp env/php/*.php php_bin/lib/coopy/
 	cp scripts/example.php php_bin/
 	@echo 'Output in php_bin, run "php php_bin/index.php" for an example utility'
 	@echo 'or try "php php_bin/example.php" for an example of using daff as a library'
@@ -241,33 +241,33 @@ clean:
 ntest: ntest_js ntest_rb ntest_py ntest_php ntest_java
 
 ntest_js: js
-	haxe -js ntest.js -D haxeJSON -main harness.Main
+	haxe -js ntest.js -L hx3compat -D haxeJSON -main harness.Main
 	NODE_PATH=$$PWD/lib node ntest.js
 
 py_test_files=$(wildcard test/*.py)
 py_targets=$(subst .py,_py,$(py_test_files))
 ntest_py: py $(py_targets)
 	rm -f daff/__init__.py daff.py
-	haxe -python ntest.py -main harness.Main
+	haxe -python ntest.py -L hx3compat -main harness.Main
 	PYTHONPATH=$$PWD/python_bin python3 ntest.py
 test/%_py: test/%.py
 	@cd test; echo == $*.py; PYTHONPATH=${PYTHONPATH}:$(PWD)/python_bin python3 $*.py
 
 ntest_py2: py2
 	rm -f daff/__init__.py daff.py
-	haxe -python ntest.py -main harness.Main
+	haxe -python ntest.py -L hx3compat -main harness.Main
 	PYTHONPATH=$$PWD/python_bin python3 ntest.py 
 
 ntest_php:
-	haxe -D haxeJSON -php ntest_php_dir -main harness.Main
-	find ntest_php_dir/lib/coopy -iname "*View.*.php" -exec $(SED) -i 's/function hashSet(/function hashSet(\&/' {} \;
-	cp env/php/*.class.php ntest_php_dir/lib/coopy/
+	haxe -D haxeJSON -php ntest_php_dir -L hx3compat -main harness.Main
+	find ntest_php_dir/lib/coopy -iname "*View.php" -exec $(SED) -i 's/function hashSet *(\$$/function hashSet(\&\$$/' {} \;
+	cp env/php/*.php ntest_php_dir/lib/coopy/
 	#time hhvm ntest_php_dir/index.php
 	time php ntest_php_dir/index.php
 	#php5 -d xdebug.profiler_enable=1 -d xdebug.profiler_output_dir=/tmp ntest_php_dir/index.php
 
 ntest_java:
-	haxe -java ntest_java_dir -main harness.Main -D no-compilation
+	haxe -java ntest_java_dir -L hx3compat -main harness.Main -D no-compilation
 	cp scripts/JavaTableView.java ntest_java_dir/src/coopy
 	#	echo "src/coopy/JavaTableView.java" >> ntest_java_dir/cmd
 	cd ntest_java_dir && find src -iname "*.java" > cmd
@@ -290,7 +290,7 @@ perf_js:
 
 perf_php:
 	haxe -D enbiggen -php ntest_php_dir -main harness.Main
-	cp env/php/*.class.php ntest_php_dir/lib/coopy/
+	cp env/php/*.php ntest_php_dir/lib/coopy/
 	#time hhvm ntest_php_dir/index.php
 	time php ntest_php_dir/index.php
 

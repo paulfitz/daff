@@ -1,10 +1,18 @@
 <?php
 
-if(version_compare(PHP_VERSION, '5.1.0', '<')) {
-    exit('Your current PHP version is: ' . PHP_VERSION . '. Haxe/PHP generates code for version 5.1.0 or later');
-}
+use \coopy\Coopy;
 
-require_once dirname(__FILE__).'/lib/php/Boot.class.php';
+set_include_path(get_include_path().PATH_SEPARATOR.__DIR__.'/lib');
+spl_autoload_register(
+	function($class){
+		$file = stream_resolve_include_path(str_replace('\\', '/', $class) .'.php');
+		if ($file) {
+			include_once $file;
+		}
+	}
+);
+\php\Boot::__hx__init();
+#(unknown)
 
 $data1 = [
   ['Country','Capital'],
@@ -21,26 +29,26 @@ $data2 = [
   ['Germany','de','Berlin']
   ];
 
-$table1 = new coopy_PhpTableView($data1);
-$table2 = new coopy_PhpTableView($data2);
+$table1 = new \coopy\PhpTableView($data1);
+$table2 = new \coopy\PhpTableView($data2);
 
-$alignment = coopy_Coopy::compareTables($table1,$table2)->align();
+$alignment = \coopy\Coopy::compareTables($table1,$table2)->align();
 
 $data_diff = [];
-$table_diff = new coopy_PhpTableView($data_diff);
+$table_diff = new \coopy\PhpTableView($data_diff);
 
-$flags = new coopy_CompareFlags();
-$highlighter = new coopy_TableDiff($alignment,$flags);
+$flags = new \coopy\CompareFlags();
+$highlighter = new \coopy\TableDiff($alignment,$flags);
 $highlighter->hilite($table_diff);
 
-$diff2html = new coopy_DiffRender();
+$diff2html = new \coopy\DiffRender();
 $diff2html->usePrettyArrows(false);
 $diff2html->render($table_diff);
 $table_diff_html = $diff2html->html();
 echo $table_diff_html;
 
 
-$patcher = new coopy_HighlightPatch($table1,$table_diff);
+$patcher = new \coopy\HighlightPatch($table1,$table_diff);
 $patcher->apply();
 
 ?>
