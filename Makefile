@@ -3,6 +3,13 @@
 # If you are just interested in Javascript only the js
 # and test targets are important.
 
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+  SED = gsed
+else
+  SED = sed
+endif
+
 default: test
 
 js:
@@ -58,7 +65,7 @@ cpp:
 
 version:
 	grep "\"version\"" package.json | grep -E -o "[.0-9]+" > version.txt
-	cat coopy/Coopy.hx | sed "s/VERSION = .*;/VERSION = \"`cat version.txt`\";/" > coopy/Coopy.hx.next
+	cat coopy/Coopy.hx | $(SED) "s/VERSION = .*;/VERSION = \"`cat version.txt`\";/" > coopy/Coopy.hx.next
 	cmp coopy/Coopy.hx.next coopy/Coopy.hx || cp coopy/Coopy.hx.next coopy/Coopy.hx
 	rm -f coopy/Coopy.hx.next version.txt
 	@grep "\"version\"" package.json
@@ -113,16 +120,15 @@ py:
 	rm -rf python_bin
 	mkdir -p python_bin
 	haxe language/py_util.hxml
-# my goodness, the i command in sed is hard to use from a makefile
 	mv python_bin/daff.py python_bin/daff_base.py
 	echo '#!/usr/bin/env python' > python_bin/daff.py
 	cat python_bin/daff_base.py >> python_bin/daff.py
-	sed -i.bak -e "s|.*Coopy.main.*||" python_bin/daff.py
+	$(SED) -i "s|.*Coopy.main.*||" python_bin/daff.py
 	cat scripts/python_table_view.py >> python_bin/daff.py
 	cat env/py/export_functions.py >> python_bin/daff.py
 	cat env/py/sqlite_database.py >> python_bin/daff.py
-	sed -i.bak -e 's/Sys.stdout().writeString(txt)/get_stdout().write(txt.encode("utf-8", "strict"))/' python_bin/daff.py # fix utf-8
-	sed -i.bak -e 's/python_lib_Sys.stdout.buffer/get_stdout()/' python_bin/daff.py
+	$(SED) -i 's/Sys.stdout().writeString(txt)/get_stdout().write(txt.encode("utf-8", "strict"))/' python_bin/daff.py # fix utf-8
+	$(SED) -i 's/python_lib_Sys.stdout.buffer/get_stdout()/' python_bin/daff.py
 	echo 'def get_stdout():\n\treturn (python_lib_Sys.stdout.buffer if hasattr(python_lib_Sys.stdout,"buffer") else python_lib_Sys.stdout)' >> python_bin/daff.py
 	echo "if __name__ == '__main__':" >> python_bin/daff.py
 	echo "\tCoopy.main()" >> python_bin/daff.py
@@ -136,23 +142,23 @@ py2: py
 	echo "We need 3to2, https://bitbucket.org/amentajo/lib3to2"
 	which 3to2
 	3to2 -x except -x printfunction -x print -w python_bin/daff.py > /dev/null
-	sed -i.bak -e '14iimport codecs' python_bin/daff.py
-	sed -i.bak -e 's/.*stream.writable.*//' python_bin/daff.py
-	sed -i.bak -e 's/.*Read only stream.*//' python_bin/daff.py
-	sed -i.bak -e 's/python_lib_Builtins/python_lib_Builtin/g' python_bin/daff.py
-	sed -i.bak -e 's/python_lib_Builtin.open(path,.r.*)/codecs.open(path,"r","utf-8")/' python_bin/daff.py
-	sed -i.bak -e 's/python_lib_Builtin.open(path,.w.*)/codecs.open(path,"w","utf-8")/' python_bin/daff.py
-	sed -i.bak -e 's/= \([a-z0-9_.]*\)\.next()/= hxnext(\1)/' python_bin/daff.py
-	sed -i.bak -e 's/ unicode(/ hxunicode(/g' python_bin/daff.py
-	sed -i.bak -e 's/python_lib_Builtin.unicode/hxunicode/g' python_bin/daff.py
-	sed -i.bak -e 's/python_lib_Builtin.unichr/hxunichr/g' python_bin/daff.py
-	sed -i.bak -e 's/xrange/hxrange/g' python_bin/daff.py
-	sed -i.bak -e 's/python_lib_FuncTools.cmp_to_key/hx_cmp_to_key/g' python_bin/daff.py
-	sed -i.bak -e 's/^\([ \t]*\)def next(/\1def __next__(self): return self.next()\n\n\1def next(/g' python_bin/daff.py
-	sed -i.bak -e 's/from datetime import timezone/#from datetime import timezone/' python_bin/daff.py
-	sed -i.bak -e 's/Date.EPOCH_UTC =/#Date.EPOCH_UTC =/' python_bin/daff.py
-	sed -i.bak -e 's/from itertools import imap/import itertools; imap = itertools.imap if hasattr(itertools, "imap") else map/' python_bin/daff.py
-	sed -i.bak -e 's/from itertools import ifilter/import itertools; ifilter = itertools.ifilter if hasattr(itertools, "ifilter") else filter/' python_bin/daff.py
+	$(SED) -i '14iimport codecs' python_bin/daff.py
+	$(SED) -i 's/.*stream.writable.*//' python_bin/daff.py
+	$(SED) -i 's/.*Read only stream.*//' python_bin/daff.py
+	$(SED) -i 's/python_lib_Builtins/python_lib_Builtin/g' python_bin/daff.py
+	$(SED) -i 's/python_lib_Builtin.open(path,.r.*)/codecs.open(path,"r","utf-8")/' python_bin/daff.py
+	$(SED) -i 's/python_lib_Builtin.open(path,.w.*)/codecs.open(path,"w","utf-8")/' python_bin/daff.py
+	$(SED) -i 's/= \([a-z0-9_.]*\)\.next()/= hxnext(\1)/' python_bin/daff.py
+	$(SED) -i 's/ unicode(/ hxunicode(/g' python_bin/daff.py
+	$(SED) -i 's/python_lib_Builtin.unicode/hxunicode/g' python_bin/daff.py
+	$(SED) -i 's/python_lib_Builtin.unichr/hxunichr/g' python_bin/daff.py
+	$(SED) -i 's/xrange/hxrange/g' python_bin/daff.py
+	$(SED) -i 's/python_lib_FuncTools.cmp_to_key/hx_cmp_to_key/g' python_bin/daff.py
+	$(SED) -i 's/^\([ \t]*\)def next(/\1def __next__(self): return self.next()\n\n\1def next(/g' python_bin/daff.py
+	$(SED) -i 's/from datetime import timezone/#from datetime import timezone/' python_bin/daff.py
+	$(SED) -i 's/Date.EPOCH_UTC =/#Date.EPOCH_UTC =/' python_bin/daff.py
+	$(SED) -i 's/from itertools import imap/import itertools; imap = itertools.imap if hasattr(itertools, "imap") else map/' python_bin/daff.py
+	$(SED) -i 's/from itertools import ifilter/import itertools; ifilter = itertools.ifilter if hasattr(itertools, "ifilter") else filter/' python_bin/daff.py
 	cp scripts/python23.py python_bin/daff2.py
 	cat python_bin/daff.py | grep -v "from __future__" | grep -v "from __builtin__ import" | grep -v "import __builtin__ as" | grep -v '#!' >> python_bin/daff2.py
 	mv python_bin/daff2.py python_bin/daff.py
@@ -254,7 +260,7 @@ ntest_py2: py2
 
 ntest_php:
 	haxe -D haxeJSON -php ntest_php_dir -main harness.Main
-	find ntest_php_dir/lib/coopy -iname "*View.*.php" -exec sed -i.bak -e 's/function hashSet(/function hashSet(\&/' {} \;
+	find ntest_php_dir/lib/coopy -iname "*View.*.php" -exec $(SED) -i 's/function hashSet(/function hashSet(\&/' {} \;
 	cp env/php/*.class.php ntest_php_dir/lib/coopy/
 	#time hhvm ntest_php_dir/index.php
 	time php ntest_php_dir/index.php

@@ -158,7 +158,7 @@ class Native {
     return untyped __js__("new daff.SqliteDatabase(new sqlite3.Database(name),name,Fiber)");
 #elseif python
     python.Syntax.pythonCode("daff = __import__('daff')");
-    return python.Syntax.pythonCode("daff.SqliteDatabase(daff.sqlite3.connect(name),name)");
+    return python.Syntax.pythonCode("daff.SqliteDatabase(name,name)");
 #end
     return null;
     }

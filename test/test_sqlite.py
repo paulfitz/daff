@@ -1,6 +1,7 @@
 import daff
+import sqlite3
 
-db = daff.sqlite3.connect(':memory:')
+db = sqlite3.connect(':memory:')
 c = db.cursor()
 
 c.execute("CREATE TABLE ver1 (id INTEGER PRIMARY KEY, name TEXT)")
