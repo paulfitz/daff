@@ -22,6 +22,7 @@ install:
   - sudo apt-get install gcc-multilib g++-multilib -y  # VM is 64bit but hxcpp builds 32bit
   - mkdir -p ~/haxelib
   - haxelib setup ~/haxelib
+  - haxelib install hx3compat
   - if ! $USE_PAULFITZ; then sudo apt-get install mono-mcs time php-cli; fi
   - if $USE_PAULFITZ; then sudo apt-get install python3; fi
   - if ! $USE_PAULFITZ; then haxelib install hxcpp; fi
@@ -40,7 +41,7 @@ script:
   - if ! $USE_PAULFITZ; then make cpp; fi
   - if ! $USE_PAULFITZ; then make cs; fi
   - make ntest_js
-  - make ntest_php
+  - if ! $USE_PAULFITZ; then make ntest_php; fi
   - if ! $USE_PAULFITZ; then make ntest_java; fi
   - if $USE_PAULFITZ; then make ntest_py; fi
   - if $USE_PAULFITZ; then make ntest_rb; fi

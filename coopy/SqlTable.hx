@@ -142,8 +142,8 @@ class SqlTable implements Table implements Meta implements RowStream {
         return false;
     }
 
-    public var height(get_height,never) : Int;
-    public var width(get_width,never) : Int;
+    public var height(get,never) : Int;
+    public var width(get,never) : Int;
 
     public function get_width() : Int {
         getColumns();
