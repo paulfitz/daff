@@ -45,8 +45,8 @@ class SqlTables implements Table {
         }
     }
 
-    public var height(get_height,never) : Int;
-    public var width(get_width,never) : Int;
+    public var height(get,never) : Int;
+    public var width(get,never) : Int;
 
     public function getCell(x: Int, y: Int) : Dynamic {
         return t.getCell(x,y);
