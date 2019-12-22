@@ -35,14 +35,14 @@ cmp diff1 diff2 && {
 } || echo "good"
 
 header "Prepare for a merge test"
-sed -i "s/Whitestone/Whitestan/" bridges.csv
+sed -i.bak -e "s/Whitestone/Whitestan/" bridges.csv
 cd ..
 git clone test_repo test_repo2
 cd test_repo2
 git config user.email "nevyn@example.com"
 git config user.name "Nevyn"
 $DAFF_SCRIPT git csv
-sed -i "s/Buck/Duck/" bridges.csv
+sed -i.bak -e "s/Buck/Duck/" bridges.csv
 git commit -m "duck" -a
 cd ../test_repo
 git commit -m "stan" -a

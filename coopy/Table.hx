@@ -19,7 +19,7 @@ interface Table {
      * a call to `get_height()`.
      *
      */
-    var height(get_height,never) : Int; // Read-only height property
+    var height(get,never) : Int; // Read-only height property
 
     /**
      *
@@ -27,7 +27,7 @@ interface Table {
      * a call to `get_width()`.
      *
      */
-    var width(get_width,never) : Int;   // Read-only width property
+    var width(get,never) : Int;   // Read-only width property
 
     /**
      *

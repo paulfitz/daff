@@ -1,7 +1,8 @@
-import sqlite3
-
 class SqliteDatabase(SqlDatabase):
     def __init__(self,db,fname):
+        import sqlite3
+        if not hasattr(db, 'cursor'):
+            db = sqlite3.connect(db)
         self.db = db
         db.isolation_level = None
         self.fname = fname

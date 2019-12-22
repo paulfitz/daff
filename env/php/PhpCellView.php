@@ -1,6 +1,8 @@
 <?php
 
-class coopy_PhpCellView implements coopy_View {
+namespace coopy;
+
+class PhpCellView implements View {
   public function toString($d) {
     return print_r($d,true);
   }
@@ -13,7 +15,10 @@ class coopy_PhpCellView implements coopy_View {
   public function makeHash() { return array(); }
   public function isHash($d) { return is_array($d); }
   public function hashSet(&$d,$k,$v) { $d[$k] = $v; }
-  public function hashGet($d,$k) { return $d[$k]; }
+  public function hashGet($d,$k) {
+    if (!isset($d[$k])) { return null; }
+    return $d[$k];
+  }
   public function hashExists($d,$k) { return array_key_exists($k,$d); }
   public function isTable($t) { return false; }
   public function getTable($t) { return false; }

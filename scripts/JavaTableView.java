@@ -303,7 +303,7 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
     }
 	
 
-    @Override public java.lang.Object __hx_invokeField(java.lang.String field, haxe.root.Array dynargs) {
+    @Override public java.lang.Object __hx_invokeField(java.lang.String field, java.lang.Object[] dynargs) {
 	boolean onwards = true;
 	switch (field.hashCode()) {
 	case -75605984:
@@ -327,7 +327,7 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
 	case 1889278614:
 	    if (field.equals("insertOrDeleteColumns")) {
 		onwards = false;
-		return this.insertOrDeleteColumns(((haxe.root.Array<java.lang.Object>) (dynargs.__get(0)) ), ((int) (haxe.lang.Runtime.toInt(dynargs.__get(1))) ));
+		return this.insertOrDeleteColumns(((haxe.root.Array<java.lang.Object>) (dynargs[0]) ), ((int) (haxe.lang.Runtime.toInt(dynargs[1])) ));
 	    }
 	    break;
 	case 1150076829:
@@ -339,7 +339,7 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
 	case 1186308544:
 	    if (field.equals("insertOrDeleteRows")) {
 		onwards = false;
-		return this.insertOrDeleteRows(((haxe.root.Array<java.lang.Object>) (dynargs.__get(0)) ), ((int) (haxe.lang.Runtime.toInt(dynargs.__get(1))) ));
+		return this.insertOrDeleteRows(((haxe.root.Array<java.lang.Object>) (dynargs[0]) ), ((int) (haxe.lang.Runtime.toInt(dynargs[1])) ));
 	    }
 	    break;
 	case 859648560:
@@ -357,13 +357,13 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
 	case -934437708:
 	    if (field.equals("resize")) {
 		onwards = false;
-		return this.resize(((int) (haxe.lang.Runtime.toInt(dynargs.__get(0))) ), ((int) (haxe.lang.Runtime.toInt(dynargs.__get(1))) ));
+		return this.resize(((int) (haxe.lang.Runtime.toInt(dynargs[0])) ), ((int) (haxe.lang.Runtime.toInt(dynargs[1])) ));
 	    }
 	    break;
 	case -75632168:
 	    if (field.equals("getCell")) {
 		onwards = false;
-		return this.getCell(((int) (haxe.lang.Runtime.toInt(dynargs.__get(0))) ), ((int) (haxe.lang.Runtime.toInt(dynargs.__get(1))) ));
+		return this.getCell(((int) (haxe.lang.Runtime.toInt(dynargs[0])) ), ((int) (haxe.lang.Runtime.toInt(dynargs[1])) ));
 	    }
 	    break;
 	case -972315487:
@@ -375,7 +375,7 @@ public class JavaTableView extends haxe.lang.HxObject implements coopy.Table
 	case 1984477412:
 	    if (field.equals("setCell")) {
 		onwards = false;
-		this.setCell(((int) (haxe.lang.Runtime.toInt(dynargs.__get(0))) ), ((int) (haxe.lang.Runtime.toInt(dynargs.__get(1))) ), dynargs.__get(2));
+		this.setCell(((int) (haxe.lang.Runtime.toInt(dynargs[0])) ), ((int) (haxe.lang.Runtime.toInt(dynargs[1])) ), dynargs[2]);
 	    }
 	    break;
 	case 1160377501:
