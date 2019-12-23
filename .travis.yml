@@ -24,31 +24,31 @@ install:
   - haxelib setup ~/haxelib
   - haxelib install hx3compat
   - if ! $USE_PAULFITZ; then sudo apt-get install mono-mcs time php-cli; fi
-  - if $USE_PAULFITZ; then sudo apt-get install python3; fi
+  - if ! $USE_PAULFITZ; then sudo apt-get install python3; fi
   - if ! $USE_PAULFITZ; then haxelib install hxcpp; fi
   - if ! $USE_PAULFITZ; then haxelib install hxjava; fi
   - if ! $USE_PAULFITZ; then haxelib install hxcs; fi
   - npm install
-  - if $USE_PAULFITZ; then hg -y clone https://bitbucket.org/eshuy/lib3to2; cd lib3to2; sudo python3 ./setup.py install; cd ..; fi
+  - if ! $USE_PAULFITZ; then hg -y clone https://bitbucket.org/eshuy/lib3to2; cd lib3to2; sudo python3 ./setup.py install; cd ..; fi
 
 script:
   - make test
   - make js
-  - if $USE_PAULFITZ; then make py; fi
+  - if ! $USE_PAULFITZ; then make py; fi
   - if $USE_PAULFITZ; then make rb; fi
-  - make php
+  - if ! $USE_PAULFITZ; then make php; fi
   - if ! $USE_PAULFITZ; then make java; fi
   - if ! $USE_PAULFITZ; then make cpp; fi
   - if ! $USE_PAULFITZ; then make cs; fi
   - make ntest_js
   - if ! $USE_PAULFITZ; then make ntest_php; fi
   - if ! $USE_PAULFITZ; then make ntest_java; fi
-  - if $USE_PAULFITZ; then make ntest_py; fi
+  - if ! $USE_PAULFITZ; then make ntest_py; fi
   - if $USE_PAULFITZ; then make ntest_rb; fi
   - ./test/integration_git.sh js
   - ./test/integration_sqlite.sh js
-  - if $USE_PAULFITZ; then make py2; fi
-  - if $USE_PAULFITZ; then ./test/integration_git.sh py2; fi
-  - if $USE_PAULFITZ; then ./test/integration_git.sh py3; fi
-  - if $USE_PAULFITZ; then ./test/integration_sqlite.sh py2; fi
-  - if $USE_PAULFITZ; then ./test/integration_sqlite.sh py3; fi
+  - if ! $USE_PAULFITZ; then make py2; fi
+  - if ! $USE_PAULFITZ; then ./test/integration_git.sh py2; fi
+  - if ! $USE_PAULFITZ; then ./test/integration_git.sh py3; fi
+  - if ! $USE_PAULFITZ; then ./test/integration_sqlite.sh py2; fi
+  - if ! $USE_PAULFITZ; then ./test/integration_sqlite.sh py3; fi

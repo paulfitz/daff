@@ -1223,12 +1223,12 @@ class Coopy {
 #if js
         return untyped __js__("new daff.TableView(data)");
 #elseif python
-        python.Syntax.pythonCode("daff = __import__('daff')");
-        return python.Syntax.pythonCode("daff.PythonTableView(data)");
+        python.Syntax.code("daff = __import__('daff')");
+        return python.Syntax.code("daff.PythonTableView(data)");
 #elseif rb
         return untyped __rb__("::Coopy::TableView.new(data)");
 #elseif php
-        return untyped __php__("new coopy_PhpTableView($data)");
+        return php.Syntax.code("new coopy_PhpTableView($data)");
 #elseif java
         return untyped __java__("new JavaTableView((Object[][])data)");
 #else
