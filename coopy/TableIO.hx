@@ -161,7 +161,7 @@ class TableIO {
      */
     public function isTty() : Bool {
 #if python
-        if (python.Syntax.pythonCode("__import__('sys').stdout.isatty()")) return true;
+        if (python.Syntax.code("__import__('sys').stdout.isatty()")) return true;
 #end
 #if js
         return true;
@@ -180,7 +180,7 @@ class TableIO {
      */
     public function openSqliteDatabase(path: String) : SqlDatabase {
 #if python
-        return (python.Syntax.pythonCode("SqliteDatabase(path,path)"));
+        return (python.Syntax.code("SqliteDatabase(path,path)"));
 #end
         return null;
     }
