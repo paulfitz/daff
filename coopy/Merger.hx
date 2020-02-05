@@ -140,7 +140,7 @@ class Merger {
                             var lcell = local.getCell(col.l,row.l);
                             if (view.equals(pcell,lcell)) {
                                 local.setCell(col.l,row.l,rcell);
-                            } else {
+                            } else if (!view.equals(rcell,lcell)) {
                                 local.setCell(col.l,row.l,
                                               makeConflictedCell(view,pcell,lcell,rcell));
                                 conflicts++;
