@@ -7,8 +7,10 @@ class MergeTest extends haxe.unit.TestCase {
     var data2 : Dynamic;
     var data3 : Dynamic;
     var data4 : Dynamic;
+    var data2b : Dynamic;
     var data3b : Dynamic;
     var data4b : Dynamic;
+    var data4c : Dynamic;
 
     override public function setup() {
         data1 = [['Country','Capital'],
@@ -29,6 +31,11 @@ class MergeTest extends haxe.unit.TestCase {
                  ['Spain','es','Madrid'],
                  ['Finland',null,'Helsinki'],
                  ['Germany','de','Berlin']];
+        data2b = [['Country','Code','Capital'],
+                 ['Ireland','ie','Dublin'],
+                 ['France','fr','Paris'],
+                 ['Spain','es','Lisbon'],
+                 ['Germany','de','Berlin']];
         data3b = [['Country','Capital'],
                  ['Dear old Ireland','Dublin'],
                  ['Spain','Lisbon'],
@@ -36,6 +43,11 @@ class MergeTest extends haxe.unit.TestCase {
         data4b = [['Country','Code','Capital'],
                   ['Dear old Ireland','ie','Dublin'],
                   ['Spain','es','((( Barcelona ))) Madrid /// Lisbon'],
+                  ['Finland',null,'Helsinki'],
+                  ['Germany','de','Berlin']];
+        data4c = [['Country','Code','Capital'],
+                  ['Dear old Ireland','ie','Dublin'],
+                  ['Spain','es','Lisbon'],
                   ['Finland',null,'Helsinki'],
                   ['Germany','de','Berlin']];
     }
@@ -62,6 +74,19 @@ class MergeTest extends haxe.unit.TestCase {
         var merger = new coopy.Merger(table1,table2,table3,flags);
         var conflicts = merger.apply();
         assertEquals(conflicts,1);
+        assertEquals(coopy.SimpleTable.tableToString(table2),
+                     coopy.SimpleTable.tableToString(table4));
+    }
+
+    public function testChangedToSameValue(){
+        var table1 = Native.table(data1);
+        var table2 = Native.table(data2b);
+        var table3 = Native.table(data3b);
+        var table4 = Native.table(data4c);
+        var flags = new coopy.CompareFlags();
+        var merger = new coopy.Merger(table1,table2,table3,flags);
+        var conflicts = merger.apply();
+        assertEquals(conflicts,0);
         assertEquals(coopy.SimpleTable.tableToString(table2),
                      coopy.SimpleTable.tableToString(table4));
     }
