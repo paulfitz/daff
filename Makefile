@@ -150,6 +150,8 @@ py2: py
 	$(SED) -i 's/python_lib_Builtins/python_lib_Builtin/g' python_bin/daff.py
 	$(SED) -i 's/python_lib_Builtin.open(path,.r.*)/codecs.open(path,"r","utf-8")/' python_bin/daff.py
 	$(SED) -i 's/python_lib_Builtin.open(path,.w.*)/codecs.open(path,"w","utf-8")/' python_bin/daff.py
+	$(SED) -i 's/python_lib_Builtin.open(path,u.r.*)/codecs.open(path,"r","utf-8")/' python_bin/daff.py
+	$(SED) -i 's/python_lib_Builtin.open(path,u.w.*)/codecs.open(path,"w","utf-8")/' python_bin/daff.py
 	$(SED) -i 's/= \([a-z0-9_.]*\)\.next()/= hxnext(\1)/' python_bin/daff.py
 	$(SED) -i 's/ unicode(/ hxunicode(/g' python_bin/daff.py
 	$(SED) -i 's/python_lib_Builtin.unicode/hxunicode/g' python_bin/daff.py
