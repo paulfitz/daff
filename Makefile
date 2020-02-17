@@ -129,7 +129,9 @@ py:
 	cat env/py/sqlite_database.py >> python_bin/daff.py
 	$(SED) -i 's/Sys.stdout().writeString(txt)/get_stdout().write(txt.encode("utf-8", "strict"))/' python_bin/daff.py # fix utf-8
 	$(SED) -i 's/python_lib_Sys.stdout.buffer/get_stdout()/' python_bin/daff.py
+	$(SED) -i 's/self.stream.buffer.write/stream_write(self.stream)/' python_bin/daff.py
 	echo 'def get_stdout():\n\treturn (python_lib_Sys.stdout.buffer if hasattr(python_lib_Sys.stdout,"buffer") else python_lib_Sys.stdout)' >> python_bin/daff.py
+	echo 'def stream_write(s):\n\treturn lambda txt: (s.buffer.write(txt) if hasattr(s,"buffer") else (s.write(txt) or len(txt)))' >> python_bin/daff.py
 	echo "if __name__ == '__main__':" >> python_bin/daff.py
 	echo "\tCoopy.main()" >> python_bin/daff.py
 
@@ -322,7 +324,8 @@ sdist: setup_py
 	cp README.md README
 	python3 setup.py sdist
 	cd dist && mkdir tmp && cd tmp && tar xzvf ../daff*.tar.gz && cd daff-*[0-9] && ./setup.py build
-	python3 setup.py sdist upload
+	python3 setup.py sdist
+	twine upload dist/*.tar.gz
 	rm -rf dist/tmp
 
 
