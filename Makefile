@@ -256,6 +256,7 @@ test/%_py: test/%.py
 ntest_py2: py2
 	rm -f daff/__init__.py daff.py
 	haxe -python ntest.py -L hx3compat -main harness.Main || haxe -python ntest.py -main harness.Main
+	$(SED) -i 's/^\([ \t]*\)def next(/\1def __next__(self): return self.next()\n\n\1def next(/g' ntest.py
 	PYTHONPATH=$$PWD/python_bin python3 ntest.py 
 
 ntest_php:
