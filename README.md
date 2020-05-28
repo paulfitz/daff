@@ -260,7 +260,7 @@ Donate a multiple of `42.42` in your currency to let them know you care: <a href
 Reading material
 ----------------
 
- * http://dataprotocols.org/tabular-diff-format/ : a specification of the diff format we use (appears to have gone away; see https://paulfitz.github.io/daff-doc/spec.html now).
+ * https://specs.frictionlessdata.io/tabular-diff : a specification of the diff format we use.
  * http://theodi.org/blog/csvhub-github-diffs-for-csv-files : using this library with github.
  * https://github.com/ropensci/unconf/issues/19 : a thread about diffing data in which daff shows up in at least four guises (see if you can spot them all).
  * http://theodi.org/blog/adapting-git-simple-data : using this library with gitlab.
