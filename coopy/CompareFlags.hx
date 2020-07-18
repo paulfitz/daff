@@ -204,6 +204,17 @@ class CompareFlags {
 
     /**
      *
+     * If set to a positive number, then cells that looks like floating point
+     * numbers are treated as equal if they are within epsilon of each other.
+     * This option does NOT affect the alignment of rows, so if a floating point
+     * number is part of your table's primary key, this option will not help.
+     * Defaults to a negative number (so it is disabled).
+     *
+     */
+    public var ignore_epsilon : Float;
+
+    /**
+     *
      * Format to use for terminal output.  "plain" for plain text,
      * "ansi", for ansi color codes, null to autodetect.  Defaults to
      * autodetect.
@@ -248,6 +259,7 @@ class CompareFlags {
         count_like_a_spreadsheet = true;
         ignore_whitespace = false;
         ignore_case = false;
+        ignore_epsilon = -1;
         terminal_format = null;
         use_glyphs = true;
         quote_html = true;

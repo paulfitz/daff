@@ -690,6 +690,19 @@ class TableDiff {
     }
 
     private function isEqual(v: View, aa: Dynamic, bb: Dynamic) : Bool {
+        // Check if we need to apply an exception for comparing floating
+        // point numbers.
+        if (flags.ignore_epsilon > 0) {
+            var fa = Std.parseFloat(aa);
+            if (!Math.isNaN(fa)) {
+                var fb = Std.parseFloat(bb);
+                if (!Math.isNaN(fb)) {
+                    if (Math.abs(fa - fb) < flags.ignore_epsilon) {
+                        return true;
+                    }
+                }
+            }
+        }
         if (flags.ignore_whitespace || flags.ignore_case) {
             return normalizeString(v,aa) == normalizeString(v,bb);
         }

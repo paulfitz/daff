@@ -7,6 +7,7 @@ class EqualityTest extends haxe.unit.TestCase {
     var data2 : Array<Array<Dynamic>>;
     var data3 : Array<Array<Dynamic>>;
     var data4 : Array<Array<Dynamic>>;
+    var data5 : Array<Array<Dynamic>>;
 
     override public function setup() {
         data1 = [['Country','Capital'],
@@ -25,6 +26,10 @@ class EqualityTest extends haxe.unit.TestCase {
                  ['IRELAND','DUBlin'],
                  ['France',15],
                  ['SPAIN','BARCELONA']];
+        data5 = [['COUNTRY','Capital'],
+                 ['IRELAND','DUBlin'],
+                 ['France',15.001],
+                 ['SPAIN','BARCELONA']];
     }
 
     public function testWhiteSpace(){
@@ -40,6 +45,26 @@ class EqualityTest extends haxe.unit.TestCase {
         var table3 = Native.table(data3);
         o = coopy.Coopy.diff(table1,table3,flags);
         assertEquals(2,o.height);
+    }
+
+    public function testEpsilon(){
+        var table4= Native.table(data4);
+        var table5 = Native.table(data5);
+        var flags = new coopy.CompareFlags();
+        flags.ignore_epsilon = 0.01;
+        flags.unchanged_context = 0;
+        var o = coopy.Coopy.diff(table4,table5,flags);
+        assertEquals(1,o.height);
+        flags.ignore_epsilon = 0.0001;
+        o = coopy.Coopy.diff(table4,table5,flags);
+        assertEquals(2,o.height);
+        assertEquals(""+o.getCell(2,1),"15->15.001");
+        o = coopy.Coopy.diff(table5,table4,flags);
+        assertEquals(2,o.height);
+        assertEquals(""+o.getCell(2,1),"15.001->15");
+        flags.ignore_epsilon = 0.01;
+        o = coopy.Coopy.diff(table5,table4,flags);
+        assertEquals(1,o.height);
     }
 
     public function testCase(){

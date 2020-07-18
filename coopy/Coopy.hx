@@ -888,6 +888,16 @@ class Coopy {
                     flags.ignore_case = true;
                     args.splice(i,1);
                     break;
+                } else if (tag=="-d" || tag=="--ignore-epsilon") {
+                    more = true;
+                    var eps = args[i+1];
+                    flags.ignore_epsilon = Std.parseFloat(eps);
+                    if (Math.isNaN(flags.ignore_epsilon)) {
+                        io.writeStderr("Epsilon for numeric comparison must be numeric\n");
+                        return 1;
+                    }
+                    args.splice(i,2);
+                    break;
                 } else if (tag=="--padding") {
                     more = true;
                     flags.padding_strategy = args[i+1];
@@ -1005,6 +1015,7 @@ class Coopy {
                     io.writeStderr("     --unordered:   assume row order is meaningless (default for json formats)\n");
                     io.writeStderr("     -w / --ignore-whitespace: ignore changes in leading/trailing whitespace\n");
                     io.writeStderr("     -i / --ignore-case: ignore differences in case\n");
+                    io.writeStderr("     -d EPS / --ignore-epsilon EPS: ignore small floating point differences\n");
                     io.writeStderr("\n");
                     io.writeStderr("  daff render [--output OUTPUT.html] [--css CSS.css] [--fragment] [--plain] diff.csv\n");
                     io.writeStderr("     --css CSS.css: generate a suitable css file to go with the html\n");
