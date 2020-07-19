@@ -3,10 +3,10 @@ var tmp = require('tmp');
 var assert = require('assert');
 var daff = require('daff');
 
-tmp.tmpName({ template: '/tmp/tmp-XXXXXX.html' },function(err, html1) {
-    tmp.tmpName({ template: '/tmp/tmp-XXXXXX.tsv' },function(err, tsv1) {
-        tmp.tmpName({ template: '/tmp/tmp-XXXXXX.csv' },function(err, csv1) {
-	    tmp.tmpName({ template: '/tmp/tmp-XXXXXX.csv' },function(err, csv2) {
+tmp.tmpName({ template: 'tmp-XXXXXX.html' },function(err, html1) {
+    tmp.tmpName({ template: 'tmp-XXXXXX.tsv' },function(err, tsv1) {
+        tmp.tmpName({ template: 'tmp-XXXXXX.csv' },function(err, csv1) {
+	    tmp.tmpName({ template: 'tmp-XXXXXX.csv' },function(err, csv2) {
 	        if (err) throw err;
 	        assert(0==daff.cmd(["diff","data/bridges.csv","data/broken_bridges.csv","--output",tsv1]));
 	        assert(0==daff.cmd(["diff","data/bridges.csv","data/broken_bridges.csv","--output",csv1]));
