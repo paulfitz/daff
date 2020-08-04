@@ -186,7 +186,19 @@ class TableIO {
     }
 
     public function sendToBrowser(html: String) : Void {
+#if python
+        // Python implementation of sendToBrowser is simpler than JS version -
+        // we don't try to clean up the temporary file immediately, but rely
+        // on the OS to clean it up in its own good time (typically on reboot).
+        // TODO: replicate JS version in env/js/util.js that avoids need for
+        // temporary file.
+        var f = python.Syntax.code("__import__('tempfile').NamedTemporaryFile('w', delete=False, suffix='.html')");
+        python.Syntax.code("f.write(html)");
+        python.Syntax.code("f.close()");
+        python.Syntax.code("__import__('webbrowser').open('file://' + f.name)");
+#else
         trace("do not know how to send to browser in this language");
+#end
     }
 }
 
