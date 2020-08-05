@@ -192,8 +192,8 @@ class TableIO {
         // on the OS to clean it up in its own good time (typically on reboot).
         // TODO: replicate JS version in env/js/util.js that avoids need for
         // temporary file.
-        var f = python.Syntax.code("__import__('tempfile').NamedTemporaryFile('w', delete=False, suffix='.html')");
-        python.Syntax.code("f.write(html)");
+        var f = python.Syntax.code("__import__('tempfile').NamedTemporaryFile('wb', delete=False, suffix='.html')");
+        python.Syntax.code("f.write(html.encode('utf-8', 'strict'))");
         python.Syntax.code("f.close()");
         python.Syntax.code("__import__('webbrowser').open('file://' + f.name)");
 #else
