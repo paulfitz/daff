@@ -1002,8 +1002,8 @@ class Coopy {
                     io.writeStderr("     --context NUM: show NUM rows of context (0=none)\n");
                     io.writeStderr("     --context-columns NUM: show NUM columns of context (0=none)\n");
                     io.writeStderr("     --fail-if-diff: return status is 0 if equal, 1 if different, 2 if problem\n");
-                    io.writeStderr("     --id:          specify column to use as primary key (repeat for multi-column key)\n");
-                    io.writeStderr("     --ignore:      specify column to ignore completely (can repeat)\n");
+                    io.writeStderr("     --id:          specify column name to use as primary key (repeat for multi-column key)\n");
+                    io.writeStderr("     --ignore:      specify column name to ignore completely (can repeat)\n");
                     io.writeStderr("     --index:       include row/columns numbers from original tables\n");
                     io.writeStderr("     --input-format [csv|tsv|ssv|psv|json|sqlite]: set format to expect for input\n");
                     io.writeStderr("     --eol [crlf|lf|cr|auto]: separator between rows of csv output.\n");
