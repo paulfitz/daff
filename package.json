@@ -25,8 +25,8 @@
     "url": "http://paulfitz.github.io/"
   },
   "optionalDependencies": {
-    "sqlite3": "^4.0.0",
-    "fibers": "^3.0.0"
+    "fibers": "^5.0.0",
+    "sqlite3": "^4.0.0"
   },
   "scripts": {
     "prepublishOnly": "make js",
