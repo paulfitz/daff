@@ -29,7 +29,7 @@ install:
   - if ! $USE_PAULFITZ; then haxelib install hxjava; fi
   - if ! $USE_PAULFITZ; then haxelib install hxcs; fi
   - npm install
-  - if ! $USE_PAULFITZ; then hg -y clone https://bitbucket.org/eshuy/lib3to2; cd lib3to2; sudo python3 ./setup.py install; cd ..; fi
+  - if ! $USE_PAULFITZ; then git clone https://bitbucket.org/eshuy/lib3to2; cd lib3to2; sudo python3 ./setup.py install; cd ..; fi
 
 script:
   - make test
