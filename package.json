@@ -29,6 +29,7 @@
     "sqlite3": "^4.0.0"
   },
   "scripts": {
+    "prepare": "make js",
     "prepublishOnly": "make js",
     "test": "make test"
   },
