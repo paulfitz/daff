@@ -22,6 +22,9 @@ class DiffSummary {
     public var col_renames : Int;
     public var col_reorders : Int;
 
+    public var column_units_updates : Map<Int,Int>;
+    public var column_units_updated : Map<Int,Bool>;
+
     public var row_count_initial_with_header : Int;
     public var row_count_final_with_header : Int;
     public var row_count_initial : Int;
