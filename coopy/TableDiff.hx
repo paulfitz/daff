@@ -73,7 +73,7 @@ class TableDiff {
     private var col_updates : Int;
     private var col_renames : Int;
     private var col_reorders : Int;
-    private var column_units_updates : Map<Int,Int>;
+    private var column_units_updates : Map<String,Map<String, Int>>;
     private var column_units_updated : Map<Int,Bool>;
 
     private var nested : Bool;
@@ -267,7 +267,7 @@ class TableDiff {
         col_renames = 0;
         col_reorders = 0;
         column_units_updated = new Map<Int,Bool>();
-        column_units_updates = new Map<Int,Int>();
+        column_units_updates = new Map<String,Map<String,Int>>();
     }
 
     private function setupTables() : Void {
@@ -691,6 +691,22 @@ class TableDiff {
         return txt;
     }
 
+    private function isEmpty(v: View, val: Dynamic) : Bool {
+
+        return (val == null || val == "");
+    }
+    private function getChangeType(v: View, aa: Dynamic, bb: Dynamic) : String {
+        if (isEqual(v,aa,bb)) {
+            return "=";
+        }
+        if (isEmpty(v, aa)) {
+            return "+";
+        }
+        if (isEmpty(v, bb)) {
+            return "-";
+        }
+        return "!=";
+    }
     private function isEqual(v: View, aa: Dynamic, bb: Dynamic) : Bool {
         // Check if we need to apply an exception for comparing floating
         // point numbers.
@@ -801,6 +817,9 @@ class TableDiff {
      */
     private function scanRow(unit: Unit, output: Table, at: Int, i: Int, out: Int) {
         var row_update : Bool = false;
+        var has_additions : Bool = false;
+        var has_deletions : Bool = false;
+        var has_updates : Bool = false;
         for (j in 0...column_units.length) {
             var cunit : Unit = column_units[j];
             var pp : Dynamic = null;
@@ -937,10 +956,6 @@ class TableDiff {
                     column_units_updated.set(j,true);
                     col_updates++;
                 }
-                if (!column_units_updates.exists(j)) {
-                    column_units_updates.set(j,0);
-                }
-                column_units_updates.set(j,column_units_updates.get(j) + 1);
             }
             if (act == "" && have_addition) {
                 act = "+";
@@ -957,8 +972,34 @@ class TableDiff {
                     output.setCell(j+1,at,cell);
                 }
             }
-        }
 
+            var column_name : String = p.getCell(j, 0);
+            var changeType = getChangeType(v, ll, rr);
+            if (changeType == "+") {
+                has_additions = true;
+//                sep = "-+->";
+            } else if (changeType == "-") {
+                has_deletions = true;
+//                sep = "-/->";
+            } else if (changeType == "!=") {
+                has_updates = true;
+            }
+            if (!column_units_updates.exists(column_name)) {
+                column_units_updates.set(column_name,[changeType => 1]);
+            } else {
+                var specific_update = column_units_updates.get(column_name);
+                var update_count = 1;
+                if (specific_update.exists(changeType)) {
+                    update_count = specific_update.get(changeType) + 1;
+                }
+                specific_update.set(changeType, update_count);
+            }
+        }
+        if (has_additions && !has_deletions && !has_updates) {
+            act = "-+->";
+        } else if (!has_additions && has_deletions && !has_updates) {
+            act = "-/->";
+        }
         if (publish) {
             output.setCell(0,at,builder.marker(act));
             row_map.set(at,unit);
@@ -1039,6 +1080,7 @@ class TableDiff {
             var showed_dummy : Bool = false;
             var l : Int = -1;
             var r : Int = -1;
+            column_units_updates = new Map<String,Map<String,Int>>();
             for (i in 0...row_units.length) {
                 var unit : Unit = row_units[i];
                 var reordered : Bool = false;

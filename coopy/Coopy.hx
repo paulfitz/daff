@@ -1166,16 +1166,12 @@ class Coopy {
      * It is a thin wrapper around the `coopyhx` method.
      *
      */
-    public static function main() : Int {
+    public static function main() : Void {
 #if coopyhx_util
     var io = new TableIO();
     var coopy = new Coopy();
     var ret = coopy.coopyhx(io);
     if (ret!=0) Sys.exit(ret);
-    return ret;
-#else
-    // do nothing
-    return 0;
 #end
     }
 
