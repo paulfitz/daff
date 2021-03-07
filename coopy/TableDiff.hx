@@ -995,9 +995,9 @@ class TableDiff {
                 specific_update.set(changeType, update_count);
             }
         }
-        if (has_additions && !has_deletions && !has_updates) {
+        if (has_additions && !has_deletions && !has_updates && act != "+++" && act != "---") {
             act = "-+->";
-        } else if (!has_additions && has_deletions && !has_updates) {
+        } else if (!has_additions && has_deletions && !has_updates && act != "+++" && act != "---") {
             act = "-/->";
         }
         if (publish) {

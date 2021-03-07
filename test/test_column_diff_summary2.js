@@ -5,6 +5,7 @@ var assert = require('assert');
 var tableA = [
     { "Name": "", "Number": '14', "Color": "green" },
     { "Name": "John1", "Number": '88', "Color": "red" },
+    { "Name": "John1", "Number": '88', "Color": "red" },
     { "Name": "John2", "Number": '99', "Color": '22' },
     { "Name": "John3", "Number": '99', "Color": '23' },
     { "Name": "John4", "Number": '99', "Color": '' },
@@ -27,6 +28,7 @@ var tableB = [
     { "Name": "John55", "Number": '991', "Color": '28' },
     { "Name": "John6", "Number": '992', "Color": '281' },
     { "Name": "", "Number": '993', "Color": '282' },
+    { "Name": "John8", "Number": '994', "Color": '283' },
     { "Name": "John8", "Number": '994', "Color": '283' },
 ];
 
