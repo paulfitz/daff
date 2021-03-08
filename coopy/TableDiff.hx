@@ -693,16 +693,18 @@ class TableDiff {
 
     private function isEmpty(v: View, val: Dynamic) : Bool {
 
-        return (val == null || val == "");
+        return (Type.typeof(val) == TNull || Type.typeof(val) == TUnknown || isEqual(v, v.toString(val), ""));
     }
     private function getChangeType(v: View, aa: Dynamic, bb: Dynamic) : String {
-        if (isEqual(v,aa,bb)) {
+        var isEmptyA = isEmpty(v, aa);
+        var isEmptyB = isEmpty(v, bb);
+        if (isEqual(v,aa,bb) || (isEmptyA && isEmptyB)) {
             return "=";
         }
-        if (isEmpty(v, aa)) {
+        if (isEmptyA && !isEmptyB) {
             return "+";
         }
-        if (isEmpty(v, bb)) {
+        if (!isEmptyA && isEmptyB) {
             return "-";
         }
         return "!=";
