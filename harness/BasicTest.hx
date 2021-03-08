@@ -64,6 +64,12 @@ class BasicTest extends haxe.unit.TestCase {
         assertEquals(summary.col_deletes,0);
         assertEquals(summary.col_inserts,1);
         assertEquals(summary.col_updates,1);
+        // TODO: add tests for column_units_updates
+        assertEquals(summary.col_updates,1);
+        assertEquals(summary.col_updates,1);
+        assertEquals(summary.col_updates,1);
+        assertEquals(summary.col_updates,1);
+        assertEquals(summary.col_updates,1);
         assertEquals(summary.row_count_initial_with_header,4);
         assertEquals(summary.row_count_final_with_header,5);
         assertEquals(summary.row_count_initial,3);

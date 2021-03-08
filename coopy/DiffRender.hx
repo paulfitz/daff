@@ -239,8 +239,24 @@ class DiffRender {
                         pretty_tokens[0] = markSpaces(ref,tokens[2]);
                         pretty_tokens[2] = markSpaces(tokens[2],ref);
                     }
-                    cell.pretty_separator = String.fromCharCode(8594);
                     cell.pretty_value = pretty_tokens.join(cell.pretty_separator);
+                    if (cell.pretty_value == "-+->") {
+                        cell.pretty_separator = String.fromCharCode(10565);
+                        cat = "add_some";
+                    } else if (cell.pretty_value == "-/->") {
+                        cell.pretty_separator = String.fromCharCode(8603);
+                        cat = "remove_some";
+                    } else {
+                        cell.pretty_separator = String.fromCharCode(8594);
+                        cat = "modify";
+                    }
+
+                    cell.pretty_value = pretty_tokens.join(cell.pretty_separator);
+                    if (cell.pretty_value.length > 1 && StringTools.endsWith(cell.pretty_value, "→")) {
+                    cat = "remove_some";
+                    } else if (cell.pretty_value.length > 1 && StringTools.startsWith(cell.pretty_value, "→")) {
+                    cat = "add_some";
+                    }
                     cell.category_given_tr = cell.category = cat;
                     var offset : Int = cell.conflicted?1:0;
                     cell.lvalue = tokens[offset];
@@ -409,7 +425,12 @@ class DiffRender {
 .highlighter .remove { 
   background-color: #ff7f7f;
 }
-
+.highlighter td.add_some {
+  background-color: #7fff7f;
+}
+.highlighter td.remove_some {
+  background-color: #ff7f7f;
+}
 .highlighter td.modify { 
   background-color: #7f7fff;
 }
