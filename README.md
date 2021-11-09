@@ -15,7 +15,7 @@ optimized for comparing tables that share a common origin, in other
 words multiple versions of the "same" table.
 
 For a live demo, see:
-> http://paulfitz.github.com/daff/
+> https://paulfitz.github.io/daff/
 
 Install the library for your favorite language:
 ````sh
