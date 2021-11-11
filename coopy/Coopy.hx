@@ -17,7 +17,7 @@ class Coopy {
      * Library version.
      *
      */
-    static public var VERSION = "1.3.46";
+    static public var VERSION = "1.3.47";
 
     private var format_preference : String;
     private var delim_preference : String;
@@ -1166,16 +1166,14 @@ class Coopy {
      * It is a thin wrapper around the `coopyhx` method.
      *
      */
-    public static function main() : Int {
+    public static function main() : Void {
 #if coopyhx_util
     var io = new TableIO();
     var coopy = new Coopy();
     var ret = coopy.coopyhx(io);
     if (ret!=0) Sys.exit(ret);
-    return ret;
 #else
     // do nothing
-    return 0;
 #end
     }
 

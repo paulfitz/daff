@@ -74,7 +74,7 @@ class Native {
     static public function table(data: Dynamic) : coopy.Table {
         data = nativeArray(data);
 #if js
-        untyped __js__("if (typeof daff == 'undefined') { GLOBAL.daff = require('daff'); }");
+        untyped __js__("if (typeof daff == 'undefined') { globalThis.daff = require('daff'); }");
         return untyped __js__("new daff.TableView(data)");
 #elseif python
         python.Syntax.pythonCode("daff = __import__('daff')");
@@ -134,8 +134,8 @@ class Native {
 
     static public function wrap(callback : Dynamic) : Bool {
 #if js
-    untyped __js__("if (typeof Fiber == 'undefined') { GLOBAL.Fiber = require('fibers'); }");
-    untyped __js__("if (typeof sqlite3 == 'undefined') { GLOBAL.sqlite3 = require('sqlite3'); }");
+    untyped __js__("if (typeof Fiber == 'undefined') { globalThis.Fiber = require('fibers'); }");
+    untyped __js__("if (typeof sqlite3 == 'undefined') { globalThis.sqlite3 = require('sqlite3'); }");
     untyped __js__("Fiber(function() { callback.body(); }).run();");
     return true;
 #end
@@ -154,7 +154,7 @@ class Native {
 
     static public function openSqlite(name: String) : coopy.SqlDatabase {
 #if js
-        untyped __js__("if (typeof daff == 'undefined') { GLOBAL.daff = require('daff'); }");
+        untyped __js__("if (typeof daff == 'undefined') { globalThis.daff = require('daff'); }");
     return untyped __js__("new daff.SqliteDatabase(new sqlite3.Database(name),name,Fiber)");
 #elseif python
     python.Syntax.pythonCode("daff = __import__('daff')");
