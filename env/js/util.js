@@ -140,7 +140,6 @@ if (typeof exports !== 'undefined') {
 	    }
 	    cmd += " " + argi;
 	}
-	var cmd = cmd; + " " + args.join(" ");
 	if (cmd == cmd_pending) {
 	    cmd_pending = null;
 	    return cmd_result;
