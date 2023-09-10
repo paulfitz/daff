@@ -112,6 +112,18 @@ java:
 	@echo 'Output in java_bin, run "java -jar java_bin/daff.jar" for help'
 	@echo 'Run example with "java -cp java_bin/daff.jar:java_bin Example"'
 
+java_package:
+	rm -rf java_package
+	mkdir java_package
+	haxe -D no-compilation language/java_package.hxml
+	cp scripts/JavaTableView.java java_package/src/coopy
+	mv java_package/src java_package/java
+	mkdir -p java_package/daff/src/main
+	mv java_package/java java_package/daff/src/main
+	cp -r packaging/java_package -T java_package/daff
+	cd java_package/daff; ./mvnw clean package
+	@echo 'Output in java_package/daff/target, run "java -jar java_package/daff/target/daff-1.3.48.jar" for help'
+
 cs:
 	haxe language/cs.hxml
 	@echo 'Output in cs_bin, do something like "gmcs -recurse:*.cs -main:coopy.Coopy -out:coopyhx.exe" in that directory'
