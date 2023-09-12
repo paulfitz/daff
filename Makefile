@@ -98,6 +98,8 @@ php:
 	@echo 'or try "php php_bin/example.php" for an example of using daff as a library'
 
 
+version = $(shell grep "\"version\"" package.json | grep -E -o "[.0-9]+")
+
 java:
 	rm -rf java_bin
 	haxe -D no-compilation language/java.hxml
@@ -107,10 +109,10 @@ java:
 	mv java_bin/java java_bin/daff/src/main
 	cp packaging/java/pom.xml java_bin/daff
 	cp scripts/Example.java java_bin
-	cd java_bin/daff; mvn clean package
-	cd java_bin; javac -cp daff/target/daff-1.3.48.jar Example.java
-	@echo 'Output in java_bin/daff/target, run "java -jar java_bin/daff/target/daff-1.3.48.jar" for help'
-	@echo 'Run example with "java -cp java_bin/daff/target/daff-1.3.48.jar:java_bin Example"'
+	cd java_bin/daff; mvn -Dparameter.version=$(version) clean package
+	cd java_bin; javac -cp daff/target/daff-$(version).jar Example.java
+	@echo 'Output in java_bin/daff/target, run "java -jar java_bin/daff/target/daff-$(version).jar" for help'
+	@echo 'Run example with "java -cp java_bin/daff/target/daff-$(version).jar:java_bin Example"'
 
 cs:
 	haxe language/cs.hxml
