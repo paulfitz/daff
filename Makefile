@@ -109,7 +109,7 @@ java:
 	mv java_bin/java java_bin/daff/src/main
 	cp packaging/java/pom.xml java_bin/daff
 	cp scripts/Example.java java_bin
-	cd java_bin/daff; mvn -Dparameter.version=$(version) clean package
+	cd java_bin/daff; mvn -Drevision=$(version) clean package
 	cd java_bin; javac -cp daff/target/daff-$(version).jar Example.java
 	@echo 'Output in java_bin/daff/target, run "java -jar java_bin/daff/target/daff-$(version).jar" for help'
 	@echo 'Run example with "java -cp java_bin/daff/target/daff-$(version).jar:java_bin Example"'

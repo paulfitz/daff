@@ -30,20 +30,24 @@ The GitHub token can be generated in GitHub/User Profile/Settings/Developer sett
 
 Once all configuration is in place, execute the following commands from the directory `java_bin/daff` (from JReleaser's [docs](https://jreleaser.org/guide/latest/examples/maven/maven-central.html)):
 
+```bash
+export version=$(grep "\"version\"" package.json | grep -E -o "[.0-9]+")
+```
+
 1) Verify release & deploy configuration
 
 ```bash
-mvn jreleaser:config
+mvn -Drevision=$version jreleaser:config
 ```
 
 2) Stage all artifacts to a local directory
 
 ```bash
-mvn -Ppublication
+mvn -Drevision=$version -Ppublication
 ```
 
 3) Deploy and release
 
 ```bash
-mvn jreleaser:full-release
+mvn -Drevision=$version jreleaser:full-release
 ```

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.paulfitz</groupId>
     <artifactId>daff</artifactId>
-    <version>${parameter.version}</version>
+    <version>${revision}</version>
     <packaging>jar</packaging>
 
     <name>daff</name>
