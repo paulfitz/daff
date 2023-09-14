@@ -113,7 +113,7 @@
         <profile>
             <id>publication</id>
             <properties>
-                <altDeploymentRepository>local::file:./target/staging-deploys</altDeploymentRepository>
+                <altDeploymentRepository>local::file:./target/staging-deploy</altDeploymentRepository>
             </properties>
             <build>
                 <defaultGoal>deploy</defaultGoal>

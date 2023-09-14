@@ -22,17 +22,21 @@ gpg --keyserver keyserver.ubuntu.com --send-keys <key id>
 The public and private keys can be exported to files with the following commands:
 
 ```bash
-gpg --output public.pgp --armor --export username@email-host
-gpg --output private.pgp --armor --export-secret-key username@email-host
+gpg --output public.gpg --armor --export username@email-host
+gpg --output private.gpg --armor --export-secret-key username@email-host
 ```
 
 The GitHub token can be generated in GitHub/User Profile/Settings/Developer settings.
 
-Once all configuration is in place, execute the following commands from the directory `java_bin/daff` (from JReleaser's [docs](https://jreleaser.org/guide/latest/examples/maven/maven-central.html)):
+Once all configuration is in place, execute the following commands.
+
+In the repository root:
 
 ```bash
 export version=$(grep "\"version\"" package.json | grep -E -o "[.0-9]+")
 ```
+
+ In the directory `java_bin/daff` (from JReleaser's [docs](https://jreleaser.org/guide/latest/examples/maven/maven-central.html)):
 
 1) Verify release & deploy configuration
 
