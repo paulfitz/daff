@@ -98,19 +98,21 @@ php:
 	@echo 'or try "php php_bin/example.php" for an example of using daff as a library'
 
 
+version = $(shell grep "\"version\"" package.json | grep -E -o "[.0-9]+")
+
 java:
 	rm -rf java_bin
 	haxe -D no-compilation language/java.hxml
 	cp scripts/JavaTableView.java java_bin/src/coopy
-	cd java_bin && find src -iname "*.java" > cmd
+	mv java_bin/src java_bin/java
+	mkdir -p java_bin/daff/src/main
+	mv java_bin/java java_bin/daff/src/main
+	cp packaging/java/pom.xml java_bin/daff
 	cp scripts/Example.java java_bin
-	echo "Main-Class: coopy.Coopy" > java_bin/manifest
-	cd java_bin && mkdir obj
-	cd java_bin && javac -sourcepath src -d obj -g:none "@cmd"
-	cd java_bin/obj && jar cvfm ../daff.jar ../manifest .
-	cd java_bin && javac -cp daff.jar Example.java
-	@echo 'Output in java_bin, run "java -jar java_bin/daff.jar" for help'
-	@echo 'Run example with "java -cp java_bin/daff.jar:java_bin Example"'
+	cd java_bin/daff; mvn -Drevision=$(version) clean package
+	cd java_bin; javac -cp daff/target/daff-$(version).jar Example.java
+	@echo 'Output in java_bin/daff/target, run "java -jar java_bin/daff/target/daff-$(version).jar" for help'
+	@echo 'Run example with "java -cp java_bin/daff/target/daff-$(version).jar:java_bin Example"'
 
 cs:
 	haxe language/cs.hxml
