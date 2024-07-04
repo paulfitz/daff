@@ -1,6 +1,6 @@
     (function() {
 
-	SqliteDatabase = function(db,fname,Fiber) {
+	const SqliteDatabase = function(db,fname,Fiber) {
 	    this.db = db;
             this.fname = fname;
 	    this.row = null;
