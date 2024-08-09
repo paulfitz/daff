@@ -14,6 +14,7 @@ package coopy;
  * `TableDiff.setCellBuilder` before generating your diff.
  *
  */
+@:expose
 interface CellBuilder {
 
     /**
