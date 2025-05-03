@@ -59,8 +59,7 @@ class SqlTest extends haxe.unit.TestCase {
     }
 
     private function exec(db: coopy.SqlDatabase, query: String, ?args: Array<Dynamic>) {
-        db.begin(query,args);
-        db.end();
+        db.exec(query,args);
     }
 
     public function testRowDiffAndPatch() {
@@ -69,7 +68,7 @@ class SqlTest extends haxe.unit.TestCase {
         var st2 = new coopy.SqlTable(db,new coopy.SqlTableName("ver2"));
         var sc = new coopy.SqlCompare(db,st1,st2,null);
         var alignment = sc.apply();
-    
+
         var flags = new coopy.CompareFlags();
         var td = new coopy.TableDiff(alignment,flags);
         var out = Native.table([]);

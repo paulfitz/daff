@@ -21,12 +21,8 @@
   },
   "author": {
     "name": "Paul Fitzpatrick",
-    "email": "paul@robotrebuilt.com",
+    "email": "paulfitz@alum.mit.edu",
     "url": "http://paulfitz.github.io/"
-  },
-  "optionalDependencies": {
-    "fibers": "^5.0.0",
-    "sqlite3": "^4.0.0"
   },
   "scripts": {
     "prepare": "make js",
