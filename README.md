@@ -113,8 +113,9 @@ You can use `daff` as a library from any supported language.  We take
 here the example of Javascript.  To use `daff` on a webpage,
 first include `daff.js`:
 ```html
-<script src="daff.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daff@1.4.2/lib/daff.min.js"></script>
 ```
+You can find a [minimal demo](https://paulfitz.github.io/daff/minimal-demo.html) on the project website.
 Or if using node outside the browser:
 ```js
 var daff = require('daff');
@@ -168,6 +169,7 @@ highlighter.hilite(table_diff);
 The diff is now in `data_diff` in highlighter format, see
 specification here:
 > http://paulfitz.github.io/daff-doc/spec.html
+> https://specs.frictionlessdata.io/tabular-diff/
 
 ```js
 [ [ '!', '', '+++', '' ],
