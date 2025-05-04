@@ -24,8 +24,12 @@ pip install daff     # python
 gem install daff     # ruby
 composer require paulfitz/daff-php  # php
 install.packages('daff') # R wrapper by Edwin de Jonge
-bower install daff   # web/javascript
 ````
+
+Use on the web from a CDN:
+```
+<script src="https://cdn.jsdelivr.net/npm/daff@latest/lib/daff.min.js"></script>
+```
 
 Other translations are available here:
 > https://github.com/paulfitz/daff/releases/tag/v1.3.16
