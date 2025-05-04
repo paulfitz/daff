@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [23]
+        node: [18, 23]
 
     steps:
       - name: Checkout repository
@@ -35,6 +35,16 @@ jobs:
 
       - name: Install Node.js dependencies
         run: npm install
+
+      - name: Conditionally install better-sqlite3 for Node < 23
+        run: |
+          NODE_VERSION=$(node -v | sed 's/v\([0-9]*\).*/\1/')
+          if [ "$NODE_VERSION" -lt 23 ]; then
+            echo "Installing better-sqlite3 for Node.js v$NODE_VERSION"
+            npm install better-sqlite3
+          else
+            echo "Skipping better-sqlite3 for Node.js v$NODE_VERSION"
+          fi
 
       - name: Build
         run: make js
