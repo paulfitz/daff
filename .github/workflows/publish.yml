@@ -58,7 +58,7 @@ jobs:
 
       - name: Publish package on NPM
         run: |
-          if [ ! "${{ github.event.inputs.dry_run }}" = "false" ]; then
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
             npm publish --dry-run
           else
             npm publish
