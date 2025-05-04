@@ -1,6 +1,6 @@
 {
   "name": "daff",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Diff and patch tables",
   "url": "https://github.com/paulfitz/daff",
   "devDependencies": {
@@ -31,5 +31,14 @@
   },
   "main": "lib/daff.js",
   "license": "MIT",
-  "bin": "bin/daff.js"
+  "bin": "bin/daff.js",
+   "files": [
+     "lib/",
+     "bin/",
+     "README.md",
+     "LICENSE.md"
+   ],
+   "publishConfig": {
+     "access": "public"
+   }
 }
