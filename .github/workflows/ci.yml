@@ -62,7 +62,7 @@ jobs:
         run: make py
 
       - name: Run py tests
-          make ntest_py
+        run: make ntest_py
 
       - name: Build php
         run: make php
