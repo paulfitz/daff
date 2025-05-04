@@ -88,6 +88,10 @@ jobs:
           rm -rf dist
           make sdist_no_twine
 
+      - name: Install twine
+        run: |
+          pip install build twine
+
       - name: Check py package (dry run)
         if: ${{ github.event.inputs.dry_run == 'true' }}
         run: |
