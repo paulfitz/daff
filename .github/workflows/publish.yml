@@ -1,0 +1,67 @@
+name: Publish packages
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      npm_package_name:
+        description: 'Override package name (optional)'
+        required: false
+      dry_run:
+        description: 'Run npm publish in dry-run mode'
+        required: false
+        default: 'false'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Override package name if provided
+        if: ${{ github.event.inputs.npm_package_name != '' }}
+        run: |
+          jq --arg name "${{ github.event.inputs.npm_package_name }}" '.name = $name' package.json > tmp.json
+          mv tmp.json package.json
+
+      - name: Set up Haxe
+        uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.3.4
+
+      - name: Display Haxe version
+        run: haxe -version
+
+      - name: Install Haxe libraries
+        run: |
+          haxelib install hx3compat
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Check Node.js version
+        run: node -v
+
+      - name: Install Node.js dependencies
+        run: npm install
+
+      - name: Build js
+        run: make js
+
+      - name: Run js tests
+        run: |
+          make test
+
+      - name: Publish package on NPM
+        run: |
+          if [ ! "${{ github.event.inputs.dry_run }}" = "false" ]; then
+            npm publish --dry-run
+          else
+            npm publish
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
