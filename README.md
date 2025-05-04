@@ -37,9 +37,6 @@ Other translations are available here:
 Or use the library to view csv diffs on github via a chrome extension:
 > https://github.com/theodi/csvhub
 
-The diff format used by `daff` is specified here:
-> http://paulfitz.github.io/daff-doc/spec.html
-
 The program
 -----------
 
@@ -173,6 +170,7 @@ highlighter.hilite(table_diff);
 The diff is now in `data_diff` in highlighter format, see
 specification here:
 > http://paulfitz.github.io/daff-doc/spec.html
+>
 > https://specs.frictionlessdata.io/tabular-diff/
 
 ```js
