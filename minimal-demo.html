@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>daff.js Table Diff Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/daff@1.4.2/lib/daff.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f9;
+      color: #333;
+      padding: 2em;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h1, h2 {
+      color: #2c3e50;
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin: 1em 0;
+      width: 100%;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      padding: 0.75em;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    .daff-added {
+      background-color: #e6ffe6;
+    }
+
+    .daff-removed {
+      background-color: #ffe6e6;
+    }
+
+    .daff-modified {
+      background-color: #fff8b3;
+    }
+
+    .section {
+      margin-bottom: 2em;
+    }
+
+    code {
+      background: #eef;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    .explanation {
+      background: #eef5ff;
+      border-left: 4px solid #428bca;
+      padding: 1em;
+      margin-bottom: 2em;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>daff.js Table Comparison Demo</h1>
+
+  <div class="explanation">
+    <p>
+      This demo compares two versions of a data table using <code>daff.js</code>.
+      It shows:
+    </p>
+    <ul>
+      <li>The original table (<strong>before</strong> changes)</li>
+      <li>The updated table (<strong>after</strong> changes)</li>
+      <li>The visual <strong>diff</strong> with additions, deletions, and modifications</li>
+    </ul>
+    <p>
+      Check the source of this page for how to do it.
+    </p>
+  </div>
+
+  <div class="section">
+    <h2>Original Table</h2>
+    <div id="table1-container"></div>
+  </div>
+
+  <div class="section">
+    <h2>Updated Table</h2>
+    <div id="table2-container"></div>
+  </div>
+
+  <div class="section">
+    <h2>Difference Table</h2>
+    <div id="diff-output"></div>
+  </div>
+
+  <script>
+    // Original table data
+    const data1 = [
+      ['Country', 'Capital'],
+      ['Ireland', 'Dublin'],
+      ['France', 'Paris'],
+      ['Spain', 'Barcelona']
+    ];
+
+    // Modified table data
+    const data2 = [
+      ['Country', 'Code', 'Capital'],
+      ['Ireland', 'IE', 'Dublin'],
+      ['France', 'FR', 'Paris'],
+      ['Spain', 'ES', 'Madrid'],
+      ['Germany', 'DE', 'Berlin']
+    ];
+
+    // Utility to render a basic HTML table from a 2D array
+    function renderSimpleTable(data) {
+      let html = '<table><thead><tr>';
+      data[0].forEach(header => html += `<th>${header}</th>`);
+      html += '</tr></thead><tbody>';
+      data.slice(1).forEach(row => {
+        html += '<tr>';
+        row.forEach(cell => html += `<td>${cell}</td>`);
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      return html;
+    }
+
+    // Show original and updated tables
+    document.getElementById('table1-container').innerHTML = renderSimpleTable(data1);
+    document.getElementById('table2-container').innerHTML = renderSimpleTable(data2);
+
+    // Wrap data in TableView
+    const table1 = new daff.TableView(data1);
+    const table2 = new daff.TableView(data2);
+
+    // Compute alignment and diff
+    const alignment = daff.compareTables(table1, table2).align();
+    const data_diff = [];
+    const table_diff = new daff.TableView(data_diff);
+    const flags = new daff.CompareFlags();
+    const highlighter = new daff.TableDiff(alignment, flags);
+    highlighter.hilite(table_diff);
+
+    // Render diff to HTML
+    const diffRenderer = new daff.DiffRender();
+    diffRenderer.render(table_diff);
+    document.getElementById('diff-output').innerHTML = diffRenderer.html();
+  </script>
+
+</body>
+</html>
