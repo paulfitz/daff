@@ -76,6 +76,10 @@ jobs:
       - name: Install Node.js dependencies
         run: npm install
 
+      - name: Install twine and upgrade related packages
+        run: |
+          python3 -m pip install --upgrade packaging setuptools wheel twine pkginfo
+
       - name: Build py
         run: make py
 
@@ -87,10 +91,6 @@ jobs:
         run: |
           rm -rf dist
           make sdist_no_twine
-
-      - name: Install twine
-        run: |
-          pip install build twine
 
       - name: Check py package (dry run)
         if: ${{ github.event.inputs.dry_run == 'true' }}
