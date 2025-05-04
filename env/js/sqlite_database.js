@@ -5,30 +5,28 @@
 
     let DatabaseConstructor;
 
-    try {
-        // Attempt to use built-in node:sqlite (Node.js v23+)
-        // There's a warning in v23 which is annoying if daff
-        // is used as a utility.
-        process.removeAllListeners('warning').on('warning', err => {
-            if (err.name !== 'ExperimentalWarning' && !err.message.includes('experimental')) {
-                console.warn(err)
-            }
-        });
-        const { DatabaseSync } = require('node:sqlite');
-        DatabaseConstructor = DatabaseSync;
-    } catch (err) {
-        try {
-            // Fallback to better-sqlite3
-            DatabaseConstructor = require('better-sqlite3');
-        } catch (err) {
-            console.error("Problem: need sqlite3 support for node.");
-            console.error("  Option 1: use node v23 or later");
-            console.error("  Option 2: install better-sqlite3");
-            process.exit(1);
-        }
-    }
-
     const SqliteDatabase = function(dbPath) {
+        if (!DatabaseConstructor) {
+            try {
+                // Attempt to use built-in node:sqlite (Node.js v23+)
+                // There's a warning in v23 which is annoying if daff
+                // is used as a utility.
+                process.removeAllListeners('warning').on('warning', err => {
+                    if (err.name !== 'ExperimentalWarning' && !err.message.includes('experimental')) {
+                        console.warn(err)
+                    }
+                });
+                const { DatabaseSync } = require('node:sqlite');
+                DatabaseConstructor = DatabaseSync;
+            } catch (err) {
+                try {
+                    // Fallback to better-sqlite3
+                    DatabaseConstructor = require('better-sqlite3');
+                } catch (err) {
+                    throw new Error("Problem: daff needs sqlite support for node.\nPlease use node v23 or later, or install better-sqlite3.");
+                }
+            }
+        }
         this.db = new DatabaseConstructor(dbPath);
         this.fname = dbPath;
         this.row = null;
