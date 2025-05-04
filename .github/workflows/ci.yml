@@ -25,6 +25,10 @@ jobs:
       - name: Display Haxe version
         run: haxe -version
 
+      - name: Install Haxe libraries
+        run: |
+          haxelib install hx3compat
+
       - name: Set up Node.js ${{ matrix.node }}
         uses: actions/setup-node@v4
         with:
@@ -46,8 +50,22 @@ jobs:
             echo "Skipping better-sqlite3 for Node.js v$NODE_VERSION"
           fi
 
-      - name: Build
+      - name: Build js
         run: make js
 
-      - name: Run tests
-        run: make
+      - name: Run js tests
+        run: |
+          make test
+          make ntest_js
+
+      - name: Build py
+        run: make py
+
+      - name: Run py tests
+        run: make ntest_py
+
+      - name: Build php
+        run: make php
+
+      - name: Run php tests
+        run: make ntest_php

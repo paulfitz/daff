@@ -1,11 +1,13 @@
 class SqliteDatabase(SqlDatabase):
-    def __init__(self,db,fname):
+    def __init__(self,db):
         import sqlite3
         if not hasattr(db, 'cursor'):
             db = sqlite3.connect(db)
+            self.fname = 'external'
+        else:
+            self.fname = db
         self.db = db
         db.isolation_level = None
-        self.fname = fname
         self.cursor = db.cursor()
         self.row = None
         # quoting rule for CSV is compatible with Sqlite
@@ -33,6 +35,14 @@ class SqliteDatabase(SqlDatabase):
             column.setType(row[2],'sqlite')
             columns.append(column)
         return columns
+
+    def exec(self,query,args=[],order=[]):
+        self.cursor.execute(query,args or [])
+        return True
+
+    def _hx_exec(self,query,args=[],order=[]):
+        self.cursor.execute(query,args or [])
+        return True
 
     def begin(self,query,args=[],order=[]):
         self.cursor.execute(query,args or [])

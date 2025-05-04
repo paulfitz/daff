@@ -13,53 +13,49 @@ class SqlTest extends haxe.unit.TestCase {
 
     public function createTables() {
         for (name in ["ver1", "ver2", "ver3", "ver4", "ver5", "ver6", "nully1", "nully2"]) {
-            exec(db,"DROP TABLE IF EXISTS "+name);
+            db.exec("DROP TABLE IF EXISTS "+name);
         }
-        exec(db,"CREATE TABLE ver1 (id INTEGER PRIMARY KEY, name TEXT)");
-        exec(db,"CREATE TABLE ver2 (id INTEGER PRIMARY KEY, name TEXT)");
-        exec(db,"CREATE TABLE ver3 (id INTEGER PRIMARY KEY, name TEXT, count INTEGER)");
-        exec(db,"CREATE TABLE ver4 (id INTEGER PRIMARY KEY, count INTEGER)");
-        exec(db,"CREATE TABLE ver5 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
-        exec(db,"CREATE TABLE ver6 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
+        db.exec("CREATE TABLE ver1 (id INTEGER PRIMARY KEY, name TEXT)");
+        db.exec("CREATE TABLE ver2 (id INTEGER PRIMARY KEY, name TEXT)");
+        db.exec("CREATE TABLE ver3 (id INTEGER PRIMARY KEY, name TEXT, count INTEGER)");
+        db.exec("CREATE TABLE ver4 (id INTEGER PRIMARY KEY, count INTEGER)");
+        db.exec("CREATE TABLE ver5 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
+        db.exec("CREATE TABLE ver6 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
 
-        exec(db,"INSERT INTO ver1 VALUES(?,?)",[1, "Paul"]);
-        exec(db,"INSERT INTO ver1 VALUES(?,?)",[2, "Naomi"]);
-        exec(db,"INSERT INTO ver1 VALUES(?,?)",[4, "Hobbes"]);
+        db.exec("INSERT INTO ver1 VALUES(?,?)",[1, "Paul"]);
+        db.exec("INSERT INTO ver1 VALUES(?,?)",[2, "Naomi"]);
+        db.exec("INSERT INTO ver1 VALUES(?,?)",[4, "Hobbes"]);
 
-        exec(db,"INSERT INTO ver2 VALUES(?,?)",[2, "Noemi"]);
-        exec(db,"INSERT INTO ver2 VALUES(?,?)",[3, "Calvin"]);
-        exec(db,"INSERT INTO ver2 VALUES(?,?)",[4, "Hobbes"]);
+        db.exec("INSERT INTO ver2 VALUES(?,?)",[2, "Noemi"]);
+        db.exec("INSERT INTO ver2 VALUES(?,?)",[3, "Calvin"]);
+        db.exec("INSERT INTO ver2 VALUES(?,?)",[4, "Hobbes"]);
 
-        exec(db,"INSERT INTO ver3 VALUES(?,?,?)",[2, "Noemi", 20]);
-        exec(db,"INSERT INTO ver3 VALUES(?,?,?)",[3, "Calvin", 50]);
-        exec(db,"INSERT INTO ver3 VALUES(?,?,?)",[4, "Hobbes", 92]);
+        db.exec("INSERT INTO ver3 VALUES(?,?,?)",[2, "Noemi", 20]);
+        db.exec("INSERT INTO ver3 VALUES(?,?,?)",[3, "Calvin", 50]);
+        db.exec("INSERT INTO ver3 VALUES(?,?,?)",[4, "Hobbes", 92]);
 
-        exec(db,"INSERT INTO ver4 VALUES(?,?)",[2, 20]);
-        exec(db,"INSERT INTO ver4 VALUES(?,?)",[3, 50]);
-        exec(db,"INSERT INTO ver4 VALUES(?,?)",[4, 92]);
+        db.exec("INSERT INTO ver4 VALUES(?,?)",[2, 20]);
+        db.exec("INSERT INTO ver4 VALUES(?,?)",[3, 50]);
+        db.exec("INSERT INTO ver4 VALUES(?,?)",[4, 92]);
 
-        exec(db,"INSERT INTO ver5 VALUES(?,?,?)",[1, 88, "Paul"]);
-        exec(db,"INSERT INTO ver5 VALUES(?,?,?)",[2, 77, "Naomi"]);
-        exec(db,"INSERT INTO ver5 VALUES(?,?,?)",[4, 88, "Hobbesian"]);
+        db.exec("INSERT INTO ver5 VALUES(?,?,?)",[1, 88, "Paul"]);
+        db.exec("INSERT INTO ver5 VALUES(?,?,?)",[2, 77, "Naomi"]);
+        db.exec("INSERT INTO ver5 VALUES(?,?,?)",[4, 88, "Hobbesian"]);
 
-        exec(db,"INSERT INTO ver6 VALUES(?,?,?)",[2, 77, "Noemi"]);
-        exec(db,"INSERT INTO ver6 VALUES(?,?,?)",[3, null, "Calvin"]);
-        exec(db,"INSERT INTO ver6 VALUES(?,?,?)",[4, 88, "Hobbesian"]);
+        db.exec("INSERT INTO ver6 VALUES(?,?,?)",[2, 77, "Noemi"]);
+        db.exec("INSERT INTO ver6 VALUES(?,?,?)",[3, null, "Calvin"]);
+        db.exec("INSERT INTO ver6 VALUES(?,?,?)",[4, 88, "Hobbesian"]);
 
 
-        exec(db,"CREATE TABLE nully1 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
-        exec(db,"INSERT INTO nully1 VALUES(?,?,?)",[2, null, null]);
+        db.exec("CREATE TABLE nully1 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
+        db.exec("INSERT INTO nully1 VALUES(?,?,?)",[2, null, null]);
 
-        exec(db,"CREATE TABLE nully2 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
-        exec(db,"INSERT INTO nully2 VALUES(?,?,?)",[2, null, "frog"]);
+        db.exec("CREATE TABLE nully2 (id INTEGER PRIMARY KEY, happy INTEGER, name TEXT)");
+        db.exec("INSERT INTO nully2 VALUES(?,?,?)",[2, null, "frog"]);
 
         flags = new coopy.CompareFlags();
         flags.diff_strategy = "sql";
         flags.show_meta = false;
-    }
-
-    private function exec(db: coopy.SqlDatabase, query: String, ?args: Array<Dynamic>) {
-        db.exec(query,args);
     }
 
     public function testRowDiffAndPatch() {

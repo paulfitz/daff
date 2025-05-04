@@ -180,7 +180,7 @@ class TableIO {
      */
     public function openSqliteDatabase(path: String) : SqlDatabase {
 #if python
-        return (python.Syntax.code("SqliteDatabase(path,path)"));
+        return (python.Syntax.code("SqliteDatabase(path)"));
 #end
         return null;
     }
