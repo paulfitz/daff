@@ -67,11 +67,10 @@ class SqliteHelper implements SqlHelper {
             q += " IS ?";
             lst.push(conds.get(k));
         }
-        if (!db.begin(q,lst,[])) {
+        if (!db.exec(q,lst)) {
             trace("Problem with database update");
             return false;
         }
-        db.end();
         return true;
     }
 
@@ -86,11 +85,10 @@ class SqliteHelper implements SqlHelper {
             q += " = ?";
             lst.push(conds.get(k));
         }
-        if (!db.begin(q,lst,[])) {
+        if (!db.exec(q,lst)) {
             trace("Problem with database delete");
             return false;
         }
-        db.end();
         return true;
     }
 
@@ -114,11 +112,10 @@ class SqliteHelper implements SqlHelper {
             need_comma = true;
         }
         q += ")";
-        if (!db.begin(q,lst,[])) {
+        if (!db.exec(q,lst)) {
             trace("Problem with database insert");
             return false;
         }
-        db.end();
         return true;
     }
 
@@ -150,7 +147,7 @@ class SqliteHelper implements SqlHelper {
             db.end();
         }
 
-        if (!db.begin("ATTACH ? AS `" + tag + "`",[resource_name],[])) {
+        if (!db.exec("ATTACH ? AS `" + tag + "`",[resource_name])) {
             trace("Failed to attach " + resource_name + " as " + tag);
             return false;
         }
@@ -164,8 +161,8 @@ class SqliteHelper implements SqlHelper {
 
     private function fetchSchema(db: SqlDatabase, name: SqlTableName) : String {
         var tname = db.getQuotedTableName(name);
-        var query = "select sql from sqlite_master where name = " + tname;
-        if (!db.begin(query,null,["sql"])) {
+        var query = "select sql from sqlite_master where name = ?";
+        if (!db.begin(query,[name.toString()],["sql"])) {
             trace("Cannot find schema for table " + tname);
             return null;
         }
@@ -246,11 +243,10 @@ class SqliteHelper implements SqlHelper {
     }
 
     private function exec(db: SqlDatabase, query: String) : Bool {
-        if (!db.begin(query)) {
+        if (!db.exec(query)) {
             trace("database problem");
             return false;
         }
-        db.end();
         return true;
     }
 

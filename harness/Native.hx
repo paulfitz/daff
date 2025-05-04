@@ -134,9 +134,7 @@ class Native {
 
     static public function wrap(callback : Dynamic) : Bool {
 #if js
-    untyped __js__("if (typeof Fiber == 'undefined') { globalThis.Fiber = require('fibers'); }");
-    untyped __js__("if (typeof sqlite3 == 'undefined') { globalThis.sqlite3 = require('sqlite3'); }");
-    untyped __js__("Fiber(function() { callback.body(); }).run();");
+    untyped __js__("(function() { callback.body(); })();");
     return true;
 #end
     return false;
@@ -155,7 +153,7 @@ class Native {
     static public function openSqlite(name: String) : coopy.SqlDatabase {
 #if js
         untyped __js__("if (typeof daff == 'undefined') { globalThis.daff = require('daff'); }");
-    return untyped __js__("new daff.SqliteDatabase(new sqlite3.Database(name),name,Fiber)");
+    return untyped __js__("new daff.SqliteDatabase(name)");
 #elseif python
     python.Syntax.pythonCode("daff = __import__('daff')");
     return python.Syntax.pythonCode("daff.SqliteDatabase(name,name)");

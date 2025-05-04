@@ -10,6 +10,7 @@ interface SqlDatabase {
     function getQuotedTableName(name: SqlTableName) : String;
     function getQuotedColumnName(name: String) : String;
 
+    function exec(query: String, ?args: Array<Dynamic>): Bool;
     function begin(query: String, ?args: Array<Dynamic>,
                    ?order: Array<String>) : Bool;
     function beginRow(name: SqlTableName, row: Int, ?order: Array<String>) : Bool;
