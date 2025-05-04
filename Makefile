@@ -323,14 +323,16 @@ setup_py: best_py
 	echo "def main():\n\tCoopy.main()" >> daff.py
 	echo "def main():\n\tCoopy.main()" >> daff/__init__.py
 
-sdist: setup_py
+sdist_no_twine: setup_py
 	rm -rf dist
 	cp README.md README
-	python3 setup.py sdist
+	python3 setup.py sdist bdist_wheel
 	cd dist && mkdir tmp && cd tmp && tar xzvf ../daff*.tar.gz && cd daff-*[0-9] && ./setup.py build
-	python3 setup.py sdist
-	twine upload dist/*.tar.gz
+	python3 setup.py sdist bdist_wheel
 	rm -rf dist/tmp
+
+sdist: sdist_no_twine
+	twine upload dist/*
 
 
 ##############################################################################
