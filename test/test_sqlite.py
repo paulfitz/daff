@@ -15,7 +15,7 @@ data = [(2, "Noemi"),
         (4, "Hobbes")]
 c.executemany('INSERT INTO ver2 VALUES (?,?)', data)
 
-sd = daff.SqliteDatabase(db,None)
+sd = daff.SqliteDatabase(db)
 
 st1 = daff.SqlTable(sd,daff.SqlTableName("ver1"))
 st2 = daff.SqlTable(sd,daff.SqlTableName("ver2"))
