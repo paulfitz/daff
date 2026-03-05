@@ -389,6 +389,81 @@ class CompareTable {
                 scale = -1;
             }
         }
+        // Fallback matching for rows that couldn't be matched via key equality.
+        // If an unmatched row in A is "sandwiched" between matched rows that map
+        // to consecutive rows in B, and the corresponding position in B is also
+        // unmatched, match them IF they have substantial content in common AND
+        // the row in B doesn't have duplicates (which would make matching ambiguous).
+        if (pending_ct>0 && reverse_pending_ct>0 && index_top!=null) {
+            for (xa in 1...ha) {
+                if (used_reverse.exists(xa)) continue; // already matched
+                // Find the previous matched row
+                var prev_xa : Int = xa - 1;
+                while (prev_xa >= 0 && !used_reverse.exists(prev_xa)) {
+                    prev_xa--;
+                }
+                // Find the next matched row
+                var next_xa : Int = xa + 1;
+                while (next_xa < ha && !used_reverse.exists(next_xa)) {
+                    next_xa++;
+                }
+                // Get their mappings in B
+                var prev_xb : Null<Int> = (prev_xa >= 0) ? align.a2b(prev_xa) : null;
+                var next_xb : Null<Int> = (next_xa < ha) ? align.a2b(next_xa) : null;
+                // Calculate expected position in B
+                var expected_xb : Null<Int> = null;
+                if (prev_xb != null && next_xb != null) {
+                    // Check if there's exactly one gap in B
+                    if (next_xb - prev_xb == next_xa - prev_xa) {
+                        expected_xb = prev_xb + (xa - prev_xa);
+                    }
+                } else if (prev_xb != null) {
+                    expected_xb = prev_xb + (xa - prev_xa);
+                } else if (next_xb != null) {
+                    expected_xb = next_xb - (next_xa - xa);
+                }
+                if (expected_xb != null && expected_xb >= 1 && expected_xb < hb) {
+                    if (!used.exists(expected_xb)) {
+                        // Check if there are other unmatched rows in B with the same key
+                        // that could create ambiguity. We only skip if there are multiple
+                        // UNMATCHED rows with the same key.
+                        var kb : String = index_top.remoteKey(expected_xb);
+                        var unmatched_with_same_key : Int = 0;
+                        for (xb in 0...hb) {
+                            if (xb == expected_xb) continue;
+                            if (used.exists(xb)) continue; // already matched
+                            if (index_top.remoteKey(xb) == kb) unmatched_with_same_key++;
+                        }
+                        // Only skip if there are other unmatched rows with same key
+                        if (unmatched_with_same_key > 0) continue;
+                        
+                        // Check if rows have substantial content in common
+                        var dominated_score : Int = 0;
+                        var common_count : Int = 0;
+                        for (cunit in common_units) {
+                            var ca : Int = cunit.l;
+                            var cb : Int = cunit.r;
+                            if (ca >= 0 && cb >= 0) {
+                                common_count++;
+                                var va : Dynamic = a.getCell(ca, xa);
+                                var vb : Dynamic = b.getCell(cb, expected_xb);
+                                if (av.equals(va, vb)) {
+                                    dominated_score++;
+                                }
+                            }
+                        }
+                        // Only match if strictly more than half the columns match
+                        if (common_count > 0 && dominated_score * 2 > common_count) {
+                            align.link(xa, expected_xb);
+                            used.set(expected_xb, 1);
+                            used_reverse.set(xa, 1);
+                            pending_ct--;
+                            reverse_pending_ct--;
+                        }
+                    }
+                }
+            }
+        }
         // for consistency, explicitly mark unaligned things
         for (i in 1...ha) {
             if (!used_reverse.exists(i)) {
